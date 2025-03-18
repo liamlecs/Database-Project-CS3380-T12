@@ -18,6 +18,16 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.format {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	overflow-y: auto;
+	flex-direction: column;
+	transform: translateY(-5%);
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
