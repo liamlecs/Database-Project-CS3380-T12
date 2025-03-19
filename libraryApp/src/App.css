@@ -7,6 +7,14 @@ body{
 margin: 0;
 }
 
+.container {
+  margin: 1rem;
+  text-align: center;
+}
+
+.navbartext{
+  text-align: center;
+}
 
 .site-title{
 

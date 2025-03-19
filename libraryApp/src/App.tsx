@@ -11,11 +11,13 @@ function App() {
 
     <Router>
       <NavBar />
+      <div className="container">
       <Routes>
        <Route path="/" element={<FrontPage />} />
         <Route path="/eventscalendar" element={<EventsCalendar />} />
         <Route path="/libraryhistory" element={<LibraryHistory />} />
       </Routes>
+      </div>
     </Router>
         
 
