@@ -12,6 +12,12 @@ export default function Navbar() {
         </li><li>
         <Link to="LibraryHistory">Library History</Link>
         </li>
+        <li>
+          <Link to="LoginPage">Login</Link>
+        </li>
+        <li>
+          <Link to="RegistrationPage" >Signup</Link>
+        </li>
       </ul>
     </nav>
   )
