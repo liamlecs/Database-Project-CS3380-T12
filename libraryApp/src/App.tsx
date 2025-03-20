@@ -4,6 +4,8 @@ import FrontPage from './components/FrontPage.tsx';
 import EventsCalendar from './components/EventsCalendar.tsx';
 import LibraryHistory from './components/LibraryHistory.tsx';
 import NavBar from './components/NavBar.tsx';
+import { StrictMode } from 'react';
+
 
 function App() {
 

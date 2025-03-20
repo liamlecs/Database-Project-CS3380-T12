@@ -1,19 +1,38 @@
-import Calendar from 'react-calendar'
-import { useState } from 'react';
+import React, { Component } from "react";
+import { Calendar, momentLocalizer } from "react-big-calendar";
+import moment from "moment";
 
-type ValuePiece = Date | null;
 
-type Value = ValuePiece | [ValuePiece, ValuePiece];
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
-export default function EventsCalendar() {
-    const [value, onChange] = useState<Value>(new Date());
+const localizer = momentLocalizer(moment);
+
+class EventsCalendar extends Component {
+  state = {
+    events: [
+      {
+        start: moment().toDate(),
+        end: moment()
+          .add(1, "days")
+          .toDate(),
+        title: "Some title"
+      }
+    ]
+  };
+
+  render() {
     return (
-      <div>
-        <h1 className='format'> here is the calendar</h1>
-        <main>
-          <Calendar onChange={onChange} showWeekNumbers value={value} />
-        </main>
+      <div className="App">
+        <Calendar
+          localizer={localizer}
+          defaultDate={new Date()}
+          defaultView="month"
+          events={this.state.events}
+          style={{ height: "100vh" }}
+        />
       </div>
     );
   }
-  
+}
+
+export default EventsCalendar;
