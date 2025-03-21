@@ -2,35 +2,31 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'firstName', headerName: 'First name', width: 130 },
-  { field: 'lastName', headerName: 'Last name', width: 130 },
+  { field: 'id', headerName: 'Event ID', width: 70 },
+  { field: 'StartTimeStamp', headerName: 'Start Time Stamp', width: 130 },
+  { field: 'EndTimeStamp', headerName: 'End Time Stamp', width: 130 },
   {
-    field: 'age',
-    headerName: 'Age',
+    field: 'AgeGroup',
+    headerName: 'Age Group',
     type: 'number',
     width: 90,
   },
-  {
-    field: 'fullName',
-    headerName: 'Full name',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 160,
-    valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
-  },
+  { field: 'Location', headerName: 'Location', width: 130 },
+  { field: 'CategoryID', headerName: 'CategoryID', type:'number', width: 130 },
+  { field: 'IsPrivate', headerName: 'IsPrivate', type: 'boolean', width: 130 },
+
 ];
 
 const rows = [
-  { id: 1, lastName: 'Snow', firstName: 'Jon', age: 35 },
-  { id: 2, lastName: 'Lannister', firstName: 'Cersei', age: 42 },
-  { id: 3, lastName: 'Lannister', firstName: 'Jaime', age: 45 },
-  { id: 4, lastName: 'Stark', firstName: 'Arya', age: 16 },
-  { id: 5, lastName: 'Targaryen', firstName: 'Daenerys', age: null },
-  { id: 6, lastName: 'Melisandre', firstName: null, age: 150 },
-  { id: 7, lastName: 'Clifford', firstName: 'Ferrara', age: 44 },
-  { id: 8, lastName: 'Frances', firstName: 'Rossini', age: 36 },
-  { id: 9, lastName: 'Roxie', firstName: 'Harvey', age: 65 },
+  { id: 1, EndTimeStamp: 'Snow', StartTimeStamp: 'Jon', AgeGroup: 35 },
+  { id: 2, EndTimeStamp: 'Lannister', StartTimeStamp: 'Cersei', AgeGroup: 42 },
+  { id: 3, EndTimeStamp: 'Lannister', StartTimeStamp: 'Jaime', AgeGroup: 45 },
+  { id: 4, EndTimeStamp: 'Stark', StartTimeStamp: 'Arya', AgeGroup: 16 },
+  { id: 5, EndTimeStamp: 'Targaryen', StartTimeStamp: 'Daenerys', AgeGroup: null },
+  { id: 6, EndTimeStamp: 'Melisandre', StartTimeStamp: null, AgeGroup: 150 },
+  { id: 7, EndTimeStamp: 'Clifford', StartTimeStamp: 'Ferrara', AgeGroup: 44 },
+  { id: 8, EndTimeStamp: 'Frances', StartTimeStamp: 'Rossini', AgeGroup: 36 },
+  { id: 9, EndTimeStamp: 'Roxie', StartTimeStamp: 'Harvey', AgeGroup: 65 },
 ];
 
 const paginationModel = { page: 0, pageSize: 5 };

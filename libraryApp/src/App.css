@@ -66,3 +66,8 @@ background-color: #777;
 .App {
   text-align: center;
 }
+
+.centeredHor {
+  display: flex;
+  justify-content: center; /* Centers the child horizontally */
+}

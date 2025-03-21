@@ -11,14 +11,9 @@ const columns: GridColDef[] = [
     type: 'number',
     width: 90,
   },
-  {
-    field: 'fullName',
-    headerName: 'Full name',
-    description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 160,
-    valueGetter: (value, row) => `${row.TransactionID || ''} ${row.CustomerID || ''}`,
-  },
+  { field: 'DueDate', headerName: 'Due Date', type:'date', width: 130 },
+  { field: 'IssueDate', headerName: 'Issue Date', type:'date', width: 130 },
+  { field: 'PaymentStatus', headerName: 'Payment Status', type:'boolean', width: 130 },
 ];
 
 const rows = [

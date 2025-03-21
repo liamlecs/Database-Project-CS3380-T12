@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Calendar, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
-
-
+import Button from '@mui/material/Button';
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const localizer = momentLocalizer(moment);
+
 
 class EventsCalendar extends Component {
   state = {
@@ -22,6 +22,11 @@ class EventsCalendar extends Component {
 
   render() {
     return (
+      <><div className="centeredHor">
+<Button variant="text" href="/CreateEvent">
+        Create An Event
+      </Button>
+</div>
       <div className="App">
         <Calendar
           localizer={localizer}
@@ -31,6 +36,7 @@ class EventsCalendar extends Component {
           style={{ height: "100vh" }}
         />
       </div>
+      </>
     );
   }
 }
