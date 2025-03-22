@@ -29,7 +29,7 @@ import EventHistory from './/LiHistSubcomponents/EventHistory';
 import FineHistory from './/LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './/LiHistSubcomponents/WaitlistHistory';
 
-// Define types
+// defining types
 interface InventoryItem {
   id: string;
   type: 'book' | 'movie' | 'technology';
@@ -54,7 +54,7 @@ const Employee: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
   const [tabValue, setTabValue] = useState(0); // state for Library History tabs
 
-  // State for inventory management
+  // inventory management
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [inventoryForm, setInventoryForm] = useState<Omit<InventoryItem, 'id'>>({
     type: 'book',
@@ -67,7 +67,7 @@ const Employee: React.FC = () => {
     model: '',
   });
 
-  // State for event management
+  // event management
   const [events, setEvents] = useState<Event[]>([]);
   const [eventForm, setEventForm] = useState<Omit<Event, 'id'>>({
     eventName: '',
@@ -75,7 +75,7 @@ const Employee: React.FC = () => {
     description: '',
   });
 
-  // Handle adding inventory item
+  // adding inventory item
   const handleAddInventory = () => {
     const newItem: InventoryItem = { ...inventoryForm, id: String(inventory.length + 1) };
     setInventory([...inventory, newItem]);
@@ -91,12 +91,12 @@ const Employee: React.FC = () => {
     });
   };
 
-  // Handle deleting inventory item
+  // deleting inventory item
   const handleDeleteInventory = (id: string) => {
     setInventory(inventory.filter((item) => item.id !== id));
   };
 
-  // Render the inventory form based on the selected type
+  // render inventory form based on the selected type
   const renderInventoryForm = () => {
     switch (inventoryForm.type) {
       case 'book':
@@ -153,7 +153,7 @@ const Employee: React.FC = () => {
     }
   };
 
-  // Render the inventory management section
+  // render inventory management section
   const renderInventoryManagement = () => {
     return (
       <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
@@ -218,14 +218,14 @@ const Employee: React.FC = () => {
     );
   };
 
-  // Handle adding event
+  // adding event
   const handleAddEvent = () => {
     const newEvent: Event = { ...eventForm, id: String(events.length + 1) };
     setEvents([...events, newEvent]);
     setEventForm({ eventName: '', eventDate: '', description: '' });
   };
 
-  // Render the current view
+  // render the current view
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
