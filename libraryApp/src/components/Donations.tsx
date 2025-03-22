@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import {
   Container,
   Paper,
@@ -31,7 +32,7 @@ const Donations: React.FC = () => {
 
   // handle donation submission
   const handleDonate = async () => {
-    const amount = customAmount ? parseFloat(customAmount) : selectedAmount;
+    const amount = customAmount ? Number.parseFloat(customAmount) : selectedAmount;
 
     // validate the amount
     if (!amount || amount <= 0) {

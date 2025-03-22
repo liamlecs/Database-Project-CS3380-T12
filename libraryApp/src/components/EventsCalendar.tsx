@@ -18,6 +18,7 @@ interface CalendarEvent {
 }
 
 class EventsCalendar extends Component<
+  // biome-ignore lint/complexity/noBannedTypes: <explanation>
   {},
   { events: CalendarEvent[]; selectedEvent: CalendarEvent | null }
 > {
