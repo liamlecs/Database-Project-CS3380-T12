@@ -1,5 +1,5 @@
 //Not functional yet, have to link to the database.
-import React, { useState } from "react";
+import { useState } from "react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -14,7 +14,7 @@ export default function LoginPage() {
       <form>
         <div className="mb-3">
           <label htmlFor="username" className="form-label">
-            Username
+            Email
           </label>
           <input
             type="text"

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {}
+    "C:\\Users\\Nandog\\Documents\\GitHub\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj": {}
   },
   "projects": {
-    "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {
+    "C:\\Users\\Nandog\\Documents\\GitHub\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+        "projectUniqueName": "C:\\Users\\Nandog\\Documents\\GitHub\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj",
         "projectName": "LibraryWebAPI",
-        "projectPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
-        "packagesPath": "/Users/trevordrummond/.nuget/packages/",
-        "outputPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
+        "projectPath": "C:\\Users\\Nandog\\Documents\\GitHub\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj",
+        "packagesPath": "C:\\Users\\Nandog\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Nandog\\Documents\\GitHub\\Database-Project-CS3380-T12\\LibraryWebAPI\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/trevordrummond/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Nandog\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -102,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
