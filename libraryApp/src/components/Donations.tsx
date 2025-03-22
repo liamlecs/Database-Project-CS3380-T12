@@ -66,8 +66,8 @@ const Donations: React.FC = () => {
               $10
             </button>
             <button
-              className={selectedAmount === 5 ? 'selected' : ''}
-              onClick={() => handleAmountSelection(5)}
+              className={selectedAmount === 50 ? 'selected' : ''}
+              onClick={() => handleAmountSelection(50)}
             >
               $50
             </button>

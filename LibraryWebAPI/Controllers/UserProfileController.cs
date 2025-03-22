@@ -82,6 +82,10 @@ namespace LibraryWebAPI.Controllers
         ? DateOnly.FromDateTime(updatedCustomer.MembershipEndDate.Value)
         : customer.MembershipEndDate;
 
+            if (updatedCustomer.MembershipEndDate.HasValue)
+            {
+                customer.MembershipEndDate = DateOnly.FromDateTime(updatedCustomer.MembershipEndDate.Value);
+            }
             await _context.SaveChangesAsync();
             return Ok(customer);
         }

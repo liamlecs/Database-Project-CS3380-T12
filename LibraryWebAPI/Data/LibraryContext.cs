@@ -381,13 +381,13 @@ public virtual DbSet<Book> Books { get; set; }
 
         modelBuilder.Entity<Sex>(entity =>
         {
-            entity.HasKey(e => e.Sex1).HasName("PK__Sex__CA1E3C81ACCDEC3C");
+            entity.HasKey(e => e.SexID).HasName("PK__Sex__CA1E3C81ACCDEC3C");
 
             entity.ToTable("Sex");
 
             entity.HasIndex(e => e.Description, "UQ__Sex__4EBBBAC9A43B1219").IsUnique();
 
-            entity.Property(e => e.Sex1)
+            entity.Property(e => e.SexID)
                 .ValueGeneratedNever()
                 .HasColumnName("Sex");
             entity.Property(e => e.Description)
