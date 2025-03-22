@@ -1,29 +1,70 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 
-export default function BookCheckOutPage() {
-    const navigate = useNavigate();
-    const [isWaitlisted, setIsWaitlisted] = useState(false);
+interface BookCheckout {
+    checkoutID: string;
+    customerID: number;
+    bookTitle: string;
+    checkoutDate: string;
+    dueDate: string;
+}
 
-    const handleCheckout = () => {
-        alert("Book checked out successfully!");
-        navigate("/");  // redirect to home after checkout
-    };
+const BookCheckoutPage: React.FC = () => {
+    const [customerId, setCustomerId] = useState<number | null>(null);
+    const [checkouts, setCheckouts] = useState<BookCheckout[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [errorMsg, setErrorMsg] = useState<string>("");
 
-    const handleWaitlist = () => {
-        setIsWaitlisted(true);
-        alert("Book added to the waitlist!");
-    };
+    useEffect(() => {
+
+        const fetchUser = async () => {
+            try {
+                const response = await fetch("/api/user"); // dummy
+                if (!response.ok) throw new Error("Failed to fetch user info");
+
+                const data = await response.json();
+                setCustomerId(data.customerId);
+            } catch (error) {
+                setErrorMsg("Failed to fetch user info");
+            }
+        };
+        fetchUser();
+    }, []);
+
+    useEffect(() => {
+        if (!customerId) return;
+        setLoading(true);
+
+        const fetchCheckouts = async () => {
+            try {
+                const response = await fetch(`http://localhost:5217/api/BookCheckout/${customerId}`);
+                if (!response.ok) throw new Error("Failed to fetch checkout data");
+
+                const data = await response.json();
+                setCheckouts(data);
+            } catch (error: any) {
+                setErrorMsg(error.message || "An error has occurred.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCheckouts();
+    }, [customerId]);
 
     return (
         <div>
-            <h1>Book Checkout Page</h1>
-            <p>Select a book and choose an option:</p>
-
-            <button onClick={handleCheckout}>Checkout</button>
-            <button onClick={handleWaitlist} disabled={isWaitlisted}>
-                {isWaitlisted ? "Successfully Waitlisted" : "Hold / Waitlist"}
-            </button>
+            <h2>My Book Checkouts</h2>
+            {loading && <p>Loading...</p>}
+            {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
+            <ul>
+                {checkouts.map((checkout) => (
+                    <li key={checkout.checkoutID}>
+                        {checkout.bookTitle} - Due: {new Date(checkout.dueDate).toLocaleDateString()}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
-}
+};
+
+export default BookCheckoutPage;
