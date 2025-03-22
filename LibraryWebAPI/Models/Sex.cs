@@ -5,7 +5,7 @@ namespace LibraryWebAPI.Models;
 
 public partial class Sex
 {
-    public int Sex1 { get; set; }
+    public int SexID { get; set; }
 
     public string Description { get; set; } = null!;
 
