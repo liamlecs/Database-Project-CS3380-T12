@@ -1,6 +1,6 @@
-// Not Functional yet, have to link to the database and such
-
-import React, { useState } from "react";
+import { useState } from "react";
+import * as React from "react";
+import { Container, Box, TextField, Button, Typography, Grid, Paper } from "@mui/material";
 
 export default function RegistrationPage() {
   const [firstName, setFirstName] = useState("");
@@ -10,94 +10,88 @@ export default function RegistrationPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   return (
-    <div className="container mt-5">
-      {/* Header for the Registration page */}
-      <h2 className="text-center">Register</h2>
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 5 }}>
+        {/* Header */}
+        <Typography variant="h4" align="center" gutterBottom>
+          Sign Up
+        </Typography>
 
-      {/* Registration Form */}
-      <form>
-        <div className="mb-3">
-          <label htmlFor="firstName" className="form-label">
-            First Name
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="firstName"
-            placeholder="Enter your first name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-        </div>
+        {/* Registration Form */}
+        <Box component="form">
+          <Grid container spacing={2}>
+            {/* First Name */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                required
+                label="First Name"
+                variant="outlined"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </Grid>
 
-        <div className="mb-3">
-          <label htmlFor="lastName" className="form-label">
-            Last Name
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="lastName"
-            placeholder="Enter your last name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-        </div>
+            {/* Last Name */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                required
+                label="Last Name"
+                variant="outlined"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </Grid>
 
-        {/* Email Field */}
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+            {/* Email */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                type="email"
+                label="Email"
+                variant="outlined"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Grid>
 
-        {/* Password Field */}
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            className="form-control"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+            {/* Password */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                type="password"
+                label="Password"
+                variant="outlined"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Grid>
 
-        <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            className="form-control"
-            placeholder="Confirm your password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
-        </div>
+            {/* Confirm Password */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                required
+                type="password"
+                label="Confirm Password"
+                variant="outlined"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </Grid>
 
-        {/* Submit Button */}
-        <button type="submit" className="btn btn-primary w-100">
-          Register
-        </button>
-      </form>
-    </div>
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button variant="contained" color="primary" fullWidth>
+                Register
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </Container>
   );
 }

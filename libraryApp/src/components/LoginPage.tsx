@@ -1,53 +1,55 @@
-//Not functional yet, have to link to the database.
 import { useState } from "react";
+import * as React from "react";
+import { Container, Paper, TextField, Button, Typography, Grid, Box } from "@mui/material";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   return (
-    <div className="container mt-5">
-      {/* Header for the Login page */}
-      <h2 className="text-center">Login</h2>
-
-      {/* Login Form */}
-      <form>
-        <div className="mb-3">
-          <label htmlFor="username" className="form-label">
-            Email
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="username"
-            placeholder="Enter your Email"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        {/* Password Field */}
-        <div className="mb-3">
-          <label htmlFor="inputPassword5" className="form-label">
-            Password
-          </label>
-          <input
-            type="password"
-            id="inputPassword5"
-            className="form-control"
-            placeholder="Enter your password"
-            aria-describedby="passwordHelpBlock"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        {/* Submit Button */}
-        <button type="submit" className="btn btn-primary w-100">
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 5 }}>
+        {/* Header */}
+        <Typography variant="h4" align="center" gutterBottom>
           Login
-        </button>
-      </form>
-    </div>
+        </Typography>
+
+        {/* Login Form */}
+        <Box component="form">
+          <Grid container spacing={2}>
+            {/* Email Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                type="email"
+                label="Email"
+                variant="outlined"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </Grid>
+
+            {/* Password Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                type="password"
+                label="Password"
+                variant="outlined"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Grid>
+
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button variant="contained" color="primary" fullWidth>
+                Login
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
