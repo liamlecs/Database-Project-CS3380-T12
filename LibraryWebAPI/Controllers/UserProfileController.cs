@@ -54,7 +54,7 @@ namespace LibraryWebAPI.Controllers
             var customers = await _context.Customers
                 .Select(c => new
                 {
-                    c.CustomerID,
+                    c.CustomerId,
                     Name = c.FirstName + " " + c.LastName,
                     c.Email,
                     Role = "Student",
@@ -74,8 +74,13 @@ namespace LibraryWebAPI.Controllers
             customer.FirstName = updatedCustomer.FirstName;
             customer.LastName = updatedCustomer.LastName;
             customer.Email = updatedCustomer.Email;
-            customer.MembershipStartDate = updatedCustomer.MembershipStartDate ?? customer.MembershipStartDate;
-            customer.MembershipEndDate = updatedCustomer.MembershipEndDate ?? customer.MembershipEndDate;
+           customer.MembershipStartDate = updatedCustomer.MembershipStartDate.HasValue
+        ? DateOnly.FromDateTime(updatedCustomer.MembershipStartDate.Value)
+        : customer.MembershipStartDate;
+
+    customer.MembershipEndDate = updatedCustomer.MembershipEndDate.HasValue
+        ? DateOnly.FromDateTime(updatedCustomer.MembershipEndDate.Value)
+        : customer.MembershipEndDate;
 
             await _context.SaveChangesAsync();
             return Ok(customer);
