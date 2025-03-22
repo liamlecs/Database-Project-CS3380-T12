@@ -3432,24 +3432,31 @@
     ]
   },
   "packageFolders": {
-    "/Users/trevordrummond/.nuget/packages/": {}
+    "C:\\Users\\doanp\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+      "projectUniqueName": "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj",
       "projectName": "LibraryWebAPI",
-      "projectPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
-      "packagesPath": "/Users/trevordrummond/.nuget/packages/",
-      "outputPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
+      "projectPath": "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj",
+      "packagesPath": "C:\\Users\\doanp\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/trevordrummond/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\doanp\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3510,7 +3517,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

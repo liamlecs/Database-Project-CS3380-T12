@@ -13,6 +13,7 @@ import EventHistory from "./components/LiHistSubcomponents/EventHistory.tsx";
 import LoginPage from "./components/LoginPage.tsx";
 import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
+import UserProfile from "./components/UserProfile.tsx";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="waitlisthistory" element={<WaitlistHistory />} />
             <Route path="eventhistory" element={<EventHistory />} />
           </Route>
+          <Route path="userprofile" element={<UserProfile />} />
         </Routes>
       </div>
     </Router>

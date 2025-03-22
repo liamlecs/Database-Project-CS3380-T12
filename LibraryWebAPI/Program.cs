@@ -3,29 +3,40 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddOpenApi();
+// ✅ Read allowed origins from appsettings.json
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+
+// ✅ Register services
+builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+builder.Services.AddAuthorization();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure DbContext with SQL Server connection string
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ✅ Use middleware
 if (app.Environment.IsDevelopment())
 {
-  app.UseSwagger(); // Enable the Swagger middleware
-    app.UseSwaggerUI(); // Enable the Swagger UI for interactive documentation
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-
-app.MapGet("/books", async (AppDbContext db) =>
-{
-    var books = await db.Books.ToListAsync();
-    return books;
-});
+app.UseCors("AllowFrontend");
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
