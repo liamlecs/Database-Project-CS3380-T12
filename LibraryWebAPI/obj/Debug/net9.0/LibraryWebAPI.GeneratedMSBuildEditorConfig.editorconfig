@@ -27,3 +27,23 @@ build_property.MSBuildProjectDirectory = /Users/trevordrummond/Desktop/compsci/c
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
+
+[/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/Views/Book/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQm9vay9DcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/Views/Book/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQm9vay9EZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/Views/Book/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQm9vay9EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/Views/Book/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQm9vay9FZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/Views/Book/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQm9vay9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
