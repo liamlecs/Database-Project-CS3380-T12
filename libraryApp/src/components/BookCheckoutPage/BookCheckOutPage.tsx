@@ -1,70 +1,54 @@
-import React, { useState, useEffect } from "react";
+// src/components/BookCheckoutTable.tsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 interface BookCheckout {
-    checkoutID: string;
-    customerID: number;
-    bookTitle: string;
+    bookId: number;
+    customerId: number;
     checkoutDate: string;
-    dueDate: string;
+    dueDate: string | null;
+    returnDate: string | null;
+    isReturned: boolean;
 }
 
-const BookCheckoutPage: React.FC = () => {
-    const [customerId, setCustomerId] = useState<number | null>(null);
+const BookCheckoutTable: React.FC = () => {
     const [checkouts, setCheckouts] = useState<BookCheckout[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [errorMsg, setErrorMsg] = useState<string>("");
 
     useEffect(() => {
-
-        const fetchUser = async () => {
-            try {
-                const response = await fetch("/api/user"); // dummy
-                if (!response.ok) throw new Error("Failed to fetch user info");
-
-                const data = await response.json();
-                setCustomerId(data.customerId);
-            } catch (error) {
-                setErrorMsg("Failed to fetch user info");
-            }
-        };
-        fetchUser();
+        axios.get('https://localhost:5001/api/bookcheckout')
+            .then(response => setCheckouts(response.data))
+            .catch(error => console.error('There was an error!', error));
     }, []);
-
-    useEffect(() => {
-        if (!customerId) return;
-        setLoading(true);
-
-        const fetchCheckouts = async () => {
-            try {
-                const response = await fetch(`http://localhost:5217/api/BookCheckout/${customerId}`);
-                if (!response.ok) throw new Error("Failed to fetch checkout data");
-
-                const data = await response.json();
-                setCheckouts(data);
-            } catch (error: any) {
-                setErrorMsg(error.message || "An error has occurred.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCheckouts();
-    }, [customerId]);
 
     return (
         <div>
-            <h2>My Book Checkouts</h2>
-            {loading && <p>Loading...</p>}
-            {errorMsg && <p style={{ color: "red" }}>{errorMsg}</p>}
-            <ul>
-                {checkouts.map((checkout) => (
-                    <li key={checkout.checkoutID}>
-                        {checkout.bookTitle} - Due: {new Date(checkout.dueDate).toLocaleDateString()}
-                    </li>
-                ))}
-            </ul>
+            <h1>Book Checkout Information</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Book ID</th>
+                        <th>Customer ID</th>
+                        <th>Checkout Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Returned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {checkouts.map(checkout => (
+                        <tr key={checkout.bookId}>
+                            <td>{checkout.bookId}</td>
+                            <td>{checkout.customerId}</td>
+                            <td>{new Date(checkout.checkoutDate).toLocaleDateString()}</td>
+                            <td>{checkout.dueDate ? new Date(checkout.dueDate).toLocaleDateString() : ''}</td>
+                            <td>{checkout.returnDate ? new Date(checkout.returnDate).toLocaleDateString() : ''}</td>
+                            <td>{checkout.isReturned ? 'Yes' : 'No'}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
 
-export default BookCheckoutPage;
+export default BookCheckoutTable;

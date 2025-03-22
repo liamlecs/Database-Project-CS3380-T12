@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -6,6 +6,8 @@ import {
   Button,
   Container,
   Paper,
+  Tab,
+  Tabs,
   Table,
   TableBody,
   TableCell,
@@ -21,18 +23,23 @@ import {
   IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CheckoutHistory from './LiHistSubcomponents/CheckoutHistory';
+import DonationHistory from './/LiHistSubcomponents/DonationHistory';
+import EventHistory from './/LiHistSubcomponents/EventHistory';
+import FineHistory from './/LiHistSubcomponents/FineHistory';
+import WaitlistHistory from './/LiHistSubcomponents/WaitlistHistory';
 
 // defining types
 interface InventoryItem {
   id: string;
+  type: 'book' | 'movie' | 'technology';
   title: string;
   status: string;
-  type: 'book' | 'movie' | 'technology';
-  author?: string; // if book
-  director?: string; // if movie
-  runtime?: number; // if movie
-  manufacturer?: string; // if device
-  model?: string; // if device
+  author?: string;
+  director?: string;
+  runtime?: number;
+  manufacturer?: string;
+  model?: string;
 }
 
 interface Event {
@@ -42,32 +49,25 @@ interface Event {
   description: string;
 }
 
-interface BorrowerHistory {
-  id: string;
-  borrowerId: string;
-  inventoryId: string;
-  checkoutDate: string;
-  returnDate: string;
-}
-
 const Employee: React.FC = () => {
   // state for current view
-  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'borrowerHistory'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
+  const [tabValue, setTabValue] = useState(0); // state for Library History tabs
 
-  // state for inventory management
+  // inventory management
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [inventoryForm, setInventoryForm] = useState<Omit<InventoryItem, 'id'>>({
-    type: 'book', // default is 'book'
+    type: 'book',
     title: '',
     status: 'available',
-    author: '', // book specific
-    director: '', // movie specific
-    runtime: 0, // movie specific
-    manufacturer: '', // device specific
-    model: '', // device specific
+    author: '',
+    director: '',
+    runtime: 0,
+    manufacturer: '',
+    model: '',
   });
 
-  // event management state
+  // event management
   const [events, setEvents] = useState<Event[]>([]);
   const [eventForm, setEventForm] = useState<Omit<Event, 'id'>>({
     eventName: '',
@@ -75,50 +75,28 @@ const Employee: React.FC = () => {
     description: '',
   });
 
-  // state for borrower history
-  const [borrowerHistory, setBorrowerHistory] = useState<BorrowerHistory[]>([]);
-  const [borrowerId, setBorrowerId] = useState<string>('');
-
-  // fetch inventory data (mock data)
-  useEffect(() => {
-    const mockInventory: InventoryItem[] = [
-        { id: '1', type: 'book', title: 'Fahrenheit 451', author: 'Ray Bradbury', status: 'available' },
-        { id: '2', type: 'movie', title: 'The Hunger Games', director: 'Gary Ross', runtime: 97, status: 'available' },
-        { id: '3', type: 'technology', title: 'Laptop', manufacturer: 'Apple', model: 'Macbook Air Model', status: 'checked out' },
-      ];
-    setInventory(mockInventory);
-  }, []);
-
-  // fetch events data (mock)
-  useEffect(() => {
-    const mockEvents: Event[] = [
-      { id: '1', eventName: 'Book Fair', eventDate: '2025-03-25', description: 'Book fair event.' },
-    ];
-    setEvents(mockEvents);
-  }, []);
-
   // adding inventory item
   const handleAddInventory = () => {
     const newItem: InventoryItem = { ...inventoryForm, id: String(inventory.length + 1) };
     setInventory([...inventory, newItem]);
-    setInventoryForm({ 
-        type: 'book',
-        title: '', 
-        status: 'available',
-        author: '',
-        director: '',
-        runtime: 0,
-        manufacturer: '',
-        model: '',
-     });
+    setInventoryForm({
+      type: 'book',
+      title: '',
+      status: 'available',
+      author: '',
+      director: '',
+      runtime: 0,
+      manufacturer: '',
+      model: '',
+    });
   };
 
-  // Handle deleting inventory item
+  // deleting inventory item
   const handleDeleteInventory = (id: string) => {
     setInventory(inventory.filter((item) => item.id !== id));
   };
 
-  // Render the inventory form based on the selected type
+  // render inventory form based on the selected type
   const renderInventoryForm = () => {
     switch (inventoryForm.type) {
       case 'book':
@@ -175,7 +153,7 @@ const Employee: React.FC = () => {
     }
   };
 
-  // Render the inventory management section
+  // render inventory management section
   const renderInventoryManagement = () => {
     return (
       <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
@@ -240,22 +218,14 @@ const Employee: React.FC = () => {
     );
   };
 
-  // Handle adding event
+  // adding event
   const handleAddEvent = () => {
     const newEvent: Event = { ...eventForm, id: String(events.length + 1) };
     setEvents([...events, newEvent]);
     setEventForm({ eventName: '', eventDate: '', description: '' });
   };
 
-  // Handle fetching borrower history
-  const handleFetchBorrowerHistory = () => {
-    const mockHistory: BorrowerHistory[] = [
-      { id: '1', borrowerId, inventoryId: '1', checkoutDate: '2025-03-01', returnDate: '2025-03-15' },
-    ];
-    setBorrowerHistory(mockHistory);
-  };
-
-  // Render the current view
+  // render the current view
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
@@ -329,44 +299,26 @@ const Employee: React.FC = () => {
           </Paper>
         );
 
-      case 'borrowerHistory':
+      case 'libraryHistory':
         return (
           <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
             <Typography variant="h5" gutterBottom>
-              Borrower History
+              Library History
             </Typography>
-            <TextField
-              fullWidth
-              label="Enter Borrower ID"
-              value={borrowerId}
-              onChange={(e) => setBorrowerId(e.target.value)}
-              margin="normal"
-            />
-            <Button variant="contained" color="primary" onClick={handleFetchBorrowerHistory} sx={{ marginTop: 2 }}>
-              Search
-            </Button>
-            <TableContainer component={Paper} sx={{ marginTop: 3 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Borrower ID</TableCell>
-                    <TableCell>Inventory ID</TableCell>
-                    <TableCell>Checkout Date</TableCell>
-                    <TableCell>Return Date</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {borrowerHistory.map((record) => (
-                    <TableRow key={record.id}>
-                      <TableCell>{record.borrowerId}</TableCell>
-                      <TableCell>{record.inventoryId}</TableCell>
-                      <TableCell>{record.checkoutDate}</TableCell>
-                      <TableCell>{record.returnDate}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+              <Tab label="Checkout History" />
+              <Tab label="Donation History" />
+              <Tab label="Event History" />
+              <Tab label="Fine History" />
+              <Tab label="Waitlist History" />
+            </Tabs>
+            <Box sx={{ marginTop: 2 }}>
+              {tabValue === 0 && <CheckoutHistory />}
+              {tabValue === 1 && <DonationHistory />}
+              {tabValue === 2 && <EventHistory />}
+              {tabValue === 3 && <FineHistory />}
+              {tabValue === 4 && <WaitlistHistory />}
+            </Box>
           </Paper>
         );
 
@@ -391,8 +343,8 @@ const Employee: React.FC = () => {
           <Button color="inherit" onClick={() => setCurrentView('events')}>
             Events
           </Button>
-          <Button color="inherit" onClick={() => setCurrentView('borrowerHistory')}>
-            Borrower History
+          <Button color="inherit" onClick={() => setCurrentView('libraryHistory')}>
+            Library History
           </Button>
         </Toolbar>
       </AppBar>

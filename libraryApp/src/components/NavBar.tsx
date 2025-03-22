@@ -9,8 +9,6 @@ export default function Navbar() {
       <ul>
         <li>
         <Link to="EventsCalendar">Event Calendar</Link>
-        </li><li>
-        <Link to="LibraryHistory">Library History</Link>
         </li>
         <li>
           <Link to="LoginPage">Login</Link>

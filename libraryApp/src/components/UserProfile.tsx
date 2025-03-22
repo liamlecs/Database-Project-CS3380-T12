@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 
 interface Profile {
   customerID: number;
@@ -50,6 +51,7 @@ export default function UserProfile() {
     
         setProfile(mappedProfile);
         setEditProfile({ ...mappedProfile });
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         setErrorMsg(error.message || "An error occurred.");
@@ -90,6 +92,7 @@ export default function UserProfile() {
       // If the update is successful, update local state
       setProfile(editProfile);
       setEditing(false);
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } catch (error: any) {
       console.error("Error updating profile:", error);
       setErrorMsg(error.message || "An error occurred while updating profile.");
@@ -197,7 +200,8 @@ export default function UserProfile() {
           </div>
         </div>
       ) : (
-        <button
+        // biome-ignore lint/a11y/useButtonType: <explanation>
+<button
           className="btn btn-secondary w-100"
           onClick={() => {
             setEditProfile({ ...profile });

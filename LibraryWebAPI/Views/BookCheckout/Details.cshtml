@@ -1,0 +1,13 @@
+<!-- Views/BookCheckout/Details.cshtml -->
+@model LibraryWebAPI.Models.BookCheckout
+
+<h1>Checkout Details</h1>
+<p><strong>Book ID:</strong> @Model.BookId</p>
+<p><strong>Customer ID:</strong> @Model.CustomerId</p>
+<p><strong>Checkout Date:</strong> @Model.CheckoutDate.ToString("MM/dd/yyyy")</p>
+<p><strong>Due Date:</strong> @Model.DueDate?.ToString("MM/dd/yyyy")</p>
+<p><strong>Return Date:</strong> @Model.ReturnDate?.ToString("MM/dd/yyyy")</p>
+<p><strong>Returned:</strong> @Model.IsReturned</p>
+
+<a href="@Url.Action("Edit", "BookCheckout", new { id = Model.BookId })">Edit</a>
+<a href="@Url.Action("Index", "BookCheckout")">Back to List</a>
