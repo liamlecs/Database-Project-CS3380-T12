@@ -16,6 +16,7 @@ import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
 import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
 import Donations from "./components/Donations.tsx"
+import Employee from "./components/Employee.tsx";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/loginpage" element={<LoginPage />} />
           <Route path="/registrationpage" element={<RegistrationPage />} />
           <Route path="/donations" element={<Donations />} />
+          <Route path="/employee" element={<Employee />} />
 
           {/* Library History Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
