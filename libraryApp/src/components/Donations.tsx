@@ -29,7 +29,7 @@ const Donations: React.FC = () => {
       return;
     }
 
-    // Simulate donation processing (e.g., API call)
+    // Simulate donation processing
     setTimeout(() => {
       setDonationSuccess(true);
     }, 1000); // Simulate a 1-second delay for processing
