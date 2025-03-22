@@ -71,3 +71,86 @@ background-color: #777;
   display: flex;
   justify-content: center; /* Centers the child horizontally */
 }
+
+/* Donations Container */
+.donations-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+/* Donation Options */
+.donation-options {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.donation-options button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.donation-options button.selected {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+/* Custom Amount Input */
+.custom-amount input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+/* Donate Button */
+.donate-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.donate-button:hover {
+  background-color: #218838;
+}
+
+/* Thank You Message */
+.thank-you-message {
+  margin-top: 20px;
+}
+
+.thank-you-message h3 {
+  color: #28a745;
+}
+
+.thank-you-message button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.thank-you-message button:hover {
+  background-color: #0056b3;
+}

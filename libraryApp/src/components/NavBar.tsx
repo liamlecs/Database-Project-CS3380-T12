@@ -21,6 +21,9 @@ export default function Navbar() {
         <li>
           <Link to="UserProfile" >UserProfile</Link>
         </li>
+        <li>
+          <Link to = "bookcheckout">Book Checkout</Link>
+        </li>
       </ul>
     </nav>
   )

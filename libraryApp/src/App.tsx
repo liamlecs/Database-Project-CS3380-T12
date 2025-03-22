@@ -4,7 +4,7 @@ import FrontPage from "./components/FrontPage.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
 import LibraryHistory from "./components/LibraryHistory.tsx";
 import NavBar from "./components/NavBar.tsx";
-import { StrictMode } from "react";
+// import { StrictMode } from "react";
 import CheckoutHistory from "./components/LiHistSubcomponents/CheckoutHistory.tsx";
 import DonationHistory from "./components/LiHistSubcomponents/DonationHistory.tsx";
 import FineHistory from "./components/LiHistSubcomponents/FineHistory.tsx";
@@ -14,6 +14,7 @@ import LoginPage from "./components/LoginPage.tsx";
 import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
+import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
 
 function App() {
   return (
@@ -22,23 +23,26 @@ function App() {
       <div className="container">
         <Routes>
           <Route path="/" element={<FrontPage />} />
-          <Route path="/eventscalendar" element={<EventsCalendar />}/>
-          <Route path="createevent" element={<CreateEvent />} />
+          <Route path="/eventscalendar" element={<EventsCalendar />} />
+          <Route path="/createevent" element={<CreateEvent />} />
           <Route path="/loginpage" element={<LoginPage />} />
-          <Route path="registrationpage" element={<RegistrationPage />} />
+          <Route path="/registrationpage" element={<RegistrationPage />} />
+
+          {/* Library History Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
             <Route path="checkouthistory" element={<CheckoutHistory />} />
             <Route path="donationhistory" element={<DonationHistory />} />
-            <Route path="frontpage" element={<FrontPage />} />
             <Route path="finehistory" element={<FineHistory />} />
             <Route path="waitlisthistory" element={<WaitlistHistory />} />
             <Route path="eventhistory" element={<EventHistory />} />
           </Route>
           <Route path="userprofile" element={<UserProfile />} />
+          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
         </Routes>
       </div>
     </Router>
   );
 }
+
 
 export default App;
