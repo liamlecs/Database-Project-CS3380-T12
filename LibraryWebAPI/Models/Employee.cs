@@ -1,19 +1,31 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LibraryWebAPI.Models
+namespace LibraryWebAPI.Models;
+
+public partial class Employee
 {
-[Table("Employee")] // use exact table name from your database
-public class Employee
-{
-    public int EmployeeID { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public DateTime BirthDate { get; set; }
+    public int EmployeeId { get; set; }
+
+    public string FirstName { get; set; } = null!;
+
+    public string LastName { get; set; } = null!;
+
+    public DateOnly? BirthDate { get; set; }
+
     public int Sex { get; set; }
-    public int SupervisorID { get; set; }
-    public string Username { get; set; }
-    public string AccountPassword { get; set; }
-    public DateTime? CreatedAt { get; set; }
-}
 
+    public int? SupervisorId { get; set; }
+
+    public string? Username { get; set; }
+
+    public string? AccountPassword { get; set; }
+
+    public DateTime? CreatedAt { get; set; }
+
+    public virtual ICollection<Employee> InverseSupervisor { get; set; } = new List<Employee>();
+
+    public virtual Sex SexNavigation { get; set; } = null!;
+
+    public virtual Employee? Supervisor { get; set; }
 }

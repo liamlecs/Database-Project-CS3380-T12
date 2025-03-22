@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj": {}
+    "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj": {
+    "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj",
+        "projectUniqueName": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
         "projectName": "LibraryWebAPI",
-        "projectPath": "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\LibraryWebAPI.csproj",
-        "packagesPath": "C:\\Users\\doanp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\doanp\\source\\repos\\Database-Project-CS3380-T12\\LibraryWebAPI\\obj\\",
+        "projectPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+        "packagesPath": "/Users/trevordrummond/.nuget/packages/",
+        "outputPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\doanp\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/trevordrummond/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -58,6 +52,12 @@
               "target": "Package",
               "version": "[9.0.3, )"
             },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[9.0.3, )"
@@ -86,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
