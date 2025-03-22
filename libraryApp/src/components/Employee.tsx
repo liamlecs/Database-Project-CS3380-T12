@@ -1,4 +1,26 @@
 import React, { useState, useEffect } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Container,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Box,
+  IconButton,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // defining types
 interface InventoryItem {
@@ -101,46 +123,50 @@ const Employee: React.FC = () => {
     switch (inventoryForm.type) {
       case 'book':
         return (
-          <>
-            <input
-              type="text"
-              placeholder="Author"
-              value={inventoryForm.author}
-              onChange={(e) => setInventoryForm({ ...inventoryForm, author: e.target.value })}
-            />
-          </>
+          <TextField
+            fullWidth
+            label="Author"
+            value={inventoryForm.author}
+            onChange={(e) => setInventoryForm({ ...inventoryForm, author: e.target.value })}
+            margin="normal"
+          />
         );
       case 'movie':
         return (
           <>
-            <input
-              type="text"
-              placeholder="Director"
+            <TextField
+              fullWidth
+              label="Director"
               value={inventoryForm.director}
               onChange={(e) => setInventoryForm({ ...inventoryForm, director: e.target.value })}
+              margin="normal"
             />
-            <input
+            <TextField
+              fullWidth
+              label="Runtime (minutes)"
               type="number"
-              placeholder="Runtime (minutes)"
               value={inventoryForm.runtime}
               onChange={(e) => setInventoryForm({ ...inventoryForm, runtime: Number(e.target.value) })}
+              margin="normal"
             />
           </>
         );
       case 'technology':
         return (
           <>
-            <input
-              type="text"
-              placeholder="Manufacturer"
+            <TextField
+              fullWidth
+              label="Manufacturer"
               value={inventoryForm.manufacturer}
               onChange={(e) => setInventoryForm({ ...inventoryForm, manufacturer: e.target.value })}
+              margin="normal"
             />
-            <input
-              type="text"
-              placeholder="Model"
+            <TextField
+              fullWidth
+              label="Model"
               value={inventoryForm.model}
               onChange={(e) => setInventoryForm({ ...inventoryForm, model: e.target.value })}
+              margin="normal"
             />
           </>
         );
@@ -152,55 +178,65 @@ const Employee: React.FC = () => {
   // Render the inventory management section
   const renderInventoryManagement = () => {
     return (
-      <div>
-        <h2>Inventory Management</h2>
-        <div>
-          <select
+      <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Inventory Management
+        </Typography>
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Type</InputLabel>
+          <Select
             value={inventoryForm.type}
             onChange={(e) => setInventoryForm({ ...inventoryForm, type: e.target.value as 'book' | 'movie' | 'technology' })}
           >
-            <option value="book">Book</option>
-            <option value="movie">Movie</option>
-            <option value="technology">Technology</option>
-          </select>
-          <input
-            type="text"
-            placeholder="Title"
-            value={inventoryForm.title}
-            onChange={(e) => setInventoryForm({ ...inventoryForm, title: e.target.value })}
-          />
-          {renderInventoryForm()}
-          <button onClick={handleAddInventory}>Add Item</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Title</th>
-              <th>Details</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inventory.map((item) => (
-              <tr key={item.id}>
-                <td>{item.type}</td>
-                <td>{item.title}</td>
-                <td>
-                  {item.type === 'book' && `Author: ${item.author}`}
-                  {item.type === 'movie' && `Director: ${item.director}, Runtime: ${item.runtime} mins`}
-                  {item.type === 'technology' && `Manufacturer: ${item.manufacturer}, Model: ${item.model}`}
-                </td>
-                <td>{item.status}</td>
-                <td>
-                  <button onClick={() => handleDeleteInventory(item.id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            <MenuItem value="book">Book</MenuItem>
+            <MenuItem value="movie">Movie</MenuItem>
+            <MenuItem value="technology">Technology</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField
+          fullWidth
+          label="Title"
+          value={inventoryForm.title}
+          onChange={(e) => setInventoryForm({ ...inventoryForm, title: e.target.value })}
+          margin="normal"
+        />
+        {renderInventoryForm()}
+        <Button variant="contained" color="primary" onClick={handleAddInventory} sx={{ marginTop: 2 }}>
+          Add Item
+        </Button>
+        <TableContainer component={Paper} sx={{ marginTop: 3 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Type</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell>Details</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Action</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {inventory.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.type}</TableCell>
+                  <TableCell>{item.title}</TableCell>
+                  <TableCell>
+                    {item.type === 'book' && `Author: ${item.author}`}
+                    {item.type === 'movie' && `Director: ${item.director}, Runtime: ${item.runtime} mins`}
+                    {item.type === 'technology' && `Manufacturer: ${item.manufacturer}, Model: ${item.model}`}
+                  </TableCell>
+                  <TableCell>{item.status}</TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => handleDeleteInventory(item.id)} color="error">
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
     );
   };
 
@@ -224,11 +260,13 @@ const Employee: React.FC = () => {
     switch (currentView) {
       case 'dashboard':
         return (
-          <div>
-            <h2>Dashboard</h2>
-            <p>Total Items: {inventory.length}</p>
-            <p>Upcoming Events: {events.length}</p>
-          </div>
+          <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+            <Typography variant="h5" gutterBottom>
+              Dashboard
+            </Typography>
+            <Typography>Total Items: {inventory.length}</Typography>
+            <Typography>Upcoming Events: {events.length}</Typography>
+          </Paper>
         );
 
       case 'inventory':
@@ -236,83 +274,100 @@ const Employee: React.FC = () => {
 
       case 'events':
         return (
-          <div>
-            <h2>Event Management</h2>
-            <div>
-              <input
-                type="text"
-                placeholder="Event Name"
-                value={eventForm.eventName}
-                onChange={(e) => setEventForm({ ...eventForm, eventName: e.target.value })}
-              />
-              <input
-                type="date"
-                placeholder="Event Date"
-                value={eventForm.eventDate}
-                onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
-              />
-              <textarea
-                placeholder="Description"
-                value={eventForm.description}
-                onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-              />
-              <button onClick={handleAddEvent}>Add Event</button>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Event Name</th>
-                  <th>Event Date</th>
-                  <th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {events.map((event) => (
-                  <tr key={event.id}>
-                    <td>{event.eventName}</td>
-                    <td>{event.eventDate}</td>
-                    <td>{event.description}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+            <Typography variant="h5" gutterBottom>
+              Event Management
+            </Typography>
+            <TextField
+              fullWidth
+              label="Event Name"
+              value={eventForm.eventName}
+              onChange={(e) => setEventForm({ ...eventForm, eventName: e.target.value })}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Event Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={eventForm.eventDate}
+              onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              multiline
+              rows={4}
+              value={eventForm.description}
+              onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+              margin="normal"
+            />
+            <Button variant="contained" color="primary" onClick={handleAddEvent} sx={{ marginTop: 2 }}>
+              Add Event
+            </Button>
+            <TableContainer component={Paper} sx={{ marginTop: 3 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Event Name</TableCell>
+                    <TableCell>Event Date</TableCell>
+                    <TableCell>Description</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {events.map((event) => (
+                    <TableRow key={event.id}>
+                      <TableCell>{event.eventName}</TableCell>
+                      <TableCell>{event.eventDate}</TableCell>
+                      <TableCell>{event.description}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
         );
 
       case 'borrowerHistory':
         return (
-          <div>
-            <h2>Borrower History</h2>
-            <div>
-              <input
-                type="text"
-                placeholder="Enter Borrower ID"
-                value={borrowerId}
-                onChange={(e) => setBorrowerId(e.target.value)}
-              />
-              <button onClick={handleFetchBorrowerHistory}>Search</button>
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Borrower ID</th>
-                  <th>Inventory ID</th>
-                  <th>Checkout Date</th>
-                  <th>Return Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {borrowerHistory.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.borrowerId}</td>
-                    <td>{record.inventoryId}</td>
-                    <td>{record.checkoutDate}</td>
-                    <td>{record.returnDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+            <Typography variant="h5" gutterBottom>
+              Borrower History
+            </Typography>
+            <TextField
+              fullWidth
+              label="Enter Borrower ID"
+              value={borrowerId}
+              onChange={(e) => setBorrowerId(e.target.value)}
+              margin="normal"
+            />
+            <Button variant="contained" color="primary" onClick={handleFetchBorrowerHistory} sx={{ marginTop: 2 }}>
+              Search
+            </Button>
+            <TableContainer component={Paper} sx={{ marginTop: 3 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Borrower ID</TableCell>
+                    <TableCell>Inventory ID</TableCell>
+                    <TableCell>Checkout Date</TableCell>
+                    <TableCell>Return Date</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {borrowerHistory.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell>{record.borrowerId}</TableCell>
+                      <TableCell>{record.inventoryId}</TableCell>
+                      <TableCell>{record.checkoutDate}</TableCell>
+                      <TableCell>{record.returnDate}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Paper>
         );
 
       default:
@@ -321,19 +376,30 @@ const Employee: React.FC = () => {
   };
 
   return (
-    <div>
-      <nav>
-        <ul>
-          <li><button onClick={() => setCurrentView('dashboard')}>Dashboard</button></li>
-          <li><button onClick={() => setCurrentView('inventory')}>Inventory</button></li>
-          <li><button onClick={() => setCurrentView('events')}>Events</button></li>
-          <li><button onClick={() => setCurrentView('borrowerHistory')}>Borrower History</button></li>
-        </ul>
-      </nav>
-      <div className="employee-container">
+    <Box>
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Library Management System
+          </Typography>
+          <Button color="inherit" onClick={() => setCurrentView('dashboard')}>
+            Dashboard
+          </Button>
+          <Button color="inherit" onClick={() => setCurrentView('inventory')}>
+            Inventory
+          </Button>
+          <Button color="inherit" onClick={() => setCurrentView('events')}>
+            Events
+          </Button>
+          <Button color="inherit" onClick={() => setCurrentView('borrowerHistory')}>
+            Borrower History
+          </Button>
+        </Toolbar>
+      </AppBar>
+      <Container sx={{ marginTop: 3 }}>
         {renderView()}
-      </div>
-    </div>
+      </Container>
+    </Box>
   );
 };
 

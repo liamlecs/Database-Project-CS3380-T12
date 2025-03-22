@@ -1,9 +1,10 @@
-//Not Functional yet, have to link to the database and such
+// Not Functional yet, have to link to the database and such
 
 import React, { useState } from "react";
 
 export default function RegistrationPage() {
-  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -12,24 +13,44 @@ export default function RegistrationPage() {
     <div className="container mt-5">
       {/* Header for the Registration page */}
       <h2 className="text-center">Register</h2>
-      
+
       {/* Registration Form */}
       <form>
         <div className="mb-3">
-          <label htmlFor="username" className="form-label">Username</label>
+          <label htmlFor="firstName" className="form-label">
+            First Name
+          </label>
           <input
             type="text"
             className="form-control"
-            id="username"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="firstName"
+            placeholder="Enter your first name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             required
           />
         </div>
+
+        <div className="mb-3">
+          <label htmlFor="lastName" className="form-label">
+            Last Name
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="lastName"
+            placeholder="Enter your last name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+          />
+        </div>
+
         {/* Email Field */}
         <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email</label>
+          <label htmlFor="email" className="form-label">
+            Email
+          </label>
           <input
             type="email"
             className="form-control"
@@ -40,9 +61,12 @@ export default function RegistrationPage() {
             required
           />
         </div>
+
         {/* Password Field */}
         <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
           <input
             type="password"
             id="password"
@@ -53,9 +77,11 @@ export default function RegistrationPage() {
             required
           />
         </div>
-        
+
         <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+          <label htmlFor="confirmPassword" className="form-label">
+            Confirm Password
+          </label>
           <input
             type="password"
             id="confirmPassword"
@@ -66,9 +92,11 @@ export default function RegistrationPage() {
             required
           />
         </div>
-        
+
         {/* Submit Button */}
-        <button type="submit" className="btn btn-primary w-100">Register</button>
+        <button type="submit" className="btn btn-primary w-100">
+          Register
+        </button>
       </form>
     </div>
   );
