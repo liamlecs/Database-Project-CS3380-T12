@@ -1,0 +1,37 @@
+<!-- Views/BookCheckout/Index.cshtml -->
+@model IEnumerable<YourApp.Models.BookCheckout>
+
+<h1>Book Checkouts</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Book ID</th>
+            <th>Customer ID</th>
+            <th>Checkout Date</th>
+            <th>Due Date</th>
+            <th>Return Date</th>
+            <th>Returned</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var checkout in Model)
+        {
+            <tr>
+                <td>@checkout.BookId</td>
+                <td>@checkout.CustomerId</td>
+                <td>@checkout.CheckoutDate.ToString("MM/dd/yyyy")</td>
+                <td>@checkout.DueDate?.ToString("MM/dd/yyyy")</td>
+                <td>@checkout.ReturnDate?.ToString("MM/dd/yyyy")</td>
+                <td>@checkout.IsReturned</td>
+                <td>
+                    <a href="@Url.Action("Details", "BookCheckout", new { id = checkout.BookId })">Details</a>
+                    |
+                    <a href="@Url.Action("Edit", "BookCheckout", new { id = checkout.BookId })">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "BookCheckout")">Create New Checkout</a>

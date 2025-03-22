@@ -1,0 +1,17 @@
+<!-- Views/BookCheckout/Create.cshtml -->
+@model YourApp.Models.BookCheckout
+
+<h1>Create New Checkout</h1>
+
+<form asp-action="Create" method="post">
+    <label for="BookId">Book ID</label>
+    <input type="number" name="BookId" required />
+
+    <label for="CustomerId">Customer ID</label>
+    <input type="number" name="CustomerId" required />
+
+    <label for="DueDate">Due Date</label>
+    <input type="date" name="DueDate" required />
+
+    <button type="submit">Create Checkout</button>
+</form>

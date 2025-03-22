@@ -1,0 +1,13 @@
+<!-- Views/BookCheckout/Edit.cshtml -->
+@model YourApp.Models.BookCheckout
+
+<h1>Edit Checkout</h1>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="BookId" value="@Model.BookId" />
+
+    <label for="ReturnDate">Return Date</label>
+    <input type="date" name="ReturnDate" value="@Model.ReturnDate?.ToString("yyyy-MM-dd")" />
+
+    <button type="submit">Return Book</button>
+</form>
