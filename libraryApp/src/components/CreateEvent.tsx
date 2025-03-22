@@ -4,14 +4,15 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Button from "@mui/material/Button";
+import { createRandomNumberGenerator } from "@mui/x-data-grid/internals";
 
 class EventDetails {
   eventID?: number;
   startTimeStamp?: Date;
   endTimeStamp?: Date;
   location?: string;
-  ageGroup?: string;
-  categoryID?: string;
+  ageGroup?: number;
+  categoryID?: number;
   isPrivate?: boolean;
 
   getEventID(): number | undefined {
@@ -46,18 +47,18 @@ class EventDetails {
   }
 
   // Getter and Setter for AgeGroup
-  getAgeGroup(): string | undefined {
+  getAgeGroup(): number | undefined {
     return this.ageGroup;
   }
-  setAgeGroup(age: string): void {
+  setAgeGroup(age: number): void {
     this.ageGroup = age;
   }
 
   // Getter and Setter for CategoryID
-  getCategoryID(): string | undefined {
+  getCategoryID(): number | undefined {
     return this.categoryID;
   }
-  setCategoryID(category: string): void {
+  setCategoryID(category: number): void {
     this.categoryID = category;
   }
 
@@ -70,16 +71,51 @@ class EventDetails {
   }
 }
 
+const eventdetails = new EventDetails(); //must create an EventID generator eventually
+eventdetails.setEventID(Math.random() * 999999999999999);
+
+const handleSubmit = async () => {
+  const eventData = {
+    eventID: eventdetails.getEventID(),
+    startTimeStamp: eventdetails.getStartTimeStamp(),
+    endTimeStamp: eventdetails.getEndTimeStamp(),
+    location: eventdetails.getLocation(),
+    ageGroup: eventdetails.getAgeGroup(),
+    categoryID: eventdetails.getCategoryID(),
+    isPrivate: eventdetails.getIsPrivate(),
+  };
+
+  try {
+    const response = await fetch("http://localhost:5217/api/Event", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(eventData),
+    });
+
+    if (response.ok) {
+      alert("Event created successfully!");
+    } else {
+      const errorData = await response.json();
+      console.error("Error creating event:", errorData);
+      alert("Failed to create event.");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Network error. Please try again.");
+  }
+};
+
 const locations = ["Melcher Hall", "Agnes Arnold"];
 
-const ageGroups = ["0-5", "6-10", "11-15", "16+"];
+const ageGroups = ["0-2", "3-8", "9-13", "14-17", "18+"];
 
 const eventCategories = ["Educational", "Social", "Cultural"];
 
 const trueFalse = ["True", "False"];
 
 export default function CreateEvent() {
-  const eventdetails = new EventDetails(); //must create an EventID generator eventually
   return (
     <div className="format">
       <div
@@ -128,7 +164,7 @@ export default function CreateEvent() {
           disablePortal
           options={locations}
           sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Movie" />}
+          renderInput={(params) => <TextField {...params} />}
           onChange={(event, newValue) => {
             if (newValue) {
               // Only call setName if newValue is not null
@@ -146,11 +182,25 @@ export default function CreateEvent() {
           disablePortal
           options={ageGroups}
           sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Movie" />}
+          renderInput={(params) => <TextField {...params} />}
           onChange={(event, newValue) => {
             if (newValue) {
-              // Only call setName if newValue is not null
-              eventdetails.setAgeGroup(newValue); // Update the selected name
+              switch (newValue) {
+                case "0-2":
+                  eventdetails.setAgeGroup(1);
+                  break;
+                case "3-8":
+                  eventdetails.setAgeGroup(2);
+                  break;
+                case "9-13":
+                  eventdetails.setAgeGroup(3);
+                  break;
+                case "14-17":
+                  eventdetails.setAgeGroup(4);
+                  break;
+                case "18+":
+                  eventdetails.setAgeGroup(5);
+              }
               console.log("Updated Answer Object:", eventdetails);
             }
           }}
@@ -164,11 +214,21 @@ export default function CreateEvent() {
           disablePortal
           options={eventCategories}
           sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Movie" />}
+          renderInput={(params) => <TextField {...params} />}
           onChange={(event, newValue) => {
             if (newValue) {
-              // Only call setName if newValue is not null
-              eventdetails.setCategoryID(newValue); // Update the selected name
+              switch (newValue) {
+                case "Educational":
+                  eventdetails.setCategoryID(1);
+                  break;
+                  case "Social":
+                  eventdetails.setCategoryID(2);
+                  break;
+                  case "Cultural":
+                  eventdetails.setCategoryID(3);
+                  break;
+              }
+
               console.log("Updated Answer Object:", eventdetails);
             }
           }}
@@ -182,25 +242,20 @@ export default function CreateEvent() {
           disablePortal
           options={trueFalse}
           sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Movie" />}
+          renderInput={(params) => <TextField {...params} />}
           onChange={(event, newValue) => {
             if (newValue) {
-              // Only call setName if newValue is not null
-              eventdetails.setLocation(newValue); // Update the selected name
+              if(newValue==="True")
+              eventdetails.setIsPrivate(true);
+            else
+            eventdetails.setIsPrivate(false);
               console.log("Updated Answer Object:", eventdetails);
             }
           }}
         />
       </div>
       <div className="centeredHor" style={{ marginTop: "20px" }}>
-        <Button
-          variant="outlined"
-          href="EventsCalendar"
-          onClick={() => {
-            //include check later to make sure all questions are answered
-            alert("clicked");
-          }}
-        >
+        <Button variant="outlined" href="EventsCalendar" onClick={handleSubmit}>
           Submit
         </Button>
       </div>
