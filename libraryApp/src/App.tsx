@@ -1,6 +1,6 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import FrontPage from "./components/FrontPage.tsx";
+import FrontPage from "./components/FrontPage/FrontPage.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
 import LibraryHistory from "./components/LibraryHistory.tsx";
 import NavBar from "./components/NavBar.tsx";

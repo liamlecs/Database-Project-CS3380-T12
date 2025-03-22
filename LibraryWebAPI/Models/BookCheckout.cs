@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace LibraryWebAPI.Models;
+namespace LibraryWebAPI.Models
 {
     public class BookCheckout
     {
