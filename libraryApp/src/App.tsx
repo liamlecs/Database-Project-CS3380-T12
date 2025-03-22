@@ -28,6 +28,7 @@ function App() {
           <Route path="/createevent" element={<CreateEvent />} />
           <Route path="/loginpage" element={<LoginPage />} />
           <Route path="/registrationpage" element={<RegistrationPage />} />
+          <Route path="/donations" element={<Donations />} />
 
           {/* Library History Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
