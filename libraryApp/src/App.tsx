@@ -13,7 +13,7 @@ import EventHistory from "./components/LiHistSubcomponents/EventHistory.tsx";
 import LoginPage from "./components/LoginPage.tsx";
 import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
-import BookCheckOutPage from "./components/BookCheckOutPage.tsx";
+import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
 
 
 
