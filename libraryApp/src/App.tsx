@@ -15,6 +15,7 @@ import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
 import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
+import Donations from "./components/Donations.tsx"
 
 function App() {
   return (
