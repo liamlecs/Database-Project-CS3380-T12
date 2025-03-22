@@ -24,6 +24,9 @@ export default function Navbar() {
         <li>
           <Link to = "bookcheckout">Book Checkout</Link>
         </li>
+        <li>
+          <Link to = "Donations">Donate</Link>
+        </li>
       </ul>
     </nav>
   )

@@ -1,19 +1,35 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LibraryWebAPI.Models
+namespace LibraryWebAPI.Models;
+
+public partial class Customer
 {
-[Table("Customer")] // <-- exact name of your table in Azure SQL
-public class Customer
-{
-    public int CustomerID { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public int BorrowerTypeID { get; set; }
-    public DateTime MembershipStartDate { get; set; }
-    public DateTime MembershipEndDate { get; set; }
-    public string AccountPassword { get; set; }
+    public int CustomerId { get; set; }
+
+    public string FirstName { get; set; } = null!;
+
+    public string LastName { get; set; } = null!;
+
+    public string Email { get; set; } = null!;
+
+    public int BorrowerTypeId { get; set; }
+
+    public DateOnly MembershipStartDate { get; set; }
+
+    public DateOnly? MembershipEndDate { get; set; }
+
+    public string AccountPassword { get; set; } = null!;
+
     public DateTime? CreatedAt { get; set; }
-}
 
+    public virtual BorrowerType BorrowerType { get; set; } = null!;
+
+    public virtual ICollection<Donation> Donations { get; set; } = new List<Donation>();
+
+    public virtual ICollection<Fine> Fines { get; set; } = new List<Fine>();
+
+    public virtual ICollection<TransactionHistory> TransactionHistories { get; set; } = new List<TransactionHistory>();
+
+    public virtual ICollection<Waitlist> Waitlists { get; set; } = new List<Waitlist>();
 }
