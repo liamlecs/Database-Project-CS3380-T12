@@ -42,7 +42,7 @@ const BookCheckoutPage: React.FC = () => {
                 const data = await response.json();
                 setCheckouts(data);
             } catch (error: any) {
-                setErrorMsg(error.message || "An error occurred.");
+                setErrorMsg(error.message || "An error has occurred.");
             } finally {
                 setLoading(false);
             }
