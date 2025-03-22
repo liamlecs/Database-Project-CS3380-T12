@@ -43,7 +43,7 @@ interface Event {
   description: string;
 }
 
-interface BorrowerHistory {
+interface LibraryHistory {
   id: string;
   borrowerId: string;
   inventoryId: string;
@@ -53,7 +53,7 @@ interface BorrowerHistory {
 
 const Employee: React.FC = () => {
   // state for current view
-  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'borrowerHistory'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
 
   // state for inventory management
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -76,8 +76,8 @@ const Employee: React.FC = () => {
     description: '',
   });
 
-  // state for borrower history
-  const [borrowerHistory, setBorrowerHistory] = useState<BorrowerHistory[]>([]);
+  // state for library history
+  const [libraryHistory, setLibraryHistory] = useState<LibraryHistory[]>([]);
   const [borrowerId, setBorrowerId] = useState<string>('');
 
   // fetch inventory data (mock data)
@@ -248,12 +248,12 @@ const Employee: React.FC = () => {
     setEventForm({ eventName: '', eventDate: '', description: '' });
   };
 
-  // Handle fetching borrower history
-  const handleFetchBorrowerHistory = () => {
-    const mockHistory: BorrowerHistory[] = [
+  // Handle fetching library history
+  const handleFetchLibraryHistory = () => {
+    const mockHistory: LibraryHistory[] = [
       { id: '1', borrowerId, inventoryId: '1', checkoutDate: '2025-03-01', returnDate: '2025-03-15' },
     ];
-    setBorrowerHistory(mockHistory);
+    setLibraryHistory(mockHistory);
   };
 
   // Render the current view
@@ -330,11 +330,11 @@ const Employee: React.FC = () => {
           </Paper>
         );
 
-      case 'borrowerHistory':
+      case 'libraryHistory':
         return (
           <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
             <Typography variant="h5" gutterBottom>
-              Borrower History
+              Library History
             </Typography>
             <TextField
               fullWidth
@@ -343,7 +343,7 @@ const Employee: React.FC = () => {
               onChange={(e) => setBorrowerId(e.target.value)}
               margin="normal"
             />
-            <Button variant="contained" color="primary" onClick={handleFetchBorrowerHistory} sx={{ marginTop: 2 }}>
+            <Button variant="contained" color="primary" onClick={handleFetchLibraryHistory} sx={{ marginTop: 2 }}>
               Search
             </Button>
             <TableContainer component={Paper} sx={{ marginTop: 3 }}>
@@ -351,13 +351,13 @@ const Employee: React.FC = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Borrower ID</TableCell>
-                    <TableCell>Inventory ID</TableCell>
+                    <TableCell>Item ID</TableCell>
                     <TableCell>Checkout Date</TableCell>
                     <TableCell>Return Date</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {borrowerHistory.map((record) => (
+                  {libraryHistory.map((record) => (
                     <TableRow key={record.id}>
                       <TableCell>{record.borrowerId}</TableCell>
                       <TableCell>{record.inventoryId}</TableCell>
@@ -392,8 +392,8 @@ const Employee: React.FC = () => {
           <Button color="inherit" onClick={() => setCurrentView('events')}>
             Events
           </Button>
-          <Button color="inherit" onClick={() => setCurrentView('borrowerHistory')}>
-            Borrower History
+          <Button color="inherit" onClick={() => setCurrentView('libraryHistory')}>
+            Library History
           </Button>
         </Toolbar>
       </AppBar>
