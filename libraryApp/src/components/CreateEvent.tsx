@@ -1,6 +1,10 @@
 import {
   Autocomplete,
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FilledTextFieldProps,
   OutlinedTextFieldProps,
   Stack,
@@ -13,12 +17,13 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Button from "@mui/material/Button";
-import { JSX } from "react/jsx-runtime";
+import { useState } from "react";
+import dayjs from "dayjs";
 
 class EventDetails {
   eventID?: number;
-  startTimeStamp?: Date;
-  endTimeStamp?: Date;
+  startTimeStamp!: Date;
+  endTimeStamp!: Date;
   location?: string;
   ageGroup?: number;
   categoryID?: number;
@@ -34,7 +39,7 @@ class EventDetails {
   }
 
   // Getter and Setter for StartTimeStamp
-  getStartTimeStamp(): Date | undefined {
+  getStartTimeStamp(): Date {
     return this.startTimeStamp;
   }
   setStartTimeStamp(start: Date): void {
@@ -42,7 +47,7 @@ class EventDetails {
   }
 
   // Getter and Setter for EndTimeStamp
-  getEndTimeStamp(): Date | undefined {
+  getEndTimeStamp(): Date {
     return this.endTimeStamp;
   }
   setEndTimeStamp(end: Date): void {
@@ -96,20 +101,56 @@ class EventDetails {
   }
 }
 
+const locations = ["Melcher Hall", "Agnes Arnold"];
+
+const ageGroups = ["0-2", "3-8", "9-13", "14-17", "18+"];
+
+const eventCategories = ["Educational", "Social", "Cultural"];
+
+const trueFalse = ["True", "False"];
+
 const eventdetails = new EventDetails(); //must create an EventID generator eventually
 eventdetails.setEventID(0); //temp generator
 
+export default function CreateEvent() {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+
 const handleSubmit = async () => {
+  
+  if(eventdetails.getStartTimeStamp()==null||eventdetails.getEndTimeStamp()==null||eventdetails.getLocation()===""||eventdetails.getAgeGroup()==null||eventdetails.getCategoryID()==null||eventdetails.getIsPrivate()==null||eventdetails.getTitle()==null||eventdetails.getTitle()===""||eventdetails.getDescription()==null||eventdetails.getDescription()===""){
+
+    //this is where the dialogue popup would go
+    setDialogMessage("Please fill in all required fields before submitting.");
+    setOpenDialog(true); // Open the dialog if any field is missing
+    return;
+  }
+  
+  if(eventdetails.getStartTimeStamp()<=dayjs().toDate()){
+    setDialogMessage("The event start time must be in the future.");
+    setOpenDialog(true); // Open the dialog if start time is before current time
+    return;
+
+  }
+
+  if(eventdetails.getStartTimeStamp()>eventdetails.getEndTimeStamp()){
+    setDialogMessage("The event start time cannot be after the end time.");
+    setOpenDialog(true); // Open the dialog if start time after end time
+    return;
+
+  }
+
+
   const eventData = {
     eventId: eventdetails.getEventID(), // Should be an integer
     startTimeStamp: eventdetails.getStartTimeStamp()?.toISOString(), // Convert Date to String
     endTimeStamp: eventdetails.getEndTimeStamp()?.toISOString(), // Convert Date to String
-    location: eventdetails.getLocation() || "", // Ensure it's a string
-    ageGroup: eventdetails.getAgeGroup() || 0, // Default to 0 if null
-    categoryId: eventdetails.getCategoryID() || 0, // Default to 0 if null
-    isPrivate: eventdetails.getIsPrivate() ?? false,
-    title: eventdetails.getTitle() || "",
-    description: eventdetails.getDescription() || "",
+    location: eventdetails.getLocation(), // Ensure it's a string
+    ageGroup: eventdetails.getAgeGroup(), // Default to 0 if null
+    categoryId: eventdetails.getCategoryID(), // Default to 0 if null
+    isPrivate: eventdetails.getIsPrivate(),
+    title: eventdetails.getTitle(),
+    description: eventdetails.getDescription(),
   };
 
   try {
@@ -132,17 +173,12 @@ const handleSubmit = async () => {
     console.error("Error:", error);
     alert("Network error. Please try again.");
   }
+
 };
 
-const locations = ["Melcher Hall", "Agnes Arnold"];
 
-const ageGroups = ["0-2", "3-8", "9-13", "14-17", "18+"];
 
-const eventCategories = ["Educational", "Social", "Cultural"];
 
-const trueFalse = ["True", "False"];
-
-export default function CreateEvent() {
   return (
     <div className="format">
       <div
@@ -311,6 +347,19 @@ export default function CreateEvent() {
           Submit
         </Button>
       </div>
+      {/* Dialog Box for Missing Fields */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Form Incomplete</DialogTitle>
+        <DialogContent>
+        <p>{dialogMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
+
