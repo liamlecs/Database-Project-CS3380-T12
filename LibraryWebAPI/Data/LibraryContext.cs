@@ -230,10 +230,6 @@ public virtual DbSet<Book> Books { get; set; }
                 .IsUnicode(false);
             entity.Property(e => e.StartTimestamp).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.Events)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Event_EventCategory");
         });
 
         modelBuilder.Entity<EventCategory>(entity =>

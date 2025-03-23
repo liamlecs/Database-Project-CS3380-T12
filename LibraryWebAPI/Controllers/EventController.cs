@@ -23,7 +23,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
         {
-            var events = await _context.Events.Include(e => e.Category).ToListAsync();
+              var events = await _context.Events.ToListAsync();
             return Ok(events);
         }
 
@@ -32,7 +32,7 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
             var eventObj = await _context.Events
-                .Include(e => e.Category)  // Assuming Category is a navigation property in Event
+
                 .FirstOrDefaultAsync(m => m.EventId == id);
 
             if (eventObj == null)

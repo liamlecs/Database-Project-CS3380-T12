@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibraryWebAPI.Models;
 
 public partial class Event
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int EventId { get; set; }
 
     public DateTime StartTimestamp { get; set; }
@@ -13,11 +17,10 @@ public partial class Event
 
     public string Location { get; set; } = null!;
 
-    public byte[]? AgeGroup { get; set; }
+    public int AgeGroup { get; set; }
 
     public int CategoryId { get; set; }
 
     public bool IsPrivate { get; set; }
 
-    public virtual EventCategory Category { get; set; } = null!;
 }

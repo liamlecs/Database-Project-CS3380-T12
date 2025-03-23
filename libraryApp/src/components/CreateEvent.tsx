@@ -4,7 +4,6 @@ import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Button from "@mui/material/Button";
-import { createRandomNumberGenerator } from "@mui/x-data-grid/internals";
 
 class EventDetails {
   eventID?: number;
@@ -72,17 +71,17 @@ class EventDetails {
 }
 
 const eventdetails = new EventDetails(); //must create an EventID generator eventually
-eventdetails.setEventID(Math.random() * 999999999999999);
+eventdetails.setEventID(0); //temp generator
 
 const handleSubmit = async () => {
   const eventData = {
-    eventID: eventdetails.getEventID(),
-    startTimeStamp: eventdetails.getStartTimeStamp(),
-    endTimeStamp: eventdetails.getEndTimeStamp(),
-    location: eventdetails.getLocation(),
-    ageGroup: eventdetails.getAgeGroup(),
-    categoryID: eventdetails.getCategoryID(),
-    isPrivate: eventdetails.getIsPrivate(),
+    eventId: eventdetails.getEventID(), // Should be an integer
+    startTimeStamp: eventdetails.getStartTimeStamp()?.toISOString(), // Convert Date to String
+    endTimeStamp: eventdetails.getEndTimeStamp()?.toISOString(), // Convert Date to String
+    location: eventdetails.getLocation() || "", // Ensure it's a string
+    ageGroup: eventdetails.getAgeGroup() || 0, // Default to 0 if null
+    categoryId: eventdetails.getCategoryID() || 0, // Default to 0 if null
+    isPrivate: eventdetails.getIsPrivate() ?? false,
   };
 
   try {
@@ -95,7 +94,7 @@ const handleSubmit = async () => {
     });
 
     if (response.ok) {
-      alert("Event created successfully!");
+      console.log("Event created successfully!");
     } else {
       const errorData = await response.json();
       console.error("Error creating event:", errorData);
@@ -255,7 +254,7 @@ export default function CreateEvent() {
         />
       </div>
       <div className="centeredHor" style={{ marginTop: "20px" }}>
-        <Button variant="outlined" href="EventsCalendar" onClick={handleSubmit}>
+        <Button variant="outlined" onClick={handleSubmit}>
           Submit
         </Button>
       </div>
