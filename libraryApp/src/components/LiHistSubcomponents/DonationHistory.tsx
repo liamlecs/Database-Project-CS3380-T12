@@ -1,35 +1,63 @@
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
+import { useEffect, useState } from 'react';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'Donation ID', width: 70 },
-  { field: 'TransactionID', headerName: 'Transaction ID', width: 130 },
-  { field: 'CustomerID', headerName: 'Customer ID', width: 130 },
+  { field: 'id', headerName: 'Donation ID', type: 'number', width: 70 },
+  { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
   {
-    field: 'Amount', headerName: 'Amount', type: 'number', width: 90 },
-  { field: 'Date', headerName: 'Date', type:'date', width: 130 },
-];
-
-const rows = [
-  { id: 1, CustomerID: 'Snow', TransactionID: 'Jon', Amount: 35 },
-  { id: 2, CustomerID: 'Lannister', TransactionID: 'Cersei', Amount: 42 },
-  { id: 3, CustomerID: 'Lannister', TransactionID: 'Jaime', Amount: 45 },
-  { id: 4, CustomerID: 'Stark', TransactionID: 'Arya', Amount: 16 },
-  { id: 5, CustomerID: 'Targaryen', TransactionID: 'Daenerys', Amount: null },
-  { id: 6, CustomerID: 'Melisandre', TransactionID: null, Amount: 150 },
-  { id: 7, CustomerID: 'Clifford', TransactionID: 'Ferrara', Amount: 44 },
-  { id: 8, CustomerID: 'Frances', TransactionID: 'Rossini', Amount: 36 },
-  { id: 9, CustomerID: 'Roxie', TransactionID: 'Harvey', Amount: 65 },
+    field: 'amount', headerName: 'Amount', type: 'number', width: 90 },
+  { field: 'date', headerName: 'Date', type:'date', width: 130 },
 ];
 
 const paginationModel = { page: 0, pageSize: 5 };
 
+
+
 export default function DonationHistory() {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        const response = await fetch("http://localhost:5217/api/Donation");
+        if (!response.ok) {
+          throw new Error("Failed to fetch donation data");
+        }
+        const data = await response.json();
+console.log("raw data: ", data);
+        // Transform API response to fit DataGrid's row format
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+                const formattedData = data.map((donation: any, index: number) => {
+                  //console.log("amount: ", donation.amount);
+                  return{
+                  ...donation,
+          id: donation.donationId || index + 1, // Ensure unique ID
+          customerId: donation.customerId || "N/A",
+          amount: donation.amount || 0,
+          date: donation.date ? new Date(donation.date): null,
+        }});
+        console.log("formatted data: ",formattedData);
+        setRows(formattedData);
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
+  }, []);
+
+
+
   return (
     <Paper sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
+        loading={loading}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[50, 100]}
         sx={{ border: 0 }}

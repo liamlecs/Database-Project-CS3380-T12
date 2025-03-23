@@ -1,3 +1,5 @@
+//file most likely redundant and should be deleted at end of dev phase
+
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { Link, Outlet } from 'react-router-dom';
 

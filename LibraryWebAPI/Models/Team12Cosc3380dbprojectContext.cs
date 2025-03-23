@@ -1,4 +1,6 @@
-﻿using System;
+﻿//file is most likely redundant and should be deleted by the end of project development phase
+
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -181,10 +183,6 @@ public partial class Team12Cosc3380dbprojectContext : DbContext
             entity.Property(e => e.DonationId).HasColumnName("DonationID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Donations)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Donation_Customer");
         });
 
         modelBuilder.Entity<Employee>(entity =>

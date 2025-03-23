@@ -1,3 +1,4 @@
+// biome-ignore lint/style/useImportType: <explanation>
 import React, { useState } from 'react';
 import {
   AppBar,

@@ -7,9 +7,9 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import utc from "dayjs/plugin/utc";
 
-dayjs.extend(utc); // Enable UTC parsing
+//consider removing RSVP button
+
 const localizer = dayjsLocalizer(dayjs);
 
 interface CalendarEvent {

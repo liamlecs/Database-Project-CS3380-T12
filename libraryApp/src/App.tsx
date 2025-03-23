@@ -32,8 +32,8 @@ function App() {
           <Route path="/donations" element={<Donations />} />
           <Route path="/employee" element={<Employee />} />
 
-          {/* Library History Nested Routes */}
-          <Route path="/libraryhistory" element={<LibraryHistory />}>
+          {/* Library History Nested Routes, most likely redundant */}
+          <Route path="/libraryhistory" element={<LibraryHistory />}> 
             <Route path="checkouthistory" element={<CheckoutHistory />} />
             <Route path="donationhistory" element={<DonationHistory />} />
             <Route path="finehistory" element={<FineHistory />} />

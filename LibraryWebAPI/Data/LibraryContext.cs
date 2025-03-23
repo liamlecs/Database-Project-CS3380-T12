@@ -173,10 +173,6 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.DonationId).HasColumnName("DonationID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Donations)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Donation_Customer");
         });
 
         modelBuilder.Entity<Employee>(entity =>

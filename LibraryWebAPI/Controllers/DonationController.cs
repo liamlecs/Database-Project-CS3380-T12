@@ -23,7 +23,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Donation>>> GetDonations()
         {
-            var donations = await _context.Donations.Include(d => d.Customer).ToListAsync();
+            var donations = await _context.Donations.ToListAsync(); // must remove .Include(d => d.Customer)
             return Ok(donations);
         }
 
@@ -32,8 +32,7 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Donation>> GetDonation(int id)
         {
             var donation = await _context.Donations
-                .Include(d => d.Customer)
-                .FirstOrDefaultAsync(m => m.DonationId == id);
+                .FirstOrDefaultAsync(m => m.DonationId == id); // must remove .Include(d => d.Customer)
 
             if (donation == null)
             {
