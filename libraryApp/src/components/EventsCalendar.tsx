@@ -38,6 +38,7 @@ class EventsCalendar extends Component<
       }
 
       const events = await response.json();
+      console.log(events);
 
       // Assuming the response is in the correct format to match CalendarEvent structure
       this.setState({
@@ -47,8 +48,8 @@ class EventsCalendar extends Component<
             ...event,
             start: dayjs(event.startTimestamp).toDate(),
             end: dayjs(event.endTimestamp).toDate(),
-            title: "event title", // Assuming title is part of your event
-            description: "event desc", // Assuming description is part of your event
+            title: event.title, // Assuming title is part of your event
+            description: event.description, // Assuming description is part of your event
           };
         }),
       });
@@ -87,7 +88,7 @@ class EventsCalendar extends Component<
             defaultDate={new Date()}
             defaultView="month"
             events={this.state.events}
-            style={{ height: "100vh" }}
+            style={{ height: "85vh" }}
             onSelectEvent={this.handleSelectEvent}
           />
         </div>

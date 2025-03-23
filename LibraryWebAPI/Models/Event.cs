@@ -23,4 +23,8 @@ public partial class Event
 
     public bool IsPrivate { get; set; }
 
+    public string Description { get; set; } = null!;
+
+    public string Title { get; set; } = null!;
+
 }

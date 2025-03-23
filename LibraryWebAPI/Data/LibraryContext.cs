@@ -229,6 +229,11 @@ public virtual DbSet<Book> Books { get; set; }
                 .HasMaxLength(30)
                 .IsUnicode(false);
             entity.Property(e => e.StartTimestamp).HasColumnType("datetime");
+            entity.Property(e => e.Description)//dropped HasMaxLength
+                .IsUnicode(false);
+                entity.Property(e => e.Title)
+                .HasMaxLength(50)
+                .IsUnicode(false);
 
         });
 

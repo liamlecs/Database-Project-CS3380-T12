@@ -1,9 +1,19 @@
-import { Autocomplete, Box, Stack, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  FilledTextFieldProps,
+  OutlinedTextFieldProps,
+  Stack,
+  StandardTextFieldProps,
+  TextField,
+  TextFieldVariants,
+} from "@mui/material";
 import type { Dayjs } from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Button from "@mui/material/Button";
+import { JSX } from "react/jsx-runtime";
 
 class EventDetails {
   eventID?: number;
@@ -13,6 +23,8 @@ class EventDetails {
   ageGroup?: number;
   categoryID?: number;
   isPrivate?: boolean;
+  title?: string;
+  description?: string;
 
   getEventID(): number | undefined {
     return this.eventID;
@@ -68,6 +80,20 @@ class EventDetails {
   setIsPrivate(privateStatus: boolean): void {
     this.isPrivate = privateStatus;
   }
+
+  getTitle(): string | undefined {
+    return this.title;
+  }
+  setTitle(loc: string): void {
+    this.title = loc;
+  }
+
+  getDescription(): string | undefined {
+    return this.description;
+  }
+  setDescription(loc: string): void {
+    this.description = loc;
+  }
 }
 
 const eventdetails = new EventDetails(); //must create an EventID generator eventually
@@ -82,6 +108,8 @@ const handleSubmit = async () => {
     ageGroup: eventdetails.getAgeGroup() || 0, // Default to 0 if null
     categoryId: eventdetails.getCategoryID() || 0, // Default to 0 if null
     isPrivate: eventdetails.getIsPrivate() ?? false,
+    title: eventdetails.getTitle() || "",
+    description: eventdetails.getDescription() || "",
   };
 
   try {
@@ -220,10 +248,10 @@ export default function CreateEvent() {
                 case "Educational":
                   eventdetails.setCategoryID(1);
                   break;
-                  case "Social":
+                case "Social":
                   eventdetails.setCategoryID(2);
                   break;
-                  case "Cultural":
+                case "Cultural":
                   eventdetails.setCategoryID(3);
                   break;
               }
@@ -244,12 +272,37 @@ export default function CreateEvent() {
           renderInput={(params) => <TextField {...params} />}
           onChange={(event, newValue) => {
             if (newValue) {
-              if(newValue==="True")
-              eventdetails.setIsPrivate(true);
-            else
-            eventdetails.setIsPrivate(false);
+              if (newValue === "True") eventdetails.setIsPrivate(true);
+              else eventdetails.setIsPrivate(false);
               console.log("Updated Answer Object:", eventdetails);
             }
+          }}
+        />
+      </div>
+      <h2 style={{ marginTop: "20px" }}>What is the title of your event?</h2>
+      <div className="centeredHor" style={{ marginTop: "20px" }}>
+        <TextField
+          id="outlined-basic"
+          variant="outlined"
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            const newValue = event.target.value;
+              eventdetails.setTitle(newValue);
+              console.log("Updated Answer Object:", eventdetails);
+          }}
+        />
+      </div>
+      <h2 style={{ marginTop: "20px" }}>What is the description for your event?</h2>
+      <div className="centeredHor" style={{ marginTop: "20px" }}>
+        <TextField
+          id="multiline"
+          multiline
+          minRows={2}
+          maxRows={6}
+          sx={{width:"45ch"}}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            const newValue = event.target.value;
+              eventdetails.setDescription(newValue);
+              console.log("Updated Answer Object:", eventdetails);
           }}
         />
       </div>
