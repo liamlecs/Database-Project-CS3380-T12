@@ -23,7 +23,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Technology>>> GetTechnologies()
         {
-            var technologies = await _context.Technologies.Include(t => t.Device).ToListAsync();
+            var technologies = await _context.Technologies.ToListAsync();
             return Ok(technologies);
         }
 
@@ -32,7 +32,7 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Technology>> GetTechnology(int id)
         {
             var technology = await _context.Technologies
-                .Include(t => t.Device)
+                
                 .FirstOrDefaultAsync(m => m.DeviceId == id);
 
             if (technology == null)

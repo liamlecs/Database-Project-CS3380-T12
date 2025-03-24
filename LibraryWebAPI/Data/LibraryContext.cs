@@ -82,11 +82,6 @@ public virtual DbSet<Book> Books { get; set; }
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Book_BookGenre");
 
-            entity.HasOne(d => d.BookNavigation).WithOne(p => p.Book)
-                .HasForeignKey<Book>(d => d.BookId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Book_Item");
-
             entity.HasOne(d => d.Publisher).WithMany(p => p.Books)
                 .HasForeignKey(d => d.PublisherId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -158,10 +153,7 @@ public virtual DbSet<Book> Books { get; set; }
                 .HasMaxLength(30)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.BorrowerType).WithMany(p => p.Customers)
-                .HasForeignKey(d => d.BorrowerTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Customer_BorrowerType");
+          
         });
 
         modelBuilder.Entity<Donation>(entity =>
@@ -253,10 +245,7 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TransactionId).HasColumnName("TransactionID");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Fines)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Fines_Customer");
+          
 
             entity.HasOne(d => d.Transaction).WithMany(p => p.Fines)
                 .HasForeignKey(d => d.TransactionId)
@@ -304,10 +293,7 @@ public virtual DbSet<Book> Books { get; set; }
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Movie_MovieGenre");
 
-            entity.HasOne(d => d.MovieNavigation).WithOne(p => p.Movie)
-                .HasForeignKey<Movie>(d => d.MovieId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Movie_Item");
+
         });
 
         modelBuilder.Entity<MovieGenre>(entity =>
@@ -344,10 +330,7 @@ public virtual DbSet<Book> Books { get; set; }
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Music_MusicGenre");
 
-            entity.HasOne(d => d.MusicNavigation).WithOne(p => p.Music)
-                .HasForeignKey<Music>(d => d.MusicId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Music_Item");
+
         });
 
         modelBuilder.Entity<MusicGenre>(entity =>
@@ -409,14 +392,8 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.Manufacturer)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.ModelNumber)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.Device).WithOne(p => p.Technology)
-                .HasForeignKey<Technology>(d => d.DeviceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Technology_Item");
+            entity.Property(e => e.ModelNumber).HasColumnName("ModelNumber");
+                
         });
 
         modelBuilder.Entity<TransactionHistory>(entity =>
@@ -429,15 +406,8 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.TransactionHistories)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TransactionHistory_Customer");
+          
 
-            entity.HasOne(d => d.Item).WithMany(p => p.TransactionHistories)
-                .HasForeignKey(d => d.ItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TransactionHistory_Item");
         });
 
         modelBuilder.Entity<Waitlist>(entity =>
@@ -449,19 +419,9 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.WaitlistId).HasColumnName("WaitlistID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
-            entity.Property(e => e.Status)
-                .HasMaxLength(10)
-                .IsUnicode(false);
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Waitlists)
-                .HasForeignKey(d => d.CustomerId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Waitlist_Customer");
+         
 
-            entity.HasOne(d => d.Item).WithMany(p => p.Waitlists)
-                .HasForeignKey(d => d.ItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Waitlist_Item");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace LibraryWebAPI.Models;
 
 public partial class Item
 {
+            [Key]
     public int ItemId { get; set; }
 
     public string Title { get; set; } = null!;
@@ -16,16 +18,4 @@ public partial class Item
     public int AvailableCopies { get; set; }
 
     public string? Location { get; set; }
-
-    public virtual Book? Book { get; set; }
-
-    public virtual Movie? Movie { get; set; }
-
-    public virtual Music? Music { get; set; }
-
-    public virtual Technology? Technology { get; set; }
-
-    public virtual ICollection<TransactionHistory> TransactionHistories { get; set; } = new List<TransactionHistory>();
-
-    public virtual ICollection<Waitlist> Waitlists { get; set; } = new List<Waitlist>();
 }

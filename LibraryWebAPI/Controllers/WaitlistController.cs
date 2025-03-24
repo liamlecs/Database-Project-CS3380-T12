@@ -25,8 +25,8 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<IEnumerable<Waitlist>>> GetWaitlists()
         {
             var waitlists = await _context.Waitlists
-                .Include(w => w.Customer)
-                .Include(w => w.Item)
+
+
                 .ToListAsync();
             return Ok(waitlists);
         }
@@ -36,8 +36,8 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Waitlist>> GetWaitlist(int id)
         {
             var waitlist = await _context.Waitlists
-                .Include(w => w.Customer)
-                .Include(w => w.Item)
+
+
                 .FirstOrDefaultAsync(m => m.WaitlistId == id);
 
             if (waitlist == null)
@@ -52,8 +52,12 @@ namespace LibraryWebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Waitlist>> PostWaitlist([FromBody] Waitlist waitlist)
         {
+
             if (ModelState.IsValid)
             {
+                
+
+
                 _context.Waitlists.Add(waitlist);
                 await _context.SaveChangesAsync();
 

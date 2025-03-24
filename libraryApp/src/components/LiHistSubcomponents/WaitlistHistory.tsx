@@ -1,44 +1,73 @@
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
+import { useState, useEffect } from 'react';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Waitlist ID', width: 70 },
-  { field: 'CustomerID', headerName: 'Customer ID', width: 130 },
-  { field: 'ItemID', headerName: 'Item ID', width: 130 },
+  { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
+  { field: 'itemId', headerName: 'Item ID', type: 'number', width: 130 },
   {
-    field: 'ReservationDate',
+    field: 'reservationDate',
     headerName: 'Reservation Date',
-    //type: 'date',
+    type: 'date',
     width: 90,
   },
   {
-    field: 'Status',
-    headerName: 'Status',
+    field: 'isReceived',
+    headerName: 'Was Received?',
     type: 'boolean',
     width: 90,
   },
 ];
 
-const rows = [
-  { id: 1, ItemID: 'Snow', CustomerID: 'Jon', ReservationDate: 35 },
-  { id: 2, ItemID: 'Lannister', CustomerID: 'Cersei', ReservationDate: 42 },
-  { id: 3, ItemID: 'Lannister', CustomerID: 'Jaime', ReservationDate: 45 },
-  { id: 4, ItemID: 'Stark', CustomerID: 'Arya', ReservationDate: 16 },
-  { id: 5, ItemID: 'Targaryen', CustomerID: 'Daenerys', ReservationDate: null },
-  { id: 6, ItemID: 'Melisandre', CustomerID: null, ReservationDate: 150 },
-  { id: 7, ItemID: 'Clifford', CustomerID: 'Ferrara', ReservationDate: 44 },
-  { id: 8, ItemID: 'Frances', CustomerID: 'Rossini', ReservationDate: 36 },
-  { id: 9, ItemID: 'Roxie', CustomerID: 'Harvey', ReservationDate: 65 },
-];
+
 
 const paginationModel = { page: 0, pageSize: 5 };
 
 export default function WaitlistHistory() {
+
+ const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        const response = await fetch("http://localhost:5217/api/Waitlist");
+        if (!response.ok) {
+          throw new Error("Failed to fetch donation data");
+        }
+        const data = await response.json();
+console.log("raw data: ", data);
+        // Transform API response to fit DataGrid's row format
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+                const formattedData = data.map((waitlist: any, index: number) => {
+                  //console.log("amount: ", donation.amount);
+                  return{
+                  ...waitlist,
+          id: waitlist.waitlistId || index + 1, // Ensure unique ID
+          customerId: waitlist.customerId || "N/A",
+          itemId: waitlist.itemId || 0,
+          reservationDate: waitlist.reservationDate ? new Date(waitlist.reservationDate): null,
+          isReceived: waitlist.isReceived || false,
+        }});
+        console.log("formatted data: ",formattedData);
+        setRows(formattedData);
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
+  }, []);
+
   return (
     <Paper sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
+        loading={loading}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[50, 100]}
         sx={{ border: 0 }}

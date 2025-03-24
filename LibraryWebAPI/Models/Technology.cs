@@ -14,7 +14,6 @@ public partial class Technology
 
     public string Manufacturer { get; set; } = null!;
 
-    public string ModelNumber { get; set; } = null!;
+    public int ModelNumber { get; set; }
 
-    public virtual Item Device { get; set; } = null!;
 }

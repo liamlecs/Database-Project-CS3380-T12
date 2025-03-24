@@ -24,7 +24,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
-            var customers = await _context.Customers.Include(c => c.BorrowerType).ToListAsync();
+            var customers = await _context.Customers.ToListAsync();
             return Ok(customers);
         }
 
@@ -33,7 +33,7 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
             var customer = await _context.Customers
-                .Include(c => c.BorrowerType)
+                
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
 
             if (customer == null)
