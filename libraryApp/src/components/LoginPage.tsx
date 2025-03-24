@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../App.css"; // CSS import
 import bgImage from "../assets/library-bg.jpg";
 
@@ -7,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,6 +33,23 @@ export default function LoginPage() {
         const successText = await response.text();
         setMessage(successText);
       }
+
+      const result = await response.json();
+      setMessage(result.message || "Login successful!");
+
+      // check if the user is an employee and redirect
+      if (result.isEmployee) {
+        // store employee authentication data
+        localStorage.setItem('isEmployee', 'true');
+        localStorage.setItem('employeeData', JSON.stringify(result));
+        
+        // redirect to employee homepage
+        navigate('/employee');
+      } else {
+        // regular customer redirect
+        navigate('/customer-dashboard');
+      }
+
     } catch (err: any) {
       console.error(err);
       setMessage("An error occurred while logging in.");

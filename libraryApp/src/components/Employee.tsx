@@ -1,5 +1,5 @@
-// biome-ignore lint/style/useImportType: <explanation>
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -25,14 +25,14 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckoutHistory from './LiHistSubcomponents/CheckoutHistory';
-import DonationHistory from './/LiHistSubcomponents/DonationHistory';
-import EventHistory from './/LiHistSubcomponents/EventHistory';
-import FineHistory from './/LiHistSubcomponents/FineHistory';
-import WaitlistHistory from './/LiHistSubcomponents/WaitlistHistory';
+import DonationHistory from './LiHistSubcomponents/DonationHistory';
+import EventHistory from './LiHistSubcomponents/EventHistory';
+import FineHistory from './LiHistSubcomponents/FineHistory';
+import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 
 // defining types
 interface InventoryItem {
-  id: string;
+  id: number;
   type: 'book' | 'movie' | 'technology';
   title: string;
   status: string;
@@ -44,21 +44,53 @@ interface InventoryItem {
 }
 
 interface Event {
-  id: string;
-  eventName: string;
-  eventDate: string;
+  eventId: number;
+  title: string;
+  startTimestamp: string;
   description: string;
+  location: string;
 }
 
 const Employee: React.FC = () => {
-  // state for current view
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
-  const [tabValue, setTabValue] = useState(0); // state for Library History tabs
-
-  // inventory management
+  const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
-  const [inventoryForm, setInventoryForm] = useState<Omit<InventoryItem, 'id'>>({
-    type: 'book',
+  const [events, setEvents] = useState<Event[]>([]);
+  const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    const isEmployee = localStorage.getItem('isEmployee');
+    if (!isEmployee) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  // check authorization 
+  useEffect(() => {
+    const userData = localStorage.getItem('userData');
+    if (!userData) {
+      navigate('/LoginPage');
+      return;
+    }
+
+    const parsedData = JSON.parse(userData);
+    if (!parsedData.isEmployee) {
+      navigate('/unauthorized');
+      return;
+    }
+
+    setIsAuthorized(true);
+  }, [navigate]);
+
+  // If not authorized, return null
+  if (!isAuthorized) {
+    return null;
+  }
+
+  // inventory form state
+  const [inventoryForm, setInventoryForm] = useState({
+    type: 'book' as 'book' | 'movie' | 'technology',
     title: '',
     status: 'available',
     author: '',
@@ -68,36 +100,136 @@ const Employee: React.FC = () => {
     model: '',
   });
 
-  // event management
-  const [events, setEvents] = useState<Event[]>([]);
-  const [eventForm, setEventForm] = useState<Omit<Event, 'id'>>({
-    eventName: '',
-    eventDate: '',
+  // event form state
+  const [eventForm, setEventForm] = useState({
+    title: '',
+    startTimestamp: '',
     description: '',
+    location: ''
   });
 
-  // adding inventory item
-  const handleAddInventory = () => {
-    const newItem: InventoryItem = { ...inventoryForm, id: String(inventory.length + 1) };
-    setInventory([...inventory, newItem]);
-    setInventoryForm({
-      type: 'book',
-      title: '',
-      status: 'available',
-      author: '',
-      director: '',
-      runtime: 0,
-      manufacturer: '',
-      model: '',
-    });
+  // fetch data when view changes
+  useEffect(() => {
+    if (currentView === 'inventory' || currentView === 'dashboard') {
+      fetchInventory();
+    }
+    if (currentView === 'events' || currentView === 'dashboard') {
+      fetchEvents();
+    }
+  }, [currentView]);
+
+  // fetch inventory from backend
+  const fetchInventory = async () => {
+    try {
+      const response = await fetch('/api/Item');
+      const data = await response.json();
+      setInventory(data);
+    } catch (error) {
+      console.error('Error fetching inventory:', error);
+    }
   };
 
-  // deleting inventory item
-  const handleDeleteInventory = (id: string) => {
-    setInventory(inventory.filter((item) => item.id !== id));
+  // fetch events from backend
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch('/api/Event');
+      const data = await response.json();
+      setEvents(data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
   };
 
-  // render inventory form based on the selected type
+  // add new inventory item
+  const handleAddInventory = async () => {
+    try {
+      const response = await fetch('/api/Item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inventoryForm),
+      });
+
+      if (response.ok) {
+        fetchInventory();
+        setInventoryForm({
+          type: 'book',
+          title: '',
+          status: 'available',
+          author: '',
+          director: '',
+          runtime: 0,
+          manufacturer: '',
+          model: '',
+        });
+      }
+    } catch (error) {
+      console.error('Error adding inventory:', error);
+    }
+  };
+
+  // delete inventory item
+  const handleDeleteInventory = async (id: number) => {
+    try {
+      const response = await fetch(`/api/Item/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchInventory();
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+    }
+  };
+
+  // add new event
+  const handleAddEvent = async () => {
+    try {
+      const response = await fetch('/api/Event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: eventForm.title,
+          startTimestamp: eventForm.startTimestamp,
+          description: eventForm.description,
+          location: eventForm.location
+        }),
+      });
+
+      if (response.ok) {
+        fetchEvents();
+        setEventForm({
+          title: '',
+          startTimestamp: '',
+          description: '',
+          location: ''
+        });
+      }
+    } catch (error) {
+      console.error('Error adding event:', error);
+    }
+  };
+
+  // delete event
+  const handleDeleteEvent = async (id: number) => {
+    try {
+      const response = await fetch(`/api/Event/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchEvents();
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
+
+  // inventory form based on type
   const renderInventoryForm = () => {
     switch (inventoryForm.type) {
       case 'book':
@@ -219,14 +351,7 @@ const Employee: React.FC = () => {
     );
   };
 
-  // adding event
-  const handleAddEvent = () => {
-    const newEvent: Event = { ...eventForm, id: String(events.length + 1) };
-    setEvents([...events, newEvent]);
-    setEventForm({ eventName: '', eventDate: '', description: '' });
-  };
-
-  // render the current view
+  // current view
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
@@ -251,18 +376,25 @@ const Employee: React.FC = () => {
             </Typography>
             <TextField
               fullWidth
-              label="Event Name"
-              value={eventForm.eventName}
-              onChange={(e) => setEventForm({ ...eventForm, eventName: e.target.value })}
+              label="Event Title"
+              value={eventForm.title}
+              onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
               margin="normal"
             />
             <TextField
               fullWidth
-              label="Event Date"
-              type="date"
+              label="Start Date/Time"
+              type="datetime-local"
               InputLabelProps={{ shrink: true }}
-              value={eventForm.eventDate}
-              onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
+              value={eventForm.startTimestamp}
+              onChange={(e) => setEventForm({ ...eventForm, startTimestamp: e.target.value })}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Location"
+              value={eventForm.location}
+              onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
               margin="normal"
             />
             <TextField
@@ -281,17 +413,25 @@ const Employee: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Event Name</TableCell>
-                    <TableCell>Event Date</TableCell>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Start Time</TableCell>
+                    <TableCell>Location</TableCell>
                     <TableCell>Description</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {events.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell>{event.eventName}</TableCell>
-                      <TableCell>{event.eventDate}</TableCell>
+                    <TableRow key={event.eventId}>
+                      <TableCell>{event.title}</TableCell>
+                      <TableCell>{new Date(event.startTimestamp).toLocaleString()}</TableCell>
+                      <TableCell>{event.location}</TableCell>
                       <TableCell>{event.description}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={() => handleDeleteEvent(event.eventId)} color="error">
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

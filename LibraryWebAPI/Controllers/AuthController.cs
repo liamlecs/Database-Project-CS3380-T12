@@ -20,6 +20,25 @@ namespace LibraryWebAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
+            // check if it's an employee login
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.Username == loginDto.Email);
+            
+            if (employee != null)
+            {
+                if (employee.AccountPassword != loginDto.Password)
+                {
+                    return Unauthorized("Invalid email or password.");
+                }
+
+                // Return employee-specific response
+                return Ok(new {
+                    message = "Employee login successful!",
+                    isEmployee = true,
+                    userId = employee.EmployeeId
+                });
+            }
+
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.Email == loginDto.Email);
 

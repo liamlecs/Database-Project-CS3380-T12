@@ -5,9 +5,15 @@ using LibraryWebAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace LibraryWebAPI.Controllers
+
+
 {
+    [Authorize(Roles = "Employee")]
     [Route("api/[controller]")]
     [ApiController]
     public class EmployeeController : ControllerBase
@@ -18,6 +24,29 @@ namespace LibraryWebAPI.Controllers
         {
             _context = context;
         }
+
+    [HttpGet("my-profile")]
+    public async Task<ActionResult<Employee>> GetMyProfile()
+    {
+        var employeeIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (employeeIdClaim == null || !int.TryParse(employeeIdClaim.Value, out int employeeId))
+        {
+            return Unauthorized();
+        }
+
+        // Fetch the employee data
+        var employee = await _context.Employees
+            .Include(e => e.SexNavigation)
+            .Include(e => e.Supervisor)
+            .FirstOrDefaultAsync(e => e.EmployeeId == employeeId);
+
+        if (employee == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(employee);
+    }
 
         // GET: api/Employee
         [HttpGet]
@@ -107,5 +136,6 @@ namespace LibraryWebAPI.Controllers
         {
             return _context.Employees.Any(e => e.EmployeeId == id);
         }
+  
     }
 }
