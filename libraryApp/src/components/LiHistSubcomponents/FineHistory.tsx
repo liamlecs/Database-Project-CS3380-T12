@@ -1,41 +1,72 @@
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
+import { useEffect, useState } from 'react';
 
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'Fine ID', width: 70 },
-  { field: 'TransactionID', headerName: 'Transaction ID', width: 130 },
-  { field: 'CustomerID', headerName: 'Customer ID', width: 130 },
+  { field: 'transactionId', headerName: 'Transaction ID', type: 'number', width: 130 },
+  { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
   {
-    field: 'Amount',
+    field: 'amount',
     headerName: 'Amount',
     type: 'number',
     width: 90,
   },
-  { field: 'DueDate', headerName: 'Due Date', type:'date', width: 130 },
-  { field: 'IssueDate', headerName: 'Issue Date', type:'date', width: 130 },
-  { field: 'PaymentStatus', headerName: 'Payment Status', type:'boolean', width: 130 },
-];
-
-const rows = [
-  { id: 1, CustomerID: 'Snow', TransactionID: 'Jon', Amount: 35 },
-  { id: 2, CustomerID: 'Lannister', TransactionID: 'Cersei', Amount: 42 },
-  { id: 3, CustomerID: 'Lannister', TransactionID: 'Jaime', Amount: 45 },
-  { id: 4, CustomerID: 'Stark', TransactionID: 'Arya', Amount: 16 },
-  { id: 5, CustomerID: 'Targaryen', TransactionID: 'Daenerys', Amount: null },
-  { id: 6, CustomerID: 'Melisandre', TransactionID: null, Amount: 150 },
-  { id: 7, CustomerID: 'Clifford', TransactionID: 'Ferrara', Amount: 44 },
-  { id: 8, CustomerID: 'Frances', TransactionID: 'Rossini', Amount: 36 },
-  { id: 9, CustomerID: 'Roxie', TransactionID: 'Harvey', Amount: 65 },
+  { field: 'issueDate', headerName: 'Issue Date', type:'date', width: 130 },
+  { field: 'dueDate', headerName: 'Due Date', type:'date', width: 130 },
+  { field: 'paymentStatus', headerName: 'Payment Status', type:'boolean', width: 130 },
 ];
 
 const paginationModel = { page: 0, pageSize: 50 };
 
 export default function FineHistory() {
+
+ const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDonations = async () => {
+      try {
+        const response = await fetch("http://localhost:5217/api/Fine");
+        if (!response.ok) {
+          throw new Error("Failed to fetch donation data");
+        }
+        const data = await response.json();
+console.log("raw data: ", data);
+        // Transform API response to fit DataGrid's row format
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+                const formattedData = data.map((fine: any, index: number) => {
+                  //console.log("amount: ", donation.amount);
+                  return{
+                  ...fine,
+          id: fine.fineId || index + 1, // Ensure unique ID
+          transactionId: fine.transactionId || 0,
+          customerId: fine.customerId || 0,
+          amount: fine.amount || 0,
+          dueDate: fine.dueDate ? new Date(fine.dueDate): null,
+          issueDate: fine.issueDate ? new Date(fine.issueDate): null,
+          paymentStatus: fine.paymentStatus || false,
+        }});
+        console.log("formatted data: ",formattedData);
+        setRows(formattedData);
+      } catch (error) {
+        console.error("Error fetching donations:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
+  }, []);
+
+
+
   return (
     <Paper sx={{ height: 400, width: '100%' }}>
       <DataGrid
         rows={rows}
         columns={columns}
+        loading={loading}
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[50, 100]}
         sx={{ border: 0 }}

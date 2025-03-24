@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibraryWebAPI.Models;
 
 public partial class Fine
 {
+        [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int FineId { get; set; }
 
     public int TransactionId { get; set; }
@@ -18,8 +22,4 @@ public partial class Fine
     public DateOnly IssueDate { get; set; }
 
     public bool PaymentStatus { get; set; }
-
-    public virtual Customer Customer { get; set; } = null!;
-
-    public virtual TransactionHistory Transaction { get; set; } = null!;
 }

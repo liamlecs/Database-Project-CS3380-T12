@@ -24,7 +24,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Fine>>> GetFines()
         {
-            var fines = await _context.Fines.Include(f => f.Customer).Include(f => f.Transaction).ToListAsync();
+            var fines = await _context.Fines.ToListAsync();
             return Ok(fines);
         }
 
@@ -33,8 +33,6 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Fine>> GetFine(int id)
         {
             var fine = await _context.Fines
-                .Include(f => f.Customer)
-                .Include(f => f.Transaction)
                 .FirstOrDefaultAsync(m => m.FineId == id);
 
             if (fine == null)
