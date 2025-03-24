@@ -30,6 +30,14 @@ const Donations: React.FC = () => {
     setSelectedAmount(null); // reset predefined amount if custom amount is entered
   };
 
+  // retrieve user ID
+  const getCustomerId = async (): Promise<number> => {
+    // Replace this with your actual logic to fetch the user's ID
+    const response = await fetch('/api/auth/current-user');
+    const user = await response.json();
+    return user.id;
+  };
+
   // handle donation submission
   const handleDonate = async () => {
     const amount = customAmount ? Number.parseFloat(customAmount) : selectedAmount;
@@ -40,9 +48,34 @@ const Donations: React.FC = () => {
       return;
     }
 
-    setTimeout(() => {
+
+    try {
+      
+      const customerID = await getCustomerId();
+
+      const donationData = {
+        CustomerID: customerID,
+        Amount: amount,
+        Date: new Date().toISOString(),
+      };
+
+      const response = await fetch('/api/Donation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(donationData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Donation failed. Please try again.');
+      }
+
       setDonationSuccess(true);
-    }, 1000); // simulate 1 second delay for processing
+    } catch (error) {
+      console.error('Error processing donation:', error);
+      alert('An error occurred while processing your donation. Please try again.');
+    }
   };
 
   // Reset the form

@@ -5,6 +5,7 @@ using LibraryWebAPI.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace LibraryWebAPI.Controllers
 {
@@ -23,7 +24,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Donation>>> GetDonations()
         {
-            var donations = await _context.Donations.ToListAsync(); // must remove .Include(d => d.Customer)
+            var donations = await _context.Donations.Include(d => d.Customer).ToListAsync();
             return Ok(donations);
         }
 
@@ -32,7 +33,8 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Donation>> GetDonation(int id)
         {
             var donation = await _context.Donations
-                .FirstOrDefaultAsync(m => m.DonationId == id); // must remove .Include(d => d.Customer)
+                .Include(d => d.Customer)
+                .FirstOrDefaultAsync(m => m.DonationId == id);
 
             if (donation == null)
             {
@@ -44,17 +46,65 @@ namespace LibraryWebAPI.Controllers
 
         // POST: api/Donation
         [HttpPost]
-        public async Task<ActionResult<Donation>> PostDonation(Donation donation)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Donations.Add(donation);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetDonation), new { id = donation.DonationId }, donation);
-            }
+public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto donationDto)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
 
-            return BadRequest(ModelState);
-        }
+    // Check if the customer exists
+    var customer = await _context.Customers.FindAsync(donationDto.CustomerId);
+    if (customer == null)
+    {
+        return BadRequest("Invalid Customer ID.");
+    }
+
+    // Map the DTO to Donation entity
+    var donation = new Donation
+    {
+        CustomerId = donationDto.CustomerId,
+        Amount = donationDto.Amount,
+        Date = donationDto.Date
+    };
+
+    try
+    {
+        _context.Donations.Add(donation);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetDonation), new { id = donation.DonationId }, donation);
+    }
+    catch (DbUpdateException ex)
+    {
+        return StatusCode(500, "An error occurred while saving the donation.");
+    }
+}
+
+public class DonationRequest
+{
+    public DonationDto Donation { get; set; }
+}
+
+public class DonationDto
+{
+    public int DonationId { get; set; }
+    public int CustomerId { get; set; }
+    public double Amount { get; set; }
+    public DateOnly Date { get; set; }
+}
+
+public class CustomerDto
+{
+    public int CustomerId { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public int BorrowerTypeId { get; set; }
+    public DateTime MembershipStartDate { get; set; }
+    public DateTime MembershipEndDate { get; set; }
+    public string AccountPassword { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
 
         // PUT: api/Donation/5
         [HttpPut("{id}")]
