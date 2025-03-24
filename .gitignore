@@ -11,6 +11,8 @@
     dist
     dist-ssr
     *.local
+    
+    LibraryWebAPI\bin
 
     # Editor directories and files
     .vscode/*
@@ -24,5 +26,8 @@
     *.sw?
     bin/
     obj/
+
+    # Others
+    .env
 
 
