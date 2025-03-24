@@ -245,12 +245,6 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TransactionId).HasColumnName("TransactionID");
 
-          
-
-            entity.HasOne(d => d.Transaction).WithMany(p => p.Fines)
-                .HasForeignKey(d => d.TransactionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Fines_Transaction");
         });
 
         modelBuilder.Entity<Item>(entity =>

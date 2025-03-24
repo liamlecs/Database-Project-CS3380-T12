@@ -25,8 +25,6 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<IEnumerable<TransactionHistory>>> GetTransactionHistories()
         {
             var transactionHistories = await _context.TransactionHistories
-                .Include(t => t.Customer)
-                .Include(t => t.Item)
                 .ToListAsync();
             return Ok(transactionHistories);
         }
@@ -36,8 +34,6 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<TransactionHistory>> GetTransactionHistory(int id)
         {
             var transactionHistory = await _context.TransactionHistories
-                .Include(t => t.Customer)
-                .Include(t => t.Item)
                 .FirstOrDefaultAsync(m => m.TransactionId == id);
 
             if (transactionHistory == null)

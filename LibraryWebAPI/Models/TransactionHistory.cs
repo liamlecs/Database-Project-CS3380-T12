@@ -8,6 +8,7 @@ namespace LibraryWebAPI.Models
     public partial class TransactionHistory
     {
         [Key] // <-- Add this line
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TransactionId { get; set; }
 
         public int CustomerId { get; set; }
@@ -19,11 +20,5 @@ namespace LibraryWebAPI.Models
         public DateOnly DueDate { get; set; }
 
         public DateOnly? ReturnDate { get; set; }
-
-        public virtual Customer Customer { get; set; } = null!;
-
-        public virtual ICollection<Fine> Fines { get; set; } = new List<Fine>();
-
-        public virtual Item Item { get; set; } = null!;
     }
 }
