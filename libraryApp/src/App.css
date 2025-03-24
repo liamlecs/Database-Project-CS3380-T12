@@ -96,7 +96,7 @@ background-color: #777;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #97b3e3;
+  background-color: #fff;
   cursor: pointer;
 }
 
@@ -155,47 +155,22 @@ background-color: #777;
   background-color: #0056b3;
 }
 
-/* Employee Home Page */
-
-/* Employee Container */
-.employee-container {
-  padding: 1rem;
+.login-bg {
+  /* Use your actual path to the image. If it's in public/assets, then: */
+  background: url('../assets/library-bg.jpg') no-repeat center center;
+  background-size: cover;
+  min-height: 100vh; /* full viewport height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Table Styles */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
+.login-card {
+  background-color: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+  backdrop-filter: blur(10px);                /* apply a blur effect behind */
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 400px; /* fixed width, adjust as needed */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-table th, table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-
-table th {
-  background-color: #f4f4f4;
-}
-
-/* Form Styles */
-input, textarea {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  padding: 8px 16px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}

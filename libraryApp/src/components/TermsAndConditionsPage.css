@@ -1,0 +1,33 @@
+/* TermsAndConditionsPage.css */
+
+.terms-container {
+    margin: 2rem;               /* Some space from edges */
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.6;
+    max-width: 900px;           /* Prevent super wide text on large screens */
+  }
+  
+  .title {
+    text-align: center;         /* Center just the main title */
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+  }
+  
+  /* Sub-headings left aligned */
+  h2 {
+    text-align: left;
+    font-size: 1.3rem;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #444;
+  }
+  
+  /* All paragraphs left aligned */
+  p {
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+  

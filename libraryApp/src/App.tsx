@@ -16,7 +16,11 @@ import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
 import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
 import Donations from "./components/Donations.tsx"
+import TermsAndConditionsPage from "./components/TermsAndConditionsPage.tsx";
+import ConfirmEmail from "./components/ConfirmEmail.tsx";
 import Employee from "./components/Employee.tsx";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function App() {
   return (
@@ -42,6 +46,8 @@ function App() {
           </Route>
           <Route path="userprofile" element={<UserProfile />} />
           <Route path="/bookcheckout" element={<BookCheckOutPage />} />
+          <Route path="/terms" element={<TermsAndConditionsPage />} /> 
+          <Route path="/confirm" element={<ConfirmEmail />} />
         </Routes>
       </div>
     </Router>

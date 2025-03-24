@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LibraryWebAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a1b3d45bd0b9bbd0eb3dd35a31edef00a7b62802")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf61c34fdc9b537108dcc3bcf670818c8aef4647")]
+>>>>>>> d37a91a (Login + Email Sending + Registration + Authentication Code)
 [assembly: System.Reflection.AssemblyProductAttribute("LibraryWebAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LibraryWebAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
