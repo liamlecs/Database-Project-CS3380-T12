@@ -19,7 +19,7 @@ import Donations from "./components/Donations.tsx"
 import TermsAndConditionsPage from "./components/TermsAndConditionsPage.tsx";
 import ConfirmEmail from "./components/ConfirmEmail.tsx";
 import Employee from "./components/Employee.tsx";
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {

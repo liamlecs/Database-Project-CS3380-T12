@@ -104,7 +104,7 @@ const Library: React.FC = () => {
                 {booksForRow.map((book) => (
                   <div key={book.id} className="book-card">
                     <img 
-                      src={book.imageUrl || "https://via.placeholder.com/130"} 
+                      src={book.imageUrl || "https://via.placeholder.com/130"} //need to add the book covers 
                       alt={book.title} 
                       className="book-image"
                     />

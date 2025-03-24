@@ -1,41 +1,57 @@
-/* src/pages/Library.css */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Container settings */
 .library-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding: 2vw;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
 }
 
+/* Ensure welcome message fits within the screen */
 .welcome-message {
     text-align: center;
-    padding: 50px 0;
-    background-color: #f0f4f8;
+    padding: 5vw 0;
+    background: url('src/assets/welcome_background.jpg') no-repeat center center;
+    background-size: cover;
     width: 100%;
-    margin-bottom: 30px;
+    margin-bottom: 3vw;
     border-bottom: 2px solid #ddd;
+    overflow: hidden;
 }
 
 .welcome-message h1 {
-    font-size: 3rem;
-    color: #333;
+    font-size: 3vw;
+    color: #f7f7f2;
 }
 
+/* Search Bar */
 .search-bar-container {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-bottom: 50px;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 5vw;
 }
 
 .search-bar-container input {
-    padding: 10px;
+    padding: 1vw;
     font-size: 1.2rem;
-    width: 300px;
-    margin-right: 10px;
+    width: 30vw;
+    min-width: 200px;
 }
 
 .search-bar-container button {
-    padding: 10px 15px;
+    padding: 1vw 1.5vw;
     font-size: 1.2rem;
     background-color: #007bff;
     color: white;
@@ -47,11 +63,12 @@
     background-color: #0056b3;
 }
 
+/* Book List */
 .book-list {
-    width: 100%;
+    width: 90%;
     max-width: 1200px;
-    margin-top: 50px;
-    padding: 20px;
+    margin-top: 5vw;
+    padding: 2vw;
     background-color: #ffffff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
@@ -64,31 +81,10 @@
 
 .book-list th,
 .book-list td {
-    padding: 12px;
+    padding: 1vw;
     text-align: left;
 }
 
-.book-list th {
-    background-color: #f8f9fa;
-}
-
-.book-list tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.book-list button {
-    padding: 8px 12px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.book-list button:hover {
-    background-color: #218838;
-}
-
-/* -------------------------- */ 
 /* ---------------- New Book Rows Section ---------------- */
 
 /* Wrapper for each row */
@@ -96,32 +92,34 @@
     display: flex;
     align-items: center;
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 2vw;
 }
 
 /* Scrollable Book Section */
 .books-section {
     width: 100%;
-    overflow-x: hidden; /* Hide overflow content */
+    overflow-x: auto;
     white-space: nowrap;
-    padding: 10px 0;
+    padding: 1vw 0;
 }
 
 /* Container for books within a row */
 .book-row-container {
     display: flex;
-    flex-wrap: nowrap;
-    gap: 15px;
+    flex-wrap: wrap;
+    gap: 1vw;
+    justify-content: center;
 }
 
 /* Individual book card */
 .book-card {
-    width: 200px; /* Fixed book width */
-    height: 200px;
-    flex: 0 0 auto;
+    width: 20vw; /* Flexible width */
+    max-width: 200px; /* Prevents too large scaling */
+    height: auto;
+    flex: 0 1 auto;
     text-align: center;
     background: #ffffff;
-    padding: 50px;
+    padding: 3vw;
     border-radius: 8px;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
@@ -150,9 +148,9 @@
     background: rgba(139, 252, 214, 0.6);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 1vw 1.5vw;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 1.5vw;
     z-index: 10;
     border-radius: 50%;
     position: absolute;
@@ -161,13 +159,48 @@
 }
 
 .scroll-left {
-    left: -30px; /* Adjusts position */
+    left: -2vw;
 }
 
 .scroll-right {
-    right: -30px;
+    right: -2vw;
 }
 
 .scroll-left:hover, .scroll-right:hover {
     background: rgba(18, 145, 96, 0.9);
+}
+
+/* ---------------- Responsive Adjustments ---------------- */
+@media (max-width: 768px) {
+    .welcome-message h1 {
+        font-size: 5vw;
+    }
+
+    .book-card {
+        width: 45%; /* Take more space on smaller screens */
+        max-width: none;
+    }
+
+    .search-bar-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-bar-container input {
+        width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-message h1 {
+        font-size: 6vw;
+    }
+
+    .book-card {
+        width: 100%;
+    }
+
+    .scroll-left, .scroll-right {
+        display: none; /* Hide scroll buttons on small screens */
+    }
 }
