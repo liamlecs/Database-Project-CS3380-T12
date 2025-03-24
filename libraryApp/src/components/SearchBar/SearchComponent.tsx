@@ -4,6 +4,7 @@ import './SearchComponent.css';
 
 import { FC } from 'react';
 
+
 interface Book {
     title: string;
     author: string;
@@ -13,6 +14,8 @@ interface Book {
 
 interface Filters {
     itemType: string;
+    author: string;
+    genre: string;
     fields: string;
     generalSearch: string;
     isCheckedOut: boolean;
@@ -24,7 +27,7 @@ interface SearchComponentProps {
 }
 
 const SearchComponent: FC<SearchComponentProps> = ({ books, onSearch }) => {
-    const [filters, setFilters] = useState<Filters>({ itemType: "", fields: "", generalSearch: "", isCheckedOut: false });
+    const [filters, setFilters] = useState<Filters>({ itemType: "", author: "", genre: "", fields: "", generalSearch: "", isCheckedOut: false });
 
     const uniqueItemType = Array.from(new Set(books.map(book => book.title)));
     const uniqueField = Array.from(new Set(books.map(book => book.author)));

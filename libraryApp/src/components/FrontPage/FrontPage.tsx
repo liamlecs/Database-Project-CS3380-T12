@@ -1,52 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SearchComponent from '../SearchBar/SearchComponent';
-// import BookList from '../SearchBar/BookList'; 
 import './FrontPage.css';
 
 const Library: React.FC = () => {
+  interface Book {
+    id: number;
+    title: string;
+    author: string;
+    genre: string;
+    imageUrl: string;
+  }
 
-  // Will be updated to be connected with the database
-  const [books, setBooks] = useState([
-    { id: 1, title: 'Book One', author: 'Author One', genre: 'Fiction', isCheckedOut: false },
-    { id: 2, title: 'Book Two', author: 'Author Two', genre: 'Non-Fiction', isCheckedOut: true },
-    //
-  ]);
+  const numRows = 4; // Number of rows
+  const booksPerRow = 7; // Number of books visible per row
+  const totalBooks = 50; // Total number of books
 
-  const [filteredBooks, setFilteredBooks] = useState(books);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(14)); // Index tracking for each row
 
-  const handleSearch = (filters: { itemType: string; author: string; genre: string; isCheckedOut: boolean }) => {
-    const { itemType, author, genre} = filters;
+  // Generate enough mock books
+  useEffect(() => {
+    const mockBooks = Array.from({ length: totalBooks }, (_, index) => ({
+      id: index + 1,
+      title: `Mock Book ${index + 1}`,
+      author: `Mock Author ${index + 1}`,
+      genre: index % 2 === 0 ? 'Fiction' : 'Non-Fiction',
+      imageUrl: ''
+    }));
 
-    const filtered = books.filter((book) => {
-      const matchesItemType = itemType ? book.title === itemType : true; // dropdown
-      const matchesAuthor = author ? book.author === author : true;
-      const matchesGenre = genre ? book.genre.includes(genre) : true;
-      // const matchesCheckedOut = isCheckedOut !== null ? book.isCheckedOut === isCheckedOut : true;
+    setBooks(mockBooks);
+    setFilteredBooks(mockBooks);
+  }, []);
 
-      return matchesItemType && matchesAuthor && matchesGenre; //&& matchesCheckedOut;
+  // Function to handle scrolling in a specific row
+  const scrollBooks = (direction: 'left' | 'right', rowIndex: number) => {
+    setRowIndices((prevIndices) => {
+      const newIndices = [...prevIndices];
+      const maxIndex = Math.max(0, filteredBooks.length - booksPerRow); // Prevents scrolling past available books
+
+      if (direction === 'right') {
+        newIndices[rowIndex] = Math.min(newIndices[rowIndex] + booksPerRow, maxIndex);
+      } else {
+        newIndices[rowIndex] = Math.max(newIndices[rowIndex] - booksPerRow, 0);
+      }
+
+      return newIndices;
     });
-
-    setFilteredBooks(filtered);
   };
-
-  // const handleCheckout = (bookId: number) => {
-  //   const updatedBooks = books.map((book) =>
-  //     book.id === bookId ? { ...book, isCheckedOut: true } : book
-  //   );
-  //   setBooks(updatedBooks);
-  //   setFilteredBooks(updatedBooks);
-  // };
 
   return (
     <div className="library-container">
       <div className="welcome-message">
         <h1>Checkout Your Favorite Books Today!</h1>
       </div>
+
       <div className="search-bar-container">
-        {/* Updated to use SearchComponent instead of SearchBar */}
-        <SearchComponent books={books} onSearch={handleSearch} />
+        <SearchComponent books={books} onSearch={() => {}} />
       </div>
-      {/* <BookList books={filteredBooks} onCheckout={handleCheckout} /> */}
+
+      {/* Multiple Rows of Books */}
+      {Array.from({ length: numRows }, (_, rowIndex) => {
+        const startIndex = rowIndices[rowIndex];
+        const booksForRow = filteredBooks.slice(startIndex, startIndex + booksPerRow);
+
+        return (
+          <div key={rowIndex} className="book-row">
+            {/* Scroll Left Button */}
+            <button className="scroll-left" onClick={() => scrollBooks('left', rowIndex)} disabled={startIndex === 0}>
+              &lt;
+            </button>
+
+            {/* Books Container */}
+            <div className="books-section">
+              <div className="book-row-container">
+                {booksForRow.map((book) => (
+                  <div key={book.id} className="book-card">
+                    <img 
+                      src={book.imageUrl || "https://via.placeholder.com/130"} 
+                      alt={book.title} 
+                      className="book-image"
+                    />
+                    <p className="book-title">{book.title}</p>
+                    <p className="book-author">{book.author}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Scroll Right Button */}
+            <button 
+              className="scroll-right" 
+              onClick={() => scrollBooks('right', rowIndex)} 
+              disabled={startIndex + booksPerRow >= filteredBooks.length}
+            >
+              &gt;
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 };

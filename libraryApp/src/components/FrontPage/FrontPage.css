@@ -87,3 +87,87 @@
 .book-list button:hover {
     background-color: #218838;
 }
+
+/* -------------------------- */ 
+/* ---------------- New Book Rows Section ---------------- */
+
+/* Wrapper for each row */
+.book-row {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* Scrollable Book Section */
+.books-section {
+    width: 100%;
+    overflow-x: hidden; /* Hide overflow content */
+    white-space: nowrap;
+    padding: 10px 0;
+}
+
+/* Container for books within a row */
+.book-row-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+}
+
+/* Individual book card */
+.book-card {
+    width: 200px; /* Fixed book width */
+    height: 200px;
+    flex: 0 0 auto;
+    text-align: center;
+    background: #ffffff;
+    padding: 50px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Book image */
+.book-image {
+    width: 100%;
+    height: auto;
+    border-radius: 5px;
+}
+
+/* Book title & author */
+.book-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.book-author {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Scroll Buttons */
+.scroll-left, .scroll-right {
+    background: rgba(139, 252, 214, 0.6);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 10;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.scroll-left {
+    left: -30px; /* Adjusts position */
+}
+
+.scroll-right {
+    right: -30px;
+}
+
+.scroll-left:hover, .scroll-right:hover {
+    background: rgba(18, 145, 96, 0.9);
+}
