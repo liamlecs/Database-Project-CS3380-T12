@@ -13,6 +13,8 @@
     *.local
     
     LibraryWebAPI\bin
+    LibraryWebAPI\obj
+
 
     # Editor directories and files
     .vscode/*
