@@ -19,6 +19,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import Button from "@mui/material/Button";
 import { useState } from "react";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 class EventDetails {
   eventID?: number;
@@ -114,7 +115,10 @@ eventdetails.setEventID(0); //temp generator
 
 export default function CreateEvent() {
   const [openDialog, setOpenDialog] = useState(false);
+  const [openExitDialog, setOpenExitDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
+  const navigate = useNavigate();
+
 
 const handleSubmit = async () => {
   
@@ -163,6 +167,8 @@ const handleSubmit = async () => {
     });
 
     if (response.ok) {
+        setDialogMessage("Your event was successfully submitted!");
+    setOpenExitDialog(true);
       console.log("Event created successfully!");
     } else {
       const errorData = await response.json();
@@ -173,6 +179,8 @@ const handleSubmit = async () => {
     console.error("Error:", error);
     alert("Network error. Please try again.");
   }
+
+
 
 };
 
@@ -189,7 +197,9 @@ const handleSubmit = async () => {
         }}
       >
         <Stack direction="column">
+          <div className="centeredHor">
           <h2 style={{ marginTop: "20px" }}>When is your Event?</h2>
+          </div>
           <Stack direction="row" spacing={2}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
@@ -237,9 +247,9 @@ const handleSubmit = async () => {
           }}
         />
       </div>
-      <div className="centeredHor">
-        <h2 style={{ marginTop: "20px" }}>What Age Group?</h2>
-      </div>
+
+        <h2 className="centeredHor">What Age Group?</h2>
+
       <div className="centeredHor">
         <Autocomplete
           disablePortal
@@ -315,8 +325,10 @@ const handleSubmit = async () => {
           }}
         />
       </div>
-      <h2 style={{ marginTop: "20px" }}>What is the title of your event?</h2>
-      <div className="centeredHor" style={{ marginTop: "20px" }}>
+      <div className="centeredHor">
+      <h2>What is the title of your event?</h2>
+      </div>
+      <div className="centeredHor">
         <TextField
           id="outlined-basic"
           variant="outlined"
@@ -327,7 +339,7 @@ const handleSubmit = async () => {
           }}
         />
       </div>
-      <h2 style={{ marginTop: "20px" }}>What is the description for your event?</h2>
+      <h2 className="centeredHor">What is the description for your event?</h2>
       <div className="centeredHor" style={{ marginTop: "20px" }}>
         <TextField
           id="multiline"
@@ -355,6 +367,17 @@ const handleSubmit = async () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openExitDialog} onClose={() => {setOpenDialog(false); navigate("/EventsCalendar");}}>
+        <DialogTitle>Form Complete</DialogTitle>
+        <DialogContent>
+        <p>{dialogMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {setOpenDialog(false); navigate("/EventsCalendar");}} color="primary">
             OK
           </Button>
         </DialogActions>
