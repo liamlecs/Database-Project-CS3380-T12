@@ -1,0 +1,84 @@
+name: Deploy Vite + React & ASP.NET to Azure
+
+on:
+  push:
+    branches:
+      - main  # runs on push to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ! Azure Login
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # * Build React (Vite) Frontend
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'  # adjust based on your stack
+
+      - name: Install FE Dependencies
+        run: |
+          cd frontend  # Go to Vite project folder
+          npm install
+
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm run build
+          
+      - name: Upload FE Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: fe-build
+          path: frontend/dist
+
+      # * Build C# ASP.NET Backend
+      - name: 🔨 Set Up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # adjust based on your .NET version
+
+      - name: Install BE Dependencies
+        run: |
+          cd LibraryWebAPI
+          dotnet restore
+
+      - name: Build Backend
+        run: |
+          cd backend
+          dotnet build --configuration Release
+          
+      - name: Publish Backend
+        run: |
+          cd backend
+          dotnet publish -c Release -o ./publish
+
+      - name: Deploy ASP.NET to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "your-azure-api-name"  # Replace with your Azure API App Service name
+          package: backend/publish
+
+      # / Deploy Frontend to Azure Static Web Apps
+      - name: Deploy React (Vite) to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_TOKEN }}
+          action: "upload"
+          app_location: "frontend/dist"
+          output_location: "frontend/dist"
+
+      # =>  Run Database Migrations (Optional)
+      - name: Run MS SQL Migrations
+        run: |
+          cd backend
+          dotnet ef database update  # if using Entity Framework
