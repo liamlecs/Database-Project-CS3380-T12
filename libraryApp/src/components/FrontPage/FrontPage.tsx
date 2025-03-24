@@ -11,15 +11,15 @@ const Library: React.FC = () => {
     imageUrl: string;
   }
 
-  const numRows = 4; // Number of rows
-  const booksPerRow = 7; // Number of books visible per row
-  const totalBooks = 50; // Total number of books
+  const numRows = 4; 
+  const booksPerRow = 7;
+  const totalBooks = 21;
 
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-  const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(14)); // Index tracking for each row
+  const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(14));
 
-  // Generate enough mock books
+// for now
   useEffect(() => {
     const mockBooks = Array.from({ length: totalBooks }, (_, index) => ({
       id: index + 1,
@@ -32,6 +32,33 @@ const Library: React.FC = () => {
     setBooks(mockBooks);
     setFilteredBooks(mockBooks);
   }, []);
+
+  /* Intended to fetch data*/
+  // useEffect(() => {
+  //   const fetchBooks = async () => {
+  //     try {
+  //       const response = await fetch('http://localhost:5217/api/Book');
+  //       const data = await response.json();
+        
+  //       // Transform database format into frontend-friendly format
+  //       const formattedBooks = data.map((book: any) => ({
+  //         id: book.bookId,
+  //         title: `ISBN: ${book.isbn}`, // You can adjust the display logic
+  //         author: book.bookAuthor ? book.bookAuthor.name : "Unknown Author",
+  //         genre: book.bookGenre ? book.bookGenre.genreName : "Unknown Genre",
+  //         imageUrl: "" // Placeholder, adjust if you have book cover images
+  //       }));
+  
+  //       setBooks(formattedBooks);
+  //       setFilteredBooks(formattedBooks);
+  //     } catch (error) {
+  //       console.error('Error fetching books:', error);
+  //     }
+  //   };
+  
+  //   fetchBooks();
+  // }, []);
+  
 
   // Function to handle scrolling in a specific row
   const scrollBooks = (direction: 'left' | 'right', rowIndex: number) => {
@@ -59,7 +86,7 @@ const Library: React.FC = () => {
         <SearchComponent books={books} onSearch={() => {}} />
       </div>
 
-      {/* Multiple Rows of Books */}
+      {/* multiple rows of books */}
       {Array.from({ length: numRows }, (_, rowIndex) => {
         const startIndex = rowIndices[rowIndex];
         const booksForRow = filteredBooks.slice(startIndex, startIndex + booksPerRow);
@@ -71,7 +98,7 @@ const Library: React.FC = () => {
               &lt;
             </button>
 
-            {/* Books Container */}
+            {/* books container */}
             <div className="books-section">
               <div className="book-row-container">
                 {booksForRow.map((book) => (
@@ -88,7 +115,7 @@ const Library: React.FC = () => {
               </div>
             </div>
 
-            {/* Scroll Right Button */}
+            {/* scroll right button */}
             <button 
               className="scroll-right" 
               onClick={() => scrollBooks('right', rowIndex)} 

@@ -26,10 +26,15 @@ namespace LibraryWebAPI.Controllers
         }
 
         // GET: api/Book/5
+        // GET: api/Book/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+                .Include(b => b.BookAuthor)
+                .Include(b => b.BookGenre)
+                .Include(b => b.Publisher)
+                .FirstOrDefaultAsync(b => b.BookId == id);
 
             if (book == null)
             {
@@ -38,6 +43,19 @@ namespace LibraryWebAPI.Controllers
 
             return Ok(book);
         }
+
+        // [HttpGet("{id}")]
+        // public async Task<ActionResult<Book>> GetBook(int id)
+        // {
+        //     var book = await _context.Books.FindAsync(id);
+
+        //     if (book == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     return Ok(book);
+        // }
 
         // POST: api/Book
         [HttpPost]
