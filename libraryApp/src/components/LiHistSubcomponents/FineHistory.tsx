@@ -27,7 +27,7 @@ export default function FineHistory() {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const response = await fetch("http://localhost:5217/api/Fine");
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Fine`);
         if (!response.ok) {
           throw new Error("Failed to fetch donation data");
         }

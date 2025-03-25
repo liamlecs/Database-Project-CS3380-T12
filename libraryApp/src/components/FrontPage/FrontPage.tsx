@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SearchComponent from '../SearchBar/SearchComponent';
 import './FrontPage.css';
+import welcomeBg from "../../assets/welcome_background.jpg"; // <- import the image
 
 const Library: React.FC = () => {
   interface Book {
@@ -72,7 +73,12 @@ const Library: React.FC = () => {
 
   return (
     <div className="library-container">
-      <div className="welcome-message">
+      <div className="welcome-message"    style={{
+    backgroundImage: `url(${welcomeBg})`,
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center center",
+    backgroundSize: "cover"
+  }}>
         <h1>Checkout Your Favorite Books Today!</h1>
       </div>
 

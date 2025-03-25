@@ -32,7 +32,7 @@ class EventsCalendar extends Component<
   // Fetch events from the backend when the component mounts
   async componentDidMount() {
     try {
-      const response = await fetch("http://localhost:5217/api/Event"); // Adjust the URL to match your API endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`); // Adjust the URL to match your API endpoint
       if (!response.ok) {
         throw new Error("Failed to fetch events");
       }
