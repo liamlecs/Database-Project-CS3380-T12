@@ -31,20 +31,18 @@ export default function EmployeeLoginPage() {
         const errorData = await response.json();
         setMessage(`Error: ${errorData.message || "Login failed"}`);
         return;
-      } 
-      
+      }
+
       const result = await response.json();
       setMessage(result.message || "Login successful!");
 
+      // Get the EmployeeID from the Employee and send it to the Employee.tsx
+      navigate("/Employee", {
+        state: {
+          employeeID: result.employeeID,
+        },
+      });
 
-    //   //Get the userID from the customer and send it to the UserProfile.tsx
-    //   navigate("/UserProfile", {
-    //     state: {
-    //       userId: result.userId,
-    //       //userType: result.isEmployee ? "employee" : "customer",
-    //     },
-    //   });
-      
     } catch (err: any) {
       console.error(err);
       setMessage("An error occurred while logging in. Please check your credentials and try again.");
@@ -69,7 +67,7 @@ export default function EmployeeLoginPage() {
         <h2 className="text-center mb-4">Employee Log In</h2>
 
         <p className="text-center text-sm mb-4">
-            Contact your organization's administrator for login credentials.
+          Contact your organization's administrator for login credentials.
         </p>
 
         <form onSubmit={handleSubmit}>
