@@ -11,7 +11,10 @@ export default function Navbar() {
         <Link to="EventsCalendar">Event Calendar</Link>
         </li>
         <li>
-          <Link to="LoginPage">Login</Link>
+          <Link to="customer-login">Customer Login</Link>
+        </li>
+        <li>
+          <Link to="employee-login">Employee Login</Link>
         </li>
         <li>
           <Link to="RegistrationPage" >Registration</Link>

@@ -10,7 +10,7 @@ import DonationHistory from "./components/LiHistSubcomponents/DonationHistory.ts
 import FineHistory from "./components/LiHistSubcomponents/FineHistory.tsx";
 import WaitlistHistory from "./components/LiHistSubcomponents/WaitlistHistory.tsx";
 import EventHistory from "./components/LiHistSubcomponents/EventHistory.tsx";
-import LoginPage from "./components/LoginPage.tsx";
+import CustomerLoginPage from "./components/CustomerLoginPage.tsx";
 import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
@@ -19,6 +19,7 @@ import Donations from "./components/Donations.tsx"
 import TermsAndConditionsPage from "./components/TermsAndConditionsPage.tsx";
 import ConfirmEmail from "./components/ConfirmEmail.tsx";
 import Employee from "./components/Employee.tsx";
+import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -31,7 +32,8 @@ function App() {
           <Route path="/" element={<FrontPage />} />
           <Route path="/eventscalendar" element={<EventsCalendar />} />
           <Route path="/createevent" element={<CreateEvent />} />
-          <Route path="/loginpage" element={<LoginPage />} />
+          <Route path="/customer-login" element={<CustomerLoginPage />} />
+          <Route path="/employee-login" element={<EmployeeLoginPage />} />
           <Route path="/registrationpage" element={<RegistrationPage />} />
           <Route path="/donations" element={<Donations />} />
           <Route path="/employee" element={<Employee />} />
