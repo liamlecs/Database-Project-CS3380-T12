@@ -67,11 +67,10 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 var app = builder.Build();
 
 // ✅ Use middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
