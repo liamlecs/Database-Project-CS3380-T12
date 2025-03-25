@@ -31,6 +31,6 @@
     obj/
 
     # Others
-    .env
+    node_modules/
 
 

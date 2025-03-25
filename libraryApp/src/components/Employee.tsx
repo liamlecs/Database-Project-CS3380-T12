@@ -30,13 +30,15 @@ import {
   CardContent,
   Divider,
   useTheme,
-  useMediaQuery
+  useMediaQuery,
 } from '@mui/material';
 import {
   Event as EventIcon,
   Inventory as InventoryIcon,
   History as HistoryIcon,
-  People as PeopleIcon
+  People as PeopleIcon,
+  ChevronRight,
+  ChevronLeft
 } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -114,7 +116,7 @@ const Employee: React.FC = () => {
   useEffect(() => {
     // mock employee ID
     const mockEmployeeId = 8; // Replace with actual employee ID
-    
+
     if (mockEmployeeId) {
       fetchEmployeeData(mockEmployeeId);
     }
@@ -151,7 +153,7 @@ const Employee: React.FC = () => {
         sex: 'Male'
       };
       setEmployeeData(mockData);
-      
+
       // actual API call for later
       /*
       const response = await fetch(`http://localhost:5217/api/Employee/${employeeId}`);
@@ -173,7 +175,7 @@ const Employee: React.FC = () => {
       setEmployeeData(updatedData);
       setDialogMessage('Profile updated successfully!');
       setOpenDialog(true);
-      
+
       // actual API call for later
       /*
       const response = await fetch(`http://localhost:5217/api/Employee/${updatedData.employeeID}`, {
@@ -326,6 +328,39 @@ const Employee: React.FC = () => {
     setRefreshData(true);
   };
 
+  const views: ('dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile')[] = [
+    'dashboard',
+    'inventory',
+    'events',
+    'libraryHistory',
+    'profile'
+  ];
+
+  const handleNextView = () => {
+    const currentIndex = views.indexOf(currentView);
+    const nextIndex = (currentIndex + 1) % views.length;
+    setCurrentView(views[nextIndex]);
+  };
+
+  const handlePrevView = () => {
+    const currentIndex = views.indexOf(currentView);
+    const prevIndex = (currentIndex - 1 + views.length) % views.length;
+    setCurrentView(views[prevIndex]);
+  };
+
+  const navigationStyles = {
+    position: 'fixed',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: 1000,
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: '50%',
+    boxShadow: theme.shadows[4],
+    '&:hover': {
+      backgroundColor: theme.palette.action.hover,
+    },
+  };
+
   // improved dashboard design
   const renderDashboard = () => {
     const dashboardItems = [
@@ -360,13 +395,13 @@ const Employee: React.FC = () => {
     ];
 
     return (
-      <Paper elevation={3} sx={{ 
-        padding: 3, 
+      <Paper elevation={3} sx={{
+        padding: 3,
         marginBottom: 3,
         borderRadius: 4,
         background: theme.palette.background.paper
       }}>
-        <Typography variant="h4" gutterBottom sx={{ 
+        <Typography variant="h4" gutterBottom sx={{
           fontWeight: 600,
           color: theme.palette.text.primary,
           mb: 3,
@@ -376,13 +411,13 @@ const Employee: React.FC = () => {
         }}>
           Employee Dashboard
         </Typography>
-        
+
         <Divider sx={{ my: 2 }} />
 
         <Grid container spacing={3}>
           {dashboardItems.map((item, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
-              <Card 
+              <Card
                 onClick={item.action}
                 sx={{
                   cursor: 'pointer',
@@ -399,7 +434,7 @@ const Employee: React.FC = () => {
                 }}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ 
+                  <Box sx={{
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
@@ -410,7 +445,7 @@ const Employee: React.FC = () => {
                     </Typography>
                     {item.icon}
                   </Box>
-                  <Typography variant="h3" component="div" sx={{ 
+                  <Typography variant="h3" component="div" sx={{
                     fontWeight: 700,
                     color: item.color,
                     textAlign: 'center',
@@ -418,14 +453,14 @@ const Employee: React.FC = () => {
                   }}>
                     {item.count}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ 
+                  <Typography variant="body2" color="text.secondary" sx={{
                     textAlign: 'center',
                     fontStyle: 'italic'
                   }}>
-                    {item.title === 'Inventory' ? 'Items in stock' : 
-                     item.title === 'Events' ? 'Upcoming events' : 
-                     item.title === 'My Profile' ? 'View profile' :
-                     'View details'}
+                    {item.title === 'Inventory' ? 'Items in stock' :
+                      item.title === 'Events' ? 'Upcoming events' :
+                        item.title === 'My Profile' ? 'View profile' :
+                          'View details'}
                   </Typography>
                 </CardContent>
               </Card>
@@ -433,7 +468,7 @@ const Employee: React.FC = () => {
           ))}
         </Grid>
 
-        <Box sx={{ 
+        <Box sx={{
           mt: 4,
           p: 3,
           backgroundColor: theme.palette.grey[100],
@@ -444,33 +479,33 @@ const Employee: React.FC = () => {
             Quick Actions
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               size={isMobile ? 'small' : 'medium'}
               startIcon={<InventoryIcon />}
               onClick={() => setCurrentView('inventory')}
             >
               Add New Item
             </Button>
-            <Button 
-              variant="contained" 
-              color="secondary" 
+            <Button
+              variant="contained"
+              color="secondary"
               size={isMobile ? 'small' : 'medium'}
               startIcon={<EventIcon />}
               onClick={() => setCurrentView('events')}
             >
               Create Event
             </Button>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               size={isMobile ? 'small' : 'medium'}
               startIcon={<HistoryIcon />}
               onClick={() => setCurrentView('libraryHistory')}
             >
               View History
             </Button>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               size={isMobile ? 'small' : 'medium'}
               startIcon={<PeopleIcon />}
               onClick={() => setCurrentView('profile')}
@@ -485,8 +520,8 @@ const Employee: React.FC = () => {
 
   const renderProfile = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <EmployeeProfile 
-        employeeData={employeeData} 
+      <EmployeeProfile
+        employeeData={employeeData}
         onUpdate={handleUpdateEmployee}
       />
     </Box>
@@ -498,7 +533,7 @@ const Employee: React.FC = () => {
       <Typography variant="h5" gutterBottom>
         Inventory Management
       </Typography>
-      
+
       {/* Add Item Form */}
       <Box component="form" sx={{ mb: 3 }}>
         <Typography variant="h6" gutterBottom>
@@ -563,9 +598,9 @@ const Employee: React.FC = () => {
           onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
           margin="normal"
         />
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           onClick={handleAddItem}
           sx={{ mt: 2 }}
         >
@@ -694,15 +729,15 @@ const Employee: React.FC = () => {
           Create New Event
         </Typography>
         <CreateEvent />
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           onClick={handleRefreshEvents}
           sx={{ mt: 2 }}
         >
           Refresh Events List
         </Button>
       </Paper>
-      
+
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant="h5" gutterBottom>
           Existing Events
@@ -801,7 +836,29 @@ const Employee: React.FC = () => {
           </Button>
         </Toolbar>
       </AppBar>
+
       <Container sx={{ marginTop: 3 }}>
+        {/* Navigation Arrows */}
+        <IconButton
+          onClick={handlePrevView}
+          sx={{
+            ...navigationStyles,
+            left: 16,
+          }}
+        >
+          <ChevronLeft fontSize="large" />
+        </IconButton>
+
+        <IconButton
+          onClick={handleNextView}
+          sx={{
+            ...navigationStyles,
+            right: 16,
+          }}
+        >
+          <ChevronRight fontSize="large" />
+        </IconButton>
+
         {/* Message Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
           <DialogTitle>Notification</DialogTitle>
@@ -815,8 +872,8 @@ const Employee: React.FC = () => {
           </DialogActions>
         </Dialog>
 
-         {/* Current View */}
-         {currentView === 'dashboard' && renderDashboard()}
+        {/* Current View */}
+        {currentView === 'dashboard' && renderDashboard()}
         {currentView === 'inventory' && renderInventoryManagement()}
         {currentView === 'events' && renderEventManagement()}
         {currentView === 'libraryHistory' && renderLibraryHistory()}
