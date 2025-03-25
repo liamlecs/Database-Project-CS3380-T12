@@ -17,29 +17,53 @@ namespace LibraryWebAPI.Controllers
             _context = context;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
+        // 1) Employee Login Endpoint
+        [HttpPost("employee-login")]
+        public async Task<IActionResult> EmployeeLogin([FromBody] EmployeeLoginDto dto)
         {
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.Email == loginDto.Email);
+            // Look up employee by Username
+            var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.Username == dto.Username);
 
-            if (customer == null)
+            // Validate password
+            if (employee == null || employee.AccountPassword != dto.Password)
             {
-                return Unauthorized("Invalid email or password.");
+                return Unauthorized(new { message = "Invalid employee credentials." });
             }
 
-            if (customer.AccountPassword != loginDto.Password)
+            // Return success
+            return Ok(new {
+                message = "Employee login successful!",
+                isEmployee = true,
+                userId = employee.EmployeeId
+            });
+        }
+
+        // 2) Customer Login Endpoint
+        [HttpPost("customer-login")]
+        public async Task<IActionResult> CustomerLogin([FromBody] CustomerLoginDto dto)
+        {
+            // Look up customer by Email
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.Email == dto.Email);
+
+            // Validate password
+            if (customer == null || customer.AccountPassword != dto.Password)
             {
-                return Unauthorized("Invalid email or password.");
+                return Unauthorized(new { message = "Invalid customer credentials." });
             }
 
             if (!customer.EmailConfirmed)
             {
-                return StatusCode(403, "Please confirm your email before logging in.");
+                return StatusCode(403, new { message = "Please confirm your email before logging in." });
             }
 
-            // Return success or generate a token
-            return Ok("Login successful!");
+            // Return success
+            return Ok(new {
+                message = "Customer login successful!",
+                isEmployee = false,
+                userId = customer.CustomerId
+            });
         }
     }
 }

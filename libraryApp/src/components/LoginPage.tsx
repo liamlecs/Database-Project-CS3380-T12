@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../App.css"; // CSS import
 import bgImage from "../assets/library-bg.jpg";
 
@@ -7,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,15 +27,34 @@ export default function LoginPage() {
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        setMessage(`Error: ${errorText}`);
+        // If server is returning JSON even for errors:
+        const errorData = await response.json();
+        setMessage(`Error: ${errorData.message || "Login failed"}`);
+        return;
+      } 
+      
+      const result = await response.json();
+      setMessage(result.message || "Login successful!");
+
+
+      // check if the user is an employee
+      if (result.isEmployee) {
+        localStorage.setItem("isEmployee", "true");
+        localStorage.setItem("employeeData", JSON.stringify(result));
+        navigate("/employee");
       } else {
-        const successText = await response.text();
-        setMessage(successText);
+        //Get the userID from the customer and send it to the UserProfile.tsx
+        navigate("/UserProfile", {
+          state: {
+            userId: result.userId,
+            //userType: result.isEmployee ? "employee" : "customer",
+          },
+        });
       }
+      
     } catch (err: any) {
       console.error(err);
-      setMessage("An error occurred while logging in.");
+      setMessage("An error occurred while logging in. Please check your credentials and try again.");
     }
   }
 

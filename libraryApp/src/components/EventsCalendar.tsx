@@ -66,11 +66,11 @@ class EventsCalendar extends Component<
     this.setState({ selectedEvent: null });
   };
 
-  handleRSVP = () => {
+  /*handleRSVP = () => {
     if (this.state.selectedEvent) {
       alert(`RSVP confirmed for: ${this.state.selectedEvent.title}`);
     }
-  };
+  };*/
 
   render() {
     console.log("Events state:", this.state.events);
@@ -101,9 +101,9 @@ class EventsCalendar extends Component<
                 <p>{this.state.selectedEvent.description}</p>
               </DialogContent>
               <DialogActions
-                style={{ display: "flex", justifyContent: "space-between" }}
+                style={{ display: "flex", justifyContent: "flex-end" }} //change justifycontent back to spacebetween later
               >
-                {/* RSVP Button (Left Side) */}
+                {/* RSVP Button (Left Side) 
                 <Button
                   onClick={() => {
                     this.handleRSVP();
@@ -112,7 +112,7 @@ class EventsCalendar extends Component<
                   color="primary"
                 >
                   RSVP
-                </Button>
+                </Button>*/}
 
                 {/* Close Button (Right Side) */}
                 <Button onClick={this.handleClose} color="secondary">

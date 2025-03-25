@@ -11,13 +11,13 @@ export default function Navbar() {
         <Link to="EventsCalendar">Event Calendar</Link>
         </li>
         <li>
-          <Link to="LoginPage">Login</Link>
+          <Link to="customer-login">Customer Login</Link>
         </li>
         <li>
-          <Link to="RegistrationPage" >Signup</Link>
+          <Link to="employee-login">Employee Login</Link>
         </li>
         <li>
-          <Link to="UserProfile" >UserProfile</Link>
+          <Link to="RegistrationPage" >Registration</Link>
         </li>
         <li>
           <Link to = "bookcheckout">Book Checkout</Link>

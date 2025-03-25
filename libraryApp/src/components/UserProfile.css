@@ -1,0 +1,257 @@
+/* User Profile Page S */
+
+.user-profile {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  h2.text-center {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* Profile Card */
+  .profile-card {
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+  
+  /* Profile Items */
+  .profile-details {
+    padding-top: 20px;
+  }
+  
+  .profile-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .profile-item span {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .profile-item input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 60%;
+  }
+  
+  button {
+    padding: 8px 15px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  button:focus {
+    outline: none;
+  }
+  
+  /* Fines and Checked-out Books */
+  .profile-item ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .profile-item ul li {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .profile-item span {
+    font-size: 1.2rem;
+  }
+  
+  /* Error & Loading Messages */
+  .error {
+    color: red;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .loading {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #777;
+  }
+
+  /* Transaction History Section */
+  .transaction-history-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px;
+  }
+  
+  .transaction-history-list li {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  /* Vertical Navigation Bar */
+  .vertical-nav {
+    width: 200px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #ddd;
+    height: 100vh;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    padding: 20px 0;
+  }
+  
+  .vertical-nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .vertical-nav ul li {
+    margin-bottom: 10px;
+  }
+  
+  .vertical-nav ul li button {
+    width: 100%;
+    padding: 10px 15px;
+    text-align: left;
+    font-size: 1rem;
+    background-color: transparent;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .vertical-nav ul li button:hover {
+    background-color: #e9ecef;
+  }
+  
+  .vertical-nav ul li button.active {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+  }
+  
+  .profile-content {
+    margin-left: 220px; /* Adjust to account for the nav bar width */
+    padding: 20px;
+  }
+
+  /* Waitlist Section */
+  .waitlist-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .waitlist-list li {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: right;
+  }
+  
+  .waitlist-list li strong {
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .waitlist-list li span {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .waitlist-list li:hover {
+    background-color: #e9ecef;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Waitlist Header */
+  .profile-section h3 {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+  }
+  
+  /* Position Styling */
+  .waitlist-list li .position {
+    font-weight: bold;
+    color: #007bff;
+    margin-right: 10px;
+  }
+  
+  /* Title and Author Styling */
+  .waitlist-list li .title {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .waitlist-list li .author {
+    font-style: italic;
+    color: #555;
+  }
+
+  /* Account Actions Buttons */
+  .account-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px; /* Add spacing between buttons */
+  }
+  
+  .account-actions .btn-delete {
+    background-color: #dc3545; /* Red for delete */
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .account-actions .btn-delete:hover {
+    background-color: #c82333; /* Darker red on hover */
+  }
+  
+  .account-actions .btn-logout {
+    background-color: #6c757d; /* Grey for log out */
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .account-actions .btn-logout:hover {
+    background-color: #5a6268; /* Darker grey on hover */
+  }
+
+
+
+
+
