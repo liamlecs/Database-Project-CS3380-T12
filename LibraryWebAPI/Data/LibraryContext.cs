@@ -152,8 +152,6 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.LastName)
                 .HasMaxLength(30)
                 .IsUnicode(false);
-
-          
         });
 
         modelBuilder.Entity<Donation>(entity =>

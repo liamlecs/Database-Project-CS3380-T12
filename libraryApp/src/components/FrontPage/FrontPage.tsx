@@ -19,46 +19,31 @@ const Library: React.FC = () => {
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(14));
 
-// for now
+  // Fetch books data from API and transform the response
   useEffect(() => {
-    const mockBooks = Array.from({ length: totalBooks }, (_, index) => ({
-      id: index + 1,
-      title: `Mock Book ${index + 1}`,
-      author: `Mock Author ${index + 1}`,
-      genre: index % 2 === 0 ? 'Fiction' : 'Non-Fiction',
-      imageUrl: ''
-    }));
-
-    setBooks(mockBooks);
-    setFilteredBooks(mockBooks);
-  }, []);
-
-  /* Intended to fetch data*/
-  // useEffect(() => {
-  //   const fetchBooks = async () => {
-  //     try {
-  //       const response = await fetch('http://localhost:5217/api/Book');
-  //       const data = await response.json();
+    const fetchBooks = async () => {
+      try {
+        const response = await fetch('http://localhost:5217/api/Book');
+        const data = await response.json();
         
-  //       // Transform database format into frontend-friendly format
-  //       const formattedBooks = data.map((book: any) => ({
-  //         id: book.bookId,
-  //         title: `ISBN: ${book.isbn}`, // You can adjust the display logic
-  //         author: book.bookAuthor ? book.bookAuthor.name : "Unknown Author",
-  //         genre: book.bookGenre ? book.bookGenre.genreName : "Unknown Genre",
-  //         imageUrl: "" // Placeholder, adjust if you have book cover images
-  //       }));
-  
-  //       setBooks(formattedBooks);
-  //       setFilteredBooks(formattedBooks);
-  //     } catch (error) {
-  //       console.error('Error fetching books:', error);
-  //     }
-  //   };
-  
-  //   fetchBooks();
-  // }, []);
-  
+        // Transform database format into frontend-friendly format
+        const formattedBooks = data.map((book: any) => ({
+          id: book.bookId,
+          title: `ISBN: ${book.isbn}`, // Adjust the display logic as needed
+          author: book.bookAuthor ? book.bookAuthor.name : "Unknown Author",
+          genre: book.bookGenre ? book.bookGenre.genreName : "Unknown Genre",
+          imageUrl: "" // Placeholder for book cover images
+        }));
+
+        setBooks(formattedBooks);
+        setFilteredBooks(formattedBooks);
+      } catch (error) {
+        console.error('Error fetching books:', error);
+      }
+    };
+
+    fetchBooks();
+  }, []);
 
   // Function to handle scrolling in a specific row
   const scrollBooks = (direction: 'left' | 'right', rowIndex: number) => {
@@ -104,7 +89,7 @@ const Library: React.FC = () => {
                 {booksForRow.map((book) => (
                   <div key={book.id} className="book-card">
                     <img 
-                      src={book.imageUrl || "https://via.placeholder.com/130"} //need to add the book covers 
+                      src={book.imageUrl || "https://via.placeholder.com/130"} // Placeholder for book covers
                       alt={book.title} 
                       className="book-image"
                     />
@@ -115,7 +100,7 @@ const Library: React.FC = () => {
               </div>
             </div>
 
-            {/* scroll right button */}
+            {/* Scroll Right Button */}
             <button 
               className="scroll-right" 
               onClick={() => scrollBooks('right', rowIndex)} 
