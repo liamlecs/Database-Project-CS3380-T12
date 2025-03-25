@@ -1,4 +1,4 @@
-/* User Profile Page S*/
+/* User Profile Page S */
 
 .user-profile {
     width: 100%;
@@ -114,7 +114,7 @@
     border-right: 1px solid #ddd;
     height: 100vh;
     position: fixed;
-    top: 5vh;
+    top: 56px;
     left: 0;
     padding: 20px 0;
   }
@@ -250,6 +250,7 @@
   .account-actions .btn-logout:hover {
     background-color: #5a6268; /* Darker grey on hover */
   }
+
 
 
 

@@ -35,14 +35,21 @@ export default function LoginPage() {
       
       const result = await response.json();
       setMessage(result.message || "Login successful!");
-      
+
+
       // check if the user is an employee
       if (result.isEmployee) {
         localStorage.setItem("isEmployee", "true");
         localStorage.setItem("employeeData", JSON.stringify(result));
         navigate("/employee");
       } else {
-        navigate("/UserProfile");
+        //Get the userID from the customer and send it to the UserProfile.tsx
+        navigate("/UserProfile", {
+          state: {
+            userId: result.userId,
+            //userType: result.isEmployee ? "employee" : "customer",
+          },
+        });
       }
       
     } catch (err: any) {

@@ -1,6 +1,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import "./UserProfile.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface Profile {
   customerID: number;
@@ -15,7 +16,20 @@ interface Profile {
   //Future things to display
   fines: number; // User's total fines
   checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
-  transactionHistory: Array<{ date: string; amount: number; description: string;
+  transactionHistory: Array<{
+    transcationID: number;
+    customerID: number;
+    itemID: number;
+    dateBorrowed: Date;
+    dueDate: Date;
+    returnDate: Date;
+  }>;
+  Waitlist: Array<{
+    waitlistID: number;
+    customerID: number;
+    itemID: number;
+    reserveDate: Date;
+    isReceieved: boolean;
   }>;
 }
 
@@ -26,18 +40,26 @@ export default function UserProfile() {
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
-  const [waitlist, setWaitlist] = useState<Array<{ title: string; author: string, position: string }>>([]); // Waitlist state
+  const [waitlist, setWaitlist] = useState<
+    Array<{ title: string; author: string; position: string }>
+  >([]); // Waitlist state
+
+  //Login Page functionality
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { userId } = location.state;
 
   useEffect(() => {
     async function fetchProfile() {
       try {
         //Integrate with Customer and Emplyoee authentication
         //For now loads a default customer in the DB with userID = 2.
-        const userId = 2;
         const userType = "customer";
 
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/UserProfile/${userType}/${userId}`,
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/UserProfile/${userType}/${userId}`,
           {
             method: "GET",
             headers: {
@@ -66,6 +88,7 @@ export default function UserProfile() {
           fines: data.fines, // Replace with actual fines if available in the API
           checkedOutBooks: [], // Replace with actual books if available in the API
           transactionHistory: [], // Replace with actual transactions if available in the API
+          Waitlist: [], //Populate these whenever we have waitlist stuff
         };
 
         setProfile(mappedProfile);
@@ -74,7 +97,11 @@ export default function UserProfile() {
         // Fetch waitlist (mocked for now)
         // We can add this functionality later
         setWaitlist([
-          { title: "The Great Gatsby", author: "F. Scott Fitzgerald", position: "5" },
+          {
+            title: "The Great Gatsby",
+            author: "F. Scott Fitzgerald",
+            position: "5",
+          },
           { title: "1984", author: "George Orwell", position: "3" },
         ]);
       } catch (error: any) {
@@ -103,7 +130,9 @@ export default function UserProfile() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${editProfile.customerID}`,
+        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${
+          editProfile.customerID
+        }`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -179,7 +208,6 @@ export default function UserProfile() {
                 Account Settings
               </button>
             </li>
-
           </ul>
         </nav>
       </div>
@@ -231,7 +259,11 @@ export default function UserProfile() {
               <button
                 className="btn-delete"
                 onClick={() => {
-                  if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                  if (
+                    window.confirm(
+                      "Are you sure you want to delete your account? This action cannot be undone."
+                    )
+                  ) {
                     // Add delete account logic here
                     alert("Account deleted successfully.");
                   }
@@ -244,6 +276,7 @@ export default function UserProfile() {
                 onClick={() => {
                   // Add log out logic here
                   alert("Logged out successfully.");
+                  navigate("/LoginPage"); // Redirect to login page or handle logout logic
                 }}
               >
                 Log Out
@@ -258,11 +291,11 @@ export default function UserProfile() {
             <ul className="transaction-history-list">
               {profile.transactionHistory.map((transaction, index) => (
                 <li key={index}>
-                  <strong>{transaction.description}</strong>
+                  <strong>{transaction.customerID}</strong>
                   <br />
-                  Date: {new Date(transaction.date).toLocaleDateString()}
+                  Date: {new Date(transaction.dueDate).toLocaleDateString()}
                   <br />
-                  Amount: ${transaction.amount.toFixed(2)}
+                  TransactionID: ${transaction.transcationID.toFixed(2)}
                 </li>
               ))}
             </ul>
@@ -306,7 +339,7 @@ export default function UserProfile() {
                   id="email"
                   name="email"
                   value={editProfile?.email || ""}
-                  onChange={handleInputChange}
+                  readOnly
                 />
               </div>
               <div className="profile-item">
@@ -319,6 +352,7 @@ export default function UserProfile() {
                   name="password"
                   value={editProfile?.password || ""}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               <button type="submit" className="btn btn-primary">
@@ -334,7 +368,9 @@ export default function UserProfile() {
             <ul className="waitlist-list">
               {waitlist.map((item, index) => (
                 <li key={index}>
-                  <strong>{item.title}</strong> by {item.author} <strong>Position </strong>{item.position} 
+                  <strong>{item.title}</strong> by {item.author}{" "}
+                  <strong>Position </strong>
+                  {item.position}
                 </li>
               ))}
             </ul>
