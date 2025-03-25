@@ -42,12 +42,12 @@ export default function LoginPage() {
         localStorage.setItem("employeeData", JSON.stringify(result));
         navigate("/employee");
       } else {
-        navigate("/customer-dashboard");
+        navigate("/UserProfile");
       }
       
     } catch (err: any) {
       console.error(err);
-      setMessage("An error occurred while logging in.");
+      setMessage("An error occurred while logging in. Please check your credentials and try again.");
     }
   }
 

@@ -14,10 +14,7 @@ export default function Navbar() {
           <Link to="LoginPage">Login</Link>
         </li>
         <li>
-          <Link to="RegistrationPage" >Signup</Link>
-        </li>
-        <li>
-          <Link to="UserProfile" >UserProfile</Link>
+          <Link to="RegistrationPage" >Registration</Link>
         </li>
         <li>
           <Link to = "bookcheckout">Book Checkout</Link>
