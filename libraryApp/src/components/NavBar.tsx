@@ -25,6 +25,9 @@ export default function Navbar() {
         <li>
           <Link to = "Donations">Donate</Link>
         </li>
+        <li>
+          <Link to = "Create Event">CreateEvent</Link>
+        </li>
       </ul>
     </nav>
   )
