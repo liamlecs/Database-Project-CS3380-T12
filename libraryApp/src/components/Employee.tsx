@@ -136,7 +136,7 @@ const Employee: React.FC = () => {
         setEmployeeData(mockData); */
   
         // actual API call
-        const response = await fetch(`http://localhost:5217/api/Employee}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee}`);
         if (!response.ok) throw new Error('Failed to fetch employee data');
         const data = await response.json();
         setEmployeeData(data);
@@ -161,7 +161,7 @@ const Employee: React.FC = () => {
 
   const fetchInventory = async () => {
     try {
-      const response = await fetch('http://localhost:5217/api/Item');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`)
       if (!response.ok) throw new Error('Failed to fetch inventory');
       const data = await response.json();
       setInventory(data);
@@ -175,13 +175,13 @@ const Employee: React.FC = () => {
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
       // mock update, will replace with actual API call
-      setEmployeeData(updatedData);
+      /* setEmployeeData(updatedData);
       setDialogMessage('Profile updated successfully!');
-      setOpenDialog(true);
+      setOpenDialog(true); */
 
       // actual API call for later
-      /*
-      const response = await fetch(`http://localhost:5217/api/Employee/${updatedData.employeeID}`, {
+      
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ const Employee: React.FC = () => {
         setDialogMessage(errorData.message || 'Failed to update profile.');
         setOpenDialog(true);
       }
-      */
+
     } catch (error) {
       console.error('Error updating employee:', error);
       setDialogMessage('Network error. Please try again.');
@@ -208,7 +208,7 @@ const Employee: React.FC = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('http://localhost:5217/api/Event');
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`)
       if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
       setEvents(data);
@@ -228,7 +228,8 @@ const Employee: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, 
+        {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -264,7 +265,7 @@ const Employee: React.FC = () => {
     if (!editingItem) return;
 
     try {
-      const response = await fetch(`http://localhost:5217/api/Item/${editingItem.itemId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -290,7 +291,7 @@ const Employee: React.FC = () => {
 
   const handleDeleteItem = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:5217/api/Item/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${id}`, {
         method: 'DELETE',
       });
 
@@ -315,7 +316,7 @@ const Employee: React.FC = () => {
   // event operations
   const handleDeleteEvent = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:5217/api/Event/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete event');
