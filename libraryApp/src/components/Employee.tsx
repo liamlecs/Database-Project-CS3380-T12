@@ -77,6 +77,10 @@ interface EmployeeData {
   lastName: string;
   birthDate: string
   sex: string;
+  supervisorID?: number;
+  username: string;
+  password: string;
+
 }
 
 const Employee: React.FC = () => {
@@ -92,10 +96,13 @@ const Employee: React.FC = () => {
     firstName: '',
     lastName: '',
     birthDate: new Date().toISOString().split('T')[0],
-    sex: 'Male'
+    sex: 'Male',
+    supervisorID: 0,
+    username: '',
+    password: '',
   });
 
-  // inventory Form States
+  // inventory form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
     availabilityStatus: 'Available',
@@ -115,10 +122,33 @@ const Employee: React.FC = () => {
   // fetching data
   useEffect(() => {
     // mock employee ID
-    const mockEmployeeId = 8; // Replace with actual employee ID
 
-    if (mockEmployeeId) {
-      fetchEmployeeData(mockEmployeeId);
+    const fetchEmployeeData = async (employeeId: number) => {
+      try {
+        // mock data, will replace with actual API call
+        /* const mockData = {
+          employeeID: employeeId,
+          firstName: 'Elite',
+          lastName: 'Employee',
+          birthDate: '2000-03-24',
+          sex: 'Male'
+        };
+        setEmployeeData(mockData); */
+  
+        // actual API call
+        const response = await fetch(`http://localhost:5217/api/Employee}`);
+        if (!response.ok) throw new Error('Failed to fetch employee data');
+        const data = await response.json();
+        setEmployeeData(data);
+      } catch (error) {
+        console.error('Error fetching employee data:', error);
+        setDialogMessage('Failed to fetch employee data. Please try again.');
+        setOpenDialog(true);
+      }
+    };
+
+    if (employeeData.employeeID) {
+      fetchEmployeeData(employeeData.employeeID);
     }
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
@@ -138,33 +168,6 @@ const Employee: React.FC = () => {
     } catch (error) {
       console.error('Error fetching inventory:', error);
       setDialogMessage('Failed to fetch inventory. Please try again.');
-      setOpenDialog(true);
-    }
-  };
-
-  const fetchEmployeeData = async (employeeId: number) => {
-    try {
-      // mock data, will replace with actual API call
-      const mockData = {
-        employeeID: employeeId,
-        firstName: 'Elite',
-        lastName: 'Employee',
-        birthDate: '2000-03-24',
-        sex: 'Male'
-      };
-      setEmployeeData(mockData);
-
-      // actual API call for later
-      /*
-      const response = await fetch(`http://localhost:5217/api/Employee/${employeeId}`);
-      if (!response.ok) throw new Error('Failed to fetch employee data');
-      const data = await response.json();
-      setEmployeeData(data);
-      */
-
-    } catch (error) {
-      console.error('Error fetching employee data:', error);
-      setDialogMessage('Failed to fetch employee data. Please try again.');
       setOpenDialog(true);
     }
   };
@@ -225,7 +228,7 @@ const Employee: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5217/api/Item', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
