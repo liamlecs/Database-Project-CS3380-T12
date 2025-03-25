@@ -19,14 +19,6 @@ namespace LibraryWebAPI.Controllers
         }
 
         // GET: api/Book
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        {
-            return Ok(await _context.Books.ToListAsync());
-        }
-
-        // GET: api/Book/5
-        // GET: api/Book/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
@@ -34,7 +26,16 @@ namespace LibraryWebAPI.Controllers
                 .Include(b => b.BookAuthor)
                 .Include(b => b.BookGenre)
                 .Include(b => b.Publisher)
-                .FirstOrDefaultAsync(b => b.BookId == id);
+                .Where(b => b.BookId == id)
+                .Select(b => new 
+                {
+                    b.BookId,
+                    Title = $"ISBN: {b.Isbn}",
+                    Author = $"{b.BookAuthor.FirstName} {b.BookAuthor.LastName}",
+                    ImageUrl = "",  // Placeholder for book image
+                    IsCheckedOut = b.IsCheckedOut ? "true" : "false"
+                })
+                .FirstOrDefaultAsync();
 
             if (book == null)
             {
@@ -43,20 +44,7 @@ namespace LibraryWebAPI.Controllers
 
             return Ok(book);
         }
-
-        // [HttpGet("{id}")]
-        // public async Task<ActionResult<Book>> GetBook(int id)
-        // {
-        //     var book = await _context.Books.FindAsync(id);
-
-        //     if (book == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     return Ok(book);
-        // }
-
+        
         // POST: api/Book
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)

@@ -24,5 +24,7 @@ public partial class Book
     public virtual Item BookNavigation { get; set; } = null!;
 
     public virtual Publisher Publisher { get; set; } = null!;
+
+    public bool IsCheckedOut { get; set; } // Added property
 }
 
