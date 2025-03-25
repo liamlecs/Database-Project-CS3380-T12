@@ -8081,19 +8081,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/nhinhi/.nuget/packages/": {}
+    "/Users/jacquelinesanchez/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/nhinhi/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+      "projectUniqueName": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
       "projectName": "LibraryWebAPI",
-      "projectPath": "/Users/nhinhi/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
-      "packagesPath": "/Users/nhinhi/.nuget/packages/",
-      "outputPath": "/Users/nhinhi/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
+      "projectPath": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+      "packagesPath": "/Users/jacquelinesanchez/.nuget/packages/",
+      "outputPath": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/nhinhi/.nuget/NuGet/NuGet.Config"
+        "/Users/jacquelinesanchez/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"

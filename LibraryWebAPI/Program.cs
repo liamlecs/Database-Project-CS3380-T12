@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key is not configured")))
     };
 });
 
@@ -65,6 +65,12 @@ builder.Services.AddDbContext<LibraryContext>(options =>
     
 
 var app = builder.Build();
+
+// get the hosting environment
+var env = app.Services.GetRequiredService<IWebHostEnvironment>();
+
+// set book data
+SeedBooks.Initialize(app.Services, env);
 
 // ✅ Use middleware
 

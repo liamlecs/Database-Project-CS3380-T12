@@ -7,7 +7,7 @@ public partial class Book
 {
     public int BookId { get; set; }
 
-    public string Isbn { get; set; } = null!;
+    public string? Isbn { get; set; } // nullable
 
     public int PublisherId { get; set; }
 
@@ -25,3 +25,4 @@ public partial class Book
 
     public virtual Publisher Publisher { get; set; } = null!;
 }
+
