@@ -35,7 +35,7 @@ namespace LibraryWebAPI.Controllers
             return Ok(new {
                 message = "Employee login successful!",
                 isEmployee = true,
-                userId = employee.EmployeeId
+                EmployeeID = employee.EmployeeId
             });
         }
 

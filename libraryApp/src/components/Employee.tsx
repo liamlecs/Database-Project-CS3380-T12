@@ -46,6 +46,7 @@ import DonationHistory from './LiHistSubcomponents/DonationHistory';
 import EventHistory from './LiHistSubcomponents/EventHistory';
 import FineHistory from './LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
+import EmployeeProfile from './EmployeeProfile';
 
 interface Item {
   itemId: number;
@@ -68,14 +69,29 @@ interface Event {
   description: string;
 }
 
+interface EmployeeData {
+  employeeID: number;
+  firstName: string;
+  lastName: string;
+  birthDate: string
+  sex: string;
+}
+
 const Employee: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile'>('dashboard');
   const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [refreshData, setRefreshData] = useState(false);
+  const [employeeData, setEmployeeData] = useState<EmployeeData>({
+    employeeID: 0,
+    firstName: '',
+    lastName: '',
+    birthDate: new Date().toISOString().split('T')[0],
+    sex: 'Male'
+  });
 
   // inventory Form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
@@ -96,6 +112,12 @@ const Employee: React.FC = () => {
 
   // fetching data
   useEffect(() => {
+    // mock employee ID
+    const mockEmployeeId = 8; // Replace with actual employee ID
+    
+    if (mockEmployeeId) {
+      fetchEmployeeData(mockEmployeeId);
+    }
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
     }
@@ -114,6 +136,67 @@ const Employee: React.FC = () => {
     } catch (error) {
       console.error('Error fetching inventory:', error);
       setDialogMessage('Failed to fetch inventory. Please try again.');
+      setOpenDialog(true);
+    }
+  };
+
+  const fetchEmployeeData = async (employeeId: number) => {
+    try {
+      // mock data, will replace with actual API call
+      const mockData = {
+        employeeID: employeeId,
+        firstName: 'Elite',
+        lastName: 'Employee',
+        birthDate: '2000-03-24',
+        sex: 'Male'
+      };
+      setEmployeeData(mockData);
+      
+      // actual API call for later
+      /*
+      const response = await fetch(`http://localhost:5217/api/Employee/${employeeId}`);
+      if (!response.ok) throw new Error('Failed to fetch employee data');
+      const data = await response.json();
+      setEmployeeData(data);
+      */
+
+    } catch (error) {
+      console.error('Error fetching employee data:', error);
+      setDialogMessage('Failed to fetch employee data. Please try again.');
+      setOpenDialog(true);
+    }
+  };
+
+  const handleUpdateEmployee = async (updatedData: EmployeeData) => {
+    try {
+      // mock update, will replace with actual API call
+      setEmployeeData(updatedData);
+      setDialogMessage('Profile updated successfully!');
+      setOpenDialog(true);
+      
+      // actual API call for later
+      /*
+      const response = await fetch(`http://localhost:5217/api/Employee/${updatedData.employeeID}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        setEmployeeData(updatedData);
+        setDialogMessage('Profile updated successfully!');
+        setOpenDialog(true);
+      } else {
+        const errorData = await response.json();
+        setDialogMessage(errorData.message || 'Failed to update profile.');
+        setOpenDialog(true);
+      }
+      */
+    } catch (error) {
+      console.error('Error updating employee:', error);
+      setDialogMessage('Network error. Please try again.');
       setOpenDialog(true);
     }
   };
@@ -267,6 +350,13 @@ const Employee: React.FC = () => {
         action: () => setCurrentView('libraryHistory'),
         color: theme.palette.success.main
       },
+      {
+        title: 'My Profile',
+        count: '-',
+        icon: <PeopleIcon fontSize="large" style={{ color: theme.palette.info.main }} />,
+        action: () => setCurrentView('profile'),
+        color: theme.palette.info.main
+      },
     ];
 
     return (
@@ -334,6 +424,7 @@ const Employee: React.FC = () => {
                   }}>
                     {item.title === 'Inventory' ? 'Items in stock' : 
                      item.title === 'Events' ? 'Upcoming events' : 
+                     item.title === 'My Profile' ? 'View profile' :
                      'View details'}
                   </Typography>
                 </CardContent>
@@ -378,11 +469,28 @@ const Employee: React.FC = () => {
             >
               View History
             </Button>
+            <Button 
+              variant="outlined" 
+              size={isMobile ? 'small' : 'medium'}
+              startIcon={<PeopleIcon />}
+              onClick={() => setCurrentView('profile')}
+            >
+              View Profile
+            </Button>
           </Box>
         </Box>
       </Paper>
     );
   };
+
+  const renderProfile = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <EmployeeProfile 
+        employeeData={employeeData} 
+        onUpdate={handleUpdateEmployee}
+      />
+    </Box>
+  );
 
   // other view components
   const renderInventoryManagement = () => (
@@ -688,6 +796,9 @@ const Employee: React.FC = () => {
           <Button color="inherit" onClick={() => setCurrentView('libraryHistory')}>
             Library History
           </Button>
+          <Button color="inherit" onClick={() => setCurrentView('profile')}>
+            My Profile
+          </Button>
         </Toolbar>
       </AppBar>
       <Container sx={{ marginTop: 3 }}>
@@ -704,11 +815,12 @@ const Employee: React.FC = () => {
           </DialogActions>
         </Dialog>
 
-        {/* Current View */}
-        {currentView === 'dashboard' && renderDashboard()}
+         {/* Current View */}
+         {currentView === 'dashboard' && renderDashboard()}
         {currentView === 'inventory' && renderInventoryManagement()}
         {currentView === 'events' && renderEventManagement()}
         {currentView === 'libraryHistory' && renderLibraryHistory()}
+        {currentView === 'profile' && renderProfile()}
       </Container>
     </Box>
   );
