@@ -27,29 +27,24 @@ export default function LoginPage() {
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        setMessage(`Error: ${errorText}`);
-      } else {
-        const successText = await response.text();
-        setMessage(successText);
-      }
-
+        // If server is returning JSON even for errors:
+        const errorData = await response.json();
+        setMessage(`Error: ${errorData.message || "Login failed"}`);
+        return;
+      } 
+      
       const result = await response.json();
       setMessage(result.message || "Login successful!");
-
-      // check if the user is an employee and redirect
+      
+      // check if the user is an employee
       if (result.isEmployee) {
-        // store employee authentication data
-        localStorage.setItem('isEmployee', 'true');
-        localStorage.setItem('employeeData', JSON.stringify(result));
-        
-        // redirect to employee homepage
-        navigate('/employee');
+        localStorage.setItem("isEmployee", "true");
+        localStorage.setItem("employeeData", JSON.stringify(result));
+        navigate("/employee");
       } else {
-        // regular customer redirect
-        navigate('/customer-dashboard');
+        navigate("/customer-dashboard");
       }
-
+      
     } catch (err: any) {
       console.error(err);
       setMessage("An error occurred while logging in.");

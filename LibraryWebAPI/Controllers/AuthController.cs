@@ -58,7 +58,11 @@ namespace LibraryWebAPI.Controllers
             }
 
             // Return success or generate a token
-            return Ok("Login successful!");
+            return Ok(new {
+                message = "Login successful!",
+                isEmployee = false,
+                userId = customer.CustomerId
+            });
         }
     }
 }
