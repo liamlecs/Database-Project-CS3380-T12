@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -22,323 +21,475 @@ import {
   FormControl,
   Box,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import CreateEvent from './CreateEvent';
 import CheckoutHistory from './LiHistSubcomponents/CheckoutHistory';
 import DonationHistory from './LiHistSubcomponents/DonationHistory';
 import EventHistory from './LiHistSubcomponents/EventHistory';
 import FineHistory from './LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 
-// defining types
-interface InventoryItem {
-  id: number;
-  type: 'book' | 'movie' | 'technology';
+interface Item {
+  itemId: number;
   title: string;
-  status: string;
-  author?: string;
-  director?: string;
-  runtime?: number;
-  manufacturer?: string;
-  model?: string;
+  availabilityStatus: string;
+  totalCopies: number;
+  availableCopies: number;
+  location?: string;
 }
 
 interface Event {
   eventId: number;
   title: string;
-  startTimestamp: string;
-  description: string;
+  startTimeStamp: string;
+  endTimeStamp: string;
   location: string;
+  ageGroup: number;
+  categoryId: number;
+  isPrivate: boolean;
+  description: string;
 }
 
 const Employee: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
   const [tabValue, setTabValue] = useState(0);
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
-  const navigate = useNavigate();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [refreshData, setRefreshData] = useState(false);
 
-  useEffect(() => {
-    const isEmployee = localStorage.getItem('isEmployee');
-    if (!isEmployee) {
-      navigate('/login');
-    }
-  }, [navigate]);
-
-  // check authorization 
-  useEffect(() => {
-    const userData = localStorage.getItem('userData');
-    if (!userData) {
-      navigate('/LoginPage');
-      return;
-    }
-
-    const parsedData = JSON.parse(userData);
-    if (!parsedData.isEmployee) {
-      navigate('/unauthorized');
-      return;
-    }
-
-    setIsAuthorized(true);
-  }, [navigate]);
-
-  // If not authorized, return null
-  if (!isAuthorized) {
-    return null;
-  }
-
-  // inventory form state
-  const [inventoryForm, setInventoryForm] = useState({
-    type: 'book' as 'book' | 'movie' | 'technology',
+  // Inventory Form States
+  const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
-    status: 'available',
-    author: '',
-    director: '',
-    runtime: 0,
-    manufacturer: '',
-    model: '',
+    availabilityStatus: 'Available',
+    totalCopies: 1,
+    availableCopies: 1,
+    location: '',
   });
 
-  // event form state
-  const [eventForm, setEventForm] = useState({
-    title: '',
-    startTimestamp: '',
-    description: '',
-    location: ''
-  });
+  // Edit States
+  const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
-  // fetch data when view changes
+  // Dialog States
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  // Data Fetching
   useEffect(() => {
-    if (currentView === 'inventory' || currentView === 'dashboard') {
+    if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
     }
-    if (currentView === 'events' || currentView === 'dashboard') {
+    if (currentView === 'events' || currentView === 'dashboard' || refreshData) {
       fetchEvents();
     }
-  }, [currentView]);
+    setRefreshData(false);
+  }, [currentView, refreshData]);
 
-  // fetch inventory from backend
   const fetchInventory = async () => {
     try {
-      const response = await fetch('/api/Item');
+      const response = await fetch('http://localhost:5217/api/Item');
+      if (!response.ok) throw new Error('Failed to fetch inventory');
       const data = await response.json();
       setInventory(data);
     } catch (error) {
       console.error('Error fetching inventory:', error);
+      setDialogMessage('Failed to fetch inventory. Please try again.');
+      setOpenDialog(true);
     }
   };
 
-  // fetch events from backend
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/Event');
+      const response = await fetch('http://localhost:5217/api/Event');
+      if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
       setEvents(data);
     } catch (error) {
       console.error('Error fetching events:', error);
+      setDialogMessage('Failed to fetch events. Please try again.');
+      setOpenDialog(true);
     }
   };
 
-  // add new inventory item
-  const handleAddInventory = async () => {
-    try {
-      const response = await fetch('/api/Item', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(inventoryForm),
-      });
-
-      if (response.ok) {
-        fetchInventory();
-        setInventoryForm({
-          type: 'book',
-          title: '',
-          status: 'available',
-          author: '',
-          director: '',
-          runtime: 0,
-          manufacturer: '',
-          model: '',
-        });
-      }
-    } catch (error) {
-      console.error('Error adding inventory:', error);
+  // Inventory CRUD Operations
+  const handleAddItem = async () => {
+    if (!itemForm.title || !itemForm.availabilityStatus) {
+      setDialogMessage('Title and status are required fields.');
+      setOpenDialog(true);
+      return;
     }
-  };
 
-  // delete inventory item
-  const handleDeleteInventory = async (id: number) => {
     try {
-      const response = await fetch(`/api/Item/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        fetchInventory();
-      }
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
-  };
-
-  // add new event
-  const handleAddEvent = async () => {
-    try {
-      const response = await fetch('/api/Event', {
+      const response = await fetch('http://localhost:5217/api/Item', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: eventForm.title,
-          startTimestamp: eventForm.startTimestamp,
-          description: eventForm.description,
-          location: eventForm.location
+          ...itemForm,
+          availableCopies: itemForm.totalCopies,
         }),
       });
 
       if (response.ok) {
-        fetchEvents();
-        setEventForm({
+        setRefreshData(true);
+        setItemForm({
           title: '',
-          startTimestamp: '',
-          description: '',
-          location: ''
+          availabilityStatus: 'Available',
+          totalCopies: 1,
+          availableCopies: 1,
+          location: '',
         });
+      } else {
+        const errorData = await response.json();
+        setDialogMessage(errorData.message || 'Failed to add item.');
+        setOpenDialog(true);
       }
     } catch (error) {
-      console.error('Error adding event:', error);
+      console.error('Error adding item:', error);
+      setDialogMessage('Network error. Please try again.');
+      setOpenDialog(true);
     }
   };
 
-  // delete event
-  const handleDeleteEvent = async (id: number) => {
+  const handleUpdateItem = async () => {
+    if (!editingItem) return;
+
     try {
-      const response = await fetch(`/api/Event/${id}`, {
+      const response = await fetch(`http://localhost:5217/api/Item/${editingItem.itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editingItem),
+      });
+
+      if (response.ok) {
+        setRefreshData(true);
+        setOpenEditDialog(false);
+        setEditingItem(null);
+      } else {
+        const errorData = await response.json();
+        setDialogMessage(errorData.message || 'Failed to update item.');
+        setOpenDialog(true);
+      }
+    } catch (error) {
+      console.error('Error updating item:', error);
+      setDialogMessage('Network error. Please try again.');
+      setOpenDialog(true);
+    }
+  };
+
+  const handleDeleteItem = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:5217/api/Item/${id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        fetchEvents();
+        setRefreshData(true);
+      } else {
+        setDialogMessage('Failed to delete item.');
+        setOpenDialog(true);
       }
     } catch (error) {
+      console.error('Error deleting item:', error);
+      setDialogMessage('Network error. Please try again.');
+      setOpenDialog(true);
+    }
+  };
+
+  const handleEditClick = (item: Item) => {
+    setEditingItem(item);
+    setOpenEditDialog(true);
+  };
+
+  // Event Operations
+  const handleDeleteEvent = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:5217/api/Event/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete event');
+      setRefreshData(true);
+    } catch (error) {
       console.error('Error deleting event:', error);
+      setDialogMessage('Failed to delete event. Please try again.');
+      setOpenDialog(true);
     }
   };
 
-  // inventory form based on type
-  const renderInventoryForm = () => {
-    switch (inventoryForm.type) {
-      case 'book':
-        return (
-          <TextField
-            fullWidth
-            label="Author"
-            value={inventoryForm.author}
-            onChange={(e) => setInventoryForm({ ...inventoryForm, author: e.target.value })}
-            margin="normal"
-          />
-        );
-      case 'movie':
-        return (
-          <>
-            <TextField
-              fullWidth
-              label="Director"
-              value={inventoryForm.director}
-              onChange={(e) => setInventoryForm({ ...inventoryForm, director: e.target.value })}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Runtime (minutes)"
-              type="number"
-              value={inventoryForm.runtime}
-              onChange={(e) => setInventoryForm({ ...inventoryForm, runtime: Number(e.target.value) })}
-              margin="normal"
-            />
-          </>
-        );
-      case 'technology':
-        return (
-          <>
-            <TextField
-              fullWidth
-              label="Manufacturer"
-              value={inventoryForm.manufacturer}
-              onChange={(e) => setInventoryForm({ ...inventoryForm, manufacturer: e.target.value })}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Model"
-              value={inventoryForm.model}
-              onChange={(e) => setInventoryForm({ ...inventoryForm, model: e.target.value })}
-              margin="normal"
-            />
-          </>
-        );
-      default:
-        return null;
-    }
+  const handleRefreshEvents = () => {
+    setRefreshData(true);
   };
 
-  // render inventory management section
-  const renderInventoryManagement = () => {
-    return (
-      <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-        <Typography variant="h5" gutterBottom>
-          Inventory Management
+  // View Components
+  const renderDashboard = () => (
+    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Dashboard
+      </Typography>
+      <Typography>Total Items: {inventory.length}</Typography>
+      <Typography>Upcoming Events: {events.length}</Typography>
+    </Paper>
+  );
+
+  const renderInventoryManagement = () => (
+    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Inventory Management
+      </Typography>
+      
+      {/* Add Item Form */}
+      <Box component="form" sx={{ mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Add New Item
         </Typography>
+        <TextField
+          fullWidth
+          label="Title"
+          value={itemForm.title}
+          onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
+          margin="normal"
+          required
+        />
         <FormControl fullWidth margin="normal">
-          <InputLabel>Type</InputLabel>
+          <InputLabel>Status</InputLabel>
           <Select
-            value={inventoryForm.type}
-            onChange={(e) => setInventoryForm({ ...inventoryForm, type: e.target.value as 'book' | 'movie' | 'technology' })}
+            value={itemForm.availabilityStatus}
+            onChange={(e) => setItemForm({ ...itemForm, availabilityStatus: e.target.value as string })}
+            label="Status"
           >
-            <MenuItem value="book">Book</MenuItem>
-            <MenuItem value="movie">Movie</MenuItem>
-            <MenuItem value="technology">Technology</MenuItem>
+            <MenuItem value="Available">Available</MenuItem>
+            <MenuItem value="Checked Out">Checked Out</MenuItem>
+            <MenuItem value="On Hold">On Hold</MenuItem>
+            <MenuItem value="Lost">Lost</MenuItem>
           </Select>
         </FormControl>
         <TextField
           fullWidth
-          label="Title"
-          value={inventoryForm.title}
-          onChange={(e) => setInventoryForm({ ...inventoryForm, title: e.target.value })}
+          label="Total Copies"
+          type="number"
+          value={itemForm.totalCopies}
+          onChange={(e) => {
+            const total = parseInt(e.target.value) || 0;
+            setItemForm({
+              ...itemForm,
+              totalCopies: total,
+              availableCopies: Math.min(itemForm.availableCopies, total),
+            });
+          }}
+          margin="normal"
+          inputProps={{ min: 1 }}
+        />
+        <TextField
+          fullWidth
+          label="Available Copies"
+          type="number"
+          value={itemForm.availableCopies}
+          onChange={(e) => {
+            const available = parseInt(e.target.value) || 0;
+            setItemForm({
+              ...itemForm,
+              availableCopies: Math.min(available, itemForm.totalCopies),
+            });
+          }}
+          margin="normal"
+          inputProps={{ min: 0, max: itemForm.totalCopies }}
+        />
+        <TextField
+          fullWidth
+          label="Location"
+          value={itemForm.location}
+          onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
           margin="normal"
         />
-        {renderInventoryForm()}
-        <Button variant="contained" color="primary" onClick={handleAddInventory} sx={{ marginTop: 2 }}>
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={handleAddItem}
+          sx={{ mt: 2 }}
+        >
           Add Item
         </Button>
-        <TableContainer component={Paper} sx={{ marginTop: 3 }}>
+      </Box>
+
+      {/* Inventory Table */}
+      <Typography variant="h6" gutterBottom>
+        Current Inventory
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Title</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Total Copies</TableCell>
+              <TableCell>Available Copies</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {inventory.map((item) => (
+              <TableRow key={item.itemId}>
+                <TableCell>{item.title}</TableCell>
+                <TableCell>{item.availabilityStatus}</TableCell>
+                <TableCell>{item.totalCopies}</TableCell>
+                <TableCell>{item.availableCopies}</TableCell>
+                <TableCell>{item.location || '-'}</TableCell>
+                <TableCell>
+                  <IconButton onClick={() => handleEditClick(item)} color="primary">
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton onClick={() => handleDeleteItem(item.itemId)} color="error">
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* Edit Dialog */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogTitle>Edit Item</DialogTitle>
+        <DialogContent>
+          {editingItem && (
+            <Box component="form" sx={{ mt: 1 }}>
+              <TextField
+                fullWidth
+                label="Title"
+                value={editingItem.title}
+                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                margin="normal"
+                required
+              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={editingItem.availabilityStatus}
+                  onChange={(e) => setEditingItem({ ...editingItem, availabilityStatus: e.target.value as string })}
+                  label="Status"
+                >
+                  <MenuItem value="Available">Available</MenuItem>
+                  <MenuItem value="Checked Out">Checked Out</MenuItem>
+                  <MenuItem value="On Hold">On Hold</MenuItem>
+                  <MenuItem value="Lost">Lost</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                fullWidth
+                label="Total Copies"
+                type="number"
+                value={editingItem.totalCopies}
+                onChange={(e) => {
+                  const total = parseInt(e.target.value) || 0;
+                  setEditingItem({
+                    ...editingItem,
+                    totalCopies: total,
+                    availableCopies: Math.min(editingItem.availableCopies, total),
+                  });
+                }}
+                margin="normal"
+                inputProps={{ min: 1 }}
+              />
+              <TextField
+                fullWidth
+                label="Available Copies"
+                type="number"
+                value={editingItem.availableCopies}
+                onChange={(e) => {
+                  const available = parseInt(e.target.value) || 0;
+                  setEditingItem({
+                    ...editingItem,
+                    availableCopies: Math.min(available, editingItem.totalCopies),
+                  });
+                }}
+                margin="normal"
+                inputProps={{ min: 0, max: editingItem.totalCopies }}
+              />
+              <TextField
+                fullWidth
+                label="Location"
+                value={editingItem.location || ''}
+                onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })}
+                margin="normal"
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateItem} color="primary">Save</Button>
+        </DialogActions>
+      </Dialog>
+    </Paper>
+  );
+
+  const renderEventManagement = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Paper elevation={3} sx={{ padding: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Create New Event
+        </Typography>
+        <CreateEvent />
+        <Button 
+          variant="outlined" 
+          onClick={handleRefreshEvents}
+          sx={{ mt: 2 }}
+        >
+          Refresh Events List
+        </Button>
+      </Paper>
+      
+      <Paper elevation={3} sx={{ padding: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          Existing Events
+        </Typography>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Type</TableCell>
                 <TableCell>Title</TableCell>
-                <TableCell>Details</TableCell>
-                <TableCell>Status</TableCell>
+                <TableCell>Start Time</TableCell>
+                <TableCell>End Time</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Age Group</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Private</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {inventory.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.type}</TableCell>
-                  <TableCell>{item.title}</TableCell>
+              {events.map((event) => (
+                <TableRow key={event.eventId}>
+                  <TableCell>{event.title}</TableCell>
+                  <TableCell>{new Date(event.startTimeStamp).toLocaleString()}</TableCell>
+                  <TableCell>{new Date(event.endTimeStamp).toLocaleString()}</TableCell>
+                  <TableCell>{event.location}</TableCell>
                   <TableCell>
-                    {item.type === 'book' && `Author: ${item.author}`}
-                    {item.type === 'movie' && `Director: ${item.director}, Runtime: ${item.runtime} mins`}
-                    {item.type === 'technology' && `Manufacturer: ${item.manufacturer}, Model: ${item.model}`}
+                    {event.ageGroup === 1 && '0-2'}
+                    {event.ageGroup === 2 && '3-8'}
+                    {event.ageGroup === 3 && '9-13'}
+                    {event.ageGroup === 4 && '14-17'}
+                    {event.ageGroup === 5 && '18+'}
                   </TableCell>
-                  <TableCell>{item.status}</TableCell>
                   <TableCell>
-                    <IconButton onClick={() => handleDeleteInventory(item.id)} color="error">
+                    {event.categoryId === 1 && 'Educational'}
+                    {event.categoryId === 2 && 'Social'}
+                    {event.categoryId === 3 && 'Cultural'}
+                  </TableCell>
+                  <TableCell>{event.isPrivate ? 'Yes' : 'No'}</TableCell>
+                  <TableCell>
+                    <IconButton onClick={() => handleDeleteEvent(event.eventId)} color="error">
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
@@ -348,125 +499,30 @@ const Employee: React.FC = () => {
           </Table>
         </TableContainer>
       </Paper>
-    );
-  };
+    </Box>
+  );
 
-  // current view
-  const renderView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return (
-          <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Dashboard
-            </Typography>
-            <Typography>Total Items: {inventory.length}</Typography>
-            <Typography>Upcoming Events: {events.length}</Typography>
-          </Paper>
-        );
-
-      case 'inventory':
-        return renderInventoryManagement();
-
-      case 'events':
-        return (
-          <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Event Management
-            </Typography>
-            <TextField
-              fullWidth
-              label="Event Title"
-              value={eventForm.title}
-              onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Start Date/Time"
-              type="datetime-local"
-              InputLabelProps={{ shrink: true }}
-              value={eventForm.startTimestamp}
-              onChange={(e) => setEventForm({ ...eventForm, startTimestamp: e.target.value })}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Location"
-              value={eventForm.location}
-              onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              multiline
-              rows={4}
-              value={eventForm.description}
-              onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-              margin="normal"
-            />
-            <Button variant="contained" color="primary" onClick={handleAddEvent} sx={{ marginTop: 2 }}>
-              Add Event
-            </Button>
-            <TableContainer component={Paper} sx={{ marginTop: 3 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Title</TableCell>
-                    <TableCell>Start Time</TableCell>
-                    <TableCell>Location</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Action</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {events.map((event) => (
-                    <TableRow key={event.eventId}>
-                      <TableCell>{event.title}</TableCell>
-                      <TableCell>{new Date(event.startTimestamp).toLocaleString()}</TableCell>
-                      <TableCell>{event.location}</TableCell>
-                      <TableCell>{event.description}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => handleDeleteEvent(event.eventId)} color="error">
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        );
-
-      case 'libraryHistory':
-        return (
-          <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-            <Typography variant="h5" gutterBottom>
-              Library History
-            </Typography>
-            <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
-              <Tab label="Checkout History" />
-              <Tab label="Donation History" />
-              <Tab label="Event History" />
-              <Tab label="Fine History" />
-              <Tab label="Waitlist History" />
-            </Tabs>
-            <Box sx={{ marginTop: 2 }}>
-              {tabValue === 0 && <CheckoutHistory />}
-              {tabValue === 1 && <DonationHistory />}
-              {tabValue === 2 && <EventHistory />}
-              {tabValue === 3 && <FineHistory />}
-              {tabValue === 4 && <WaitlistHistory />}
-            </Box>
-          </Paper>
-        );
-
-      default:
-        return null;
-    }
-  };
+  const renderLibraryHistory = () => (
+    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Library History
+      </Typography>
+      <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+        <Tab label="Checkout History" />
+        <Tab label="Donation History" />
+        <Tab label="Event History" />
+        <Tab label="Fine History" />
+        <Tab label="Waitlist History" />
+      </Tabs>
+      <Box sx={{ marginTop: 2 }}>
+        {tabValue === 0 && <CheckoutHistory />}
+        {tabValue === 1 && <DonationHistory />}
+        {tabValue === 2 && <EventHistory />}
+        {tabValue === 3 && <FineHistory />}
+        {tabValue === 4 && <WaitlistHistory />}
+      </Box>
+    </Paper>
+  );
 
   return (
     <Box>
@@ -490,7 +546,24 @@ const Employee: React.FC = () => {
         </Toolbar>
       </AppBar>
       <Container sx={{ marginTop: 3 }}>
-        {renderView()}
+        {/* Message Dialog */}
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+          <DialogTitle>Notification</DialogTitle>
+          <DialogContent>
+            <p>{dialogMessage}</p>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)} color="primary">
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Current View */}
+        {currentView === 'dashboard' && renderDashboard()}
+        {currentView === 'inventory' && renderInventoryManagement()}
+        {currentView === 'events' && renderEventManagement()}
+        {currentView === 'libraryHistory' && renderLibraryHistory()}
       </Container>
     </Box>
   );
