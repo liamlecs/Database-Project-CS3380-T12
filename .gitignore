@@ -12,9 +12,10 @@
     dist-ssr
     *.local
     
-    LibraryWebAPI\bin
-    LibraryWebAPI\obj
+    LibraryWebAPI/bin
+    LibraryWebAPI/obj
 
+    LibraryWebAPI/appsettings.json
 
     # Editor directories and files
     .vscode/*
