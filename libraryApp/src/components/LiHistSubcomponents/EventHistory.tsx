@@ -28,7 +28,7 @@ export default function EventHistory() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch("http://localhost:5217/api/Event");
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`);
         if (!response.ok) {
           throw new Error("Failed to fetch donation data");
         }

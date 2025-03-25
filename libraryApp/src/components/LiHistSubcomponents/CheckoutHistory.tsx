@@ -38,7 +38,7 @@ export default function CheckoutHistory() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch("http://localhost:5217/api/TransactionHistory");
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory`);
         if (!response.ok) {
           throw new Error("Failed to fetch donation data");
         }
