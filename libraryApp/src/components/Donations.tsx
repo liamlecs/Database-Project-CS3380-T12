@@ -32,7 +32,7 @@ const Donations: React.FC = () => {
 
   // retrieve user ID
   const getCustomerId = async (): Promise<number> => {
-    // Replace this with your actual logic to fetch the user's ID
+    // Replace this with actual logic to fetch the user's ID
     const response = await fetch('/api/auth/current-user');
     const user = await response.json();
     return user.id;
