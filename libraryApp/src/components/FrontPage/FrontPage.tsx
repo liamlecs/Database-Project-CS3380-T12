@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SearchComponent from '../SearchBar/SearchComponent';
 import './FrontPage.css';
+import welcomeBg from "../../assets/welcome_background.jpg"; // <- import the image
 
 const Library: React.FC = () => {
   interface Book {
@@ -9,30 +10,55 @@ const Library: React.FC = () => {
     author: string;
     genre: string;
     imageUrl: string;
+    isCheckedOut: boolean;
   }
 
   const numRows = 4; 
-  const booksPerRow = 7;
-  const totalBooks = 21;
+  const booksPerRow = 5;
 
-  const [books, setBooks] = useState<Book[]>([]);
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
-  const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(14));
+  // serves as a placeholder for the books to be imported from the db
+  const placeholderBooks: Book[] = [
+    { id: 1, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+    { id: 2, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+    { id: 3, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+    { id: 4, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+    { id: 5, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+    { id: 6, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+    { id: 7, title: "Loading...", author: "Unknown", genre: "Loading", imageUrl: "https://via.placeholder.com/130", isCheckedOut: false },
+  ];
 
-  // Fetch books data from API and transform the response
+  const [books, setBooks] = useState<Book[]>(placeholderBooks);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>(placeholderBooks);
+  const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(0));
+
+  const scrollBooks = (direction: 'left' | 'right', rowIndex: number) => {
+    setRowIndices((prevIndices) => {
+      const newIndices = [...prevIndices];
+      const maxStartIndex = Math.max(0, filteredBooks.length - booksPerRow);
+
+      if (direction === 'right') {
+        newIndices[rowIndex] = Math.min(newIndices[rowIndex] + booksPerRow, maxStartIndex);
+      } else {
+        newIndices[rowIndex] = Math.max(newIndices[rowIndex] - booksPerRow, 0);
+      }
+
+      return newIndices;
+    });
+  };
+
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch('http://localhost:5217/api/Book');
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book`);
         const data = await response.json();
-        
-        // Transform database format into frontend-friendly format
-        const formattedBooks = data.map((book: any) => ({
+
+        const formattedBooks = data.map((book: { bookId: number; title: string; author: string; genre: string; imageUrl?: string; isCheckedOut: boolean }) => ({
           id: book.bookId,
-          title: `ISBN: ${book.isbn}`, // Adjust the display logic as needed
-          author: book.bookAuthor ? book.bookAuthor.name : "Unknown Author",
-          genre: book.bookGenre ? book.bookGenre.genreName : "Unknown Genre",
-          imageUrl: "" // Placeholder for book cover images
+          title: book.title,
+          author: book.author,
+          genre: book.genre,
+          imageUrl: book.imageUrl || "https://via.placeholder.com/130",
+          isCheckedOut: book.isCheckedOut,
         }));
 
         setBooks(formattedBooks);
@@ -45,25 +71,14 @@ const Library: React.FC = () => {
     fetchBooks();
   }, []);
 
-  // Function to handle scrolling in a specific row
-  const scrollBooks = (direction: 'left' | 'right', rowIndex: number) => {
-    setRowIndices((prevIndices) => {
-      const newIndices = [...prevIndices];
-      const maxIndex = Math.max(0, filteredBooks.length - booksPerRow); // Prevents scrolling past available books
-
-      if (direction === 'right') {
-        newIndices[rowIndex] = Math.min(newIndices[rowIndex] + booksPerRow, maxIndex);
-      } else {
-        newIndices[rowIndex] = Math.max(newIndices[rowIndex] - booksPerRow, 0);
-      }
-
-      return newIndices;
-    });
-  };
-
   return (
     <div className="library-container">
-      <div className="welcome-message">
+      <div className="welcome-message"    style={{
+    backgroundImage: `url(${welcomeBg})`,
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center center",
+    backgroundSize: "cover"
+  }}>
         <h1>Checkout Your Favorite Books Today!</h1>
       </div>
 
@@ -71,40 +86,48 @@ const Library: React.FC = () => {
         <SearchComponent books={books} onSearch={() => {}} />
       </div>
 
-      {/* multiple rows of books */}
       {Array.from({ length: numRows }, (_, rowIndex) => {
         const startIndex = rowIndices[rowIndex];
-        const booksForRow = filteredBooks.slice(startIndex, startIndex + booksPerRow);
+        let booksForRow = filteredBooks.slice(startIndex, startIndex + booksPerRow);
+        
+        while (booksForRow.length < booksPerRow) {
+          booksForRow.push({
+            id: -1,
+            title: "",
+            author: "",
+            genre: "",
+            imageUrl: "",
+            isCheckedOut: false,
+          });
+        }
 
         return (
           <div key={rowIndex} className="book-row">
-            {/* Scroll Left Button */}
             <button className="scroll-left" onClick={() => scrollBooks('left', rowIndex)} disabled={startIndex === 0}>
               &lt;
             </button>
 
-            {/* books container */}
             <div className="books-section">
               <div className="book-row-container">
                 {booksForRow.map((book) => (
-                  <div key={book.id} className="book-card">
+                  <div key={book.id} className="book-card" style={{ visibility: book.id === -1 ? 'hidden' : 'visible' }}>
                     <img 
-                      src={book.imageUrl || "https://via.placeholder.com/130"} // Placeholder for book covers
+                      src={book.imageUrl} 
                       alt={book.title} 
                       className="book-image"
                     />
                     <p className="book-title">{book.title}</p>
                     <p className="book-author">{book.author}</p>
+                    <p className="book-genre">{book.genre}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Scroll Right Button */}
             <button 
               className="scroll-right" 
               onClick={() => scrollBooks('right', rowIndex)} 
-              disabled={startIndex + booksPerRow >= filteredBooks.length}
+              disabled={rowIndices[rowIndex] >= filteredBooks.length - booksPerRow}
             >
               &gt;
             </button>
