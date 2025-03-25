@@ -25,7 +25,19 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Grid,
+  Card,
+  CardContent,
+  Divider,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
+import {
+  Event as EventIcon,
+  Inventory as InventoryIcon,
+  History as HistoryIcon,
+  People as PeopleIcon
+} from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateEvent from './CreateEvent';
@@ -57,13 +69,15 @@ interface Event {
 }
 
 const Employee: React.FC = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory'>('dashboard');
   const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [refreshData, setRefreshData] = useState(false);
 
-  // Inventory Form States
+  // inventory Form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
     availabilityStatus: 'Available',
@@ -72,15 +86,15 @@ const Employee: React.FC = () => {
     location: '',
   });
 
-  // Edit States
+  // edit States
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
-  // Dialog States
+  // dialog States
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
 
-  // Data Fetching
+  // fetching data
   useEffect(() => {
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
@@ -117,7 +131,7 @@ const Employee: React.FC = () => {
     }
   };
 
-  // Inventory CRUD Operations
+  // inventory CRUD operations
   const handleAddItem = async () => {
     if (!itemForm.title || !itemForm.availabilityStatus) {
       setDialogMessage('Title and status are required fields.');
@@ -210,7 +224,7 @@ const Employee: React.FC = () => {
     setOpenEditDialog(true);
   };
 
-  // Event Operations
+  // event operations
   const handleDeleteEvent = async (id: number) => {
     try {
       const response = await fetch(`http://localhost:5217/api/Event/${id}`, {
@@ -229,17 +243,148 @@ const Employee: React.FC = () => {
     setRefreshData(true);
   };
 
-  // View Components
-  const renderDashboard = () => (
-    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Dashboard
-      </Typography>
-      <Typography>Total Items: {inventory.length}</Typography>
-      <Typography>Upcoming Events: {events.length}</Typography>
-    </Paper>
-  );
+  // improved dashboard design
+  const renderDashboard = () => {
+    const dashboardItems = [
+      {
+        title: 'Inventory',
+        count: inventory.length,
+        icon: <InventoryIcon fontSize="large" color="primary" />,
+        action: () => setCurrentView('inventory'),
+        color: theme.palette.primary.main
+      },
+      {
+        title: 'Events',
+        count: events.length,
+        icon: <EventIcon fontSize="large" color="secondary" />,
+        action: () => setCurrentView('events'),
+        color: theme.palette.secondary.main
+      },
+      {
+        title: 'Library History',
+        count: '-',
+        icon: <HistoryIcon fontSize="large" style={{ color: theme.palette.success.main }} />,
+        action: () => setCurrentView('libraryHistory'),
+        color: theme.palette.success.main
+      },
+    ];
 
+    return (
+      <Paper elevation={3} sx={{ 
+        padding: 3, 
+        marginBottom: 3,
+        borderRadius: 4,
+        background: theme.palette.background.paper
+      }}>
+        <Typography variant="h4" gutterBottom sx={{ 
+          fontWeight: 600,
+          color: theme.palette.text.primary,
+          mb: 3,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2
+        }}>
+          Employee Dashboard
+        </Typography>
+        
+        <Divider sx={{ my: 2 }} />
+
+        <Grid container spacing={3}>
+          {dashboardItems.map((item, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Card 
+                onClick={item.action}
+                sx={{
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: theme.shadows[6]
+                  },
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 3,
+                  borderLeft: `4px solid ${item.color}`
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 2
+                  }}>
+                    <Typography variant="h6" component="div" sx={{ fontWeight: 500 }}>
+                      {item.title}
+                    </Typography>
+                    {item.icon}
+                  </Box>
+                  <Typography variant="h3" component="div" sx={{ 
+                    fontWeight: 700,
+                    color: item.color,
+                    textAlign: 'center',
+                    my: 2
+                  }}>
+                    {item.count}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ 
+                    textAlign: 'center',
+                    fontStyle: 'italic'
+                  }}>
+                    {item.title === 'Inventory' ? 'Items in stock' : 
+                     item.title === 'Events' ? 'Upcoming events' : 
+                     'View details'}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+
+        <Box sx={{ 
+          mt: 4,
+          p: 3,
+          backgroundColor: theme.palette.grey[100],
+          borderRadius: 3,
+          borderLeft: `4px solid ${theme.palette.info.main}`
+        }}>
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: 500 }}>
+            Quick Actions
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Button 
+              variant="contained" 
+              size={isMobile ? 'small' : 'medium'}
+              startIcon={<InventoryIcon />}
+              onClick={() => setCurrentView('inventory')}
+            >
+              Add New Item
+            </Button>
+            <Button 
+              variant="contained" 
+              color="secondary" 
+              size={isMobile ? 'small' : 'medium'}
+              startIcon={<EventIcon />}
+              onClick={() => setCurrentView('events')}
+            >
+              Create Event
+            </Button>
+            <Button 
+              variant="outlined" 
+              size={isMobile ? 'small' : 'medium'}
+              startIcon={<HistoryIcon />}
+              onClick={() => setCurrentView('libraryHistory')}
+            >
+              View History
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    );
+  };
+
+  // other view components
   const renderInventoryManagement = () => (
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       <Typography variant="h5" gutterBottom>
