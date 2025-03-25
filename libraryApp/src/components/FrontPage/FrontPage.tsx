@@ -9,41 +9,41 @@ const Library: React.FC = () => {
     author: string;
     genre: string;
     imageUrl: string;
+    isCheckedOut: boolean;
   }
 
   const numRows = 4; 
   const booksPerRow = 7;
-  const totalBooks = 21;
 
   const [books, setBooks] = useState<Book[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [rowIndices, setRowIndices] = useState<number[]>(new Array(numRows).fill(14));
 
-  // Fetch books data from API and transform the response
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch('http://localhost:5217/api/Book');
+        const response = await fetch('https://localhost:5173/api/Book');
         const data = await response.json();
-        
-        // Transform database format into frontend-friendly format
-        const formattedBooks = data.map((book: any) => ({
+  
+        // Transform the API response into the desired format
+        const formattedBooks = data.map((book: { bookId: number; title: string; author: string; imageUrl?: string; isCheckedOut: boolean }) => ({
           id: book.bookId,
-          title: `ISBN: ${book.isbn}`, // Adjust the display logic as needed
-          author: book.bookAuthor ? book.bookAuthor.name : "Unknown Author",
-          genre: book.bookGenre ? book.bookGenre.genreName : "Unknown Genre",
-          imageUrl: "" // Placeholder for book cover images
+          title: book.title,  // e.g., "ISBN: 123456789"
+          author: book.author,  // Assuming 'author' is returned as a string
+          imageUrl: book.imageUrl || "https://via.placeholder.com/130",  // Placeholder
+          isCheckedOut: book.isCheckedOut,
         }));
-
+  
         setBooks(formattedBooks);
-        setFilteredBooks(formattedBooks);
+        setFilteredBooks(formattedBooks);  // If you're using filtering logic
       } catch (error) {
         console.error('Error fetching books:', error);
       }
     };
-
+  
     fetchBooks();
   }, []);
+  
 
   // Function to handle scrolling in a specific row
   const scrollBooks = (direction: 'left' | 'right', rowIndex: number) => {
@@ -95,6 +95,7 @@ const Library: React.FC = () => {
                     />
                     <p className="book-title">{book.title}</p>
                     <p className="book-author">{book.author}</p>
+                    <p className="book-genre">{book.genre}</p>
                   </div>
                 ))}
               </div>
