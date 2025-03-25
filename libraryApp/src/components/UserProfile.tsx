@@ -1,57 +1,82 @@
-import type React from "react";
+import React from "react";
 import { useEffect, useState } from "react";
+import "./UserProfile.css";
 
 interface Profile {
   customerID: number;
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
   role: string; // e.g., "Customer"
   membershipStartDate: string;
   membershipEndDate: string | null;
+
+  //Future things to display
+  fines: number; // User's total fines
+  checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
+  transactionHistory: Array<{ date: string; amount: number; description: string;
+  }>;
 }
 
 export default function UserProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [editing, setEditing] = useState<boolean>(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
+  const [waitlist, setWaitlist] = useState<Array<{ title: string; author: string, position: string }>>([]); // Waitlist state
 
-  // 1️⃣ Fetch the user’s profile data from your API when component mounts
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const userId = 2; // Replace with dynamic logic later if needed
+        //Integrate with Customer and Emplyoee authentication
+        //For now loads a default customer in the DB with userID = 2.
+        const userId = 2;
         const userType = "customer";
-    
-        const response = await fetch(`http://localhost:5217/UserProfile/${userType}/${userId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-    
+
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/UserProfile/${userType}/${userId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
           throw new Error("Failed to fetch profile data");
         }
-    
+
         const data = await response.json();
-    
+
         // Map API fields to your Profile interface if needed
+        //Mapping Customer Fields to the fetch request
         const mappedProfile: Profile = {
           customerID: userId,
           firstName: data.name.split(" ")[0],
           lastName: data.name.split(" ").slice(1).join(" "),
           email: data.email,
+          password: data.password,
           role: data.role,
           membershipStartDate: data.memberSince,
           membershipEndDate: data.membershipExpires || null,
+          fines: data.fines, // Replace with actual fines if available in the API
+          checkedOutBooks: [], // Replace with actual books if available in the API
+          transactionHistory: [], // Replace with actual transactions if available in the API
         };
-    
+
         setProfile(mappedProfile);
         setEditProfile({ ...mappedProfile });
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+
+        // Fetch waitlist (mocked for now)
+        // We can add this functionality later
+        setWaitlist([
+          { title: "The Great Gatsby", author: "F. Scott Fitzgerald", position: "5" },
+          { title: "1984", author: "George Orwell", position: "3" },
+        ]);
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         setErrorMsg(error.message || "An error occurred.");
@@ -59,158 +84,263 @@ export default function UserProfile() {
         setLoading(false);
       }
     }
-  
+
     fetchProfile();
   }, []);
 
-  // 2️⃣ Handle changes in input fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!editProfile) return; // safety check
+    if (!editProfile) return;
     setEditProfile({
       ...editProfile,
       [e.target.name]: e.target.value,
     });
   };
 
-  // 3️⃣ Handle form submission to save changes
+  //Editing Customer Fields
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editProfile) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${editProfile.customerID}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editProfile),
-      });
-      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${editProfile.customerID}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editProfile),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update profile data");
       }
 
-      // If the update is successful, update local state
       setProfile(editProfile);
-      setEditing(false);
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      setEditingField(null); // Stop editing after save
+      alert("Settings Changed Successfully");
     } catch (error: any) {
       console.error("Error updating profile:", error);
       setErrorMsg(error.message || "An error occurred while updating profile.");
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+  };
+
   if (loading) {
-    return <div className="container mt-5">Loading profile...</div>;
+    return <div className="loading">Loading profile...</div>;
   }
 
   if (errorMsg) {
-    return (
-      <div className="container mt-5">
-        <div className="alert alert-danger">{errorMsg}</div>
-      </div>
-    );
+    return <div className="error">{errorMsg}</div>;
   }
 
   if (!profile) {
-    return <div className="container mt-5">No profile data found.</div>;
+    return <div>No profile data found.</div>;
   }
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "600px" }}>
-      <h2 className="text-center mb-4">User Profile</h2>
+    <div className="user-profile">
+      <div className="left-nav">
+        <nav className="vertical-nav">
+          <ul>
+            <li>
+              <button
+                className={activeTab === "account" ? "active" : ""}
+                onClick={() => handleTabChange("account")}
+              >
+                My Account
+              </button>
+            </li>
+            <li>
+              <button
+                className={activeTab === "transactions" ? "active" : ""}
+                onClick={() => handleTabChange("transactions")}
+              >
+                Transaction History
+              </button>
+            </li>
 
-      {/* Display Profile Details */}
-      <div className="card mb-4">
-        <div className="card-body">
-          <h3>
-            {profile.firstName} {profile.lastName}
-          </h3>
-          <p>
-            <strong>Email:</strong> {profile.email}
-          </p>
-          <p>
-            <strong>Role:</strong> {profile.role}
-          </p>
-          <p>
-            <strong>Member Since:</strong>{" "}
-            {new Date(profile.membershipStartDate).toLocaleDateString()}
-          </p>
-          {profile.membershipEndDate && (
-            <p>
-              <strong>Membership Expires:</strong>{" "}
-              {new Date(profile.membershipEndDate).toLocaleDateString()}
-            </p>
-          )}
-        </div>
+            <li>
+              <button
+                className={activeTab === "waitlist" ? "active" : ""}
+                onClick={() => handleTabChange("waitlist")}
+              >
+                Waitlist
+              </button>
+            </li>
+
+            <li>
+              <button
+                className={activeTab === "settings" ? "active" : ""}
+                onClick={() => handleTabChange("settings")}
+              >
+                Account Settings
+              </button>
+            </li>
+
+          </ul>
+        </nav>
       </div>
 
-      {/* Toggle between Edit Form and Edit Button */}
-      {editing ? (
-        <div className="card">
-          <div className="card-header">Edit Profile</div>
-          <div className="card-body">
+      <div className="profile-content">
+        {activeTab === "account" && (
+          <div className="profile-section">
+            <h3>My Account</h3>
+            <div className="profile-item">
+              <span>
+                <strong>Name:</strong>
+              </span>
+              <span>
+                {profile.firstName} {profile.lastName}
+              </span>
+            </div>
+            <div className="profile-item">
+              <span>
+                <strong>Email:</strong>
+              </span>
+              <span>{profile.email}</span>
+            </div>
+            <div className="profile-item">
+              <span>
+                <strong>Role:</strong>
+              </span>
+              <span>{profile.role}</span>
+            </div>
+            <div className="profile-item">
+              <span>
+                <strong>Membership Start Date:</strong>
+              </span>
+              <span>
+                {new Date(profile.membershipStartDate).toLocaleDateString()}
+              </span>
+            </div>
+            {profile.membershipEndDate && (
+              <div className="profile-item">
+                <span>
+                  <strong>Membership End Date:</strong>
+                </span>
+                <span>
+                  {new Date(profile.membershipEndDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+            {/* Add Delete Account and Log Out buttons */}
+            <div className="account-actions">
+              <button
+                className="btn-delete"
+                onClick={() => {
+                  if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+                    // Add delete account logic here
+                    alert("Account deleted successfully.");
+                  }
+                }}
+              >
+                Delete Account
+              </button>
+              <button
+                className="btn-logout"
+                onClick={() => {
+                  // Add log out logic here
+                  alert("Logged out successfully.");
+                }}
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "transactions" && (
+          <div className="profile-section">
+            <h3>Transaction History</h3>
+            <ul className="transaction-history-list">
+              {profile.transactionHistory.map((transaction, index) => (
+                <li key={index}>
+                  <strong>{transaction.description}</strong>
+                  <br />
+                  Date: {new Date(transaction.date).toLocaleDateString()}
+                  <br />
+                  Amount: ${transaction.amount.toFixed(2)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div className="profile-section">
+            <h3>Account Settings</h3>
             <form onSubmit={handleSave}>
-              <div className="mb-3">
-                <label htmlFor="firstName" className="form-label">
-                  First Name
+              <div className="profile-item">
+                <label htmlFor="firstName">
+                  <strong>First Name:</strong>
                 </label>
                 <input
                   type="text"
                   id="firstName"
                   name="firstName"
-                  className="form-control"
                   value={editProfile?.firstName || ""}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
-              <div className="mb-3">
-                <label htmlFor="lastName" className="form-label">
-                  Last Name
+              <div className="profile-item">
+                <label htmlFor="lastName">
+                  <strong>Last Name:</strong>
                 </label>
                 <input
                   type="text"
                   id="lastName"
                   name="lastName"
-                  className="form-control"
                   value={editProfile?.lastName || ""}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">
-                  Email
+              <div className="profile-item">
+                <label htmlFor="email">
+                  <strong>Email:</strong>
                 </label>
                 <input
                   type="email"
                   id="email"
                   name="email"
-                  className="form-control"
                   value={editProfile?.email || ""}
                   onChange={handleInputChange}
-                  required
                 />
               </div>
-              {/* Add more fields (e.g., membershipEndDate) if needed */}
-              <button type="submit" className="btn btn-primary w-100">
+              <div className="profile-item">
+                <label htmlFor="password">
+                  <strong>Password:</strong>
+                </label>
+                <input
+                  type="text"
+                  id="password"
+                  name="password"
+                  value={editProfile?.password || ""}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
                 Save Changes
               </button>
             </form>
           </div>
-        </div>
-      ) : (
-        // biome-ignore lint/a11y/useButtonType: <explanation>
-<button
-          className="btn btn-secondary w-100"
-          onClick={() => {
-            setEditProfile({ ...profile });
-            setEditing(true);
-          }}
-        >
-          Edit Profile
-        </button>
-      )}
+        )}
+
+        {activeTab === "waitlist" && (
+          <div className="profile-section">
+            <h3>Waitlist</h3>
+            <ul className="waitlist-list">
+              {waitlist.map((item, index) => (
+                <li key={index}>
+                  <strong>{item.title}</strong> by {item.author} <strong>Position </strong>{item.position} 
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

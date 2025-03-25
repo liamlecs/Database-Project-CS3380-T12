@@ -29,8 +29,12 @@ namespace LibraryWebAPI.Controllers
                     Name = customer.FirstName + " " + customer.LastName,
                     Email = customer.Email,
                     Role = "Student",
+                    password = customer.AccountPassword,
                     MemberSince = customer.MembershipStartDate,
-                    MembershipExpires = customer.MembershipEndDate
+                    MembershipExpires = customer.MembershipEndDate,
+                    //fines = customer.Fines,
+                    //checkedBooks = customer,
+                    //transcActHistory = customer.TransactionHistories,
                 });
             }
             else if (type.ToLower() == "employee")
@@ -42,7 +46,8 @@ namespace LibraryWebAPI.Controllers
                 {
                     Name = employee.FirstName + " " + employee.LastName,
                     Email = employee.Username,
-                    Role = "Faculty"
+                    Role = "Faculty",
+                    password = employee.AccountPassword,
                 });
             }
 
@@ -57,9 +62,14 @@ namespace LibraryWebAPI.Controllers
                     c.CustomerId,
                     Name = c.FirstName + " " + c.LastName,
                     c.Email,
+                    c.AccountPassword,
                     Role = "Student",
                     MemberSince = c.MembershipStartDate,
-                    MembershipExpires = c.MembershipEndDate
+                    MembershipExpires = c.MembershipEndDate,
+                    //fines = customer.Fines,
+                    //checkedBooks = customer
+                    //transcActHistory = customer.TransactionHistories,
+                    //waitList = customer.waitList
                 })
                 .ToListAsync();
 
@@ -74,6 +84,7 @@ namespace LibraryWebAPI.Controllers
             customer.FirstName = updatedCustomer.FirstName;
             customer.LastName = updatedCustomer.LastName;
             customer.Email = updatedCustomer.Email;
+            customer.AccountPassword = updatedCustomer.Password;
            customer.MembershipStartDate = updatedCustomer.MembershipStartDate.HasValue
         ? DateOnly.FromDateTime(updatedCustomer.MembershipStartDate.Value)
         : customer.MembershipStartDate;
