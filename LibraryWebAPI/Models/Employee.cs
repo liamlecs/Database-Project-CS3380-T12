@@ -26,4 +26,6 @@ public partial class Employee
     public virtual Sex SexNavigation { get; set; } = null!;
 
     public virtual Employee? Supervisor { get; set; }
+
+    public virtual ICollection<Employee> InverseSupervisor { get; set; } = new List<Employee>();
 }
