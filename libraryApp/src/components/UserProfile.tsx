@@ -398,18 +398,6 @@ export default function UserProfile() {
                 />
               </div>
               <div className="profile-item">
-                <label htmlFor="email">
-                  <strong>Email:</strong>
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={editProfile?.email || ""}
-                  readOnly
-                />
-              </div>
-              <div className="profile-item">
                 <label htmlFor="password">
                   <strong>Password:</strong>
                 </label>
