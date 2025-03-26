@@ -251,6 +251,59 @@
     background-color: #5a6268; /* Darker grey on hover */
   }
 
+  .waitlist-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .waitlist-table th,
+  .waitlist-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .waitlist-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .waitlist-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .waitlist-table tr:hover {
+    background-color: #f1f1f1;
+  }
+
+
+  /* Filter Section */
+.filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Wrapper for Filter Label and Dropdown */
+.filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Label for Filter */
+.filter-label {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Ensure Dropdown Width is Consistent */
+.filter-dropdown {
+  width: 150px;
+}
+
 
 
 

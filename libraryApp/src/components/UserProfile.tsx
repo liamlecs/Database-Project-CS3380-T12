@@ -2,6 +2,19 @@ import React from "react";
 import { useEffect, useState } from "react";
 import "./UserProfile.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+//import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+//import InputLabel from "@mui/material/InputLabel";
 
 interface Profile {
   customerID: number;
@@ -15,7 +28,7 @@ interface Profile {
 
   //Future things to display
   fines: number; // User's total fines
-  checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
+  //checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
   transactionHistory: Array<{
     transcationID: number;
     customerID: number;
@@ -24,12 +37,12 @@ interface Profile {
     dueDate: Date;
     returnDate: Date;
   }>;
-  Waitlist: Array<{
-    waitlistID: number;
-    customerID: number;
-    itemID: number;
-    reserveDate: Date;
-    isReceieved: boolean;
+  waitlists: Array<{
+    waitlistId: number;
+    customerId: number;
+    itemId: number;
+    reservationDate: Date;
+    isReceived: boolean;
   }>;
 }
 
@@ -40,9 +53,9 @@ export default function UserProfile() {
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
-  const [waitlist, setWaitlist] = useState<
-    Array<{ title: string; author: string; position: string }>
-  >([]); // Waitlist state
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredWaitlists, setFilteredWaitlists] = useState<Profile["waitlists"]>([]);
+  const [filterDays, setFilterDays] = useState<number>(0);
 
   //Login Page functionality
   const location = useLocation();
@@ -81,6 +94,9 @@ export default function UserProfile() {
 
         const data = await response.json();
 
+        console.log("API Response:", data);
+
+
         // Map API fields to your Profile interface if needed
         //Mapping Customer Fields to the fetch request
         const mappedProfile: Profile = {
@@ -93,24 +109,25 @@ export default function UserProfile() {
           membershipStartDate: data.memberSince,
           membershipEndDate: data.membershipExpires || null,
           fines: data.fines, // Replace with actual fines if available in the API
-          checkedOutBooks: [], // Replace with actual books if available in the API
+          //checkedOutBooks: [], // Replace with actual books if available in the API
           transactionHistory: [], // Replace with actual transactions if available in the API
-          Waitlist: [], //Populate these whenever we have waitlist stuff
+          waitlists: data.waitList || [] //Populate these whenever we have waitlist stuff
         };
 
         setProfile(mappedProfile);
         setEditProfile({ ...mappedProfile });
+        setFilteredWaitlists(data.waitList || []);
 
         // Fetch waitlist (mocked for now)
         // We can add this functionality later
-        setWaitlist([
+        {/*setWaitlist([
           {
             title: "The Great Gatsby",
             author: "F. Scott Fitzgerald",
             position: "5",
           },
           { title: "1984", author: "George Orwell", position: "3" },
-        ]);
+        ]);*/}
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         setErrorMsg(error.message || "An error occurred.");
@@ -163,6 +180,30 @@ export default function UserProfile() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
+
+  const filterLast30Days = () => {
+    const now = new Date();
+    const last30Days = new Date(now.setDate(now.getDate() - 30));
+    const filtered = profile?.waitlists.filter((item) => new Date(item.reservationDate) >= last30Days) || [];
+    setFilteredWaitlists(filtered);
+  };
+
+  const handleFilterDaysChange = (days: number) => {
+    setFilterDays(days);
+    const now = new Date();
+    const filtered = profile?.waitlists.filter((item) => {
+      const reservationDate = new Date(item.reservationDate);
+      return days === 0 || reservationDate >= new Date(now.setDate(now.getDate() - days));
+    }) || [];
+    setFilteredWaitlists(filtered);
+  };
+
+  useEffect(() => {
+    const filtered = profile?.waitlists.filter((item) =>
+      item.itemId.toString().includes(searchQuery)
+    ) || [];
+    setFilteredWaitlists(filtered);
+  }, [searchQuery, profile?.waitlists]);
 
   if (loading) {
     return <div className="loading">Loading profile...</div>;
@@ -374,15 +415,68 @@ export default function UserProfile() {
         {activeTab === "waitlist" && (
           <div className="profile-section">
             <h3>Waitlist</h3>
-            <ul className="waitlist-list">
-              {waitlist.map((item, index) => (
-                <li key={index}>
-                  <strong>{item.title}</strong> by {item.author}{" "}
-                  <strong>Position </strong>
-                  {item.position}
-                </li>
-              ))}
-            </ul>
+
+            {/* Search and Filter Controls */}
+            <div className="filter-container">
+              
+              {/* Search Bar */}
+              <TextField
+                label="Search by Item ID"
+                variant="outlined"
+                size="small"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ width: "40%" }}
+              />
+
+              {/* Filter Dropdown with Label */}
+              <div className="filter-wrapper">
+                <label className="filter-label">Filter:</label>
+                <FormControl className="filter-dropdown">
+                  <Select
+                    value={filterDays}
+                    onChange={(e) => handleFilterDaysChange(e.target.value as number)}
+                  >
+                    <MenuItem value={0}>All</MenuItem>
+                    <MenuItem value={30}>Last 30 Days</MenuItem>
+                    <MenuItem value={60}>Last 60 Days</MenuItem>
+                    <MenuItem value={360}>Last Year</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+
+            </div>
+
+
+            {filteredWaitlists.length > 0 ? (
+              <TableContainer component={Paper} style={{ maxHeight: "500px" }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell><strong>Waitlist ID</strong></TableCell>
+                      <TableCell><strong>Customer ID</strong></TableCell>
+                      <TableCell><strong>Item ID</strong></TableCell>
+                      <TableCell><strong>Reservation Date</strong></TableCell>
+                      <TableCell><strong>Is Received</strong></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredWaitlists.map((item) => (
+                      <TableRow key={item.waitlistId}>
+                        <TableCell>{item.waitlistId}</TableCell>
+                        <TableCell>{item.customerId}</TableCell>
+                        <TableCell>{item.itemId}</TableCell>
+                        <TableCell>
+                          {new Date(item.reservationDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{item.isReceived ? "Yes" : "No"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <p>No items in the waitlist.</p>
+            )}
           </div>
         )}
       </div>

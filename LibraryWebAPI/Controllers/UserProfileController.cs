@@ -40,7 +40,7 @@ namespace LibraryWebAPI.Controllers
                     fines = customer.Fines,
                     //checkedBooks = customer,
                     transcActHistory = customer.TransactionHistories,
-                    waitList = customer.Waitlists
+                    waitLists = customer.Waitlists
                 });
             }
             else if (type.ToLower() == "employee")
