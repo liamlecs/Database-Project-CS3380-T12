@@ -93,7 +93,7 @@ Hi {dto.FirstName},
 Your account has been successfully created.
 Your email confirmation code is: {confirmationCode}
 
-Please confirm your email by entering this code in our confirmation page.
+Please confirm your email by entering this code in our confirmation page: https://database-project-cs-3380-t12.vercel.app/confirm
 
 Borrower Type: {(borrowerTypeId == 1 ? "Student" : "Faculty")}
 Membership Start Date: {startDate}
