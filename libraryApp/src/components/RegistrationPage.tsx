@@ -56,7 +56,7 @@ export default function RegistrationPage() {
 
       alert("Registration successful! A confirmation email has been sent.");
       // Optionally, redirect the user to the login page, e.g.:
-      // window.location.href = "/login";
+      window.location.href = "/customer-login";
     } catch (error) {
       console.error(error);
       alert("An error occurred. Please try again later.");
@@ -78,7 +78,7 @@ export default function RegistrationPage() {
           <h2>Create An Account</h2>
           <p>
             Already have an account?{" "}
-            <a href="/LoginPage">Log in</a>
+            <a href="/customer-login">Log in</a>
           </p>
 
           <form onSubmit={handleSubmit}>
