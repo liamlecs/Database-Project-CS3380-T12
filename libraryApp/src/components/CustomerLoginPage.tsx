@@ -36,6 +36,11 @@ export default function LoginPage() {
       const result = await response.json();
       setMessage(result.message || "Login successful!");
 
+      // Save login state to localStorage
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userId", result.userId.toString());
+      localStorage.setItem("userType", "customer"); // optional
+
 
       //Get the userID from the customer and send it to the UserProfile.tsx
       navigate("/UserProfile", {

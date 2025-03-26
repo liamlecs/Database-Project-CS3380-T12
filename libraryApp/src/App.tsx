@@ -1,10 +1,10 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import FrontPage from "./components/FrontPage/FrontPage.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
 import LibraryHistory from "./components/LibraryHistory.tsx";
 import NavBar from "./components/NavBar.tsx";
-// import { StrictMode } from "react";
 import CheckoutHistory from "./components/LiHistSubcomponents/CheckoutHistory.tsx";
 import DonationHistory from "./components/LiHistSubcomponents/DonationHistory.tsx";
 import FineHistory from "./components/LiHistSubcomponents/FineHistory.tsx";
@@ -22,10 +22,23 @@ import Employee from "./components/Employee.tsx";
 import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+function AppRoutes() {
+  const navigate = useNavigate();
 
-function App() {
+  useEffect(() => {
+    // Check localStorage to persist session
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const userId = localStorage.getItem("userId");
+
+    if (isLoggedIn === "true" && userId) {
+      // Optional: If you want to auto-redirect logged-in users to profile
+      // navigate("/UserProfile");
+      console.log("User is logged in:", userId);
+    }
+  }, []);
+
   return (
-    <Router>
+    <>
       <NavBar />
       <div className="container">
         <Routes>
@@ -37,24 +50,31 @@ function App() {
           <Route path="/registrationpage" element={<RegistrationPage />} />
           <Route path="/donations" element={<Donations />} />
           <Route path="/employee" element={<Employee />} />
+          <Route path="/userprofile" element={<UserProfile />} />
+          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
+          <Route path="/terms" element={<TermsAndConditionsPage />} />
+          <Route path="/confirm" element={<ConfirmEmail />} />
 
-          {/* Library History Nested Routes, most likely redundant */}
-          <Route path="/libraryhistory" element={<LibraryHistory />}> 
+          {/* Optional Nested Routes */}
+          <Route path="/libraryhistory" element={<LibraryHistory />}>
             <Route path="checkouthistory" element={<CheckoutHistory />} />
             <Route path="donationhistory" element={<DonationHistory />} />
             <Route path="finehistory" element={<FineHistory />} />
             <Route path="waitlisthistory" element={<WaitlistHistory />} />
             <Route path="eventhistory" element={<EventHistory />} />
           </Route>
-          <Route path="userprofile" element={<UserProfile />} />
-          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
-          <Route path="/terms" element={<TermsAndConditionsPage />} /> 
-          <Route path="/confirm" element={<ConfirmEmail />} />
         </Routes>
       </div>
-    </Router>
+    </>
   );
 }
 
+function App() {
+  return (
+    <Router>
+      <AppRoutes />
+    </Router>
+  );
+}
 
 export default App;

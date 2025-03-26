@@ -48,6 +48,13 @@ export default function UserProfile() {
   const location = useLocation();
   const navigate = useNavigate();
   const { userId } = location.state;
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn) {
+      navigate("/customer-login");
+    }
+  }, []);
+  
 
   useEffect(() => {
     async function fetchProfile() {
@@ -274,10 +281,12 @@ export default function UserProfile() {
               <button
                 className="btn-logout"
                 onClick={() => {
-                  // Add log out logic here
+                  localStorage.removeItem("isLoggedIn");
+                  localStorage.removeItem("userId");
+                  localStorage.removeItem("userType");
                   alert("Logged out successfully.");
-                  navigate("/customer-login"); // Redirect to login page or handle logout logic
-                }}
+                  navigate("/customer-login");
+                }}                
               >
                 Log Out
               </button>
