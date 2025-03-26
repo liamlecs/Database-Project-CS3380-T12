@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import TextField from "@mui/material/TextField";
+//import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+//import InputLabel from "@mui/material/InputLabel";
 
 interface Profile {
   customerID: number;
@@ -11,8 +24,9 @@ interface Profile {
   role: string; // e.g., "Customer"
   membershipStartDate: string;
   membershipEndDate: string | null;
-  fines: number; 
-  checkedOutBooks: Array<{ title: string; dueDate: string }>;
+  //Future things to display
+  fines: number; // User's total fines
+  //checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
   transactionHistory: Array<{
     transcationID: number;
     customerID: number;
@@ -21,12 +35,12 @@ interface Profile {
     dueDate: Date;
     returnDate: Date;
   }>;
-  Waitlist: Array<{
-    waitlistID: number;
-    customerID: number;
-    itemID: number;
-    reserveDate: Date;
-    isReceieved: boolean;
+  waitlists: Array<{
+    waitlistId: number;
+    customerId: number;
+    itemId: number;
+    reservationDate: Date;
+    isReceived: boolean;
   }>;
 }
 
@@ -38,12 +52,10 @@ export default function UserProfile() {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("account");
-
-  // For demonstration, we have a mock waitlist array
-  const [waitlist, setWaitlist] = useState<
-    Array<{ title: string; author: string; position: string }>
-  >([]);
+  const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredWaitlists, setFilteredWaitlists] = useState<Profile["waitlists"]>([]);
+  const [filterDays, setFilterDays] = useState<number>(0);
 
   // 1. Check if user is logged in. If not, redirect
   useEffect(() => {
@@ -91,6 +103,11 @@ export default function UserProfile() {
         const data = await response.json();
 
         // e) Map the API response to your Profile structure
+        //console.log("API Response:", data);
+
+
+        // Map API fields to your Profile interface if needed
+        //Mapping Customer Fields to the fetch request
         const mappedProfile: Profile = {
           customerID: userIdNum,
           firstName: data.name.split(" ")[0],
@@ -100,28 +117,26 @@ export default function UserProfile() {
           role: data.role,
           membershipStartDate: data.memberSince,
           membershipEndDate: data.membershipExpires || null,
-          fines: data.fines,
-          checkedOutBooks: [],
-          transactionHistory: [],
-          Waitlist: [],
+          fines: data.fines, // Replace with actual fines if available in the API
+          //checkedOutBooks: [], // Replace with actual books if available in the API
+          transactionHistory: [], // Replace with actual transactions if available in the API
+          waitlists: data.waitList || [] //Populate these whenever we have waitlist stuff
         };
 
         setProfile(mappedProfile);
         setEditProfile({ ...mappedProfile });
+        setFilteredWaitlists(data.waitList || []);
 
-        // Example waitlist
-        setWaitlist([
+        // Fetch waitlist (mocked for now)
+        // We can add this functionality later
+        {/*setWaitlist([
           {
             title: "The Great Gatsby",
             author: "F. Scott Fitzgerald",
             position: "5",
           },
-          {
-            title: "1984",
-            author: "George Orwell",
-            position: "3",
-          },
-        ]);
+          { title: "1984", author: "George Orwell", position: "3" },
+        ]);*/}
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         setErrorMsg(error.message || "An error occurred.");
@@ -177,6 +192,30 @@ export default function UserProfile() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
+
+  const filterLast30Days = () => {
+    const now = new Date();
+    const last30Days = new Date(now.setDate(now.getDate() - 30));
+    const filtered = profile?.waitlists.filter((item) => new Date(item.reservationDate) >= last30Days) || [];
+    setFilteredWaitlists(filtered);
+  };
+
+  const handleFilterDaysChange = (days: number) => {
+    setFilterDays(days);
+    const now = new Date();
+    const filtered = profile?.waitlists.filter((item) => {
+      const reservationDate = new Date(item.reservationDate);
+      return days === 0 || reservationDate >= new Date(now.setDate(now.getDate() - days));
+    }) || [];
+    setFilteredWaitlists(filtered);
+  };
+
+  useEffect(() => {
+    const filtered = profile?.waitlists.filter((item) =>
+      item.itemId.toString().includes(searchQuery)
+    ) || [];
+    setFilteredWaitlists(filtered);
+  }, [searchQuery, profile?.waitlists]);
 
   if (loading) {
     return <div className="loading">Loading profile...</div>;
@@ -297,21 +336,37 @@ export default function UserProfile() {
           </div>
         )}
 
-        {/* Waitlist Tab */}
-        {activeTab === "waitlist" && (
-          <div className="profile-section">
-            <h3>Waitlist</h3>
-            <ul className="waitlist-list">
-              {waitlist.map((item, index) => (
-                <li key={index}>
-                  <strong>{item.title}</strong> by {item.author}{" "}
-                  <strong>Position </strong>
-                  {item.position}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+{activeTab === "waitlist" && (
+  <div className="profile-section">
+    <h3>Waitlist</h3>
+    <ul className="waitlist-list">
+      {filteredWaitlists.map(
+        (
+          item: {
+            waitlistId: number;
+            customerId: number;
+            itemId: number;
+            reservationDate: Date;
+            isReceived: boolean;
+          },
+          index: number
+        ) => (
+          <li key={index}>
+            <strong>Item ID:</strong> {item.itemId}
+            <br />
+            <strong>Waitlist ID:</strong> {item.waitlistId}
+            <br />
+            <strong>Reservation Date:</strong>{" "}
+            {new Date(item.reservationDate).toLocaleDateString()}
+            <br />
+            <strong>Is Received?</strong> {item.isReceived ? "Yes" : "No"}
+          </li>
+        )
+      )}
+    </ul>
+  </div>
+)}
+
 
         {/* Settings Tab */}
         {activeTab === "settings" && (
