@@ -76,11 +76,6 @@ class EventsCalendar extends Component<
     console.log("Events state:", this.state.events);
     return (
       <>
-        <div className="centeredHor">
-          <Button variant="text" href="/CreateEvent">
-            Create An Event
-          </Button>
-        </div>
 
         <div className="App">
           <Calendar
