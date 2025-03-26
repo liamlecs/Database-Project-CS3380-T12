@@ -21,7 +21,12 @@ namespace LibraryWebAPI.Controllers
         {
             if (type.ToLower() == "customer")
             {
-                var customer = await _context.Customers.FindAsync(id);
+                var customer = await _context.Customers
+                    .Include(c => c.Fines)
+                    .Include(c => c.TransactionHistories)
+                    .Include(c => c.Waitlists)
+                    .FirstOrDefaultAsync(c => c.CustomerId == id);
+
                 if (customer == null) return NotFound();
 
                 return Ok(new
@@ -32,9 +37,10 @@ namespace LibraryWebAPI.Controllers
                     password = customer.AccountPassword,
                     MemberSince = customer.MembershipStartDate,
                     MembershipExpires = customer.MembershipEndDate,
-                    //fines = customer.Fines,
+                    fines = customer.Fines,
                     //checkedBooks = customer,
-                    //transcActHistory = customer.TransactionHistories,
+                    transcActHistory = customer.TransactionHistories,
+                    waitList = customer.Waitlists
                 });
             }
             else if (type.ToLower() == "employee")
@@ -66,10 +72,10 @@ namespace LibraryWebAPI.Controllers
                     Role = "Student",
                     MemberSince = c.MembershipStartDate,
                     MembershipExpires = c.MembershipEndDate,
-                    //fines = customer.Fines,
-                    //checkedBooks = customer
-                    //transcActHistory = customer.TransactionHistories,
-                    //waitList = customer.waitList
+                    c.Fines,
+                    //checkedBooks = 
+                    c.TransactionHistories,
+                    c.Waitlists
                 })
                 .ToListAsync();
 
