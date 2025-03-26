@@ -276,7 +276,7 @@ export default function UserProfile() {
                 onClick={() => {
                   // Add log out logic here
                   alert("Logged out successfully.");
-                  navigate("/LoginPage"); // Redirect to login page or handle logout logic
+                  navigate("/customer-login"); // Redirect to login page or handle logout logic
                 }}
               >
                 Log Out
