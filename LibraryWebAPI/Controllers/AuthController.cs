@@ -62,7 +62,10 @@ namespace LibraryWebAPI.Controllers
             return Ok(new {
                 message = "Customer login successful!",
                 isEmployee = false,
-                userId = customer.CustomerId
+                userId = customer.CustomerId,
+                firstName = customer.FirstName,
+                lastName = customer.LastName,
+                email = customer.Email
             });
         }
     }

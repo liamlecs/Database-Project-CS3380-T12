@@ -1,7 +1,6 @@
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./UserProfile.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface Profile {
   customerID: number;
@@ -12,10 +11,8 @@ interface Profile {
   role: string; // e.g., "Customer"
   membershipStartDate: string;
   membershipEndDate: string | null;
-
-  //Future things to display
-  fines: number; // User's total fines
-  checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
+  fines: number; 
+  checkedOutBooks: Array<{ title: string; dueDate: string }>;
   transactionHistory: Array<{
     transcationID: number;
     customerID: number;
@@ -34,44 +31,56 @@ interface Profile {
 }
 
 export default function UserProfile() {
+  const navigate = useNavigate();
+
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [editingField, setEditingField] = useState<string | null>(null);
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
+  const [editingField, setEditingField] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
+  const [activeTab, setActiveTab] = useState<string>("account");
+
+  // For demonstration, we have a mock waitlist array
   const [waitlist, setWaitlist] = useState<
     Array<{ title: string; author: string; position: string }>
-  >([]); // Waitlist state
+  >([]);
 
-  //Login Page functionality
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { userId } = location.state;
+  // 1. Check if user is logged in. If not, redirect
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
       navigate("/customer-login");
     }
-  }, []);
-  
+  }, [navigate]);
 
+  // 2. Read userId from localStorage and fetch the profile
   useEffect(() => {
     async function fetchProfile() {
       try {
-        //Integrate with Customer and Emplyoee authentication
-        //For now loads a default customer in the DB with userID = 2.
+        // a) get userId from localStorage
+        const userIdStr = localStorage.getItem("userId");
+        if (!userIdStr) {
+          // if no userId, redirect to login
+          navigate("/customer-login");
+          return;
+        }
+        // b) parse it
+        const userIdNum = parseInt(userIdStr, 10);
+        if (isNaN(userIdNum)) {
+          // if parse fails, also redirect
+          navigate("/customer-login");
+          return;
+        }
+
+        // c) we assume "customer" for userType
         const userType = "customer";
 
+        // d) call your GET /UserProfile/{type}/{id}
         const response = await fetch(
-          `${
-            import.meta.env.VITE_API_BASE_URL
-          }/UserProfile/${userType}/${userId}`,
+          `${import.meta.env.VITE_API_BASE_URL}/UserProfile/${userType}/${userIdNum}`,
           {
             method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
           }
         );
 
@@ -81,10 +90,9 @@ export default function UserProfile() {
 
         const data = await response.json();
 
-        // Map API fields to your Profile interface if needed
-        //Mapping Customer Fields to the fetch request
+        // e) Map the API response to your Profile structure
         const mappedProfile: Profile = {
-          customerID: userId,
+          customerID: userIdNum,
           firstName: data.name.split(" ")[0],
           lastName: data.name.split(" ").slice(1).join(" "),
           email: data.email,
@@ -92,24 +100,27 @@ export default function UserProfile() {
           role: data.role,
           membershipStartDate: data.memberSince,
           membershipEndDate: data.membershipExpires || null,
-          fines: data.fines, // Replace with actual fines if available in the API
-          checkedOutBooks: [], // Replace with actual books if available in the API
-          transactionHistory: [], // Replace with actual transactions if available in the API
-          Waitlist: [], //Populate these whenever we have waitlist stuff
+          fines: data.fines,
+          checkedOutBooks: [],
+          transactionHistory: [],
+          Waitlist: [],
         };
 
         setProfile(mappedProfile);
         setEditProfile({ ...mappedProfile });
 
-        // Fetch waitlist (mocked for now)
-        // We can add this functionality later
+        // Example waitlist
         setWaitlist([
           {
             title: "The Great Gatsby",
             author: "F. Scott Fitzgerald",
             position: "5",
           },
-          { title: "1984", author: "George Orwell", position: "3" },
+          {
+            title: "1984",
+            author: "George Orwell",
+            position: "3",
+          },
         ]);
       } catch (error: any) {
         console.error("Error fetching profile:", error);
@@ -120,26 +131,29 @@ export default function UserProfile() {
     }
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
+  // Handle input changes when editing
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editProfile) return;
-    setEditProfile({
-      ...editProfile,
-      [e.target.name]: e.target.value,
-    });
+    setEditProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            [e.target.name]: e.target.value,
+          }
+        : null
+    );
   };
 
-  //Editing Customer Fields
+  // Save changes
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editProfile) return;
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${
-          editProfile.customerID
-        }`,
+        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${editProfile.customerID}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -152,7 +166,7 @@ export default function UserProfile() {
       }
 
       setProfile(editProfile);
-      setEditingField(null); // Stop editing after save
+      setEditingField(null);
       alert("Settings Changed Successfully");
     } catch (error: any) {
       console.error("Error updating profile:", error);
@@ -167,17 +181,16 @@ export default function UserProfile() {
   if (loading) {
     return <div className="loading">Loading profile...</div>;
   }
-
   if (errorMsg) {
     return <div className="error">{errorMsg}</div>;
   }
-
   if (!profile) {
     return <div>No profile data found.</div>;
   }
 
   return (
     <div className="user-profile">
+      {/* Left side nav */}
       <div className="left-nav">
         <nav className="vertical-nav">
           <ul>
@@ -197,7 +210,6 @@ export default function UserProfile() {
                 Transaction History
               </button>
             </li>
-
             <li>
               <button
                 className={activeTab === "waitlist" ? "active" : ""}
@@ -206,7 +218,6 @@ export default function UserProfile() {
                 Waitlist
               </button>
             </li>
-
             <li>
               <button
                 className={activeTab === "settings" ? "active" : ""}
@@ -219,49 +230,35 @@ export default function UserProfile() {
         </nav>
       </div>
 
+      {/* Right side content */}
       <div className="profile-content">
+        {/* Account Tab */}
         {activeTab === "account" && (
           <div className="profile-section">
             <h3>My Account</h3>
             <div className="profile-item">
-              <span>
-                <strong>Name:</strong>
-              </span>
-              <span>
-                {profile.firstName} {profile.lastName}
-              </span>
+              <strong>Name: </strong>
+              {profile.firstName} {profile.lastName}
             </div>
             <div className="profile-item">
-              <span>
-                <strong>Email:</strong>
-              </span>
-              <span>{profile.email}</span>
+              <strong>Email: </strong>
+              {profile.email}
             </div>
             <div className="profile-item">
-              <span>
-                <strong>Role:</strong>
-              </span>
-              <span>{profile.role}</span>
+              <strong>Role: </strong>
+              {profile.role}
             </div>
             <div className="profile-item">
-              <span>
-                <strong>Membership Start Date:</strong>
-              </span>
-              <span>
-                {new Date(profile.membershipStartDate).toLocaleDateString()}
-              </span>
+              <strong>Membership Start Date: </strong>
+              {new Date(profile.membershipStartDate).toLocaleDateString()}
             </div>
             {profile.membershipEndDate && (
               <div className="profile-item">
-                <span>
-                  <strong>Membership End Date:</strong>
-                </span>
-                <span>
-                  {new Date(profile.membershipEndDate).toLocaleDateString()}
-                </span>
+                <strong>Membership End Date: </strong>
+                {new Date(profile.membershipEndDate).toLocaleDateString()}
               </div>
             )}
-            {/* Add Delete Account and Log Out buttons */}
+
             <div className="account-actions">
               <button
                 className="btn-delete"
@@ -271,29 +268,18 @@ export default function UserProfile() {
                       "Are you sure you want to delete your account? This action cannot be undone."
                     )
                   ) {
-                    // Add delete account logic here
                     alert("Account deleted successfully.");
+                    // TODO: Implement actual delete logic
                   }
                 }}
               >
                 Delete Account
               </button>
-              <button
-                className="btn-logout"
-                onClick={() => {
-                  localStorage.removeItem("isLoggedIn");
-                  localStorage.removeItem("userId");
-                  localStorage.removeItem("userType");
-                  alert("Logged out successfully.");
-                  navigate("/customer-login");
-                }}                
-              >
-                Log Out
-              </button>
             </div>
           </div>
         )}
 
+        {/* Transactions Tab */}
         {activeTab === "transactions" && (
           <div className="profile-section">
             <h3>Transaction History</h3>
@@ -311,6 +297,23 @@ export default function UserProfile() {
           </div>
         )}
 
+        {/* Waitlist Tab */}
+        {activeTab === "waitlist" && (
+          <div className="profile-section">
+            <h3>Waitlist</h3>
+            <ul className="waitlist-list">
+              {waitlist.map((item, index) => (
+                <li key={index}>
+                  <strong>{item.title}</strong> by {item.author}{" "}
+                  <strong>Position </strong>
+                  {item.position}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Settings Tab */}
         {activeTab === "settings" && (
           <div className="profile-section">
             <h3>Account Settings</h3>
@@ -368,21 +371,6 @@ export default function UserProfile() {
                 Save Changes
               </button>
             </form>
-          </div>
-        )}
-
-        {activeTab === "waitlist" && (
-          <div className="profile-section">
-            <h3>Waitlist</h3>
-            <ul className="waitlist-list">
-              {waitlist.map((item, index) => (
-                <li key={index}>
-                  <strong>{item.title}</strong> by {item.author}{" "}
-                  <strong>Position </strong>
-                  {item.position}
-                </li>
-              ))}
-            </ul>
           </div>
         )}
       </div>

@@ -10,6 +10,8 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+  
+  
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -35,20 +37,25 @@ export default function LoginPage() {
       
       const result = await response.json();
       setMessage(result.message || "Login successful!");
+      console.log("Login result:", result); // Debugging
 
       // Save login state to localStorage
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userId", result.userId.toString());
       localStorage.setItem("userType", "customer"); // optional
+      localStorage.setItem("firstName", result.firstName);
+      localStorage.setItem("lastName", result.lastName);
+      localStorage.setItem("email", result.email);
 
 
-      //Get the userID from the customer and send it to the UserProfile.tsx
-      navigate("/UserProfile", {
-        state: {
-          userId: result.userId,
-          //userType: result.isEmployee ? "employee" : "customer",
-        },
-      });
+      // //Get the userID from the customer and send it to the UserProfile.tsx
+      // navigate("/UserProfile", {
+      //   state: {
+      //     userId: result.userId,
+      //     //userType: result.isEmployee ? "employee" : "customer",
+      //   },
+      // });
+      window.location.href = "/userprofile";
       
     } catch (err: any) {
       console.error(err);
