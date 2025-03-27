@@ -8081,19 +8081,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/jacquelinesanchez/.nuget/packages/": {}
+    "/Users/trevordrummond/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+      "projectUniqueName": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
       "projectName": "LibraryWebAPI",
-      "projectPath": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
-      "packagesPath": "/Users/jacquelinesanchez/.nuget/packages/",
-      "outputPath": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
+      "projectPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+      "packagesPath": "/Users/trevordrummond/.nuget/packages/",
+      "outputPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/jacquelinesanchez/.nuget/NuGet/NuGet.Config"
+        "/Users/trevordrummond/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
