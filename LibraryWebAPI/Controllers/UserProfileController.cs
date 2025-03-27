@@ -87,10 +87,10 @@ namespace LibraryWebAPI.Controllers
             var customer = await _context.Customers.FindAsync(id);
             if (customer == null) return NotFound();
 
-            customer.FirstName = updatedCustomer.FirstName;
-            customer.LastName = updatedCustomer.LastName;
-            customer.Email = updatedCustomer.Email;
-            customer.AccountPassword = updatedCustomer.Password;
+            customer.FirstName = updatedCustomer.FirstName ?? customer.FirstName;
+            customer.LastName = updatedCustomer.LastName ?? customer.LastName;
+            customer.Email = updatedCustomer.Email ?? customer.Email;
+            customer.AccountPassword = updatedCustomer.Password ?? customer.AccountPassword;
            customer.MembershipStartDate = updatedCustomer.MembershipStartDate.HasValue
         ? DateOnly.FromDateTime(updatedCustomer.MembershipStartDate.Value)
         : customer.MembershipStartDate;

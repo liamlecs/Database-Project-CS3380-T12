@@ -21,10 +21,10 @@ public partial class Book
 
     public virtual BookGenre BookGenre { get; set; } = null!;
 
-    public virtual Item BookNavigation { get; set; } = null!;
+    // public virtual Item BookNavigation { get; set; } = null!;
 
     public virtual Publisher Publisher { get; set; } = null!;
 
-    public bool IsCheckedOut { get; set; } // Added property
+    // public bool IsCheckedOut { get; set; } // Added property
 }
 
