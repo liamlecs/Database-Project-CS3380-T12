@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -10,6 +10,7 @@ import {
   Alert,
   Box,
   Grid,
+  Divider,
 } from '@mui/material';
 
 const Donations: React.FC = () => {
@@ -17,6 +18,15 @@ const Donations: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [donationSuccess, setDonationSuccess] = useState<boolean>(false);
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [customerId, setCustomerId] = useState<number | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  // check if user is logged in on component mount
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
 
   // handle predefined amount selection
   const handleAmountSelection = (amount: number) => {
@@ -31,11 +41,20 @@ const Donations: React.FC = () => {
   };
 
   // retrieve user ID
-  const getCustomerId = async (): Promise<number> => {
-    // Replace this with actual logic to fetch the user's ID
-    const response = await fetch('/api/auth/current-user');
-    const user = await response.json();
-    return user.id;
+  const fetchUserDetails = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer`);
+      if (response.ok) {
+        const user = await response.json();
+        setCustomerId(user.id);
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.error("User not logged in, proceeding as anonymous donor.");
+      setIsLoggedIn(false);
+    }
   };
 
   // handle donation submission
@@ -48,22 +67,24 @@ const Donations: React.FC = () => {
       return;
     }
 
+    // validate name fields for anonymous donors
+    if (!isLoggedIn && (!firstName.trim() || !lastName.trim())) {
+      alert('Please provide your first and last name.');
+      return;
+    }
 
     try {
-      
-      const customerID = await getCustomerId();
-
       const donationData = {
-        CustomerID: customerID,
+        CustomerId: isLoggedIn ? customerId : null,
+        FirstName: isLoggedIn ? undefined : firstName.trim(),
+        LastName: isLoggedIn ? undefined : lastName.trim(),
         Amount: amount,
-        Date: new Date().toISOString(),
+        Date: new Date().toISOString().split('T')[0],
       };
 
-      const response = await fetch('/api/Donation', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Donation`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(donationData),
       });
 
@@ -72,78 +93,93 @@ const Donations: React.FC = () => {
       }
 
       setDonationSuccess(true);
+      resetForm();
     } catch (error) {
       console.error('Error processing donation:', error);
-      alert('An error occurred while processing your donation. Please try again.');
+      alert('Error. Please try again.');
     }
   };
 
-  // Reset the form
+  // reset the form
   const resetForm = () => {
     setSelectedAmount(null);
     setCustomAmount('');
+    if (!isLoggedIn) {
+      setFirstName('');
+      setLastName('');
+    }
     setDonationSuccess(false);
   };
 
   return (
-    <Container maxWidth="sm" sx={{ marginTop: 4 }}>
+    <Container maxWidth="sm" sx={{ marginTop: 4, marginBottom: 4 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant="h4" gutterBottom align="center">
           Donate to the Library
         </Typography>
+
+        {isLoggedIn ? (
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+            Thank you for your support, {firstName}!
+          </Typography>
+        ) : (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Your Information
+            </Typography>
+            <Grid container spacing={2} sx={{ marginBottom: 2 }}>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </Grid>
+            </Grid>
+            <Divider sx={{ my: 3 }} />
+          </>
+        )}
 
         {/* Donation Options */}
         <Typography variant="h6" gutterBottom>
           Choose an Amount
         </Typography>
         <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 5 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(5)}
-            >
-              $5
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 10 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(10)}
-            >
-              $10
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 50 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(50)}
-            >
-              $50
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 100 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(100)}
-            >
-              $100
-            </Button>
-          </Grid>
+          {[5, 10, 50, 100].map((amount) => (
+            <Grid item xs={6} key={amount}>
+              <Button
+                fullWidth
+                variant={selectedAmount === amount ? 'contained' : 'outlined'}
+                onClick={() => handleAmountSelection(amount)}
+                sx={{ py: 1.5 }}
+              >
+                ${amount}
+              </Button>
+            </Grid>
+          ))}
         </Grid>
 
         {/* Custom Amount Input */}
         <TextField
           fullWidth
-          label="Custom Amount"
+          label="Or enter a custom amount"
           type="number"
           value={customAmount}
           onChange={handleCustomAmountChange}
           margin="normal"
           InputProps={{ inputProps: { min: 1 } }}
+          sx={{ mb: 3 }}
         />
 
         {/* Donate Button */}
@@ -154,6 +190,7 @@ const Donations: React.FC = () => {
             color="primary"
             onClick={handleDonate}
             size="large"
+            sx={{ py: 1.5 }}
           >
             Donate Now
           </Button>

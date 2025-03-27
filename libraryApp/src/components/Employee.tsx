@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -75,12 +76,11 @@ interface EmployeeData {
   employeeID: number;
   firstName: string;
   lastName: string;
-  birthDate: string
+  birthDate: string;
   sex: string;
   supervisorID?: number;
   username: string;
-  password: string;
-
+  password?: string;
 }
 
 const Employee: React.FC = () => {
@@ -102,6 +102,10 @@ const Employee: React.FC = () => {
     password: '',
   });
 
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { employeeId } = location.state;
+
   // inventory form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
@@ -119,9 +123,30 @@ const Employee: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
 
+  const fetchEmployeeData = async (employeeId: number) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`);
+      if (!response.ok) throw new Error('Failed to fetch employee data');
+      const data = await response.json();
+      setEmployeeData({
+        employeeID: data.employeeID,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        birthDate: data.birthDate,
+        sex: data.sex,
+        supervisorID: data.supervisorID,
+        username: data.username
+      });
+    } catch (error) {
+      console.error('Error fetching employee data:', error);
+      setDialogMessage('Failed to fetch employee data. Please try again.');
+      setOpenDialog(true);
+    }
+  };
+  
+
   // fetching data
   useEffect(() => {
-    // mock employee ID
 
     const fetchEmployeeData = async (employeeId: number) => {
       try {
@@ -134,12 +159,22 @@ const Employee: React.FC = () => {
           sex: 'Male'
         };
         setEmployeeData(mockData); */
-  
+
         // actual API call
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`);
         if (!response.ok) throw new Error('Failed to fetch employee data');
         const data = await response.json();
-        setEmployeeData(data);
+
+        setEmployeeData({
+          employeeID: data.employeeID,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate,
+          sex: data.sex,
+          supervisorID: data.supervisorID,
+          username: data.username
+        });
+
       } catch (error) {
         console.error('Error fetching employee data:', error);
         setDialogMessage('Failed to fetch employee data. Please try again.');
@@ -174,34 +209,28 @@ const Employee: React.FC = () => {
 
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
-      // mock update, will replace with actual API call
-      /* setEmployeeData(updatedData);
-      setDialogMessage('Profile updated successfully!');
-      setOpenDialog(true); */
 
-      // actual API call for later
-      
+      // actual API call
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
+        
         body: JSON.stringify(updatedData),
       });
 
-      if (response.ok) {
-        setEmployeeData(updatedData);
-        setDialogMessage('Profile updated successfully!');
-        setOpenDialog(true);
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        setDialogMessage(errorData.message || 'Failed to update profile.');
-        setOpenDialog(true);
+        throw new Error(errorData.message || 'Failed to update profile');
       }
-
+  
+      // refresh the employee data
+      await fetchEmployeeData(updatedData.employeeID);
+      setDialogMessage('Profile updated successfully!');
+      setOpenDialog(true);
     } catch (error) {
       console.error('Error updating employee:', error);
-      setDialogMessage('Network error. Please try again.');
       setOpenDialog(true);
     }
   };
@@ -228,17 +257,17 @@ const Employee: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, 
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`,
         {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...itemForm,
-          availableCopies: itemForm.totalCopies,
-        }),
-      });
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...itemForm,
+            availableCopies: itemForm.totalCopies,
+          }),
+        });
 
       if (response.ok) {
         setRefreshData(true);
@@ -888,3 +917,4 @@ const Employee: React.FC = () => {
 };
 
 export default Employee;
+
