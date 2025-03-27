@@ -76,6 +76,21 @@ namespace LibraryWebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
+            // Ensure related entities exist
+            var author = await _context.BookAuthors.FindAsync(book.BookAuthorId);
+            var genre = await _context.BookGenres.FindAsync(book.BookGenreId);
+            var publisher = await _context.Publishers.FindAsync(book.PublisherId);
+
+            if (author == null || genre == null || publisher == null)
+            {
+                return BadRequest("Invalid author, genre, or publisher.");
+            }
+
+            // Assign related entities to the book
+            book.BookAuthor = author;
+            book.BookGenre = genre;
+            book.Publisher = publisher;
+
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
@@ -90,6 +105,21 @@ namespace LibraryWebAPI.Controllers
             {
                 return BadRequest();
             }
+
+            // Ensure related entities exist
+            var author = await _context.BookAuthors.FindAsync(book.BookAuthorId);
+            var genre = await _context.BookGenres.FindAsync(book.BookGenreId);
+            var publisher = await _context.Publishers.FindAsync(book.PublisherId);
+
+            if (author == null || genre == null || publisher == null)
+            {
+                return BadRequest("Invalid author, genre, or publisher.");
+            }
+
+            // Update relationships
+            book.BookAuthor = author;
+            book.BookGenre = genre;
+            book.Publisher = publisher;
 
             _context.Entry(book).State = EntityState.Modified;
             await _context.SaveChangesAsync();
