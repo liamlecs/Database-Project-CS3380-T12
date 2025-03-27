@@ -25,6 +25,6 @@ public partial class Book
 
     public virtual Publisher Publisher { get; set; } = null!;
 
-    public bool IsCheckedOut { get; set; } // Added property
+    // public bool IsCheckedOut { get; set; } // Added property
 }
 
