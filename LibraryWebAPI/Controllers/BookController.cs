@@ -21,29 +21,22 @@ namespace LibraryWebAPI.Controllers
 
         // GET: api/Book (fetch all books)
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
             var books = await _context.Books
                 .Include(b => b.BookAuthor)
                 .Include(b => b.BookGenre)
                 .Include(b => b.Publisher)
-                .Select(b => new 
-                {
-                    b.BookId,
-                    Title = $"ISBN: {b.Isbn}",
-                    Author = $"{b.BookAuthor.FirstName} {b.BookAuthor.LastName}",
-                    ImageUrl = "",  // Placeholder for book image
-                    IsCheckedOut = b.IsCheckedOut ? "true" : "false"
-                })
-                .ToListAsync();
+                .ToListAsync();  // Return the full Book model, including navigation properties
 
             if (books == null || !books.Any())
             {
                 return NotFound();
             }
 
-            return Ok(books);
+            return Ok(books);  // Return the full Book model
         }
+
 
         // GET: api/Book/{id} (fetch single book by ID)
         [HttpGet("{id}")]
@@ -60,7 +53,7 @@ namespace LibraryWebAPI.Controllers
                     Title = $"ISBN: {b.Isbn}",
                     Author = $"{b.BookAuthor.FirstName} {b.BookAuthor.LastName}",
                     ImageUrl = "",  // Placeholder for book image
-                    IsCheckedOut = b.IsCheckedOut ? "true" : "false"
+                    // IsCheckedOut = b.IsCheckedOut ? "true" : "false"
                 })
                 .FirstOrDefaultAsync();
 
