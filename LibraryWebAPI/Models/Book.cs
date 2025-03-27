@@ -21,7 +21,7 @@ public partial class Book
 
     public virtual BookGenre BookGenre { get; set; } = null!;
 
-    public virtual Item BookNavigation { get; set; } = null!;
+    // public virtual Item BookNavigation { get; set; } = null!;
 
     public virtual Publisher Publisher { get; set; } = null!;
 
