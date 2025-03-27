@@ -75,7 +75,7 @@ class EventsCalendar extends Component<
   };*/
 
   render() {
-    console.log("Events state:", this.state.events);
+    console.log("I am working");
     return (
       <>
 
