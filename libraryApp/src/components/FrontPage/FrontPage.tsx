@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SearchComponent from '../SearchBar/SearchComponent';
 import './FrontPage.css';
-import welcomeBg from "../../assets/welcome_background.jpg"; // <- import the image
+import welcomeBg from "../../assets/welcome_background.jpg";
 
 const Library: React.FC = () => {
   interface Book {
@@ -13,8 +13,8 @@ const Library: React.FC = () => {
     isCheckedOut: boolean;
   }
 
-  const numRows = 4; 
-  const booksPerRow = 5;
+  const numRows = 1;
+  const booksPerRow = 4;
 
   // serves as a placeholder for the books to be imported from the db
   const placeholderBooks: Book[] = [
@@ -47,49 +47,58 @@ const Library: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchAuthors = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookAuthor`);
         const data = await response.json();
 
-        const formattedBooks = data.map((book: { bookId: number; title: string; author: string; genre: string; imageUrl?: string; isCheckedOut: boolean }) => ({
-          id: book.bookId,
-          title: book.title,
-          author: book.author,
-          genre: book.genre,
-          imageUrl: book.imageUrl || "https://via.placeholder.com/130",
-          isCheckedOut: book.isCheckedOut,
+        // Extract unique authors and explicitly define them as strings
+        const authors: string[] = Array.from(new Set(
+          data.map((author: { firstName: string; lastName: string }) =>
+            `${author.firstName} ${author.lastName}`
+          )
+        ));
+
+        // map authors to the Book structure (even though we're only using authors)
+        const formattedAuthors = authors.map((author, index) => ({
+          id: index,
+          title: "", // No title, since it's an author
+          author, // Only displaying authors
+          genre: "", // No genre needed
+          imageUrl: "", // No image needed
+          isCheckedOut: false, // Placeholder
         }));
 
-        setBooks(formattedBooks);
-        setFilteredBooks(formattedBooks);
+        setBooks(formattedAuthors);
+        setFilteredBooks(formattedAuthors);
+
       } catch (error) {
-        console.error('Error fetching books:', error);
+        console.error('Error fetching authors:', error);
       }
     };
 
-    fetchBooks();
+    fetchAuthors();
   }, []);
 
   return (
     <div className="library-container">
-      <div className="welcome-message"    style={{
-    backgroundImage: `url(${welcomeBg})`,
-    backgroundRepeat: "no-repeat",
-    backgroundPosition: "center center",
-    backgroundSize: "cover"
-  }}>
+      <div className="welcome-message" style={{
+        backgroundImage: `url(${welcomeBg})`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center center",
+        backgroundSize: "cover"
+      }}>
         <h1>Checkout Your Favorite Books Today!</h1>
       </div>
 
       <div className="search-bar-container">
-        <SearchComponent books={books} onSearch={() => {}} />
+        <SearchComponent books={books} onSearch={() => { }} />
       </div>
 
       {Array.from({ length: numRows }, (_, rowIndex) => {
         const startIndex = rowIndices[rowIndex];
         let booksForRow = filteredBooks.slice(startIndex, startIndex + booksPerRow);
-        
+
         while (booksForRow.length < booksPerRow) {
           booksForRow.push({
             id: -1,
@@ -111,24 +120,13 @@ const Library: React.FC = () => {
               <div className="book-row-container">
                 {booksForRow.map((book) => (
                   <div key={book.id} className="book-card" style={{ visibility: book.id === -1 ? 'hidden' : 'visible' }}>
-                    <img 
-                      src={book.imageUrl} 
-                      alt={book.title} 
-                      className="book-image"
-                    />
-                    <p className="book-title">{book.title}</p>
                     <p className="book-author">{book.author}</p>
-                    <p className="book-genre">{book.genre}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <button 
-              className="scroll-right" 
-              onClick={() => scrollBooks('right', rowIndex)} 
-              disabled={rowIndices[rowIndex] >= filteredBooks.length - booksPerRow}
-            >
+            <button className="scroll-right" onClick={() => scrollBooks('right', rowIndex)} disabled={rowIndices[rowIndex] >= filteredBooks.length - booksPerRow}>
               &gt;
             </button>
           </div>

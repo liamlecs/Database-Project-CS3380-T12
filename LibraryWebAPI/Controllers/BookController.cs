@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace LibraryWebAPI.Controllers
@@ -18,9 +19,35 @@ namespace LibraryWebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Book
+        // GET: api/Book (fetch all books)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetBooks()
+        {
+            var books = await _context.Books
+                .Include(b => b.BookAuthor)
+                .Include(b => b.BookGenre)
+                .Include(b => b.Publisher)
+                .Select(b => new 
+                {
+                    b.BookId,
+                    Title = $"ISBN: {b.Isbn}",
+                    Author = $"{b.BookAuthor.FirstName} {b.BookAuthor.LastName}",
+                    ImageUrl = "",  // Placeholder for book image
+                    IsCheckedOut = b.IsCheckedOut ? "true" : "false"
+                })
+                .ToListAsync();
+
+            if (books == null || !books.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(books);
+        }
+
+        // GET: api/Book/{id} (fetch single book by ID)
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        public async Task<ActionResult<object>> GetBook(int id)
         {
             var book = await _context.Books
                 .Include(b => b.BookAuthor)
@@ -44,8 +71,8 @@ namespace LibraryWebAPI.Controllers
 
             return Ok(book);
         }
-        
-        // POST: api/Book
+
+        // POST: api/Book (create a new book)
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
@@ -55,7 +82,7 @@ namespace LibraryWebAPI.Controllers
             return CreatedAtAction(nameof(GetBook), new { id = book.BookId }, book);
         }
 
-        // PUT: api/Book/5
+        // PUT: api/Book/{id} (update an existing book)
         [HttpPut("{id}")]
         public async Task<IActionResult> PutBook(int id, Book book)
         {
@@ -70,7 +97,7 @@ namespace LibraryWebAPI.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Book/5
+        // DELETE: api/Book/{id} (delete a book by ID)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
