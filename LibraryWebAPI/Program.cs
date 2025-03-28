@@ -70,7 +70,7 @@ var app = builder.Build();
 var env = app.Services.GetRequiredService<IWebHostEnvironment>();
 
 // set book data
-SeedBooks.Initialize(app.Services, env);
+// SeedBooks.Initialize(app.Services, env);
 
 // ✅ Use middleware
 

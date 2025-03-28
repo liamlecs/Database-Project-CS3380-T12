@@ -26,7 +26,6 @@ html, body {
     overflow: hidden;
 }
 
-
 .welcome-message h1 {
     font-size: 3vw;
     color: #f7f7f2;
@@ -42,11 +41,24 @@ html, body {
     margin-bottom: 5vw;
 }
 
-.search-bar-container input {
+.search-bar-container input,
+.search-bar-container select {
     padding: 1vw;
     font-size: 1.2rem;
     width: 30vw;
     min-width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    appearance: none;
+}
+
+.search-bar-container select:focus,
+.search-bar-container input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 .search-bar-container button {
@@ -55,6 +67,7 @@ html, body {
     background-color: #007bff;
     color: white;
     border: none;
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -185,7 +198,8 @@ html, body {
         align-items: center;
     }
 
-    .search-bar-container input {
+    .search-bar-container input,
+    .search-bar-container select {
         width: 80%;
     }
 }
