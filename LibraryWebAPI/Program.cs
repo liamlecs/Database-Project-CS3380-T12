@@ -1,14 +1,12 @@
-using System;
-using LibraryWebAPI.Data;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using LibraryWebAPI.Services;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+
+// ...existing using statements...
+using LibraryWebAPI.Data; // Replace with the actual namespace of LibraryContext
+using Microsoft.EntityFrameworkCore; // Required for UseSqlServer
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
 
 // ✅ Register services
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; // Handle circular references
+        options.JsonSerializerOptions.WriteIndented = true; // Optional: Pretty-print JSON
+    });
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -27,7 +31,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// add JWT authentication
+// Add JWT authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,30 +62,36 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddTransient<IEmailService, EmailService>(); 
+builder.Services.AddTransient<LibraryWebAPI.Services.IEmailService, LibraryWebAPI.Services.EmailService>();
 
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-    
 
 var app = builder.Build();
 
-// get the hosting environment
-var env = app.Services.GetRequiredService<IWebHostEnvironment>();
-
-// set book data
-SeedBooks.Initialize(app.Services, env);
-
-// ✅ Use middleware
+// Configure the HTTP request pipeline
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Serve static files
+
+app.UseRouting();
+
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapControllers();
 
 app.Run();

@@ -34,16 +34,18 @@ class EventsCalendar extends Component<
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`); // Adjust the URL to match your API endpoint
       if (!response.ok) {
-        throw new Error("Failed to fetch events");
+        throw new Error(`Failed to fetch events: ${response.statusText}`);
       }
 
       const events = await response.json();
-      console.log(events);
+      console.log("API Response:", events);
+
+      const eventsArray = events.$values || [];
 
       // Assuming the response is in the correct format to match CalendarEvent structure
       this.setState({
         // biome-ignore lint/suspicious/noExplicitAny: <circle back later and define a type>
-        events: events.map((event: any) => {
+        events: eventsArray.map((event: any) => {
           return {
             ...event,
             start: dayjs(event.startTimestamp).toDate(),
@@ -73,7 +75,7 @@ class EventsCalendar extends Component<
   };*/
 
   render() {
-    console.log("Events state:", this.state.events);
+    console.log("I am working");
     return (
       <>
 

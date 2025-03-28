@@ -74,7 +74,7 @@ public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto do
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetDonation), new { id = donation.DonationId }, donation);
     }
-    catch (DbUpdateException ex)
+    catch (DbUpdateException)
     {
         return StatusCode(500, "An error occurred while saving the donation.");
     }
@@ -82,7 +82,7 @@ public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto do
 
 public class DonationRequest
 {
-    public DonationDto Donation { get; set; }
+    public DonationDto? Donation { get; set; }
 }
 
 public class DonationDto
@@ -96,13 +96,13 @@ public class DonationDto
 public class CustomerDto
 {
     public int CustomerId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
     public int BorrowerTypeId { get; set; }
     public DateTime MembershipStartDate { get; set; }
     public DateTime MembershipEndDate { get; set; }
-    public string AccountPassword { get; set; }
+    public string? AccountPassword { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
