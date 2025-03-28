@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -121,8 +120,7 @@ const Employee: React.FC = () => {
   const [dialogMessage, setDialogMessage] = useState('');
 
   // fetching data
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    useEffect(() => {
+  useEffect(() => {
     // mock employee ID
 
     const fetchEmployeeData = async (employeeId: number) => {
@@ -210,7 +208,7 @@ const Employee: React.FC = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/CreateEvent`)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`)
       if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
       setEvents(data);
@@ -422,8 +420,7 @@ const Employee: React.FC = () => {
 
         <Grid container spacing={3}>
           {dashboardItems.map((item, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-<Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               <Card
                 onClick={item.action}
                 sx={{
@@ -573,7 +570,6 @@ const Employee: React.FC = () => {
           type="number"
           value={itemForm.totalCopies}
           onChange={(e) => {
-            // biome-ignore lint/style/useNumberNamespace: <explanation>
             const total = parseInt(e.target.value) || 0;
             setItemForm({
               ...itemForm,
@@ -590,7 +586,6 @@ const Employee: React.FC = () => {
           type="number"
           value={itemForm.availableCopies}
           onChange={(e) => {
-            // biome-ignore lint/style/useNumberNamespace: <explanation>
             const available = parseInt(e.target.value) || 0;
             setItemForm({
               ...itemForm,
@@ -688,7 +683,6 @@ const Employee: React.FC = () => {
                 type="number"
                 value={editingItem.totalCopies}
                 onChange={(e) => {
-                  // biome-ignore lint/style/useNumberNamespace: <explanation>
                   const total = parseInt(e.target.value) || 0;
                   setEditingItem({
                     ...editingItem,
@@ -705,7 +699,6 @@ const Employee: React.FC = () => {
                 type="number"
                 value={editingItem.availableCopies}
                 onChange={(e) => {
-                  // biome-ignore lint/style/useNumberNamespace: <explanation>
                   const available = parseInt(e.target.value) || 0;
                   setEditingItem({
                     ...editingItem,

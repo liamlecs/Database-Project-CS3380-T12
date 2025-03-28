@@ -15,10 +15,7 @@ namespace LibraryWebAPI.Services
         public async Task SendEmailAsync(string to, string subject, string body)
         {
             var smtpHost = _config["Smtp:Host"];
-            if (!int.TryParse(_config["Smtp:Port"], out var smtpPort))
-            {
-                throw new InvalidOperationException("Invalid or missing SMTP port configuration.");
-            }
+            var smtpPort = int.Parse(_config["Smtp:Port"]);
             var smtpUser = _config["Smtp:Username"];
             var smtpPass = _config["Smtp:Password"];
             var fromAddress = _config["Smtp:From"];
@@ -28,10 +25,6 @@ namespace LibraryWebAPI.Services
             message.Subject = subject;
             message.Body = body;
             message.IsBodyHtml = false;
-            if (string.IsNullOrWhiteSpace(fromAddress))
-            {
-                throw new InvalidOperationException("The 'From' address is not configured or is invalid.");
-            }
             message.From = new MailAddress(fromAddress);
 
             using var client = new SmtpClient(smtpHost, smtpPort)

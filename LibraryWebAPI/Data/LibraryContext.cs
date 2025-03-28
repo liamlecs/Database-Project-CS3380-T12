@@ -412,7 +412,8 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
-        
+         
+
         });
 
         OnModelCreatingPartial(modelBuilder);
