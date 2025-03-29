@@ -17,6 +17,8 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public DbSet<CustomerReportDto> CustomerReports { get; set; }
+
     public virtual DbSet<Donation> Donations { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
