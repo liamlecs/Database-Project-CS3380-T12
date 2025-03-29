@@ -15,5 +15,5 @@ public partial class Music
 
     public virtual MusicGenre MusicGenre { get; set; } = null!;
 
-    public virtual Item MusicNavigation { get; set; } = null!;
+    // public virtual Item MusicNavigation { get; set; } = null!;
 }

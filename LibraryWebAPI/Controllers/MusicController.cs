@@ -24,7 +24,8 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Music>>> GetMusics()
         {
-            var musics = await _context.Musics.Include(m => m.MusicGenre).Include(m => m.MusicNavigation).ToListAsync();
+            // Fetch only the Music table data, without including related tables
+            var musics = await _context.Musics.ToListAsync();
             return Ok(musics);
         }
 
@@ -32,9 +33,8 @@ namespace LibraryWebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Music>> GetMusic(int id)
         {
+            // Fetch only the Music table data for a specific id, no .Include
             var music = await _context.Musics
-                .Include(m => m.MusicGenre)
-                .Include(m => m.MusicNavigation)
                 .FirstOrDefaultAsync(m => m.MusicId == id);
 
             if (music == null)
