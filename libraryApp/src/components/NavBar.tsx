@@ -75,9 +75,6 @@ export default function Navbar() {
             <li>
               <Link to="/employee-login">Employee Login</Link>
             </li>
-            <li>
-              <Link to="/reports">Reports</Link>
-            </li>
           </>
         )}
 
@@ -87,6 +84,9 @@ export default function Navbar() {
         <li>
           <Link to="/donations">Donate</Link>
         </li>
+        <li>
+              <Link to="/reports">Reports</Link>
+            </li>
       </ul>
 
       {/* Right side: User Avatar */}
