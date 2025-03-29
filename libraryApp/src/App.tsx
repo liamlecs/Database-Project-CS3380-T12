@@ -60,6 +60,7 @@ function AppRoutes() {
           <Route index element={<Navigate to="customerlookup" replace />} />
           <Route path="customerlookup" element={<CustomerLookup />} />          </Route>
 
+{/* triggering a refresh */}
           {/* Optional Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
             <Route path="checkouthistory" element={<CheckoutHistory />} />
