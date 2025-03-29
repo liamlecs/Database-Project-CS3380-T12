@@ -56,11 +56,9 @@ function AppRoutes() {
           <Route path="/bookcheckout" element={<BookCheckOutPage />} />
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
-          <Route path="/reports" element={<Reports />}>
-          <Route index element={<Navigate to="customerlookup" replace />} />
-          <Route path="customerlookup" element={<CustomerLookup />} />          </Route>
+          <Route path="/reports" element={<Reports />}/>
+          <Route path="/customerlookup" element={<CustomerLookup />} />          
 
-{/* triggering a refresh */}
           {/* Optional Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
             <Route path="checkouthistory" element={<CheckoutHistory />} />
