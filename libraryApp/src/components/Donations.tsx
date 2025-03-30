@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useEffect, use } from 'react';
 import {
   Container,
   Paper,
@@ -10,6 +10,7 @@ import {
   Alert,
   Box,
   Grid,
+  Divider
 } from '@mui/material';
 
 const Donations: React.FC = () => {
@@ -17,6 +18,33 @@ const Donations: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [donationSuccess, setDonationSuccess] = useState<boolean>(false);
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [customerID, setCustomerID] = useState<number | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    const storedCustomerId = localStorage.getItem('customerId');
+    if (storedCustomerId) {
+      fetchUserData(parseInt(storedCustomerId));
+    }
+  }, []);
+
+  const fetchUserData = async (id: number) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/logged-in`);
+      if (!response.ok) throw new Error('Failed to fetch user data');
+
+      const user = await response.json();
+      setCustomerID(user.customerId);
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      setIsLoggedIn(false);
+    }
+  };
 
   // handle predefined amount selection
   const handleAmountSelection = (amount: number) => {
@@ -33,7 +61,7 @@ const Donations: React.FC = () => {
   // retrieve user ID
   const getCustomerId = async (): Promise<number> => {
     // Replace this with actual logic to fetch the user's ID
-    const response = await fetch('/api/auth/current-user');
+    const response = await fetch('/api/Customer');
     const user = await response.json();
     return user.id;
   };
@@ -48,18 +76,22 @@ const Donations: React.FC = () => {
       return;
     }
 
+    if (!isLoggedIn && (!firstName.trim() || !lastName.trim())) {
+      alert('Please provide your first and last name.');
+      return;
+    }
+
+    const donationData = {
+      customerID: isLoggedIn ? customerID : null,
+      firstName: isLoggedIn ? undefined : firstName.trim(),
+      lastName: isLoggedIn ? undefined : lastName.trim(),
+      amount: amount,
+      date: new Date().toISOString().split('T')[0],
+    };
 
     try {
-      
-      const customerID = await getCustomerId();
-
-      const donationData = {
-        CustomerID: customerID,
-        Amount: amount,
-        Date: new Date().toISOString(),
-      };
-
-      const response = await fetch('/api/Donation', {
+      // send donation data to the server
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Donation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,9 +104,10 @@ const Donations: React.FC = () => {
       }
 
       setDonationSuccess(true);
+      resetForm(); // reset form after successful donation
     } catch (error) {
       console.error('Error processing donation:', error);
-      alert('An error occurred while processing your donation. Please try again.');
+      alert('Error. Please try again.');
     }
   };
 
@@ -82,6 +115,10 @@ const Donations: React.FC = () => {
   const resetForm = () => {
     setSelectedAmount(null);
     setCustomAmount('');
+    if (!isLoggedIn) {
+      setFirstName('');
+      setLastName('');
+    }
     setDonationSuccess(false);
   };
 
@@ -92,47 +129,35 @@ const Donations: React.FC = () => {
           Donate to the Library
         </Typography>
 
+        {!isLoggedIn && (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Your Information
+            </Typography>
+            <Grid container spacing={2} sx={{ marginBottom: 2 }}>
+              <Grid item xs={6}>
+                <TextField fullWidth label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+              </Grid>
+            </Grid>
+            <Divider sx={{ my: 3 }} />
+          </>
+        )}
+
         {/* Donation Options */}
         <Typography variant="h6" gutterBottom>
           Choose an Amount
         </Typography>
         <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 5 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(5)}
-            >
-              $5
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 10 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(10)}
-            >
-              $10
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 50 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(50)}
-            >
-              $50
-            </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button
-              fullWidth
-              variant={selectedAmount === 100 ? 'contained' : 'outlined'}
-              onClick={() => handleAmountSelection(100)}
-            >
-              $100
-            </Button>
-          </Grid>
+          {[5, 10, 50, 100].map((amount) => (
+            <Grid item xs={6} key={amount}>
+              <Button fullWidth variant={selectedAmount === amount ? 'contained' : 'outlined'} onClick={() => handleAmountSelection(amount)} sx={{ py: 1.5 }}>
+                ${amount}
+              </Button>
+            </Grid>
+          ))}
         </Grid>
 
         {/* Custom Amount Input */}

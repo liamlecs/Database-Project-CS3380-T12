@@ -80,7 +80,6 @@ interface EmployeeData {
   supervisorID?: number;
   username: string;
   password: string;
-
 }
 
 const Employee: React.FC = () => {
@@ -91,17 +90,7 @@ const Employee: React.FC = () => {
   const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [refreshData, setRefreshData] = useState(false);
-  const [employeeData, setEmployeeData] = useState<EmployeeData>({
-    employeeID: 0,
-    firstName: '',
-    lastName: '',
-    birthDate: new Date().toISOString().split('T')[0],
-    sex: 'Male',
-    supervisorID: 0,
-    username: '',
-    password: '',
-  });
-
+  const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
   // inventory form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
@@ -121,8 +110,6 @@ const Employee: React.FC = () => {
 
   // fetching data
   useEffect(() => {
-    // mock employee ID
-
     const fetchEmployeeData = async (employeeId: number) => {
       try {
         // mock data, will replace with actual API call
@@ -136,8 +123,16 @@ const Employee: React.FC = () => {
         setEmployeeData(mockData); */
   
         // actual API call
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`, 
+        {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        });
+
         if (!response.ok) throw new Error('Failed to fetch employee data');
+        
         const data = await response.json();
         setEmployeeData(data);
       } catch (error) {
@@ -147,9 +142,12 @@ const Employee: React.FC = () => {
       }
     };
 
-    if (employeeData.employeeID) {
-      fetchEmployeeData(employeeData.employeeID);
+    const storedEmployeeId = localStorage.getItem('employeeId');
+    if (storedEmployeeId) {
+      fetchEmployeeData(parseInt(storedEmployeeId));
     }
+
+    // fetch inventory and events data
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
     }
@@ -524,10 +522,16 @@ const Employee: React.FC = () => {
 
   const renderProfile = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <EmployeeProfile
+      {employeeData? (
+        <EmployeeProfile
         employeeData={employeeData}
         onUpdate={handleUpdateEmployee}
       />
+      ) : (
+        <Typography variant="h6" color="text.secondary">
+          Loading Employee profile...
+        </Typography>
+      )}
     </Box>
   );
 
