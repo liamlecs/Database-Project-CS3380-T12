@@ -217,3 +217,13 @@ html, body {
         display: none; /* Hide scroll buttons on small screens */
     }
 }
+
+
+.search-bar-container-row {
+    display: flex;
+    flex-direction: row; /* Ensures components are aligned in a row */
+    align-items: center; /* Aligns items vertically in the center */
+    gap: 1rem; /* Adds spacing between the components */
+    margin-top: 1rem; /* Optional: Adds some spacing above the row */
+}
+  
