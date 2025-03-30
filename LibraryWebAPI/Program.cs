@@ -27,6 +27,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddScoped<ISearchRepository, SearchRepository>();
+
+
 // add JWT authentication
 builder.Services.AddAuthentication(options =>
 {

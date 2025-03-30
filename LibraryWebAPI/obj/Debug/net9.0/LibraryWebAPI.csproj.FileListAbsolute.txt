@@ -276,3 +276,10 @@
 /Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/obj/Debug/net9.0/LibraryWebAPI.pdb
 /Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/obj/Debug/net9.0/LibraryWebAPI.genruntimeconfig.cache
 /Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/obj/Debug/net9.0/ref/LibraryWebAPI.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/Dapper.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/System.Data.SqlClient.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/runtimes/win-arm64/native/sni.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/runtimes/win-x64/native/sni.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/runtimes/win-x86/native/sni.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/runtimes/unix/lib/net8.0/System.Data.SqlClient.dll
+/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/bin/Debug/net9.0/runtimes/win/lib/net8.0/System.Data.SqlClient.dll
