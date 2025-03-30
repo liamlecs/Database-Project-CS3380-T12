@@ -23,6 +23,7 @@ import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Reports from "./components/Reports.tsx";
 import CustomerLookup from "./components/EmployeeReports/CustomerLookup.tsx";
+import Test from "./components/Test.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ function AppRoutes() {
           <Route path="/bookcheckout" element={<BookCheckOutPage />} />
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
+          <Route path="/test" element={<Test/>}/>
           <Route path="/reports" element={<Reports />}>
           <Route index element={<Navigate to="customerlookup" replace />} />
           <Route path="customerlookup" element={<CustomerLookup />} />          </Route>
