@@ -47,7 +47,14 @@ public class SearchRepository : ISearchRepository
             FROM Technology t
             JOIN Manufacturers m ON t.ManufacturerID = m.ManufacturerID
             JOIN Items i ON t.ItemID = i.ItemID
-            WHERE i.Title LIKE @Query OR m.Manufacturer LIKE @Query";
+            WHERE i.Title LIKE @Query OR m.Manufacturer LIKE @Query
+            
+            UNION 
+            
+            SELECT i.ItemID AS Id, i.Title, 'Item' AS Category, NULL AS AdditionalInfo, i.ReleaseDate
+            FROM Items i
+            WHERE i.Title LIKE @Query";
+        
 
         return await connection.QueryAsync<SearchResultDTO>(sql, new { Query = $"%{query}%" });
     }
