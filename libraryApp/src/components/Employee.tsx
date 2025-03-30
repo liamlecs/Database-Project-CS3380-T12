@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -80,8 +79,7 @@ interface EmployeeData {
   sex: string;
   supervisorID?: number;
   username: string;
-  password: string;
-
+  password?: string;
 }
 
 const Employee: React.FC = () => {
@@ -92,17 +90,7 @@ const Employee: React.FC = () => {
   const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [refreshData, setRefreshData] = useState(false);
-  const [employeeData, setEmployeeData] = useState<EmployeeData>({
-    employeeID: 0,
-    firstName: '',
-    lastName: '',
-    birthDate: new Date().toISOString().split('T')[0],
-    sex: 'Male',
-    supervisorID: 0,
-    username: '',
-    password: '',
-  });
-
+  const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
   // inventory form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
@@ -121,10 +109,7 @@ const Employee: React.FC = () => {
   const [dialogMessage, setDialogMessage] = useState('');
 
   // fetching data
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    useEffect(() => {
-    // mock employee ID
-
+  useEffect(() => {
     const fetchEmployeeData = async (employeeId: number) => {
       try {
         // mock data, will replace with actual API call
@@ -138,10 +123,26 @@ const Employee: React.FC = () => {
         setEmployeeData(mockData); */
   
         // actual API call
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`, 
+        {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        });
+
         if (!response.ok) throw new Error('Failed to fetch employee data');
+        
         const data = await response.json();
-        setEmployeeData(data);
+        setEmployeeData({
+          employeeID: data.employeeID,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate,
+          sex: data.sex,
+          supervisorID: data.supervisorID,
+          username: data.username
+        });
       } catch (error) {
         console.error('Error fetching employee data:', error);
         setDialogMessage('Failed to fetch employee data. Please try again.');
@@ -149,9 +150,12 @@ const Employee: React.FC = () => {
       }
     };
 
-    if (employeeData.employeeID) {
-      fetchEmployeeData(employeeData.employeeID);
+    const storedEmployeeId = localStorage.getItem('employeeId');
+    if (storedEmployeeId) {
+      fetchEmployeeData(parseInt(storedEmployeeId));
     }
+
+    // fetch inventory and events data
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
     }
@@ -210,7 +214,7 @@ const Employee: React.FC = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/CreateEvent`)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`)
       if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
       setEvents(data);
@@ -422,8 +426,7 @@ const Employee: React.FC = () => {
 
         <Grid container spacing={3}>
           {dashboardItems.map((item, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-<Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               <Card
                 onClick={item.action}
                 sx={{
@@ -527,10 +530,12 @@ const Employee: React.FC = () => {
 
   const renderProfile = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <EmployeeProfile
+      {employeeData? (
+        <EmployeeProfile
         employeeData={employeeData}
         onUpdate={handleUpdateEmployee}
       />
+      ) : <Typography>No employee data available.</Typography>}
     </Box>
   );
 
@@ -573,7 +578,6 @@ const Employee: React.FC = () => {
           type="number"
           value={itemForm.totalCopies}
           onChange={(e) => {
-            // biome-ignore lint/style/useNumberNamespace: <explanation>
             const total = parseInt(e.target.value) || 0;
             setItemForm({
               ...itemForm,
@@ -590,7 +594,6 @@ const Employee: React.FC = () => {
           type="number"
           value={itemForm.availableCopies}
           onChange={(e) => {
-            // biome-ignore lint/style/useNumberNamespace: <explanation>
             const available = parseInt(e.target.value) || 0;
             setItemForm({
               ...itemForm,
@@ -688,7 +691,6 @@ const Employee: React.FC = () => {
                 type="number"
                 value={editingItem.totalCopies}
                 onChange={(e) => {
-                  // biome-ignore lint/style/useNumberNamespace: <explanation>
                   const total = parseInt(e.target.value) || 0;
                   setEditingItem({
                     ...editingItem,
@@ -705,7 +707,6 @@ const Employee: React.FC = () => {
                 type="number"
                 value={editingItem.availableCopies}
                 onChange={(e) => {
-                  // biome-ignore lint/style/useNumberNamespace: <explanation>
                   const available = parseInt(e.target.value) || 0;
                   setEditingItem({
                     ...editingItem,
