@@ -5,6 +5,7 @@ html, body {
     padding: 0;
 }
 
+
 /* Container settings */
 .library-container {
     display: flex;
@@ -18,18 +19,27 @@ html, body {
 
 /* Ensure welcome message fits within the screen */
 .welcome-message {
+    background-image: url("../../assets/welcome_background.jpg");
+    background-size: cover; /* Make the image cover the full container */
+    background-position: center; /* Center the background */
+    background-repeat: no-repeat; /* Prevent the background from repeating */
+    height: 300px; /* Adjust this height as necessary for your design */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
     text-align: center;
-    padding: 5vw 0;
-    width: 100%;
-    margin-bottom: 3vw;
-    border-bottom: 2px solid #ddd;
-    overflow: hidden;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .welcome-message h1 {
-    font-size: 3vw;
-    color: #f7f7f2;
+    font-size: 2.5rem; /* You can adjust the font size here */
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Optional text shadow for better contrast */
 }
+
 
 /* Search Bar */
 .search-bar-container {
