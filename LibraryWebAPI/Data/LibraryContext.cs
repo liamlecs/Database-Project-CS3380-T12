@@ -47,6 +47,8 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<TransactionHistory> TransactionHistories { get; set; }
 
+    public virtual DbSet<TransactionPopularityDto> TransactionPopularity { get; set; }
+
     public virtual DbSet<Waitlist> Waitlists { get; set; }
 
 //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -400,7 +402,8 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
-          
+                  modelBuilder.Entity<TransactionPopularityDto>()
+            .HasKey(t => new { t.Title, t.ItemType }); // Composite Key
 
         });
 

@@ -29,6 +29,36 @@ namespace LibraryWebAPI.Controllers
             return Ok(transactionHistories);
         }
 
+[HttpGet("popularity")]
+ public async Task<ActionResult<TransactionHistory>> GetBookPopularity()
+        {
+            var counts = await _context.TransactionPopularity.FromSqlRaw("SELECT "+ 
+    "Item.Title, "+
+   " COUNT(*) AS count, "+
+   "CASE "+
+        "WHEN MAX(Movie.MovieID) IS NOT NULL THEN 'Movie' "+
+       " WHEN MAX(Music.MusicID) IS NOT NULL THEN 'Music' "+
+        "WHEN MAX(Book.BookID) IS NOT NULL THEN 'Book' "+
+       " WHEN MAX(Technology.DeviceID) IS NOT NULL THEN 'Technology' "+
+      "ELSE 'Unknown Table' "+
+    "END AS ItemType "+
+"FROM TRANSACTION_HISTORY "+
+"JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID "+
+"LEFT JOIN Movie ON Item.ItemID = Movie.MovieID "+
+"LEFT JOIN Music ON Item.ItemID = Music.MusicID "+
+"LEFT JOIN Book ON Item.ItemID = Book.BookID "+
+"LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID "+
+"GROUP BY Item.Title"
+).ToListAsync();
+
+ if (counts == null)
+            {
+                return NotFound($"failed to display counts.");
+            }
+
+            return Ok(counts);
+        }
+
         // GET: api/TransactionHistory/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TransactionHistory>> GetTransactionHistory(int id)
