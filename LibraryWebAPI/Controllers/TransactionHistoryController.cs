@@ -59,6 +59,48 @@ namespace LibraryWebAPI.Controllers
             return Ok(counts);
         }
 
+[HttpGet("withFine")]
+ public async Task<ActionResult<TransactionHistory>> GetTransactionWithFine()
+        {
+            var fines = await _context.TransactionFine.FromSqlRaw("SELECT " + 
+    "I.Title, " + 
+    "C.Email, " + 
+    "C.FirstName, " + 
+    "C.LastName, " + 
+    "BT.Type, " + 
+    "TH.DateBorrowed, " + 
+    "TH.DueDate, " + 
+    "F.Amount, " + 
+    "F.PaymentStatus, " + 
+    "CASE " + 
+        "WHEN MAX(M.MovieID) IS NOT NULL THEN 'Movie' " + 
+        "WHEN MAX(Mu.MusicID) IS NOT NULL THEN 'Music' " + 
+        "WHEN MAX(B.BookID) IS NOT NULL THEN 'Book' " + 
+        "WHEN MAX(T.DeviceID) IS NOT NULL THEN 'Technology' " + 
+        "ELSE 'Unknown Table' " + 
+    "END AS ItemType " + 
+"FROM TRANSACTION_HISTORY TH " + 
+"JOIN Item I ON TH.ItemID = I.ItemID " + 
+"LEFT JOIN Movie M ON I.ItemID = M.MovieID " + 
+"LEFT JOIN Music Mu ON I.ItemID = Mu.MusicID " + 
+"LEFT JOIN Book B ON I.ItemID = B.BookID " + 
+"LEFT JOIN Technology T ON I.ItemID = T.DeviceID " + 
+"JOIN Fines F ON TH.TransactionID = F.TransactionID " + 
+"JOIN Customer C ON F.CustomerID = C.CustomerID " + 
+"JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " + 
+"GROUP BY " + 
+    "I.Title, C.Email, C.FirstName, C.LastName, BT.Type, " + 
+    "TH.DateBorrowed, TH.DueDate, F.Amount, F.PaymentStatus"
+).ToListAsync();
+
+ if (fines == null)
+            {
+                return NotFound($"failed to display fines.");
+            }
+
+            return Ok(fines);
+        }
+
         // GET: api/TransactionHistory/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TransactionHistory>> GetTransactionHistory(int id)

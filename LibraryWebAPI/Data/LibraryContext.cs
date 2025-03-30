@@ -49,6 +49,7 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<TransactionPopularityDto> TransactionPopularity { get; set; }
 
+    public virtual DbSet<TransactionFineDto> TransactionFine { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
 
 //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -404,6 +405,10 @@ public virtual DbSet<Book> Books { get; set; }
 
                   modelBuilder.Entity<TransactionPopularityDto>()
             .HasKey(t => new { t.Title, t.ItemType }); // Composite Key
+
+              modelBuilder.Entity<TransactionFineDto>()
+            .HasKey(t => new { t.Title, t.Email, t.DateBorrowed }); // Composite Key
+
 
         });
 
