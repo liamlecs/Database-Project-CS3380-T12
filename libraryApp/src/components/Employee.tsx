@@ -79,7 +79,7 @@ interface EmployeeData {
   sex: string;
   supervisorID?: number;
   username: string;
-  password: string;
+  password?: string;
 }
 
 const Employee: React.FC = () => {
@@ -134,7 +134,15 @@ const Employee: React.FC = () => {
         if (!response.ok) throw new Error('Failed to fetch employee data');
         
         const data = await response.json();
-        setEmployeeData(data);
+        setEmployeeData({
+          employeeID: data.employeeID,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          birthDate: data.birthDate,
+          sex: data.sex,
+          supervisorID: data.supervisorID,
+          username: data.username
+        });
       } catch (error) {
         console.error('Error fetching employee data:', error);
         setDialogMessage('Failed to fetch employee data. Please try again.');
@@ -527,11 +535,7 @@ const Employee: React.FC = () => {
         employeeData={employeeData}
         onUpdate={handleUpdateEmployee}
       />
-      ) : (
-        <Typography variant="h6" color="text.secondary">
-          Loading Employee profile...
-        </Typography>
-      )}
+      ) : <Typography>No employee data available.</Typography>}
     </Box>
   );
 
