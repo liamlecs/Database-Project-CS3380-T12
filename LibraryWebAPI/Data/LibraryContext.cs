@@ -48,7 +48,7 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<TransactionHistory> TransactionHistories { get; set; }
 
     public virtual DbSet<TransactionPopularityDto> TransactionPopularity { get; set; }
-
+    public virtual DbSet<TransactionPopularityDto> TransactionPopularityConditional { get; set; }
     public virtual DbSet<TransactionFineDto> TransactionFine { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
 

@@ -59,6 +59,38 @@ namespace LibraryWebAPI.Controllers
             return Ok(counts);
         }
 
+[HttpGet("popularityConditional")]
+public async Task<ActionResult<TransactionHistory>> GetBookPopularityConditional(DateTime dateFilter)
+{
+    var counts = await _context.TransactionPopularity
+        .FromSqlRaw("SELECT " +
+            "Item.Title, " +
+            "COUNT(*) AS count, " +
+            "CASE " +
+                "WHEN MAX(Movie.MovieID) IS NOT NULL THEN 'Movie' " +
+                "WHEN MAX(Music.MusicID) IS NOT NULL THEN 'Music' " +
+                "WHEN MAX(Book.BookID) IS NOT NULL THEN 'Book' " +
+                "WHEN MAX(Technology.DeviceID) IS NOT NULL THEN 'Technology' " +
+                "ELSE 'Unknown Table' " +
+            "END AS ItemType " +
+        "FROM TRANSACTION_HISTORY " +
+        "JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID " +
+        "LEFT JOIN Movie ON Item.ItemID = Movie.MovieID " +
+        "LEFT JOIN Music ON Item.ItemID = Music.MusicID " +
+        "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
+        "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
+        "WHERE TRANSACTION_HISTORY.DateBorrowed > {0} " +  // Using parameterized query
+        "GROUP BY Item.Title;", dateFilter)
+        .ToListAsync();
+
+    if (counts == null || counts.Count == 0)
+    {
+        return NotFound("No recent transactions found.");
+    }
+
+    return Ok(counts);
+}
+
 [HttpGet("withFine")]
  public async Task<ActionResult<TransactionHistory>> GetTransactionWithFine()
         {
