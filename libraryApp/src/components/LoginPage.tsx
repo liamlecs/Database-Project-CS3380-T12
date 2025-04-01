@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../App.css"; // CSS import
 import bgImage from "../assets/library-bg.jpg";
 
+//Test commit
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
