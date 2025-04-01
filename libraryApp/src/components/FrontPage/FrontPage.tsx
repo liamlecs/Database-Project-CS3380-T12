@@ -10,6 +10,36 @@ const Library: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [bookItems, setBookItems] = useState<any[]>([]);
+  const [movieItems, setMovieItems] = useState<any[]>([]);
+  const [musicItems, setMusicItems] = useState<any[]>([]);
+  const [technologyItems, setTechnologyItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAllItems = async () => {
+      try {
+        const bookResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book`);
+        const bookData = await bookResponse.json();
+        setBookItems(bookData);
+
+        const movieResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Movie`);
+        const movieData = await movieResponse.json();
+        setMovieItems(movieData);
+
+        const musicResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Music`);
+        const musicData = await musicResponse.json();
+        setMusicItems(musicData);
+
+        const technologyResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Technology`);
+        const technologyData = await technologyResponse.json();
+        setTechnologyItems(technologyData);
+      } catch (error) {
+        console.error("Error fetching items:", error);
+      }
+    };
+
+    fetchAllItems();
+  }, []);
 
   useEffect(() => {
     if (selectedTable) {
@@ -65,6 +95,21 @@ const Library: React.FC = () => {
     }
   }, [searchQuery, items]);
 
+  const renderCardRow = (title: string, items: any[]) => (
+    <div className="card-row">
+      <h3>{title}</h3>
+      <div className="card-container">
+        {items.map((item: any) => (
+          <div className="card" key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
+            {Object.entries(item).map(([key, value]) => (
+              <p key={key}><strong>{key}:</strong> {String(value)}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="library-container">
       <div className="welcome-message" style={{ backgroundImage: `url(${welcomeBg})` }}>
@@ -103,9 +148,10 @@ const Library: React.FC = () => {
         )}
       </div>
 
+      {/* Filtered items directly below the search bar */}
       {filteredItems.length > 0 ? (
         <div className="items-container">
-          <h3>Items:</h3>
+          <h3>Filtered Items:</h3>
           <ul>
             {filteredItems.map((item: any) => (
               <li key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
@@ -117,11 +163,18 @@ const Library: React.FC = () => {
           </ul>
         </div>
       ) : (
-        <p>No results found.</p>
+        searchQuery.trim() !== "" && <p>No results found.</p>
       )}
+
+      {/* Render the items for each category */}
+      {renderCardRow("Books", bookItems)}
+      {renderCardRow("Movies", movieItems)}
+      {renderCardRow("Music", musicItems)}
+      {renderCardRow("Technology", technologyItems)}
     </div>
   );
 };
 
 export default Library;
-// STASHED CHANGES: TESTING DEPLOYMENT
+
+// ui design needs more improvement but its functional!
