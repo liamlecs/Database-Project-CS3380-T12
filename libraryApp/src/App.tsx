@@ -52,7 +52,7 @@ function AppRoutes() {
           <Route path="/donations" element={<Donations />} />
           <Route path="/employee" element={<Employee />} />
           <Route path="/userprofile" element={<UserProfile />} />
-          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
+          {/* <Route path="/bookcheckout" element={<BookCheckOutPage />} /> */}
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
           <Route path="/test" element={<Test/>}/>
