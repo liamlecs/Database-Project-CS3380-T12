@@ -70,7 +70,7 @@ export default function Navbar() {
               <Link to="/registrationpage">Registration</Link>
             </li>
             <li>
-              <Link to="/customer-login">Test Cahnge</Link>
+              <Link to="/customer-login">Customer Login</Link>
             </li>
             <li>
               <Link to="/employee-login">Employee Login</Link>
