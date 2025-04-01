@@ -23,28 +23,43 @@ const Donations: React.FC = () => {
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  useEffect(() => {
+  
+  /* useEffect(() => {
     const storedCustomerId = localStorage.getItem('customerId');
     if (storedCustomerId) {
       fetchUserData(parseInt(storedCustomerId));
     }
-  }, []);
+  }, []); */
 
-  const fetchUserData = async (id: number) => {
+  const fetchUserData = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/logged-in`);
+
+      // check if customerId is stored in localStorage
+      const customerID = localStorage.getItem('customerId');
+      if (!customerID) {
+        setIsLoggedIn(false);
+        return;
+      }
+
+      // fetch user data from api
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerID}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
 
       const user = await response.json();
-      setCustomerID(user.customerId);
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
+      setCustomerID(user.customerId || user.id);
+      setFirstName(user.firstName || user.first_name);
+      setLastName(user.lastName || user.last_name);
       setIsLoggedIn(true);
     } catch (error) {
       console.error('Error fetching user details:', error);
       setIsLoggedIn(false);
+      localStorage.removeItem('customerId'); // clear customerId if fetch fails
     }
   };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   // handle predefined amount selection
   const handleAmountSelection = (amount: number) => {
@@ -60,7 +75,6 @@ const Donations: React.FC = () => {
 
   // retrieve user ID
   const getCustomerId = async (): Promise<number> => {
-    // Replace this with actual logic to fetch the user's ID
     const response = await fetch('/api/Customer');
     const user = await response.json();
     return user.id;
@@ -104,6 +118,7 @@ const Donations: React.FC = () => {
       }
 
       setDonationSuccess(true);
+
       resetForm(); // reset form after successful donation
     } catch (error) {
       console.error('Error processing donation:', error);
@@ -119,7 +134,6 @@ const Donations: React.FC = () => {
       setFirstName('');
       setLastName('');
     }
-    setDonationSuccess(false);
   };
 
   return (
@@ -188,8 +202,9 @@ const Donations: React.FC = () => {
       {/* Thank You Message */}
       <Snackbar
         open={donationSuccess}
-        autoHideDuration={10000}
+        autoHideDuration={50000}
         onClose={() => setDonationSuccess(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setDonationSuccess(false)}
