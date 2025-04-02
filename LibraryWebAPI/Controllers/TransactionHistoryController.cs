@@ -7,16 +7,21 @@ using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
 
+
+
 namespace LibraryWebAPI.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class TransactionHistoryController : ControllerBase
     {
         private readonly LibraryContext _context;
+        private readonly ILogger<TransactionHistoryController> _logger;
 
-        public TransactionHistoryController(LibraryContext context)
+        public TransactionHistoryController(LibraryContext context, ILogger<TransactionHistoryController> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -60,8 +65,17 @@ namespace LibraryWebAPI.Controllers
         }
 
 [HttpGet("popularityConditional")]
-public async Task<ActionResult<TransactionHistory>> GetBookPopularityConditional(DateTime dateFilter)
+public async Task<ActionResult<TransactionHistory>> GetBookPopularityConditional([FromQuery] DateTime dateFilter)
 {
+
+if (dateFilter == default)
+    {
+        _logger.LogError("Invalid or missing dateFilter: {DateFilter}", dateFilter);
+        return BadRequest("Invalid date format. Ensure you're passing a valid date.");
+    }
+
+_logger.LogInformation("Received request for popularityConditional with date: {DateFilter}", dateFilter);
+
     var counts = await _context.TransactionPopularityConditional
         .FromSqlRaw("SELECT " +
             "Item.Title, " +
