@@ -21,7 +21,8 @@ import ConfirmEmail from "./components/ConfirmEmail.tsx";
 import Employee from "./components/Employee.tsx";
 import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import PopularityReport from "./components/PopularityReport.tsx";
+import PopularityReport from "./components/Reports/PopularityReport.tsx";
+import ItemFineReport from "./components/Reports/ItemFineReport.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ function AppRoutes() {
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
           <Route path="/popularityreport" element={<PopularityReport/>}/>
+          <Route path="/itemfinereport" element={<ItemFineReport/>}/>
 
           {/* Optional Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
