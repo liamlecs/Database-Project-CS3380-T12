@@ -1,19 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import './FrontPage.css';
+import React, { useState, useEffect, useMemo } from "react";
+import "./FrontPage.css";
 import welcomeBg from "../../assets/welcome_background.jpg";
+
 
 const Library: React.FC = () => {
   const [tables] = useState(["Book", "Movie", "Music", "Technology"]);
   const [selectedTable, setSelectedTable] = useState<string>("");
-  const [secondDropdownOptions, setSecondDropdownOptions] = useState<string[]>([]);
-  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [selectedField, setSelectedField] = useState<string>("");
   const [items, setItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredItems, setFilteredItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+
   const [bookItems, setBookItems] = useState<any[]>([]);
   const [movieItems, setMovieItems] = useState<any[]>([]);
   const [musicItems, setMusicItems] = useState<any[]>([]);
   const [technologyItems, setTechnologyItems] = useState<any[]>([]);
+
+  // ------------------------------------ Search components ---------------------------------------------
+  const fieldOptions: Record<string, string[]> = {
+    Book: ["ISBN", "Title", "Author", "Publisher", "Genre"],
+    Movie: ["Title", "Director", "Genre"],
+    Music: ["Song Title", "Artist", "Genre"],
+    Technology: ["Item Name", "Serial Number", "Brand"],
+  };
+
+
+  useEffect(() => {
+    if (!selectedTable) {
+      setItems([]);
+      return;
+    }
+
+
+    const fetchItems = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`);
+        const data = await response.json();
+        setItems(data);
+      } catch (error) {
+        console.error(`Error fetching items from ${selectedTable}:`, error);
+        setItems([]);
+      }
+      setLoading(false);
+    };
+
+
+    fetchItems();
+  }, [selectedTable]);
+
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+
+
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return items.filter((item: any) => {
+      return Object.values(item).some((value) => {
+        const stringValue = String(value ?? "").toLowerCase();
+        return stringValue.includes(lowerCaseQuery);
+      });
+    });
+  }, [searchQuery, items]);
+
+
+  //---------------------------------------------------------------------------------------
+
+
+  // --------------------------------------   Item Cards ---------------------------/
+
 
   useEffect(() => {
     const fetchAllItems = async () => {
@@ -41,60 +97,6 @@ const Library: React.FC = () => {
     fetchAllItems();
   }, []);
 
-  useEffect(() => {
-    if (selectedTable) {
-      switch (selectedTable) {
-        case "Book":
-          setSecondDropdownOptions(["Title", "Author", "ISBN", "Genre"]);
-          break;
-        case "Movie":
-          setSecondDropdownOptions(["Title", "Director", "MovieID", "Genre"]);
-          break;
-        case "Music":
-          setSecondDropdownOptions(["Title", "Artist", "SongID", "Genre"]);
-          break;
-        case "Technology":
-          setSecondDropdownOptions(["Item Name", "Brand Name", "Serial Number", "Genre"]);
-          break;
-        default:
-          setSecondDropdownOptions([]);
-      }
-    } else {
-      setSecondDropdownOptions([]);
-    }
-  }, [selectedTable]);
-
-  useEffect(() => {
-    if (selectedTable) {
-      const fetchItems = async () => {
-        try {
-          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`);
-          const data = await response.json();
-          setItems(data);
-          setFilteredItems(data);
-        } catch (error) {
-          console.error(`Error fetching items from ${selectedTable}:`, error);
-        }
-      };
-      fetchItems();
-    }
-  }, [selectedTable]);
-
-  useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredItems(items);
-    } else {
-      const lowerCaseQuery = searchQuery.toLowerCase();
-      setFilteredItems(
-        items.filter((item: any) => {
-          return Object.values(item).some(value =>
-            value?.toString().toLowerCase().includes(lowerCaseQuery)
-          );
-        })
-      );
-    }
-  }, [searchQuery, items]);
-
   const renderCardRow = (title: string, items: any[]) => (
     <div className="card-row">
       <h3>{title}</h3>
@@ -116,7 +118,7 @@ const Library: React.FC = () => {
         <h1>Checkout Your Favorite Items Today!</h1>
       </div>
 
-      <div className="search-bar-container">
+      <div className="search-bar-container-row">
         <div className="dropdown-wrapper">
           <label htmlFor="table-select">Select Table:</label>
           <select
@@ -124,9 +126,9 @@ const Library: React.FC = () => {
             value={selectedTable}
             onChange={(e) => {
               setSelectedTable(e.target.value);
-              setSelectedOption("");
-              setItems([]);
-              setSearchQuery("");
+              setSelectedField(""); // reset field when switching tables
+              setItems([]); // clear items when switching tables
+              setSearchQuery(""); // reset search when switching tables
             }}
           >
             <option value="">-- Select Table --</option>
@@ -137,33 +139,58 @@ const Library: React.FC = () => {
         </div>
 
         {selectedTable && (
-          <div className="search-wrapper">
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          <div className="dropdown-wrapper">
+            <label htmlFor="field-select">Select Field:</label>
+            <select
+              id="field-select"
+              value={selectedField}
+              onChange={(e) => setSelectedField(e.target.value)}
+            >
+              <option value="">-- Select Field --</option>
+              {fieldOptions[selectedTable]?.map((field) => (
+                <option key={field} value={field}>{field}</option>
+              ))}
+            </select>
           </div>
         )}
+
+        <div className="search-wrapper">
+          <input
+            type="text"
+            placeholder="Start typing to search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* Filtered items directly below the search bar */}
-      {filteredItems.length > 0 ? (
-        <div className="items-container">
-          <h3>Filtered Items:</h3>
-          <ul>
-            {filteredItems.map((item: any) => (
-              <li key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
-                {Object.entries(item).map(([key, value]) => (
-                  <span key={key}><strong>{key}:</strong> {String(value)} | </span>
-                ))}
-              </li>
-            ))}
-          </ul>
-        </div>
+
+      {loading ? (
+        <p>Loading...</p>
       ) : (
-        searchQuery.trim() !== "" && <p>No results found.</p>
+        searchQuery && filteredItems.length > 0 ? (
+          <div className="items-container">
+            <h3>Items:</h3>
+            <div className="books-section">
+              <div className="book-row">
+                {filteredItems.map((item: any) => (
+                  <div className="book-card" key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
+                    <img
+                      className="book-image"
+                      src={item.imageUrl || "/path/to/default/image.jpg"} // Make sure to handle missing images
+                      alt={item.title || "Item image"}
+                    />
+                    <div className="book-title">{item.title}</div>
+                    <div className="book-author">{item.author || item.artist || item.director}</div>
+                    {/* Add more item details as necessary */}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          searchQuery && <p>No results found.</p>
+        )
       )}
 
       {/* Render the items for each category */}
@@ -171,10 +198,11 @@ const Library: React.FC = () => {
       {renderCardRow("Movies", movieItems)}
       {renderCardRow("Music", musicItems)}
       {renderCardRow("Technology", technologyItems)}
+
     </div>
   );
 };
 
+
 export default Library;
 
-// ui design needs more improvement but its functional!!
