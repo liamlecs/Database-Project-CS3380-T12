@@ -29,6 +29,153 @@ namespace LibraryWebAPI.Controllers
             return Ok(transactionHistories);
         }
 
+[HttpGet("popularity")]
+ public async Task<ActionResult<TransactionHistory>> GetBookPopularity()
+        {
+            var counts = await _context.TransactionPopularity.FromSqlRaw("SELECT "+ 
+    "Item.Title, "+
+   " COUNT(*) AS count, "+
+   "CASE "+
+        "WHEN MAX(Movie.MovieID) IS NOT NULL THEN 'Movie' "+
+       " WHEN MAX(Music.MusicID) IS NOT NULL THEN 'Music' "+
+        "WHEN MAX(Book.BookID) IS NOT NULL THEN 'Book' "+
+       " WHEN MAX(Technology.DeviceID) IS NOT NULL THEN 'Technology' "+
+      "ELSE 'Unknown Table' "+
+    "END AS ItemType "+
+"FROM TRANSACTION_HISTORY "+
+"JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID "+
+"LEFT JOIN Movie ON Item.ItemID = Movie.MovieID "+
+"LEFT JOIN Music ON Item.ItemID = Music.MusicID "+
+"LEFT JOIN Book ON Item.ItemID = Book.BookID "+
+"LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID "+
+"GROUP BY Item.Title"
+).ToListAsync();
+
+ if (counts == null)
+            {
+                return NotFound($"failed to display counts.");
+            }
+
+            return Ok(counts);
+        }
+
+[HttpGet("popularityConditional")]
+public async Task<ActionResult<TransactionHistory>> GetBookPopularityConditional(DateTime dateFilter)
+{
+    var counts = await _context.TransactionPopularityConditional
+        .FromSqlRaw("SELECT " +
+            "Item.Title, " +
+            "COUNT(*) AS count, " +
+            "CASE " +
+                "WHEN MAX(Movie.MovieID) IS NOT NULL THEN 'Movie' " +
+                "WHEN MAX(Music.MusicID) IS NOT NULL THEN 'Music' " +
+                "WHEN MAX(Book.BookID) IS NOT NULL THEN 'Book' " +
+                "WHEN MAX(Technology.DeviceID) IS NOT NULL THEN 'Technology' " +
+                "ELSE 'Unknown Table' " +
+            "END AS ItemType " +
+        "FROM TRANSACTION_HISTORY " +
+        "JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID " +
+        "LEFT JOIN Movie ON Item.ItemID = Movie.MovieID " +
+        "LEFT JOIN Music ON Item.ItemID = Music.MusicID " +
+        "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
+        "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
+        "WHERE TRANSACTION_HISTORY.DateBorrowed > {0} " +  // Using parameterized query
+        "GROUP BY Item.Title;", dateFilter)
+        .ToListAsync();
+
+    if (counts == null || counts.Count == 0)
+    {
+        return NotFound("No recent transactions found.");
+    }
+
+    return Ok(counts);
+}
+
+[HttpGet("withFine")]
+ public async Task<ActionResult<TransactionHistory>> GetTransactionWithFine()
+        {
+            var fines = await _context.TransactionFine.FromSqlRaw("SELECT " + 
+    "I.Title, " + 
+    "C.Email, " + 
+    "C.FirstName, " + 
+    "C.LastName, " + 
+    "BT.Type, " + 
+    "TH.DateBorrowed, " + 
+    "TH.DueDate, " + 
+    "F.Amount, " + 
+    "F.PaymentStatus, " + 
+    "CASE " + 
+        "WHEN MAX(M.MovieID) IS NOT NULL THEN 'Movie' " + 
+        "WHEN MAX(Mu.MusicID) IS NOT NULL THEN 'Music' " + 
+        "WHEN MAX(B.BookID) IS NOT NULL THEN 'Book' " + 
+        "WHEN MAX(T.DeviceID) IS NOT NULL THEN 'Technology' " + 
+        "ELSE 'Unknown Table' " + 
+    "END AS ItemType " + 
+"FROM TRANSACTION_HISTORY TH " + 
+"JOIN Item I ON TH.ItemID = I.ItemID " + 
+"LEFT JOIN Movie M ON I.ItemID = M.MovieID " + 
+"LEFT JOIN Music Mu ON I.ItemID = Mu.MusicID " + 
+"LEFT JOIN Book B ON I.ItemID = B.BookID " + 
+"LEFT JOIN Technology T ON I.ItemID = T.DeviceID " + 
+"JOIN Fines F ON TH.TransactionID = F.TransactionID " + 
+"JOIN Customer C ON F.CustomerID = C.CustomerID " + 
+"JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " + 
+"GROUP BY " + 
+    "I.Title, C.Email, C.FirstName, C.LastName, BT.Type, " + 
+    "TH.DateBorrowed, TH.DueDate, F.Amount, F.PaymentStatus"
+).ToListAsync();
+
+ if (fines == null)
+            {
+                return NotFound($"failed to display fines.");
+            }
+
+            return Ok(fines);
+        }
+
+[HttpGet("withFineConditional")]
+ public async Task<ActionResult<TransactionHistory>> GetTransactionWithFineConditional(bool isPaid)
+        {
+            var fines = await _context.TransactionFineConditional.FromSqlRaw("SELECT " + 
+    "I.Title, " + 
+    "C.Email, " + 
+    "C.FirstName, " + 
+    "C.LastName, " + 
+    "BT.Type, " + 
+    "TH.DateBorrowed, " + 
+    "TH.DueDate, " + 
+    "F.Amount, " + 
+    "F.PaymentStatus, " + 
+    "CASE " + 
+        "WHEN MAX(M.MovieID) IS NOT NULL THEN 'Movie' " + 
+        "WHEN MAX(Mu.MusicID) IS NOT NULL THEN 'Music' " + 
+        "WHEN MAX(B.BookID) IS NOT NULL THEN 'Book' " + 
+        "WHEN MAX(T.DeviceID) IS NOT NULL THEN 'Technology' " + 
+        "ELSE 'Unknown Table' " + 
+    "END AS ItemType " + 
+"FROM TRANSACTION_HISTORY TH " + 
+"JOIN Item I ON TH.ItemID = I.ItemID " + 
+"LEFT JOIN Movie M ON I.ItemID = M.MovieID " + 
+"LEFT JOIN Music Mu ON I.ItemID = Mu.MusicID " + 
+"LEFT JOIN Book B ON I.ItemID = B.BookID " + 
+"LEFT JOIN Technology T ON I.ItemID = T.DeviceID " + 
+"JOIN Fines F ON TH.TransactionID = F.TransactionID " + 
+"JOIN Customer C ON F.CustomerID = C.CustomerID " + 
+"JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " + 
+"WHERE F.PaymentStatus = {0} " +
+" GROUP BY " + 
+    "I.Title, C.Email, C.FirstName, C.LastName, BT.Type, " + 
+    "TH.DateBorrowed, TH.DueDate, F.Amount, F.PaymentStatus"
+,isPaid).ToListAsync();
+
+ if (fines == null)
+            {
+                return NotFound($"failed to display fines.");
+            }
+
+            return Ok(fines);
+        }
+
         // GET: api/TransactionHistory/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TransactionHistory>> GetTransactionHistory(int id)

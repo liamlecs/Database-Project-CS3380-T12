@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import {
   Container,
   Paper,
@@ -10,7 +10,7 @@ import {
   Alert,
   Box,
   Grid,
-  Divider,
+  Divider
 } from '@mui/material';
 
 const Donations: React.FC = () => {
@@ -20,12 +20,45 @@ const Donations: React.FC = () => {
   const [donationSuccess, setDonationSuccess] = useState<boolean>(false);
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
-  const [customerId, setCustomerId] = useState<number | null>(null);
+  const [customerID, setCustomerID] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  // check if user is logged in on component mount
+  
+  /* useEffect(() => {
+    const storedCustomerId = localStorage.getItem('customerId');
+    if (storedCustomerId) {
+      fetchUserData(parseInt(storedCustomerId));
+    }
+  }, []); */
+
+  const fetchUserData = async () => {
+    try {
+
+      // check if customerId is stored in localStorage
+      const customerID = localStorage.getItem('customerId');
+      if (!customerID) {
+        setIsLoggedIn(false);
+        return;
+      }
+
+      // fetch user data from api
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerID}`);
+      if (!response.ok) throw new Error('Failed to fetch user data');
+
+      const user = await response.json();
+      setCustomerID(user.customerId || user.id);
+      setFirstName(user.firstName || user.first_name);
+      setLastName(user.lastName || user.last_name);
+      setIsLoggedIn(true);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      setIsLoggedIn(false);
+      localStorage.removeItem('customerId'); // clear customerId if fetch fails
+    }
+  };
+
   useEffect(() => {
-    fetchUserDetails();
+    fetchUserData();
   }, []);
 
   // handle predefined amount selection
@@ -41,20 +74,10 @@ const Donations: React.FC = () => {
   };
 
   // retrieve user ID
-  const fetchUserDetails = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer`);
-      if (response.ok) {
-        const user = await response.json();
-        setCustomerId(user.id);
-        setFirstName(user.firstName);
-        setLastName(user.lastName);
-        setIsLoggedIn(true);
-      }
-    } catch (error) {
-      console.error("User not logged in, proceeding as anonymous donor.");
-      setIsLoggedIn(false);
-    }
+  const getCustomerId = async (): Promise<number> => {
+    const response = await fetch('/api/Customer');
+    const user = await response.json();
+    return user.id;
   };
 
   // handle donation submission
@@ -67,24 +90,26 @@ const Donations: React.FC = () => {
       return;
     }
 
-    // validate name fields for anonymous donors
     if (!isLoggedIn && (!firstName.trim() || !lastName.trim())) {
       alert('Please provide your first and last name.');
       return;
     }
 
-    try {
-      const donationData = {
-        CustomerId: isLoggedIn ? customerId : null,
-        FirstName: isLoggedIn ? undefined : firstName.trim(),
-        LastName: isLoggedIn ? undefined : lastName.trim(),
-        Amount: amount,
-        Date: new Date().toISOString().split('T')[0],
-      };
+    const donationData = {
+      customerID: isLoggedIn ? customerID : null,
+      firstName: isLoggedIn ? undefined : firstName.trim(),
+      lastName: isLoggedIn ? undefined : lastName.trim(),
+      amount: amount,
+      date: new Date().toISOString().split('T')[0],
+    };
 
+    try {
+      // send donation data to the server
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Donation`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(donationData),
       });
 
@@ -93,14 +118,15 @@ const Donations: React.FC = () => {
       }
 
       setDonationSuccess(true);
-      resetForm();
+
+      resetForm(); // reset form after successful donation
     } catch (error) {
       console.error('Error processing donation:', error);
       alert('Error. Please try again.');
     }
   };
 
-  // reset the form
+  // Reset the form
   const resetForm = () => {
     setSelectedAmount(null);
     setCustomAmount('');
@@ -108,43 +134,26 @@ const Donations: React.FC = () => {
       setFirstName('');
       setLastName('');
     }
-    setDonationSuccess(false);
   };
 
   return (
-    <Container maxWidth="sm" sx={{ marginTop: 4, marginBottom: 4 }}>
+    <Container maxWidth="sm" sx={{ marginTop: 4 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant="h4" gutterBottom align="center">
           Donate to the Library
         </Typography>
 
-        {isLoggedIn ? (
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            Thank you for your support, {firstName}!
-          </Typography>
-        ) : (
+        {!isLoggedIn && (
           <>
             <Typography variant="h6" gutterBottom>
               Your Information
             </Typography>
             <Grid container spacing={2} sx={{ marginBottom: 2 }}>
               <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                />
+                <TextField fullWidth label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                />
+                <TextField fullWidth label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
               </Grid>
             </Grid>
             <Divider sx={{ my: 3 }} />
@@ -158,12 +167,7 @@ const Donations: React.FC = () => {
         <Grid container spacing={2} sx={{ marginBottom: 2 }}>
           {[5, 10, 50, 100].map((amount) => (
             <Grid item xs={6} key={amount}>
-              <Button
-                fullWidth
-                variant={selectedAmount === amount ? 'contained' : 'outlined'}
-                onClick={() => handleAmountSelection(amount)}
-                sx={{ py: 1.5 }}
-              >
+              <Button fullWidth variant={selectedAmount === amount ? 'contained' : 'outlined'} onClick={() => handleAmountSelection(amount)} sx={{ py: 1.5 }}>
                 ${amount}
               </Button>
             </Grid>
@@ -173,13 +177,12 @@ const Donations: React.FC = () => {
         {/* Custom Amount Input */}
         <TextField
           fullWidth
-          label="Or enter a custom amount"
+          label="Custom Amount"
           type="number"
           value={customAmount}
           onChange={handleCustomAmountChange}
           margin="normal"
           InputProps={{ inputProps: { min: 1 } }}
-          sx={{ mb: 3 }}
         />
 
         {/* Donate Button */}
@@ -190,7 +193,6 @@ const Donations: React.FC = () => {
             color="primary"
             onClick={handleDonate}
             size="large"
-            sx={{ py: 1.5 }}
           >
             Donate Now
           </Button>
@@ -200,8 +202,9 @@ const Donations: React.FC = () => {
       {/* Thank You Message */}
       <Snackbar
         open={donationSuccess}
-        autoHideDuration={10000}
+        autoHideDuration={50000}
         onClose={() => setDonationSuccess(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setDonationSuccess(false)}

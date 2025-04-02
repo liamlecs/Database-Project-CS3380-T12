@@ -205,18 +205,12 @@ namespace LibraryWebAPI.Migrations
                     Director = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
                     MovieGenreID = table.Column<int>(type: "int", nullable: false),
                     YearReleased = table.Column<int>(type: "int", nullable: true),
-                    Format = table.Column<string>(type: "varchar(15)", unicode: false, maxLength: 15, nullable: true),
-                    MovieNavigationItemId = table.Column<int>(type: "int", nullable: false)
+                    Format = table.Column<string>(type: "varchar(15)", unicode: false, maxLength: 15, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__Movie__4BD2943AC50379E7", x => x.MovieID);
-                    table.ForeignKey(
-                        name: "FK_Movie_Item_MovieNavigationItemId",
-                        column: x => x.MovieNavigationItemId,
-                        principalTable: "Item",
-                        principalColumn: "ItemID",
-                        onDelete: ReferentialAction.Cascade);
+
                     table.ForeignKey(
                         name: "FK_Movie_MovieGenre",
                         column: x => x.MovieGenreID,
@@ -476,11 +470,6 @@ namespace LibraryWebAPI.Migrations
                 name: "IX_Movie_MovieGenreID",
                 table: "Movie",
                 column: "MovieGenreID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Movie_MovieNavigationItemId",
-                table: "Movie",
-                column: "MovieNavigationItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Music_MusicGenreID",

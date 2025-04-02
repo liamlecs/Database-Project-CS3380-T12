@@ -36,6 +36,8 @@ export default function EmployeeLoginPage() {
       const result = await response.json();
       setMessage(result.message || "Login successful!");
 
+      localStorage.setItem("employeeId", result.employeeID.toString());
+
       // Get the EmployeeID from the Employee and send it to the Employee.tsx
       navigate("/Employee", {
         state: {

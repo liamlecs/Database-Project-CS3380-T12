@@ -23,10 +23,8 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
-            var movies = await _context.Movies
-                .Include(m => m.MovieGenre)
-                .Include(m => m.MovieNavigation)
-                .ToListAsync();
+            // No .Include statements, fetching only Movie data
+            var movies = await _context.Movies.ToListAsync();
 
             return Ok(movies);
         }
@@ -36,9 +34,7 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Movie>> GetMovie(int id)
         {
             var movie = await _context.Movies
-                .Include(m => m.MovieGenre)
-                .Include(m => m.MovieNavigation)
-                .FirstOrDefaultAsync(m => m.MovieId == id);
+                .FirstOrDefaultAsync(m => m.MovieId == id); // No .Include statements
 
             if (movie == null)
             {

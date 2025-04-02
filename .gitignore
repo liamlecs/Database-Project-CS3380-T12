@@ -26,6 +26,7 @@ libraryApp/node_modules/
 # Ignore all node_modules folders recursively
 **/node_modules/
 
+.env
 
 # Ignore VS files
 .vscode/

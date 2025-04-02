@@ -53,17 +53,23 @@ public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto do
         return BadRequest(ModelState);
     }
 
-    // Check if the customer exists
-    var customer = await _context.Customers.FindAsync(donationDto.CustomerId);
-    if (customer == null)
+    // check if the donor is logged in
+    Customer? customer = null;
+    if (donationDto.CustomerId.HasValue)
     {
-        return BadRequest("Invalid Customer ID.");
+        customer = await _context.Customers.FindAsync(donationDto.CustomerId);
+        if (customer == null)
+        {
+            return BadRequest("No Customer ID found.");
+        }
     }
 
     // Map the DTO to Donation entity
     var donation = new Donation
     {
-        CustomerId = donationDto.CustomerId,
+         CustomerId = donationDto.CustomerId,
+        FirstName = donationDto.CustomerId == null ? donationDto.FirstName : customer?.FirstName, // Use provided name for anonymous donors
+        LastName = donationDto.CustomerId == null ? donationDto.LastName : customer?.LastName,
         Amount = donationDto.Amount,
         Date = donationDto.Date
     };
@@ -87,8 +93,9 @@ public class DonationRequest
 
 public class DonationDto
 {
-    public int DonationId { get; set; }
-    public int CustomerId { get; set; }
+    public int? CustomerId { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
     public double Amount { get; set; }
     public DateOnly Date { get; set; }
 }

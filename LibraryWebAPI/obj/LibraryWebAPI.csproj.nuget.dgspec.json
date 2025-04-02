@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {}
+    "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {}
   },
   "projects": {
-    "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {
+    "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+        "projectUniqueName": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
         "projectName": "LibraryWebAPI",
-        "projectPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
-        "packagesPath": "/Users/trevordrummond/.nuget/packages/",
-        "outputPath": "/Users/trevordrummond/Desktop/compsci/c++/COSC3380/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
+        "projectPath": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/LibraryWebAPI.csproj",
+        "packagesPath": "/Users/jacquelinesanchez/.nuget/packages/",
+        "outputPath": "/Users/jacquelinesanchez/Documents/Github/Database-Project-CS3380-T12/LibraryWebAPI/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/trevordrummond/.nuget/NuGet/NuGet.Config"
+          "/Users/jacquelinesanchez/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -44,6 +44,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[9.0.3, )"
@@ -89,6 +93,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.9.0, )"
             }
           },
           "imports": [

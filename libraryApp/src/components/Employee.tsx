@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -76,7 +75,7 @@ interface EmployeeData {
   employeeID: number;
   firstName: string;
   lastName: string;
-  birthDate: string;
+  birthDate: string
   sex: string;
   supervisorID?: number;
   username: string;
@@ -91,21 +90,7 @@ const Employee: React.FC = () => {
   const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [refreshData, setRefreshData] = useState(false);
-  const [employeeData, setEmployeeData] = useState<EmployeeData>({
-    employeeID: 0,
-    firstName: '',
-    lastName: '',
-    birthDate: new Date().toISOString().split('T')[0],
-    sex: 'Male',
-    supervisorID: 0,
-    username: '',
-    password: '',
-  });
-
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { employeeId } = location.state;
-
+  const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
   // inventory form States
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
@@ -123,31 +108,8 @@ const Employee: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
 
-  const fetchEmployeeData = async (employeeId: number) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`);
-      if (!response.ok) throw new Error('Failed to fetch employee data');
-      const data = await response.json();
-      setEmployeeData({
-        employeeID: data.employeeID,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        birthDate: data.birthDate,
-        sex: data.sex,
-        supervisorID: data.supervisorID,
-        username: data.username
-      });
-    } catch (error) {
-      console.error('Error fetching employee data:', error);
-      setDialogMessage('Failed to fetch employee data. Please try again.');
-      setOpenDialog(true);
-    }
-  };
-  
-
   // fetching data
   useEffect(() => {
-
     const fetchEmployeeData = async (employeeId: number) => {
       try {
         // mock data, will replace with actual API call
@@ -159,12 +121,19 @@ const Employee: React.FC = () => {
           sex: 'Male'
         };
         setEmployeeData(mockData); */
-
+  
         // actual API call
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`);
-        if (!response.ok) throw new Error('Failed to fetch employee data');
-        const data = await response.json();
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`, 
+        {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        });
 
+        if (!response.ok) throw new Error('Failed to fetch employee data');
+        
+        const data = await response.json();
         setEmployeeData({
           employeeID: data.employeeID,
           firstName: data.firstName,
@@ -174,7 +143,6 @@ const Employee: React.FC = () => {
           supervisorID: data.supervisorID,
           username: data.username
         });
-
       } catch (error) {
         console.error('Error fetching employee data:', error);
         setDialogMessage('Failed to fetch employee data. Please try again.');
@@ -182,9 +150,12 @@ const Employee: React.FC = () => {
       }
     };
 
-    if (employeeData.employeeID) {
-      fetchEmployeeData(employeeData.employeeID);
+    const storedEmployeeId = localStorage.getItem('employeeId');
+    if (storedEmployeeId) {
+      fetchEmployeeData(parseInt(storedEmployeeId));
     }
+
+    // fetch inventory and events data
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
     }
@@ -209,28 +180,34 @@ const Employee: React.FC = () => {
 
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
+      // mock update, will replace with actual API call
+      /* setEmployeeData(updatedData);
+      setDialogMessage('Profile updated successfully!');
+      setOpenDialog(true); */
 
-      // actual API call
+      // actual API call for later
+      
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        
         body: JSON.stringify(updatedData),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        setEmployeeData(updatedData);
+        setDialogMessage('Profile updated successfully!');
+        setOpenDialog(true);
+      } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update profile');
+        setDialogMessage(errorData.message || 'Failed to update profile.');
+        setOpenDialog(true);
       }
-  
-      // refresh the employee data
-      await fetchEmployeeData(updatedData.employeeID);
-      setDialogMessage('Profile updated successfully!');
-      setOpenDialog(true);
+
     } catch (error) {
       console.error('Error updating employee:', error);
+      setDialogMessage('Network error. Please try again.');
       setOpenDialog(true);
     }
   };
@@ -257,17 +234,17 @@ const Employee: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`,
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, 
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            ...itemForm,
-            availableCopies: itemForm.totalCopies,
-          }),
-        });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...itemForm,
+          availableCopies: itemForm.totalCopies,
+        }),
+      });
 
       if (response.ok) {
         setRefreshData(true);
@@ -553,10 +530,12 @@ const Employee: React.FC = () => {
 
   const renderProfile = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <EmployeeProfile
+      {employeeData? (
+        <EmployeeProfile
         employeeData={employeeData}
         onUpdate={handleUpdateEmployee}
       />
+      ) : <Typography>No employee data available.</Typography>}
     </Box>
   );
 
@@ -917,4 +896,3 @@ const Employee: React.FC = () => {
 };
 
 export default Employee;
-

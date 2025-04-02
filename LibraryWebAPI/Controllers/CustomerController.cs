@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace LibraryWebAPI.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
@@ -160,6 +161,26 @@ Thank you for registering!
             }
 
             return Ok(customer);
+        }
+
+        [HttpGet("by-email/{email}")]
+        public async Task<ActionResult<Customer>> GetCustomerByEmail(string email)
+        {
+            // ✅ Query the database to find the customer by email
+            var customer = await _context.CustomerReports
+             .FromSqlRaw(
+                "SELECT Customer.Email, Customer.FirstName, Customer.LastName, BorrowerType.Type, Customer.MembershipStartDate, Customer.MembershipEndDate, BorrowerType.BorrowingLimit, Customer.EmailConfirmed " +
+             "FROM Customer, BorrowerType "+
+             "WHERE Email = {0} AND Customer.BorrowerTypeID = BorrowerType.BorrowerTypeID"
+             , email)
+                .FirstOrDefaultAsync();
+
+            if (customer == null)
+            {
+                return NotFound($"Customer with email {email} not found.");
+            }
+
+            return Ok(customer); // Return the customer entity
         }
 
                 // POST: api/Customer

@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { useEffect } from "react";
 import FrontPage from "./components/FrontPage/FrontPage.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
@@ -21,6 +21,7 @@ import ConfirmEmail from "./components/ConfirmEmail.tsx";
 import Employee from "./components/Employee.tsx";
 import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Test from "./components/Test.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -51,9 +52,10 @@ function AppRoutes() {
           <Route path="/donations" element={<Donations />} />
           <Route path="/employee" element={<Employee />} />
           <Route path="/userprofile" element={<UserProfile />} />
-          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
+          {/* <Route path="/bookcheckout" element={<BookCheckOutPage />} /> */}
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
+          <Route path="/test" element={<Test/>}/>
 
           {/* Optional Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>
