@@ -2,22 +2,20 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./FrontPage.css";
 import welcomeBg from "../../assets/welcome_background.jpg";
 
-
 const Library: React.FC = () => {
-  const [tables] = useState(["Book", "Movie", "Music", "Technology"]);
   const [selectedTable, setSelectedTable] = useState<string>("");
   const [selectedField, setSelectedField] = useState<string>("");
-  const [items, setItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [allItems, setAllItems] = useState<Record<string, any[]>>({
+    Book: [],
+    Movie: [],
+    Music: [],
+    Technology: [],
+  });
 
-
-  const [bookItems, setBookItems] = useState<any[]>([]);
-  const [movieItems, setMovieItems] = useState<any[]>([]);
-  const [musicItems, setMusicItems] = useState<any[]>([]);
-  const [technologyItems, setTechnologyItems] = useState<any[]>([]);
-
-  // ------------------------------------ Search components ---------------------------------------------
+  const tables = ["Book", "Movie", "Music", "Technology"];
   const fieldOptions: Record<string, string[]> = {
     Book: ["ISBN", "Title", "Author", "Publisher", "Genre"],
     Movie: ["Title", "Director", "Genre"],
@@ -25,86 +23,60 @@ const Library: React.FC = () => {
     Technology: ["Item Name", "Serial Number", "Brand"],
   };
 
-
   useEffect(() => {
-    if (!selectedTable) {
-      setItems([]);
-      return;
-    }
-
-
+    if (!selectedTable) return setItems([]);
     const fetchItems = async () => {
       setLoading(true);
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`);
-        const data = await response.json();
-        setItems(data);
+        setItems(await response.json());
       } catch (error) {
         console.error(`Error fetching items from ${selectedTable}:`, error);
         setItems([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-
-
     fetchItems();
   }, [selectedTable]);
-
-
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-
-
-    const lowerCaseQuery = searchQuery.toLowerCase();
-    return items.filter((item: any) => {
-      return Object.values(item).some((value) => {
-        const stringValue = String(value ?? "").toLowerCase();
-        return stringValue.includes(lowerCaseQuery);
-      });
-    });
-  }, [searchQuery, items]);
-
-
-  //---------------------------------------------------------------------------------------
-
-
-  // --------------------------------------   Item Cards ---------------------------/
-
 
   useEffect(() => {
     const fetchAllItems = async () => {
       try {
-        const bookResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book`);
-        const bookData = await bookResponse.json();
-        setBookItems(bookData);
-
-        const movieResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Movie`);
-        const movieData = await movieResponse.json();
-        setMovieItems(movieData);
-
-        const musicResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Music`);
-        const musicData = await musicResponse.json();
-        setMusicItems(musicData);
-
-        const technologyResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Technology`);
-        const technologyData = await technologyResponse.json();
-        setTechnologyItems(technologyData);
+        const data = await Promise.all(
+          tables.map(async (table) => {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${table}`);
+            return { [table]: await response.json() };
+          })
+        );
+        setAllItems(Object.assign({}, ...data));
       } catch (error) {
-        console.error("Error fetching items:", error);
+        console.error("Error fetching all items:", error);
       }
     };
-
     fetchAllItems();
   }, []);
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    return items.filter((item) =>
+      Object.values(item).some((value) =>
+        String(value ?? "").toLowerCase().includes(lowerCaseQuery)
+      )
+    );
+  }, [searchQuery, items]);
 
   const renderCardRow = (title: string, items: any[]) => (
     <div className="card-row">
       <h3>{title}</h3>
       <div className="card-container">
-        {items.map((item: any) => (
+        {items.map((item) => (
           <div className="card" key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
             {Object.entries(item).map(([key, value]) => (
-              <p key={key}><strong>{key}:</strong> {String(value)}</p>
+              <p key={key}>
+                <strong>{key}:</strong> {String(value)}
+              </p>
             ))}
           </div>
         ))}
@@ -126,14 +98,16 @@ const Library: React.FC = () => {
             value={selectedTable}
             onChange={(e) => {
               setSelectedTable(e.target.value);
-              setSelectedField(""); // reset field when switching tables
-              setItems([]); // clear items when switching tables
-              setSearchQuery(""); // reset search when switching tables
+              setSelectedField("");
+              setItems([]);
+              setSearchQuery("");
             }}
           >
             <option value="">-- Select Table --</option>
             {tables.map((table) => (
-              <option key={table} value={table}>{table}</option>
+              <option key={table} value={table}>
+                {table}
+              </option>
             ))}
           </select>
         </div>
@@ -148,7 +122,9 @@ const Library: React.FC = () => {
             >
               <option value="">-- Select Field --</option>
               {fieldOptions[selectedTable]?.map((field) => (
-                <option key={field} value={field}>{field}</option>
+                <option key={field} value={field}>
+                  {field}
+                </option>
               ))}
             </select>
           </div>
@@ -164,45 +140,34 @@ const Library: React.FC = () => {
         </div>
       </div>
 
-
       {loading ? (
         <p>Loading...</p>
-      ) : (
-        searchQuery && filteredItems.length > 0 ? (
-          <div className="items-container">
-            <h3>Items:</h3>
-            <div className="books-section">
-              <div className="book-row">
-                {filteredItems.map((item: any) => (
-                  <div className="book-card" key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
-                    <img
-                      className="book-image"
-                      src={item.imageUrl || "/path/to/default/image.jpg"} // Make sure to handle missing images
-                      alt={item.title || "Item image"}
-                    />
-                    <div className="book-title">{item.title}</div>
-                    <div className="book-author">{item.author || item.artist || item.director}</div>
-                    {/* Add more item details as necessary */}
-                  </div>
-                ))}
-              </div>
+      ) : searchQuery && filteredItems.length > 0 ? (
+        <div className="items-container">
+          <h3>Items:</h3>
+          <div className="books-section">
+            <div className="book-row">
+              {filteredItems.map((item) => (
+                <div className="book-card" key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}>
+                  <img
+                    className="book-image"
+                    src={item.imageUrl || "/path/to/default/image.jpg"}
+                    alt={item.title || "Item image"}
+                  />
+                  <div className="book-title">{item.title}</div>
+                  <div className="book-author">{item.author || item.artist || item.director}</div>
+                </div>
+              ))}
             </div>
           </div>
-        ) : (
-          searchQuery && <p>No results found.</p>
-        )
+        </div>
+      ) : (
+        searchQuery && <p>No results found.</p>
       )}
 
-      {/* Render the items for each category */}
-      {renderCardRow("Books", bookItems)}
-      {renderCardRow("Movies", movieItems)}
-      {renderCardRow("Music", musicItems)}
-      {renderCardRow("Technology", technologyItems)}
-
+      {Object.entries(allItems).map(([category, items]) => renderCardRow(category, items))}
     </div>
   );
 };
 
-
 export default Library;
-
