@@ -17,13 +17,18 @@ public partial class Book
 
     public int YearPublished { get; set; }
 
-    public virtual BookAuthor BookAuthor { get; set; } = null!;
+    public int ItemID { get; set; }
 
-    public virtual BookGenre BookGenre { get; set; } = null!;
+
+    public virtual Item Item { get; set; } = null!; // to view the item name (book title)
+
+    public virtual BookAuthor BookAuthor { get; set; } = null!; // to view the author name
+
+    public virtual BookGenre BookGenre { get; set; } = null!; // to view the genre name
 
     // public virtual Item BookNavigation { get; set; } = null!;
 
-    public virtual Publisher Publisher { get; set; } = null!;
+    public virtual Publisher Publisher { get; set; } = null!; // to view the publisher name
 
     // public bool IsCheckedOut { get; set; } // Added property
 }
