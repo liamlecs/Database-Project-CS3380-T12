@@ -29,10 +29,6 @@ const columns: GridColDef[] = [
 
 const paginationModel = { page: 0, pageSize: 5 };
 
-
-
-  
-
 export default function ItemFineReport() {
   const [type, setType] = React.useState("");
   const [isPaidBit, setIsPaidBit] = React.useState("");
@@ -41,7 +37,6 @@ export default function ItemFineReport() {
   >([]);
   const [isLaunched, setIsLaunched] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [selectedBool, setSelectedBool] = React.useState(false);
 
   const handleChange = (event: SelectChangeEvent) => {
     setType(event.target.value as string);
@@ -56,6 +51,8 @@ export default function ItemFineReport() {
     setIsLaunched(false);
 
     try {
+
+      
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFine` //CHANGE THIS
       );
@@ -95,18 +92,14 @@ export default function ItemFineReport() {
     setLoading(true);
     setIsLaunched(false);
 
-if(isPaidBit==="1")
-    setSelectedBool(true);
-else{
-    setSelectedBool(false);
-}
-
+    // biome-ignore lint/complexity/noUselessTernary: <for some reason true returns a false-like output and false returns a true-like output>
+    const selectedPaymentStatus = isPaidBit === "1" ? false : true;
     try {
 
-      console.log("selected payment status: ", selectedBool);
+      console.log("Selected payment status:", selectedPaymentStatus);
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFineConditional?isPaid=${encodeURIComponent(selectedBool)}`, //CHANGE THIS
+        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFineConditional?isPaid=${encodeURIComponent(selectedPaymentStatus)}`, //CHANGE THIS
         {
           method: "GET",
           headers: {
