@@ -1,190 +1,225 @@
 .library-container {
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 2rem;
-    font-family: sans-serif;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  font-family: "Segoe UI", "Roboto", "Helvetica", sans-serif;
+  color: #333;
+}
+
+/* Welcome Banner */
+.welcome-message {
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.3);
+}
+
+/* Search Bar */
+.search-bar-container-row {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-bar-container-row select,
+.search-bar-container-row input {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Carousel Row Layout */
+.carousel-row {
+  margin-bottom: 2.5rem;
+}
+
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-header h3 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.view-all-link {
+  text-decoration: none;
+  font-size: 0.9rem;
+  color: #4a90e2;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Carousel container */
+.carousel-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Carousel track (scrollable row) */
+.carousel-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  flex-grow: 1;
+}
+
+/* Individual Card */
+.carousel-item {
+  flex: 0 0 auto;
+  width: 160px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  scroll-snap-align: start;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.carousel-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-item.empty {
+  color: #aaa;
+  background: #f1f1f1;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Image */
+.item-image-wrapper {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Info */
+.item-info {
+  margin-top: 0.5rem;
+}
+
+.item-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+.item-author {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Arrows */
+.carousel-arrow {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.carousel-arrow:hover {
+  background-color: #357ab8;
+}
+
+.carousel-arrow.left {
+  margin-right: 1rem;
+}
+
+.carousel-arrow.right {
+  margin-left: 1rem;
+}
+
+/* Search Results Grid */
+.search-results-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.search-result-card {
+  width: 160px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.search-result-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.search-result-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.25rem 0;
+}
+
+.search-result-author {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Dialog Checkout Cart */
+.checkout-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.checkout-table th,
+.checkout-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+/* Fade Animation */
+.fade-in {
+  animation: fadeInUp 0.4s ease both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  /* Top banner */
-  .welcome-message {
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    color: #fff;
-    padding: 4rem 2rem;
-    text-align: center;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  /* Search bar container */
-  .search-bar-container-row {
-    display: flex;
-    align-items: center;
-    margin: 1rem 0;
-    gap: 1rem;
-  }
-  
-  .dropdown-wrapper label {
-    margin-right: 0.5rem;
-  }
-  
-  .search-wrapper input {
-    padding: 0.5rem;
-    width: 200px;
-  }
-  
-  /* Carousel row layout */
-  .carousel-row {
-    margin-bottom: 2rem;
-  }
-  
-  .carousel-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-  
-  .carousel-header h3 {
-    margin: 0;
-  }
-  
-  .view-all-link {
-    text-decoration: none;
-    font-size: 0.9rem;
-    color: #007bff;
-  }
-  
-  /* The container that holds the track + arrows */
-  .carousel-container {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-  }
-  
-  /* The track that slides left/right */
-  .carousel-track {
-    display: flex;
-    transition: transform 0.3s ease;
-    /* If you wanted to do a transform approach, you could do:
-       transform: translateX(-Npx); 
-       where N depends on current page 
-    */
-  }
-  
-  /* Each item in the carousel */
-  .carousel-item {
-    flex: 0 0 auto;
-    width: 140px; /* Adjust for your design */
-    margin: 0 8px;
-    background: #f7f7f7;
-    border-radius: 4px;
-    padding: 0.5rem;
-    position: relative;
-    text-align: center;
-  }
-  
-  .carousel-item.empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #aaa;
-  }
-  
-  /* Example image styling */
-  .item-image-wrapper {
-    width: 100%;
-    height: 180px; /* Adjust as needed */
-    overflow: hidden;
-    margin-bottom: 0.5rem;
-  }
-  
-  .item-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .item-info {
-    text-align: center;
-  }
-  
-  .item-title {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-  
-  .item-author {
-    font-size: 0.85rem;
-    color: #666;
-  }
-  
-  /* Arrows */
-  .carousel-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255,255,255,0.8);
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 0.25rem 0.5rem;
-    z-index: 2;
-  }
-  
-  .carousel-arrow.left {
-    left: 0;
-  }
-  
-  .carousel-arrow.right {
-    right: 0;
-  }
-  
-  /* Search results styling (if you want them in a grid) */
-  .search-results-container {
-    margin: 2rem 0;
-  }
-  
-  .search-results-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .search-result-card {
-    width: 140px;
-    background: #f7f7f7;
-    border-radius: 4px;
-    padding: 0.5rem;
-    text-align: center;
-  }
-  
-  .search-result-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    margin-bottom: 0.5rem;
-  }
-  
-  .search-result-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-  }
-  
-  .search-result-author {
-    font-size: 0.85rem;
-    color: #666;
-  }
-  
-  /* Checkout table */
-  .checkout-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .checkout-table th,
-  .checkout-table td {
-    border: 1px solid #ccc;
-    padding: 0.5rem;
-  }
-  
+}
