@@ -23,6 +23,7 @@ import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PopularityReport from "./components/Reports/PopularityReport.tsx";
 import ItemFineReport from "./components/Reports/ItemFineReport.tsx";
+import CustomerLookupReport from "./components/Reports/CustomerLookupReport.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ function AppRoutes() {
           <Route path="/confirm" element={<ConfirmEmail />} />
           <Route path="/popularityreport" element={<PopularityReport/>}/>
           <Route path="/itemfinereport" element={<ItemFineReport/>}/>
+          <Route path="/customerlookupreport" element={<CustomerLookupReport/>}/>
 
           {/* Optional Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>

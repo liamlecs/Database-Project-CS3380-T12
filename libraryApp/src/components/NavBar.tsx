@@ -85,7 +85,7 @@ export default function Navbar() {
           <Link to="/donations">Donate</Link>
         </li>
         <li>
-              <Link to="/itemfinereport">Item Fine Report</Link>
+              <Link to="/customerlookupreport">Customer Lookup Report</Link>
             </li>
       </ul>
 
