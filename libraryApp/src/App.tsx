@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import { useEffect } from "react";
-import FrontPage from "./components/FrontPage/FrontPage.tsx";
+import FrontPage from "./components/FrontPage/Library.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
 import LibraryHistory from "./components/LibraryHistory.tsx";
 import NavBar from "./components/NavBar.tsx";
