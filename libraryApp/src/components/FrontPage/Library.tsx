@@ -1,229 +1,160 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import "./Library.css";
 import welcomeBg from "../../assets/welcome_background.jpg";
+import defaultItemImage from "../../assets/welcome_background.jpg";
+
+
+const tables = ["Book", "Movie", "Music", "Technology"];
+
+
+const fieldOptions: Record<string, string[]> = {
+    Book: ["ISBN", "Title", "Author", "Publisher", "Genre"],
+    Movie: ["Title", "Director", "Genre"],
+    Music: ["Song Title", "Artist", "Genre"],
+    Technology: ["Item Name", "Serial Number", "Brand"],
+};
+
+
+const itemsPerRowView = 7;
+const maxRowItems = 21;
+
 
 const Library: React.FC = () => {
-    // Search and filter state
     const [selectedTable, setSelectedTable] = useState<string>("");
     const [selectedField, setSelectedField] = useState<string>("");
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [items, setItems] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
-
-    // Data fetched from endpoints for each row
-    const [allItems, setAllItems] = useState<Record<string, any[]>>({
-        Book: [],
-        Movie: [],
-        Music: [],
-        Technology: [],
-    });
-
-    // Checkout dialog and cart state
+    const [allItems, setAllItems] = useState<Record<string, any[]>>({ Book: [], Movie: [], Music: [], Technology: [] });
+    const [rowPage, setRowPage] = useState<Record<string, number>>({ Book: 0, Movie: 0, Music: 0, Technology: 0 });
     const [openDialog, setOpenDialog] = useState(false);
     const [itemToCheckout, setItemToCheckout] = useState<any>(null);
     const [checkoutCart, setCheckoutCart] = useState<any[]>([]);
     const [openCheckoutPage, setOpenCheckoutPage] = useState(false);
 
-    // Carousel pagination state: 7 items per view, maximum 21 items per category
-    const [rowPage, setRowPage] = useState<Record<string, number>>({
-        Book: 0,
-        Movie: 0,
-        Music: 0,
-        Technology: 0,
-    });
-    const itemsPerRowView = 7;
-    const maxRowItems = 21;
 
-    // Table names and field options for search dropdowns
-    const tables = ["Book", "Movie", "Music", "Technology"];
-    const fieldOptions: Record<string, string[]> = {
-        Book: ["ISBN", "Title", "Author", "Publisher", "Genre"],
-        Movie: ["Title", "Director", "Genre"],
-        Music: ["Song Title", "Artist", "Genre"],
-        Technology: ["Item Name", "Serial Number", "Brand"],
-    };
-
-    // Fetch search items when a table is selected
     useEffect(() => {
-        if (!selectedTable) {
-            setItems([]);
-            return;
-        }
-        const fetchItems = async () => {
-            setLoading(true);
-            try {
-                const response = await fetch(
-                    `${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`
-                );
-                setItems(await response.json());
-            } catch (error) {
-                console.error(`Error fetching items from ${selectedTable}:`, error);
-                setItems([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchItems();
+        if (!selectedTable) return;
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("📦 [Fetched selected table items]", data);
+                setItems(data);
+            })
+            .catch((err) => console.error(err));
     }, [selectedTable]);
 
-    // Fetch data for each row using its corresponding endpoint
+
     useEffect(() => {
-        const fetchAllItems = async () => {
-            try {
-                const data = await Promise.all(
-                    tables.map(async (table) => {
-                        const response = await fetch(
-                            `${import.meta.env.VITE_API_BASE_URL}/api/${table}`
-                        );
-                        return { [table]: await response.json() };
+        Promise.all(
+            tables.map((table) =>
+                fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${table}`)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        console.log(`✅ [Fetched ${table}]`, data);
+                        return { [table]: data };
                     })
-                );
-                const fetchedData = Object.assign({}, ...data);
-                console.log("Fetched all items:", fetchedData);
-                setAllItems(fetchedData);
-            } catch (error) {
-                console.error("Error fetching all items:", error);
-            }
-        };
-        fetchAllItems();
+            )
+        )
+            .then((results) => {
+                const merged = Object.assign({}, ...results);
+                console.log("📦 [Merged all items]", merged);
+                setAllItems(merged);
+            })
+            .catch((err) => console.error(err));
     }, []);
 
-    // Filter search results based on query
+
     const filteredItems = useMemo(() => {
         if (!searchQuery.trim()) return items;
-        const lowerCaseQuery = searchQuery.toLowerCase();
-        return items.filter((item) =>
-            Object.values(item).some((value) =>
-                String(value ?? "").toLowerCase().includes(lowerCaseQuery)
-            )
-        );
+        const q = searchQuery.toLowerCase();
+        return items.filter((item) => Object.values(item).some((val) => String(val ?? "").toLowerCase().includes(q)));
     }, [searchQuery, items]);
 
-    // Carousel pagination handlers for each row
+
     const handleRowNext = (category: string, totalPages: number) => {
-        setRowPage((prev) => {
-            const current = prev[category] || 0;
-            if (current < totalPages - 1) {
-                return { ...prev, [category]: current + 1 };
-            }
-            return prev;
-        });
+        setRowPage((prev) => ({ ...prev, [category]: Math.min(prev[category] + 1, totalPages - 1) }));
     };
+
 
     const handleRowPrev = (category: string) => {
-        setRowPage((prev) => {
-            const current = prev[category] || 0;
-            if (current > 0) {
-                return { ...prev, [category]: current - 1 };
-            }
-            return prev;
-        });
+        setRowPage((prev) => ({ ...prev, [category]: Math.max(prev[category] - 1, 0) }));
     };
 
-    // Checkout handlers
-    const handleCheckout = (item: any) => {
-        setItemToCheckout(item);
+
+    const handleCheckout = (item: any, category: string) => {
+        setItemToCheckout({ ...item, _category: category });
         setOpenDialog(true);
     };
 
-    const handleCloseDialog = () => {
+
+    const handleConfirmCheckout = () => {
+        if (itemToCheckout) setCheckoutCart((prev) => [...prev, itemToCheckout]);
         setOpenDialog(false);
         setItemToCheckout(null);
     };
 
-    const handleConfirmCheckout = () => {
-        if (itemToCheckout) {
-            setCheckoutCart((prev) => [...prev, itemToCheckout]);
-        }
-        setOpenDialog(false);
+
+    const getDisplayTitle = (item: any, category: string): string => {
+        if (!item) return "Untitled";
+        if (category === "Book") return item.title || item.isbn || "Untitled Book";
+        if (category === "Movie") return item.title || item.director || "Untitled Movie";
+        if (category === "Music") return item.title || item.artist || "Untitled Song";
+        if (category === "Technology") return item.deviceType || item.title || "Untitled Device";
+        return item.title || "Untitled";
     };
 
-    /**
-     * Renders a single carousel row for a given category.
-     * Displays up to 21 items (sliced into pages of 7).
-     * If fewer than 7 items exist on a page, empty placeholders fill the row.
-     */
+
     const renderCardRow = (title: string, rowItems: any[]) => {
         const currentPage = rowPage[title] || 0;
         const limitedItems = rowItems.slice(0, maxRowItems);
         const totalPages = Math.ceil(limitedItems.length / itemsPerRowView);
         const startIndex = currentPage * itemsPerRowView;
         const currentRowItems = limitedItems.slice(startIndex, startIndex + itemsPerRowView);
-
-        // Fill with empty placeholders if necessary
         const filledItems = [...currentRowItems];
-        while (filledItems.length < itemsPerRowView) {
-            filledItems.push(null);
-        }
+        while (filledItems.length < itemsPerRowView) filledItems.push(null);
+
 
         return (
-            <div className="carousel-row" key={title}>
-                <div className="carousel-header">
+            <div className="carousel-row" key={title} style={{ padding: "1rem", border: "1px solid #ddd", marginBottom: "1rem" }}>
+                <div className="carousel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <h3>{title}</h3>
-                    <a href="#!" className="view-all-link">View All</a>
+                    <a href="#" style={{ fontSize: "0.9rem" }}>View All</a>
                 </div>
-                <div className="carousel-container">
-                    <button
-                        className="carousel-arrow left"
-                        onClick={() => handleRowPrev(title)}
-                        disabled={currentPage === 0}
-                    >
-                        &lt;
-                    </button>
-                    <div className="carousel-track">
-                        {filledItems.map((item, index) => {
-                            if (item) {
-                                return (
-                                    <div
-                                        className="carousel-item"
-                                        key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber || index}
-                                    >
-                                        <div className="item-image-wrapper">
-                                            <img
-                                                src={item.imageUrl || "/path/to/default/image.jpg"}
-                                                alt={item.title || "Item image"}
-                                                className="item-image"
-                                            />
-                                        </div>
-                                        <div className="item-info">
-                                            <h4 className="item-title">
-                                                {item.title || item.name || "Untitled"}
-                                            </h4>
-                                            {item.author && (
-                                                <p className="item-author">by {item.author}</p>
-                                            )}
-                                            {item.director && (
-                                                <p className="item-author">Director: {item.director}</p>
-                                            )}
-                                            {item.artist && (
-                                                <p className="item-author">Artist: {item.artist}</p>
-                                            )}
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                onClick={() => handleCheckout(item)}
-                                                style={{ marginTop: "0.5rem" }}
-                                            >
-                                                Checkout
-                                            </Button>
-                                        </div>
-                                    </div>
-                                );
-                            } else {
-                                return (
-                                    <div className="carousel-item empty" key={`empty-${index}`}>
-                                        <p>Empty</p>
-                                    </div>
-                                );
-                            }
-                        })}
+                <div className="carousel-container" style={{ display: "flex", alignItems: "center" }}>
+                    <button onClick={() => handleRowPrev(title)} disabled={currentPage === 0}>&lt;</button>
+                    <div className="carousel-track" style={{ display: "flex", gap: "1rem", overflowX: "auto", flex: 1 }}>
+                        {filledItems.map((item, index) => (
+                            <div
+                                key={`${title}-${index}`}
+                                style={{
+                                    width: "150px",
+                                    minHeight: "200px",
+                                    border: "1px solid #ccc",
+                                    padding: "0.5rem",
+                                    backgroundColor: "#fff",
+                                    textAlign: "center",
+                                }}
+                            >
+                                {item ? (
+                                    <>
+                                        <img
+                                            src={item.imageUrl || "https://via.placeholder.com/100"}
+                                            alt={getDisplayTitle(item, title)}
+                                            style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                                        />
+                                        <h4 style={{ fontSize: "0.9rem", margin: "0.5rem 0" }}>{getDisplayTitle(item, title)}</h4>
+                                        <Button size="small" variant="contained" onClick={() => handleCheckout(item, title)}>
+                                            Checkout
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <div style={{ color: "#aaa" }}>Empty</div>
+                                )}
+                            </div>
+                        ))}
                     </div>
-                    <button
-                        className="carousel-arrow right"
-                        onClick={() => handleRowNext(title, totalPages)}
-                        disabled={currentPage >= totalPages - 1 || totalPages === 0}
-                    >
+                    <button onClick={() => handleRowNext(title, totalPages)} disabled={currentPage >= totalPages - 1}>
                         &gt;
                     </button>
                 </div>
@@ -231,161 +162,88 @@ const Library: React.FC = () => {
         );
     };
 
+
     return (
         <div className="library-container">
-            {/* Top Banner */}
             <div className="welcome-message" style={{ backgroundImage: `url(${welcomeBg})` }}>
                 <h1>Checkout Your Favorite Items Today!</h1>
-                <Button variant="contained" color="secondary" onClick={() => setOpenCheckoutPage(true)}>
-                    View Cart ({checkoutCart.length})
-                </Button>
+                <Button onClick={() => setOpenCheckoutPage(true)}>View Cart ({checkoutCart.length})</Button>
             </div>
 
-            {/* Search & Filter Section */}
+
             <div className="search-bar-container-row">
-                <div className="dropdown-wrapper">
-                    <label htmlFor="table-select">Select Table:</label>
-                    <select
-                        id="table-select"
-                        value={selectedTable}
-                        onChange={(e) => {
-                            setSelectedTable(e.target.value);
-                            setSelectedField("");
-                            setItems([]);
-                            setSearchQuery("");
-                        }}
-                    >
-                        <option value="">-- Select Table --</option>
-                        {tables.map((table) => (
-                            <option key={table} value={table}>
-                                {table}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <select value={selectedTable} onChange={(e) => { setSelectedTable(e.target.value); setItems([]); setSearchQuery(""); }}>
+                    <option value="">-- Select Table --</option>
+                    {tables.map((table) => <option key={table} value={table}>{table}</option>)}
+                </select>
+
+
                 {selectedTable && (
-                    <div className="dropdown-wrapper">
-                        <label htmlFor="field-select">Select Field:</label>
-                        <select
-                            id="field-select"
-                            value={selectedField}
-                            onChange={(e) => setSelectedField(e.target.value)}
-                        >
-                            <option value="">-- Select Field --</option>
-                            {fieldOptions[selectedTable]?.map((field) => (
-                                <option key={field} value={field}>
-                                    {field}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    <select value={selectedField} onChange={(e) => setSelectedField(e.target.value)}>
+                        <option value="">-- Select Field --</option>
+                        {fieldOptions[selectedTable].map((field) => <option key={field}>{field}</option>)}
+                    </select>
                 )}
-                <div className="search-wrapper">
-                    <input
-                        type="text"
-                        placeholder="Start typing to search..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
+
+
+                <input
+                    type="text"
+                    placeholder="Start typing to search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
             </div>
 
-            {/* Search Results */}
-            {loading ? (
-                <p>Loading...</p>
-            ) : searchQuery && filteredItems.length > 0 ? (
-                <div className="search-results-container">
-                    <h3>Search Results:</h3>
-                    <div className="search-results-row">
-                        {filteredItems.map((item) => (
-                            <div
-                                className="search-result-card"
-                                key={item.id || item.bookId || item.movieId || item.songId || item.serialNumber}
-                            >
-                                <img
-                                    className="search-result-image"
-                                    src={item.imageUrl || "/path/to/default/image.jpg"}
-                                    alt={item.title || "Item image"}
-                                />
-                                <div className="search-result-title">{item.title}</div>
-                                {item.author && <div className="search-result-author">by {item.author}</div>}
-                                {item.director && <div className="search-result-author">Director: {item.director}</div>}
-                                {item.artist && <div className="search-result-author">Artist: {item.artist}</div>}
-                                <Button variant="contained" color="primary" onClick={() => handleCheckout(item)}>
-                                    Checkout
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
+
+            {searchQuery && selectedTable && filteredItems.length > 0 && (
+                <div className="search-results-row">
+                    {filteredItems.map((item, index) => (
+                        <div className="search-result-card" key={`${selectedTable}-${index}`}>
+                            <img src={item.imageUrl || defaultItemImage} alt="preview" className="search-result-image" />
+                            <div className="search-result-title">{getDisplayTitle(item, selectedTable)}</div>
+                            <Button onClick={() => handleCheckout(item, selectedTable)}>Checkout</Button>
+                        </div>
+                    ))}
                 </div>
-            ) : (
-                searchQuery && <p>No results found.</p>
             )}
 
-            {/* Render each category row using data from the endpoints */}
-            {Object.entries(allItems).map(([category, items]) =>
-                renderCardRow(category, items)
-            )}
 
-            {/* Checkout Confirmation Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog}>
+            {Object.entries(allItems).map(([category, items]) => renderCardRow(category, items))}
+
+
+            <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
                 <DialogTitle>Confirm Checkout</DialogTitle>
                 <DialogContent>
-                    <p>
-                        Do you want to checkout the item: <strong>{itemToCheckout?.title}</strong>?
-                    </p>
+                    Do you want to checkout: <strong>{itemToCheckout?.title}</strong>?
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleConfirmCheckout} color="primary">
-                        Confirm
-                    </Button>
+                    <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+                    <Button onClick={handleConfirmCheckout}>Confirm</Button>
                 </DialogActions>
             </Dialog>
 
-            {/* Checkout Cart Modal */}
-            <Dialog open={openCheckoutPage} onClose={() => setOpenCheckoutPage(false)} fullWidth maxWidth="md">
-                <DialogTitle>Shopping Cart</DialogTitle>
+
+            <Dialog open={openCheckoutPage} onClose={() => setOpenCheckoutPage(false)}>
+                <DialogTitle>Cart</DialogTitle>
                 <DialogContent>
-                    {checkoutCart.length === 0 ? (
-                        <p>Your shopping cart is empty.</p>
-                    ) : (
-                        <table className="checkout-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {checkoutCart.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.title}</td>
-                                        <td>
-                                            {Object.entries(item)
-                                                .filter(([key]) => key !== "title")
-                                                .map(([key, value]) => (
-                                                    <span key={key}>
-                                                        <strong>{key}:</strong> {String(value)}{" "}
-                                                    </span>
-                                                ))}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {checkoutCart.length === 0 ? <p>Your cart is empty.</p> : (
+                        <ul>
+                            {checkoutCart.map((item, i) => (
+                                <li key={i}>{getDisplayTitle(item, item._category)}</li>
+                            ))}
+                        </ul>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenCheckoutPage(false)} color="primary">
-                        Close
-                    </Button>
+                    <Button onClick={() => setOpenCheckoutPage(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
         </div>
     );
 };
 
+
 export default Library;
+
+
+
