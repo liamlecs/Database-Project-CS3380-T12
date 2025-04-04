@@ -1,7 +1,13 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes, useNavigate, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import { useEffect } from "react";
-import FrontPage from "./components/FrontPage/FrontPage.tsx";
+import FrontPage from "./components/FrontPage/Library.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
 import LibraryHistory from "./components/LibraryHistory.tsx";
 import NavBar from "./components/NavBar.tsx";
@@ -15,13 +21,16 @@ import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
 import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
-import Donations from "./components/Donations.tsx"
+import Donations from "./components/Donations.tsx";
 import TermsAndConditionsPage from "./components/TermsAndConditionsPage.tsx";
 import ConfirmEmail from "./components/ConfirmEmail.tsx";
 import Employee from "./components/Employee.tsx";
 import EmployeeLoginPage from "./components/EmployeeLoginPage.tsx";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Test from "./components/Test.tsx";
+import "bootstrap/dist/css/bootstrap.min.css";
+import PopularityReport from "./components/Reports/PopularityReport.tsx";
+import ItemFineReport from "./components/Reports/ItemFineReport.tsx";
+import CustomerLookupReport from "./components/Reports/CustomerLookupReport.tsx";
+import ReportsOutlet from "./components/ReportsOutlet.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -55,7 +64,14 @@ function AppRoutes() {
           {/* <Route path="/bookcheckout" element={<BookCheckOutPage />} /> */}
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
-          <Route path="/test" element={<Test/>}/>
+          <Route path="/reportsoutlet" element={<ReportsOutlet />}>
+            <Route path="popularityreport" element={<PopularityReport />} />
+            <Route path="itemfinereport" element={<ItemFineReport />} />
+            <Route
+              path="customerlookupreport"
+              element={<CustomerLookupReport />}
+            />
+          </Route>
 
           {/* Optional Nested Routes */}
           <Route path="/libraryhistory" element={<LibraryHistory />}>

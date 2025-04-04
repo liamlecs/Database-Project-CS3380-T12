@@ -1,0 +1,225 @@
+.library-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  font-family: "Segoe UI", "Roboto", "Helvetica", sans-serif;
+  color: #333;
+}
+
+/* Welcome Banner */
+.welcome-message {
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: 4rem 2rem;
+  text-align: center;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, 0.3);
+}
+
+/* Search Bar */
+.search-bar-container-row {
+  display: flex;
+  align-items: center;
+  margin: 1rem 0 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-bar-container-row select,
+.search-bar-container-row input {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Carousel Row Layout */
+.carousel-row {
+  margin-bottom: 2.5rem;
+}
+
+.carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-header h3 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.view-all-link {
+  text-decoration: none;
+  font-size: 0.9rem;
+  color: #4a90e2;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
+}
+
+/* Carousel container */
+.carousel-container {
+  display: flex;
+  align-items: center;
+}
+
+/* Carousel track (scrollable row) */
+.carousel-track {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  flex-grow: 1;
+}
+
+/* Individual Card */
+.carousel-item {
+  flex: 0 0 auto;
+  width: 160px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem;
+  scroll-snap-align: start;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.carousel-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-item.empty {
+  color: #aaa;
+  background: #f1f1f1;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Image */
+.item-image-wrapper {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Info */
+.item-info {
+  margin-top: 0.5rem;
+}
+
+.item-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+.item-author {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Arrows */
+.carousel-arrow {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.carousel-arrow:hover {
+  background-color: #357ab8;
+}
+
+.carousel-arrow.left {
+  margin-right: 1rem;
+}
+
+.carousel-arrow.right {
+  margin-left: 1rem;
+}
+
+/* Search Results Grid */
+.search-results-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.search-result-card {
+  width: 160px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.search-result-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.search-result-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.25rem 0;
+}
+
+.search-result-author {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* Dialog Checkout Cart */
+.checkout-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.checkout-table th,
+.checkout-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+}
+
+/* Fade Animation */
+.fade-in {
+  animation: fadeInUp 0.4s ease both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

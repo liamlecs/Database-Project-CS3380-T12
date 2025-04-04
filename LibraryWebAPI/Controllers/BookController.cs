@@ -19,11 +19,34 @@ namespace LibraryWebAPI.Controllers
         }
 
         // GET: api/Book
+        // [HttpGet]
+        // public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        // {
+        //     return Ok(await _context.Books.ToListAsync());
+        // }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<object>>> GetBooks()
         {
-            return Ok(await _context.Books.ToListAsync());
+            var books = await _context.Books
+                .Include(b => b.Item)
+                .Include(b => b.BookAuthor)
+                .Include(b => b.BookGenre)
+                .Include(b => b.Publisher)
+                .Select(b => new
+                {
+                    b.BookId,
+                    b.Isbn,
+                    b.YearPublished,
+                    Title = b.Item.Title,               // from related Item
+                    Author = b.BookAuthor.FirstName + " " + b.BookAuthor.LastName,      // from related Author
+                    Genre = b.BookGenre.Description,         // from related Genre
+                    Publisher = b.Publisher.PublisherName  // from related Publisher
+                })
+                .ToListAsync();
+
+            return Ok(books);
         }
+
 
         // GET: api/Book/5
         [HttpGet("{id}")]
