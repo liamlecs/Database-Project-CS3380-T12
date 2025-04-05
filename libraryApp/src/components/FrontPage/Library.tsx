@@ -128,7 +128,8 @@ const Library: React.FC = () => {
             const genre = item.genre || "Unknown Genre";
             return `${title} \n \n \n by ${author} \n \n \n (${genre})`;
         }//return item.title || item.isbn || "Untitled Book";
-        if (category === "Movie") return item.title || item.director || "Untitled Movie";
+
+        // if (category === "Movie") return item.title || item.director || "Untitled Movie";
         if (category === "Music") return item.title || item.artist || "Untitled Song";
         if (category === "Technology") return item.deviceType || item.title || "Untitled Device";
         return item.title || "Untitled";
@@ -173,7 +174,8 @@ const Library: React.FC = () => {
                                 {item ? (
                                     <>
                                         <img
-                                            src={item.imageUrl || "https://via.placeholder.com/100"}
+                                            // src={item.imageUrl || "https://via.placeholder.com/100"}
+                                            src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
                                             alt={getDisplayTitle(item, title)}
                                             style={{ width: "100px", height: "100px", objectFit: "cover" }}
                                         />

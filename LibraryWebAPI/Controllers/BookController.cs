@@ -32,6 +32,7 @@ namespace LibraryWebAPI.Controllers
                 .Include(b => b.BookAuthor)
                 .Include(b => b.BookGenre)
                 .Include(b => b.Publisher)
+                // .Include(b=> b.image)
                 .Select(b => new
                 {
                     b.BookId,
@@ -40,7 +41,8 @@ namespace LibraryWebAPI.Controllers
                     Title = b.Item.Title,               // from related Item
                     Author = b.BookAuthor.FirstName + " " + b.BookAuthor.LastName,      // from related Author
                     Genre = b.BookGenre.Description,         // from related Genre
-                    Publisher = b.Publisher.PublisherName  // from related Publisher
+                    Publisher = b.Publisher.PublisherName,  // from related Publisher
+                    coverImagePath = b.CoverImagePath // from related Image            })
                 })
                 .ToListAsync();
 
