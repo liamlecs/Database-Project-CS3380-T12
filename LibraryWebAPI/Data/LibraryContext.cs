@@ -56,6 +56,9 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<TransactionFineDto> TransactionFineConditional { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
 
+    // registering MovieDirector entity 
+    public virtual DbSet<MovieDirector> MovieDirectors { get; set; }
+
 //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
 //         => optionsBuilder.UseSqlServer("");
@@ -279,22 +282,48 @@ public virtual DbSet<Book> Books { get; set; }
             entity.ToTable("Movie");
 
             entity.Property(e => e.MovieId)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd() // Let the database auto-increment the ID
                 .HasColumnName("MovieID");
-            entity.Property(e => e.Director)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Format)
-                .HasMaxLength(15)
-                .IsUnicode(false);
+
+            entity.Property(e => e.Upc)
+                .HasMaxLength(13)
+                .IsUnicode(false)
+                .HasColumnName("UPC");
+
+            entity.Property(e => e.MovieDirectorId).HasColumnName("MovieDirectorID");
             entity.Property(e => e.MovieGenreId).HasColumnName("MovieGenreID");
 
-            entity.HasOne(d => d.MovieGenre).WithMany(p => p.Movies)
+            entity.Property(e => e.YearReleased).HasColumnName("YearReleased");
+
+            entity.Property(e => e.Format)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("Format");
+
+            entity.Property(e => e.CoverImagePath)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("CoverImagePath");
+
+            entity.Property(e => e.ItemId).HasColumnName("ItemID");
+
+            entity.HasOne(d => d.MovieDirector)
+                .WithMany(p => p.Movies)
+                .HasForeignKey(d => d.MovieDirectorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Movie_Director");
+
+            entity.HasOne(d => d.MovieGenre)
+                .WithMany(p => p.Movies)
                 .HasForeignKey(d => d.MovieGenreId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Movie_MovieGenre");
+                .HasConstraintName("FK_Movie_Genre");
 
-
+            entity.HasOne(d => d.Item)
+                .WithMany()
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Movie_Item");
         });
 
         modelBuilder.Entity<MovieGenre>(entity =>
