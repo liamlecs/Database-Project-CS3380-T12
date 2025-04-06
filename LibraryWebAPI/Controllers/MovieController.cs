@@ -19,15 +19,38 @@ namespace LibraryWebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Movie
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
-        {
-            // No .Include statements, fetching only Movie data
-            var movies = await _context.Movies.ToListAsync();
+        // // GET: api/Movie
+        // [HttpGet]
+        // public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
+        // {
+        //     // No .Include statements, fetching only Movie data
+        //     var movies = await _context.Movies.ToListAsync();
 
-            return Ok(movies);
-        }
+        //     return Ok(movies);
+        // }
+
+        [HttpGet]
+    public async Task<ActionResult<IEnumerable<MovieDTO>>> GetMovies()
+    {
+        var movies = await _context.Movies
+            .Include(m => m.MovieDirector)
+            .Include(m => m.MovieGenre)
+            .Select(m => new MovieDTO
+            {
+                MovieId = m.MovieId,
+                Title = m.Item.Title, // Assuming you have navigation to Item
+                UPC = m.Upc ?? "N/A",
+                Format = m.Format ?? "N/A",
+                YearReleased = m.YearReleased,
+                Director = m.MovieDirector.FirstName + " " + m.MovieDirector.LastName,
+                Genre = m.MovieGenre.Description,
+                CoverImagePath = m.CoverImagePath!,
+                ItemId = m.ItemId
+            })
+            .ToListAsync();
+
+        return Ok(movies);
+    }
 
         // GET: api/Movie/5
         [HttpGet("{id}")]
