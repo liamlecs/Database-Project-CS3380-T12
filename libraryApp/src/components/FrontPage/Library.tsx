@@ -138,7 +138,13 @@ const Library: React.FC = () => {
         } //return item.title || item.director || "Untitled Movie";
 
 
-        if (category === "Music") return item.title || item.artist || "Untitled Song";
+        if (category === "Music"){
+            const title = item.songTitle || "Untitled Song";
+            const artist = item.artistName || "Unknown Artist";
+            const genre = item.genreDescription || "Unknown Genre";
+            return `${title} \n \n \n by ${artist} \n \n \n (${genre})`;
+        }
+            //return item.title || item.artist || "Untitled Song";
         if (category === "Technology") return item.deviceType || item.title || "Untitled Device";
         return item.title || "Untitled";
     };

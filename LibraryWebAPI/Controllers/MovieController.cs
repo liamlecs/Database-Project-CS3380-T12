@@ -38,7 +38,7 @@ namespace LibraryWebAPI.Controllers
             .Select(m => new MovieDTO
             {
                 MovieId = m.MovieId,
-                Title = m.Item.Title, // Assuming you have navigation to Item
+                Title = m.Item.Title, // fk to referenced Item table
                 UPC = m.Upc ?? "N/A",
                 Format = m.Format ?? "N/A",
                 YearReleased = m.YearReleased,

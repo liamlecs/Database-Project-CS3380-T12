@@ -22,7 +22,7 @@ namespace LibraryWebAPI.Controllers
 
         // GET: api/Music
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MusicDto>>> GetMusics()
+        public async Task<ActionResult<IEnumerable<MusicDto>>> GetMusic()
         {
             var musics = await _context.Musics
                 .Include(m => m.MusicArtist)
@@ -33,6 +33,7 @@ namespace LibraryWebAPI.Controllers
                     Format = m.Format,
                     CoverImagePath = m.CoverImagePath,
                     ArtistName = m.MusicArtist.ArtistName,
+                    SongTitle = m.Item.Title,
                     GenreDescription = m.MusicGenre.Description
                 })
                 .ToListAsync();
