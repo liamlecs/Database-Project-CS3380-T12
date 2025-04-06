@@ -40,14 +40,13 @@ class EventsCalendar extends Component<
       const events = await response.json();
       console.log("API Response:", events);
 
-      const eventsArray = events.$values || [];
+      const eventsArray = events; //this code is fucking frankensteins monster atp, im afraid to try to streamline it and break something.
 
       // Assuming the response is in the correct format to match CalendarEvent structure
-      this.setState({
+      /*this.setState({
         // biome-ignore lint/suspicious/noExplicitAny: <circle back later and define a type>
         events: eventsArray.map((event: any) => {
           return {
-            ...event,
             start: dayjs(event.startTimestamp).toDate(),
             end: dayjs(event.endTimestamp).toDate(),
             title: event.title, // Assuming title is part of your event
@@ -55,6 +54,20 @@ class EventsCalendar extends Component<
           };
         }),
       });
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }*/
+
+      
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const  processedEvents = eventsArray.map((event: any) => ({
+        title: event.title,
+        description: event.description,
+        start: dayjs(event.startTimestamp).toDate(),
+        end: dayjs(event.endTimestamp).toDate(),
+      }));
+      console.log("Processed Events:", processedEvents);
+      this.setState({ events: processedEvents });
     } catch (error) {
       console.error("Error fetching events:", error);
     }
@@ -75,7 +88,7 @@ class EventsCalendar extends Component<
   };*/
 
   render() {
-    console.log("I am working");
+
     return (
       <>
 
