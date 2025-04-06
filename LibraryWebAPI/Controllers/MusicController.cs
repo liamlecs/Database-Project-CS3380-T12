@@ -22,12 +22,24 @@ namespace LibraryWebAPI.Controllers
 
         // GET: api/Music
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Music>>> GetMusics()
+        public async Task<ActionResult<IEnumerable<MusicDto>>> GetMusics()
         {
-            // Fetch only the Music table data, without including related tables
-            var musics = await _context.Musics.ToListAsync();
+            var musics = await _context.Musics
+                .Include(m => m.MusicArtist)
+                .Include(m => m.MusicGenre)
+                .Select(m => new MusicDto
+                {
+                    SongId = m.SongId,
+                    Format = m.Format,
+                    CoverImagePath = m.CoverImagePath,
+                    ArtistName = m.MusicArtist.ArtistName,
+                    GenreDescription = m.MusicGenre.Description
+                })
+                .ToListAsync();
+
             return Ok(musics);
         }
+
 
         // GET: api/Music/5
         [HttpGet("{id}")]
@@ -35,7 +47,7 @@ namespace LibraryWebAPI.Controllers
         {
             // Fetch only the Music table data for a specific id, no .Include
             var music = await _context.Musics
-                .FirstOrDefaultAsync(m => m.MusicId == id);
+                .FirstOrDefaultAsync(m => m.SongId == id);
 
             if (music == null)
             {
@@ -53,7 +65,7 @@ namespace LibraryWebAPI.Controllers
             {
                 _context.Musics.Add(music);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetMusic), new { id = music.MusicId }, music);
+                return CreatedAtAction(nameof(GetMusic), new { id = music.SongId }, music);
             }
 
             return BadRequest();
@@ -63,7 +75,7 @@ namespace LibraryWebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMusic(int id, Music music)
         {
-            if (id != music.MusicId)
+            if (id != music.SongId)
             {
                 return BadRequest();
             }
@@ -105,7 +117,7 @@ namespace LibraryWebAPI.Controllers
 
         private bool MusicExists(int id)
         {
-            return _context.Musics.Any(e => e.MusicId == id);
+            return _context.Musics.Any(e => e.SongId == id);
         }
     }
 }

@@ -5,7 +5,11 @@ import welcomeBg from "../../assets/welcome_background.jpg";
 import defaultItemImage from "../../assets/welcome_background.jpg";
 
 
+
+
 const tables = ["Book", "Movie", "Music", "Technology"];
+
+
 
 
 const fieldOptions: Record<string, string[]> = {
@@ -16,8 +20,12 @@ const fieldOptions: Record<string, string[]> = {
 };
 
 
+
+
 const itemsPerRowView = 7;
 const maxRowItems = 21;
+
+
 
 
 const Library: React.FC = () => {
@@ -33,6 +41,8 @@ const Library: React.FC = () => {
     const [openCheckoutPage, setOpenCheckoutPage] = useState(false);
 
 
+
+
     useEffect(() => {
         if (!selectedTable) return;
         fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`)
@@ -43,6 +53,8 @@ const Library: React.FC = () => {
             })
             .catch((err) => console.error(err));
     }, [selectedTable]);
+
+
 
 
     useEffect(() => {
@@ -65,6 +77,8 @@ const Library: React.FC = () => {
     }, []);
 
 
+
+
     const filteredItems = useMemo(() => {
         if (!searchQuery.trim()) return items;
         const q = searchQuery.toLowerCase();
@@ -72,9 +86,13 @@ const Library: React.FC = () => {
     }, [searchQuery, items]);
 
 
+
+
     const handleRowNext = (category: string, totalPages: number) => {
         setRowPage((prev) => ({ ...prev, [category]: Math.min(prev[category] + 1, totalPages - 1) }));
     };
+
+
 
 
     const handleRowPrev = (category: string) => {
@@ -82,10 +100,14 @@ const Library: React.FC = () => {
     };
 
 
+
+
     const handleCheckout = (item: any, category: string) => {
         setItemToCheckout({ ...item, _category: category });
         setOpenDialog(true);
     };
+
+
 
 
     const handleConfirmCheckout = () => {
@@ -95,14 +117,25 @@ const Library: React.FC = () => {
     };
 
 
+
+
     const getDisplayTitle = (item: any, category: string): string => {
         if (!item) return "Untitled";
-        if (category === "Book") return item.title || item.isbn || "Untitled Book";
-        if (category === "Movie") return item.title || item.director || "Untitled Movie";
+        // if (category === "Book") return item.title || item.isbn || "Untitled Book";
+        if (category === "Book") {
+            const title = item.title || "Untitled Book";
+            const author = item.author || "Unknown Author";
+            const genre = item.genre || "Unknown Genre";
+            return `${title} \n \n \n by ${author} \n \n \n (${genre})`;
+        }//return item.title || item.isbn || "Untitled Book";
+
+        // if (category === "Movie") return item.title || item.director || "Untitled Movie";
         if (category === "Music") return item.title || item.artist || "Untitled Song";
         if (category === "Technology") return item.deviceType || item.title || "Untitled Device";
         return item.title || "Untitled";
     };
+
+
 
 
     const renderCardRow = (title: string, rowItems: any[]) => {
@@ -113,6 +146,8 @@ const Library: React.FC = () => {
         const currentRowItems = limitedItems.slice(startIndex, startIndex + itemsPerRowView);
         const filledItems = [...currentRowItems];
         while (filledItems.length < itemsPerRowView) filledItems.push(null);
+
+
 
 
         return (
@@ -139,7 +174,8 @@ const Library: React.FC = () => {
                                 {item ? (
                                     <>
                                         <img
-                                            src={item.imageUrl || "https://via.placeholder.com/100"}
+                                            // src={item.imageUrl || "https://via.placeholder.com/100"}
+                                            src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
                                             alt={getDisplayTitle(item, title)}
                                             style={{ width: "100px", height: "100px", objectFit: "cover" }}
                                         />
@@ -163,6 +199,8 @@ const Library: React.FC = () => {
     };
 
 
+
+
     return (
         <div className="library-container">
             <div className="welcome-message" style={{ backgroundImage: `url(${welcomeBg})` }}>
@@ -171,11 +209,15 @@ const Library: React.FC = () => {
             </div>
 
 
+
+
             <div className="search-bar-container-row">
                 <select value={selectedTable} onChange={(e) => { setSelectedTable(e.target.value); setItems([]); setSearchQuery(""); }}>
                     <option value="">-- Select Table --</option>
                     {tables.map((table) => <option key={table} value={table}>{table}</option>)}
                 </select>
+
+
 
 
                 {selectedTable && (
@@ -186,6 +228,8 @@ const Library: React.FC = () => {
                 )}
 
 
+
+
                 <input
                     type="text"
                     placeholder="Start typing to search..."
@@ -193,6 +237,8 @@ const Library: React.FC = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
             </div>
+
+
 
 
             {searchQuery && selectedTable && filteredItems.length > 0 && (
@@ -208,7 +254,11 @@ const Library: React.FC = () => {
             )}
 
 
+
+
             {Object.entries(allItems).map(([category, items]) => renderCardRow(category, items))}
+
+
 
 
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -221,6 +271,8 @@ const Library: React.FC = () => {
                     <Button onClick={handleConfirmCheckout}>Confirm</Button>
                 </DialogActions>
             </Dialog>
+
+
 
 
             <Dialog open={openCheckoutPage} onClose={() => setOpenCheckoutPage(false)}>

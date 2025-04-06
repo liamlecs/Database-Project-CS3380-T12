@@ -37,6 +37,9 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<Music> Musics { get; set; }
 
+    public virtual DbSet<MusicArtist> MusicArtists { get; set; }
+
+
     public virtual DbSet<MusicGenre> MusicGenres { get; set; }
 
     public virtual DbSet<Publisher> Publishers { get; set; }
@@ -44,6 +47,9 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<Sex> Sexes { get; set; }
 
     public virtual DbSet<Technology> Technologies { get; set; }
+
+    public virtual DbSet<TechnologyManufacturer> TechnologyManufacturers { get; set; }
+    public virtual DbSet<DeviceType> DeviceTypes { get; set; }
 
     public virtual DbSet<TransactionHistory> TransactionHistories { get; set; }
 
@@ -55,6 +61,9 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<TransactionFineDto> TransactionFineConditional { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
+
+    // registering MovieDirector entity 
+    public virtual DbSet<MovieDirector> MovieDirectors { get; set; }
 
 //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -279,22 +288,48 @@ public virtual DbSet<Book> Books { get; set; }
             entity.ToTable("Movie");
 
             entity.Property(e => e.MovieId)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd() // Let the database auto-increment the ID
                 .HasColumnName("MovieID");
-            entity.Property(e => e.Director)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Format)
-                .HasMaxLength(15)
-                .IsUnicode(false);
+
+            entity.Property(e => e.Upc)
+                .HasMaxLength(13)
+                .IsUnicode(false)
+                .HasColumnName("UPC");
+
+            entity.Property(e => e.MovieDirectorId).HasColumnName("MovieDirectorID");
             entity.Property(e => e.MovieGenreId).HasColumnName("MovieGenreID");
 
-            entity.HasOne(d => d.MovieGenre).WithMany(p => p.Movies)
+            entity.Property(e => e.YearReleased).HasColumnName("YearReleased");
+
+            entity.Property(e => e.Format)
+                .HasMaxLength(15)
+                .IsUnicode(false)
+                .HasColumnName("Format");
+
+            entity.Property(e => e.CoverImagePath)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("CoverImagePath");
+
+            entity.Property(e => e.ItemId).HasColumnName("ItemID");
+
+            entity.HasOne(d => d.MovieDirector)
+                .WithMany(p => p.Movies)
+                .HasForeignKey(d => d.MovieDirectorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Movie_Director");
+
+            entity.HasOne(d => d.MovieGenre)
+                .WithMany(p => p.Movies)
                 .HasForeignKey(d => d.MovieGenreId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Movie_MovieGenre");
+                .HasConstraintName("FK_Movie_Genre");
 
-
+            entity.HasOne(d => d.Item)
+                .WithMany()
+                .HasForeignKey(d => d.ItemId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Movie_Item");
         });
 
         modelBuilder.Entity<MovieGenre>(entity =>
@@ -311,28 +346,48 @@ public virtual DbSet<Book> Books { get; set; }
 
         modelBuilder.Entity<Music>(entity =>
         {
-            entity.HasKey(e => e.MusicId).HasName("PK__Music__11F840E0555B1385");
+            entity.HasKey(e => e.SongId).HasName("PK__Music__11F840E0555B1385");
 
             entity.ToTable("Music");
 
-            entity.Property(e => e.MusicId)
-                .ValueGeneratedNever()
-                .HasColumnName("MusicID");
-            entity.Property(e => e.Artist)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Format)
-                .HasMaxLength(20)
-                .IsUnicode(false);
+            entity.Property(e => e.SongId).HasColumnName("SongID");
+            entity.Property(e => e.MusicArtistId).HasColumnName("MusicArtistID");
             entity.Property(e => e.MusicGenreId).HasColumnName("MusicGenreID");
+            entity.Property(e => e.ItemId).HasColumnName("ItemID");
+            entity.Property(e => e.Format).HasMaxLength(20).IsUnicode(false);
+            entity.Property(e => e.CoverImagePath).HasMaxLength(255).IsUnicode(false);
 
-            entity.HasOne(d => d.MusicGenre).WithMany(p => p.Musics)
+            entity.HasOne(d => d.MusicArtist)
+                .WithMany(p => p.Musics)
+                .HasForeignKey(d => d.MusicArtistId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Music_Artist");
+
+            entity.HasOne(d => d.MusicGenre)
+                .WithMany(p => p.Musics)
                 .HasForeignKey(d => d.MusicGenreId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Music_MusicGenre");
+                .HasConstraintName("FK_Music_Genre");
 
-
+            entity.HasOne(d => d.Item)
+                .WithOne()  // No reverse nav
+                .HasForeignKey<Music>(d => d.ItemId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Music_Item");
         });
+
+        modelBuilder.Entity<MusicArtist>(entity =>
+        {
+            entity.HasKey(e => e.MusicArtistId).HasName("PK__MusicArt__A2B0A5D3F1C4E8D7");
+
+            entity.ToTable("MusicArtist");
+
+            entity.Property(e => e.MusicArtistId).HasColumnName("MusicArtistID");
+            entity.Property(e => e.ArtistName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
 
         modelBuilder.Entity<MusicGenre>(entity =>
         {
@@ -378,24 +433,78 @@ public virtual DbSet<Book> Books { get; set; }
 
         modelBuilder.Entity<Technology>(entity =>
         {
-            entity.HasKey(e => e.DeviceId).HasName("PK__Technolo__49E12331C93D0AED");
+            entity.HasKey(e => e.DeviceId).HasName("PK_Technology");
 
             entity.ToTable("Technology");
 
-            entity.HasIndex(e => e.ModelNumber, "UQ__Technolo__6422901FB0A5F203").IsUnique();
-
             entity.Property(e => e.DeviceId)
-                .ValueGeneratedNever()
                 .HasColumnName("DeviceID");
-            entity.Property(e => e.DeviceType)
+
+            entity.Property(e => e.DeviceTypeID)
+                .HasColumnName("DeviceTypeID");
+
+            entity.Property(e => e.ManufacturerID)
+                .HasColumnName("ManufacturerID");
+
+            entity.Property(e => e.ModelNumber)
+                .HasColumnName("ModelNumber")
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Manufacturer)
-                .HasMaxLength(100)
+
+            entity.Property(e => e.ItemID)
+                .HasColumnName("ItemID");
+
+            entity.Property(e => e.CoverImagePath)
+                .HasColumnName("CoverImagePath")
+                .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.ModelNumber).HasColumnName("ModelNumber");
-                
+
+            // Foreign Key: DeviceType
+            entity.HasOne(e => e.DeviceType)
+                .WithMany(d => d.Technologies)
+                .HasForeignKey(e => e.DeviceTypeID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Technology_DeviceType");
+
+            // Foreign Key: Manufacturer
+            entity.HasOne(e => e.Manufacturer)
+                .WithMany(m => m.Technologies)
+                .HasForeignKey(e => e.ManufacturerID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Technology_Manufacturer");
+
+            // Foreign Key: Item
+            entity.HasOne<Item>()
+                .WithMany()
+                .HasForeignKey(e => e.ItemID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Technology_Item");
         });
+
+        modelBuilder.Entity<TechnologyManufacturer>(entity =>
+        {
+            entity.HasKey(e => e.ManufacturerID);
+            
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsRequired()
+                .IsUnicode(false);
+
+            entity.ToTable("TechnologyManufacturer");
+        });
+
+        modelBuilder.Entity<DeviceType>(entity =>
+        {
+            entity.HasKey(e => e.DeviceTypeID);
+
+            entity.Property(e => e.TypeName)
+                .HasMaxLength(50)
+                .IsRequired()
+                .IsUnicode(false);
+
+            entity.ToTable("DeviceType");
+        });
+
 
         modelBuilder.Entity<TransactionHistory>(entity =>
         {

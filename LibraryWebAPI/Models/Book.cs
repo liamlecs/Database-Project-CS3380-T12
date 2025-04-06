@@ -19,6 +19,8 @@ public partial class Book
 
     public int ItemID { get; set; }
 
+    public string? CoverImagePath {get; set;} 
+
 
     public virtual Item Item { get; set; } = null!; // to view the item name (book title)
 
