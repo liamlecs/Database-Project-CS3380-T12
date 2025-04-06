@@ -48,7 +48,7 @@ const Library: React.FC = () => {
         fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`)
             .then((res) => res.json())
             .then((data) => {
-                console.log("📦 [Fetched selected table items]", data);
+                console.log("[Fetched selected table items]", data);
                 setItems(data);
             })
             .catch((err) => console.error(err));
@@ -63,14 +63,14 @@ const Library: React.FC = () => {
                 fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${table}`)
                     .then((res) => res.json())
                     .then((data) => {
-                        console.log(`✅ [Fetched ${table}]`, data);
+                        console.log(`[Fetched ${table}]`, data);
                         return { [table]: data };
                     })
             )
         )
             .then((results) => {
                 const merged = Object.assign({}, ...results);
-                console.log("📦 [Merged all items]", merged);
+                console.log("[Merged all items]", merged); // for debugging purposes
                 setAllItems(merged);
             })
             .catch((err) => console.error(err));
@@ -253,7 +253,14 @@ const Library: React.FC = () => {
                 <div className="search-results-row">
                     {filteredItems.map((item, index) => (
                         <div className="search-result-card" key={`${selectedTable}-${index}`}>
-                            <img src={item.imageUrl || defaultItemImage} alt="preview" className="search-result-image" />
+
+                                <img
+                                loading="lazy"
+                                src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
+                                alt="preview"
+                                className="search-result-image"
+                                />
+
                             <div className="search-result-title">{getDisplayTitle(item, selectedTable)}</div>
                             <Button onClick={() => handleCheckout(item, selectedTable)}>Checkout</Button>
                         </div>
