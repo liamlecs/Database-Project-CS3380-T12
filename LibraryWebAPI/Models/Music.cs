@@ -5,15 +5,21 @@ namespace LibraryWebAPI.Models;
 
 public partial class Music
 {
-    public int MusicId { get; set; }
+    public int SongId { get; set; }
 
-    public string Artist { get; set; } = null!;
+    public int MusicArtistId { get; set; }
 
     public int MusicGenreId { get; set; }
 
-    public string Format { get; set; } = null!;
+    public string? Format { get; set; }
+
+    public string? CoverImagePath { get; set; }
+
+    public int ItemId { get; set; }
+
+    public virtual MusicArtist MusicArtist { get; set; } = null!;
 
     public virtual MusicGenre MusicGenre { get; set; } = null!;
 
-    // public virtual Item MusicNavigation { get; set; } = null!;
+    public virtual Item Item { get; set; } = null!;
 }
