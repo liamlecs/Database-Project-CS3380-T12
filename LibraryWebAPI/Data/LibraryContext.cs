@@ -48,6 +48,9 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<Technology> Technologies { get; set; }
 
+    public virtual DbSet<TechnologyManufacturer> TechnologyManufacturers { get; set; }
+    public virtual DbSet<DeviceType> DeviceTypes { get; set; }
+
     public virtual DbSet<TransactionHistory> TransactionHistories { get; set; }
 
     public virtual DbSet<TransactionPopularityDto> TransactionPopularity { get; set; }
@@ -430,24 +433,78 @@ public virtual DbSet<Book> Books { get; set; }
 
         modelBuilder.Entity<Technology>(entity =>
         {
-            entity.HasKey(e => e.DeviceId).HasName("PK__Technolo__49E12331C93D0AED");
+            entity.HasKey(e => e.DeviceId).HasName("PK_Technology");
 
             entity.ToTable("Technology");
 
-            entity.HasIndex(e => e.ModelNumber, "UQ__Technolo__6422901FB0A5F203").IsUnique();
-
             entity.Property(e => e.DeviceId)
-                .ValueGeneratedNever()
                 .HasColumnName("DeviceID");
-            entity.Property(e => e.DeviceType)
+
+            entity.Property(e => e.DeviceTypeID)
+                .HasColumnName("DeviceTypeID");
+
+            entity.Property(e => e.ManufacturerID)
+                .HasColumnName("ManufacturerID");
+
+            entity.Property(e => e.ModelNumber)
+                .HasColumnName("ModelNumber")
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Manufacturer)
-                .HasMaxLength(100)
+
+            entity.Property(e => e.ItemID)
+                .HasColumnName("ItemID");
+
+            entity.Property(e => e.CoverImagePath)
+                .HasColumnName("CoverImagePath")
+                .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.ModelNumber).HasColumnName("ModelNumber");
-                
+
+            // Foreign Key: DeviceType
+            entity.HasOne(e => e.DeviceType)
+                .WithMany(d => d.Technologies)
+                .HasForeignKey(e => e.DeviceTypeID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Technology_DeviceType");
+
+            // Foreign Key: Manufacturer
+            entity.HasOne(e => e.Manufacturer)
+                .WithMany(m => m.Technologies)
+                .HasForeignKey(e => e.ManufacturerID)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Technology_Manufacturer");
+
+            // Foreign Key: Item
+            entity.HasOne<Item>()
+                .WithMany()
+                .HasForeignKey(e => e.ItemID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Technology_Item");
         });
+
+        modelBuilder.Entity<TechnologyManufacturer>(entity =>
+        {
+            entity.HasKey(e => e.ManufacturerID);
+            
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsRequired()
+                .IsUnicode(false);
+
+            entity.ToTable("TechnologyManufacturer");
+        });
+
+        modelBuilder.Entity<DeviceType>(entity =>
+        {
+            entity.HasKey(e => e.DeviceTypeID);
+
+            entity.Property(e => e.TypeName)
+                .HasMaxLength(50)
+                .IsRequired()
+                .IsUnicode(false);
+
+            entity.ToTable("DeviceType");
+        });
+
 
         modelBuilder.Entity<TransactionHistory>(entity =>
         {
