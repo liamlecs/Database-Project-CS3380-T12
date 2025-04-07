@@ -3,7 +3,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/
 import "./Library.css";
 import welcomeBg from "../../assets/welcome_background.jpg";
 import defaultItemImage from "../../assets/welcome_background.jpg";
-
+import { useCheckout } from "../../contexts/CheckoutContext";
 
 
 
@@ -39,7 +39,7 @@ const Library: React.FC = () => {
     const [itemToCheckout, setItemToCheckout] = useState<any>(null);
     const [checkoutCart, setCheckoutCart] = useState<any[]>([]);
     const [openCheckoutPage, setOpenCheckoutPage] = useState(false);
-
+    const { addToCart, userType } = useCheckout();
 
 
 
@@ -111,10 +111,24 @@ const Library: React.FC = () => {
 
 
     const handleConfirmCheckout = () => {
-        if (itemToCheckout) setCheckoutCart((prev) => [...prev, itemToCheckout]);
+        if (itemToCheckout) {
+            const now = new Date();
+            const dueDate = new Date(now);
+            dueDate.setDate(now.getDate() + (userType === "faculty" ? 14 : 7));
+
+            // handleCon
+            addToCart({
+                ItemID: itemToCheckout.itemId || itemToCheckout.id || 0,
+                ItemType: itemToCheckout._category,
+                Title: getDisplayTitle(itemToCheckout, itemToCheckout._category),
+                CheckoutDate: now.toISOString().split("T")[0],
+                DueDate: dueDate.toISOString().split("T")[0],
+            });
+        }
         setOpenDialog(false);
         setItemToCheckout(null);
     };
+
 
 
 
@@ -130,27 +144,27 @@ const Library: React.FC = () => {
         }
 
 
-        if (category === "Movie"){
+        if (category === "Movie") {
             const title = item.title || "Untited Movie";
             const director = item.director || "Unknown Director";
             const genre = item.genre || "Unknown Genre";
             return `${title} \n \n \n  by ${director} \n \n \n (${genre})`;
-        } 
+        }
 
 
-        if (category === "Music"){
+        if (category === "Music") {
             const title = item.songTitle || "Untitled Song";
             const artist = item.artistName || "Unknown Artist";
             const genre = item.genreDescription || "Unknown Genre";
             return `${title} \n \n \n by ${artist} \n \n \n (${genre})`;
         }
-        
-        if (category === "Technology"){
+
+        if (category === "Technology") {
             const title = item.title || "Untitled Device";
             const brand = item.manufacturerName || "Unknown Brand";
             return `${title} \n \n \n ${brand}`;
 
-        } 
+        }
 
         return item.title || "Untitled";
     };
@@ -181,68 +195,68 @@ const Library: React.FC = () => {
                     <div className="carousel-track" style={{ display: "flex", gap: "1rem", overflowX: "auto", flex: 1 }}>
                         {filledItems.map((item, index) => (
                             <div
-                            key={`${title}-${index}`}
-                            title={`${item?.title?? item?.songTitle ?? "Untitled"} by ${item?.author ?? item?.artistName ?? item?.manufacturerName ?? "Unknown"} (${item?.genre ?? item?.genreDescription ?? "Unknown Genre"})`}
-                            style={{
-                                width: "160px",
-                                minHeight: "260px",
-                                borderRadius: "12px",
-                                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                                overflow: "hidden",
-                                padding: "0",
-                                backgroundColor: "#fff",
-                                textAlign: "center",
-                                transition: "transform 0.3s ease-in-out",
-                                cursor: item ? "pointer" : "default",
-                            }}
-                            onMouseEnter={(e) => item && (e.currentTarget.style.transform = "scale(1.05)")}
-                            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
+                                key={`${title}-${index}`}
+                                title={`${item?.title ?? item?.songTitle ?? "Untitled"} by ${item?.author ?? item?.artistName ?? item?.manufacturerName ?? "Unknown"} (${item?.genre ?? item?.genreDescription ?? "Unknown Genre"})`}
+                                style={{
+                                    width: "160px",
+                                    minHeight: "260px",
+                                    borderRadius: "12px",
+                                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                                    overflow: "hidden",
+                                    padding: "0",
+                                    backgroundColor: "#fff",
+                                    textAlign: "center",
+                                    transition: "transform 0.3s ease-in-out",
+                                    cursor: item ? "pointer" : "default",
+                                }}
+                                onMouseEnter={(e) => item && (e.currentTarget.style.transform = "scale(1.05)")}
+                                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
                             >
-                            {item ? (
-                                <>
-                                <img
-                                    src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
-                                    alt={getDisplayTitle(item, title)}
-                                    style={{
-                                    width: "100%",
-                                    height: "180px",
-                                    objectFit: "cover",
-                                    borderBottom: "1px solid #ccc",
-                                    }}
-                                />
-                                <h4
-                                    style={{
-                                    fontSize: "0.85rem",
-                                    margin: "0.5rem",
-                                    fontWeight: 500,
-                                    color: "#333",
-                                    whiteSpace: "pre-line",
-                                    }}
-                                >
-                                    {getDisplayTitle(item, title)}
-                                </h4>
-                                <Button
-                                    size="small"
-                                    variant="contained"
-                                    style={{
-                                    backgroundColor: "#0077cc",
-                                    marginBottom: "0.5rem",
-                                    padding: "0.3rem 0.7rem",
-                                    fontSize: "0.75rem",
-                                    }}
-                                    onClick={() => handleCheckout(item, title)}
-                                >
-                                    Checkout
-                                </Button>
-                                </>
-                            ) : (
-                                <div style={{ color: "#aaa", paddingTop: "2rem" }}>Empty</div>
-                            )}
+                                {item ? (
+                                    <>
+                                        <img
+                                            src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
+                                            alt={getDisplayTitle(item, title)}
+                                            style={{
+                                                width: "100%",
+                                                height: "180px",
+                                                objectFit: "cover",
+                                                borderBottom: "1px solid #ccc",
+                                            }}
+                                        />
+                                        <h4
+                                            style={{
+                                                fontSize: "0.85rem",
+                                                margin: "0.5rem",
+                                                fontWeight: 500,
+                                                color: "#333",
+                                                whiteSpace: "pre-line",
+                                            }}
+                                        >
+                                            {getDisplayTitle(item, title)}
+                                        </h4>
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            style={{
+                                                backgroundColor: "#0077cc",
+                                                marginBottom: "0.5rem",
+                                                padding: "0.3rem 0.7rem",
+                                                fontSize: "0.75rem",
+                                            }}
+                                            onClick={() => handleCheckout(item, title)}
+                                        >
+                                            Checkout
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <div style={{ color: "#aaa", paddingTop: "2rem" }}>Empty</div>
+                                )}
                             </div>
 
 
-                            ))}
-                        </div>
+                        ))}
+                    </div>
                     <button onClick={() => handleRowNext(title, totalPages)} disabled={currentPage >= totalPages - 1}>
                         &gt;
                     </button>
@@ -299,12 +313,12 @@ const Library: React.FC = () => {
                     {filteredItems.map((item, index) => (
                         <div className="search-result-card" key={`${selectedTable}-${index}`}>
 
-                                <img
+                            <img
                                 loading="lazy"
                                 src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
                                 alt="preview"
                                 className="search-result-image"
-                                />
+                            />
 
                             <div className="search-result-title">{getDisplayTitle(item, selectedTable)}</div>
                             <Button onClick={() => handleCheckout(item, selectedTable)}>Checkout</Button>
