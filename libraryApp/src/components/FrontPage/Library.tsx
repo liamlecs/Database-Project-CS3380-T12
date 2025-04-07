@@ -181,35 +181,68 @@ const Library: React.FC = () => {
                     <div className="carousel-track" style={{ display: "flex", gap: "1rem", overflowX: "auto", flex: 1 }}>
                         {filledItems.map((item, index) => (
                             <div
-                                key={`${title}-${index}`}
-                                style={{
-                                    width: "150px",
-                                    minHeight: "200px",
-                                    border: "1px solid #ccc",
-                                    padding: "0.5rem",
-                                    backgroundColor: "#fff",
-                                    textAlign: "center",
-                                }}
+                            key={`${title}-${index}`}
+                            title={`${item?.title?? item?.songTitle ?? "Untitled"} by ${item?.author ?? item?.artistName ?? item?.manufacturerName ?? "Unknown"} (${item?.genre ?? item?.genreDescription ?? "Unknown Genre"})`}
+                            style={{
+                                width: "160px",
+                                minHeight: "260px",
+                                borderRadius: "12px",
+                                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                                overflow: "hidden",
+                                padding: "0",
+                                backgroundColor: "#fff",
+                                textAlign: "center",
+                                transition: "transform 0.3s ease-in-out",
+                                cursor: item ? "pointer" : "default",
+                            }}
+                            onMouseEnter={(e) => item && (e.currentTarget.style.transform = "scale(1.05)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
                             >
-                                {item ? (
-                                    <>
-                                        <img
-                                            // src={item.imageUrl || "https://via.placeholder.com/100"}
-                                            src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
-                                            alt={getDisplayTitle(item, title)}
-                                            style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                                        />
-                                        <h4 style={{ fontSize: "0.9rem", margin: "0.5rem 0" }}>{getDisplayTitle(item, title)}</h4>
-                                        <Button size="small" variant="contained" onClick={() => handleCheckout(item, title)}>
-                                            Checkout
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <div style={{ color: "#aaa" }}>Empty</div>
-                                )}
+                            {item ? (
+                                <>
+                                <img
+                                    src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
+                                    alt={getDisplayTitle(item, title)}
+                                    style={{
+                                    width: "100%",
+                                    height: "180px",
+                                    objectFit: "cover",
+                                    borderBottom: "1px solid #ccc",
+                                    }}
+                                />
+                                <h4
+                                    style={{
+                                    fontSize: "0.85rem",
+                                    margin: "0.5rem",
+                                    fontWeight: 500,
+                                    color: "#333",
+                                    whiteSpace: "pre-line",
+                                    }}
+                                >
+                                    {getDisplayTitle(item, title)}
+                                </h4>
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    style={{
+                                    backgroundColor: "#0077cc",
+                                    marginBottom: "0.5rem",
+                                    padding: "0.3rem 0.7rem",
+                                    fontSize: "0.75rem",
+                                    }}
+                                    onClick={() => handleCheckout(item, title)}
+                                >
+                                    Checkout
+                                </Button>
+                                </>
+                            ) : (
+                                <div style={{ color: "#aaa", paddingTop: "2rem" }}>Empty</div>
+                            )}
                             </div>
-                        ))}
-                    </div>
+
+
+                            ))}
+                        </div>
                     <button onClick={() => handleRowNext(title, totalPages)} disabled={currentPage >= totalPages - 1}>
                         &gt;
                     </button>
