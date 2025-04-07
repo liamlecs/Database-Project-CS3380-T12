@@ -146,6 +146,7 @@ const Library: React.FC = () => {
         }
             //return item.title || item.artist || "Untitled Song";
         if (category === "Technology") return item.deviceType || item.title || "Untitled Device";
+        
         return item.title || "Untitled";
     };
 
