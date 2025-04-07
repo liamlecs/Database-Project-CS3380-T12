@@ -55,6 +55,8 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<TransactionPopularityDto> TransactionPopularity { get; set; }
     public virtual DbSet<TransactionPopularityDto> TransactionPopularityConditional { get; set; }
+
+    public virtual DbSet<MasterTransactionReportDto> MasterTransaction { get; set; }
     public virtual DbSet<TransactionFineDto> TransactionFine { get; set; }
 
     public virtual DbSet<TransactionHistoryDto> TransactionHistory {get; set;}
@@ -525,6 +527,7 @@ public virtual DbSet<Book> Books { get; set; }
             modelBuilder.Entity<TransactionHistoryDto>()
             .HasKey(t => new { t.TransactionId, t.CustomerId, t.ItemId }); // Composite Key
 
+modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
 
         });
 
