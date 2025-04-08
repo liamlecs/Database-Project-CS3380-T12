@@ -6,7 +6,7 @@ namespace LibraryWebAPI.Models
 {
 public class TechnologyDTO
     {
-        public int ItemID { get; set; } // fk to the Item table
+        public int itemId { get; set; } // fk to the Item table
         public int DeviceId { get; set; }
         public string DeviceTypeName { get; set; } = string.Empty;
         
