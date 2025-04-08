@@ -14,6 +14,8 @@ export interface CheckoutItem {
 interface CheckoutContextProps {
     cart: CheckoutItem[];
     addToCart: (item: CheckoutItem) => void;
+    removeFromCart: (index: number) => void;
+    clearCart: () => void;
     userType: UserType;
     setUserType: (type: UserType) => void;
 }
@@ -26,8 +28,25 @@ export const CheckoutProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     const addToCart = (item: CheckoutItem) => setCart((prev) => [...prev, item]);
 
+    const removeFromCart = (index: number) => {
+        setCart((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const clearCart = () => {
+        setCart([]);
+    };
+
     return (
-        <CheckoutContext.Provider value={{ cart, addToCart, userType, setUserType }}>
+        <CheckoutContext.Provider
+            value={{
+                cart,
+                addToCart,
+                removeFromCart,
+                clearCart,
+                userType,
+                setUserType
+            }}
+        >
             {children}
         </CheckoutContext.Provider>
     );

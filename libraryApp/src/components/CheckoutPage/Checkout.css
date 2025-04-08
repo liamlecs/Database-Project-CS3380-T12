@@ -28,3 +28,33 @@
     background-color: #0077cc;
     color: white;
 }
+
+
+/* pezzazling the checkout button */
+.checkout-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background-color: #45a049;
+}
+
+.checkout-table button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.checkout-table button:hover {
+    background-color: #e60000;
+}

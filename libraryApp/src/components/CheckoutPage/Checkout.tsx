@@ -3,9 +3,21 @@ import React from "react";
 import { useCheckout } from "../../contexts/CheckoutContext";
 import "./Checkout.css";
 
-
 const CheckoutPage: React.FC = () => {
-    const { cart, userType } = useCheckout();
+    const { cart, userType, removeFromCart, clearCart } = useCheckout();
+
+    const handleCheckout = () => {
+        if (cart.length === 0) {
+            alert("Your cart is empty.");
+            return;
+        }
+
+        // Clear the cart
+        clearCart();
+
+        // Show confirmation popup
+        alert("Thank you for your checkout! Your items have been processed (:");
+    };
 
     return (
         <div className="checkout-container">
@@ -14,28 +26,35 @@ const CheckoutPage: React.FC = () => {
             {cart.length === 0 ? (
                 <p>Your cart is empty.</p>
             ) : (
-                <table className="checkout-table">
-                    <thead>
-                        <tr>
-                            <th>Item ID</th>
-                            <th>Item Type</th>
-                            <th>Title</th>
-                            <th>Checkout Date</th>
-                            <th>Due Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {cart.map((item, idx) => (
-                            <tr key={idx}>
-                                <td>{item.ItemID}</td>
-                                <td>{item.ItemType}</td>
-                                <td>{item.Title}</td>
-                                <td>{item.CheckoutDate}</td>
-                                <td>{item.DueDate}</td>
+                <>
+                    <table className="checkout-table">
+                        <thead>
+                            <tr>
+                                <th>Item ID</th>
+                                <th>Item Type</th>
+                                <th>Title</th>
+                                <th>Checkout Date</th>
+                                <th>Due Date</th>
+                                <th>Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {cart.map((item, idx) => (
+                                <tr key={idx}>
+                                    <td>{item.ItemID}</td>
+                                    <td>{item.ItemType}</td>
+                                    <td>{item.Title}</td>
+                                    <td>{item.CheckoutDate}</td>
+                                    <td>{item.DueDate}</td>
+                                    <td>
+                                        <button onClick={() => removeFromCart(idx)}>Remove</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <button className="checkout-button" onClick={handleCheckout}>Finalize Checkout</button>
+                </>
             )}
         </div>
     );
