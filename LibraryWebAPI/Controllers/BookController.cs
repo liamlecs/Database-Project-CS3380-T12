@@ -38,6 +38,7 @@ namespace LibraryWebAPI.Controllers
                     b.BookId,
                     b.Isbn,
                     b.YearPublished,
+                    itemId = b.Item.ItemId,
                     Title = b.Item.Title,               // from related Item
                     Author = b.BookAuthor.FirstName + " " + b.BookAuthor.LastName,      // from related Author
                     Genre = b.BookGenre.Description,         // from related Genre

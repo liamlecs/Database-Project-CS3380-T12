@@ -27,9 +27,10 @@ namespace LibraryWebAPI.Controllers
             var musics = await _context.Musics
                 .Include(m => m.MusicArtist)
                 .Include(m => m.MusicGenre)
-                .Select(m => new MusicDto
+                .Select(static m => new MusicDto
                 {
                     SongId = m.SongId,
+                    itemId = m.ItemId,
                     Format = m.Format,
                     CoverImagePath = m.CoverImagePath,
                     ArtistName = m.MusicArtist.ArtistName,
