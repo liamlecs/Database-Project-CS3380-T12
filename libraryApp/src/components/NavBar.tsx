@@ -75,14 +75,14 @@ export default function Navbar() {
             <li>
               <Link to="/employee-login">Employee Login</Link>
             </li>
-            <li>
-              <Link to="/UserProfile">User Profile</Link>
-            </li>
           </>
         )}
 
         <li>
           <Link to="/bookcheckout">Book Checkout</Link>
+        </li>
+        <li>
+              <Link to="/UserProfile">User Profile</Link>
         </li>
         <li>
           <Link to="/donations">Donate</Link>
