@@ -272,7 +272,6 @@ const Library: React.FC = () => {
         <div className="library-container">
             <div className="welcome-message" style={{ backgroundImage: `url(${welcomeBg})` }}>
                 <h1>Checkout Your Favorite Items Today!</h1>
-                <Button onClick={() => setOpenCheckoutPage(true)}>View Cart ({checkoutCart.length})</Button>
             </div>
 
 
@@ -343,25 +342,6 @@ const Library: React.FC = () => {
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
                     <Button onClick={handleConfirmCheckout}>Confirm</Button>
-                </DialogActions>
-            </Dialog>
-
-
-
-
-            <Dialog open={openCheckoutPage} onClose={() => setOpenCheckoutPage(false)}>
-                <DialogTitle>Cart</DialogTitle>
-                <DialogContent>
-                    {checkoutCart.length === 0 ? <p>Your cart is empty.</p> : (
-                        <ul>
-                            {checkoutCart.map((item, i) => (
-                                <li key={i}>{getDisplayTitle(item, item._category)}</li>
-                            ))}
-                        </ul>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenCheckoutPage(false)}>Close</Button>
                 </DialogActions>
             </Dialog>
         </div>
