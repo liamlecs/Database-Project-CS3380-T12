@@ -57,6 +57,8 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<TransactionPopularityDto> TransactionPopularityConditional { get; set; }
 
     public virtual DbSet<MasterTransactionReportDto> MasterTransaction { get; set; }
+
+        public virtual DbSet<MasterTransactionReportDto> MasterTransactionConditional { get; set; }
     public virtual DbSet<TransactionFineDto> TransactionFine { get; set; }
 
     public virtual DbSet<TransactionHistoryDto> TransactionHistory {get; set;}
