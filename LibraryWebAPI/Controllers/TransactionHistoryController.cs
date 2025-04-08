@@ -38,22 +38,17 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<TransactionHistory>> GetBookPopularity()
         {
             var counts = await _context.TransactionPopularity.FromSqlRaw("SELECT " +
-    "Item.Title, " +
-   " COUNT(*) AS count, " +
-   "CASE " +
-        "WHEN MAX(Movie.MovieID) IS NOT NULL THEN 'Movie' " +
-       " WHEN MAX(Music.SongID) IS NOT NULL THEN 'Music' " +
-        "WHEN MAX(Book.BookID) IS NOT NULL THEN 'Book' " +
-       " WHEN MAX(Technology.DeviceID) IS NOT NULL THEN 'Technology' " +
-      "ELSE 'Unknown Table' " +
-    "END AS ItemType " +
+"    Item.Title, " +
+"    COUNT(*) AS count, " +
+"    ItemType.TypeName AS ItemType " +
 "FROM TRANSACTION_HISTORY " +
 "JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID " +
+"LEFT JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
 "LEFT JOIN Movie ON Item.ItemID = Movie.MovieID " +
 "LEFT JOIN Music ON Item.ItemID = Music.SongID " +
 "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
 "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-"GROUP BY Item.Title"
+"GROUP BY Item.Title, ItemType.TypeName;"
 ).ToListAsync();
 
             if (counts == null)
@@ -78,23 +73,18 @@ namespace LibraryWebAPI.Controllers
 
             var counts = await _context.TransactionPopularityConditional
                 .FromSqlRaw("SELECT " +
-                    "Item.Title, " +
-                    "COUNT(*) AS count, " +
-                    "CASE " +
-                        "WHEN MAX(Movie.MovieID) IS NOT NULL THEN 'Movie' " +
-                        "WHEN MAX(Music.SongID) IS NOT NULL THEN 'Music' " +
-                        "WHEN MAX(Book.BookID) IS NOT NULL THEN 'Book' " +
-                        "WHEN MAX(Technology.DeviceID) IS NOT NULL THEN 'Technology' " +
-                        "ELSE 'Unknown Table' " +
-                    "END AS ItemType " +
-                "FROM TRANSACTION_HISTORY " +
-                "JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID " +
-                "LEFT JOIN Movie ON Item.ItemID = Movie.MovieID " +
-                "LEFT JOIN Music ON Item.ItemID = Music.SongID " +
-                "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
-                "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-                "WHERE TRANSACTION_HISTORY.DateBorrowed > {0} " +  // Using parameterized query
-                "GROUP BY Item.Title;", dateFilter)
+"    Item.Title, " +
+"    COUNT(*) AS count, " +
+"    ItemType.TypeName AS ItemType " +
+"FROM TRANSACTION_HISTORY " +
+"JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID " +
+"LEFT JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
+"LEFT JOIN Movie ON Item.ItemID = Movie.MovieID " +
+"LEFT JOIN Music ON Item.ItemID = Music.SongID " +
+"LEFT JOIN Book ON Item.ItemID = Book.BookID " +
+"LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
+"WHERE TRANSACTION_HISTORY.DateBorrowed > {0} " +
+"GROUP BY Item.Title, ItemType.TypeName;", dateFilter)
                 .ToListAsync();
 
             if (counts == null || counts.Count == 0)
@@ -109,24 +99,19 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<TransactionHistory>> GetTransactionWithFine()
         {
             var fines = await _context.TransactionFine.FromSqlRaw("SELECT " +
-    "I.Title, " +
-    "C.Email, " +
-    "C.FirstName, " +
-    "C.LastName, " +
-    "BT.Type, " +
-    "TH.DateBorrowed, " +
-    "TH.DueDate, " +
-    "F.Amount, " +
-    "F.PaymentStatus, " +
-    "CASE " +
-        "WHEN MAX(M.MovieID) IS NOT NULL THEN 'Movie' " +
-        "WHEN MAX(Mu.SongID) IS NOT NULL THEN 'Music' " +
-        "WHEN MAX(B.BookID) IS NOT NULL THEN 'Book' " +
-        "WHEN MAX(T.DeviceID) IS NOT NULL THEN 'Technology' " +
-        "ELSE 'Unknown Table' " +
-    "END AS ItemType " +
+"    I.Title, " +
+"    C.Email, " +
+"    C.FirstName, " +
+"    C.LastName, " +
+"    BT.Type, " +
+"    TH.DateBorrowed, " +
+"    TH.DueDate, " +
+"    F.Amount, " +
+"    F.PaymentStatus, " +
+"    IT.TypeName AS ItemType " +
 "FROM TRANSACTION_HISTORY TH " +
 "JOIN Item I ON TH.ItemID = I.ItemID " +
+"LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID " +
 "LEFT JOIN Movie M ON I.ItemID = M.MovieID " +
 "LEFT JOIN Music Mu ON I.ItemID = Mu.SongID " +
 "LEFT JOIN Book B ON I.ItemID = B.BookID " +
@@ -135,8 +120,16 @@ namespace LibraryWebAPI.Controllers
 "JOIN Customer C ON F.CustomerID = C.CustomerID " +
 "JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
 "GROUP BY " +
-    "I.Title, C.Email, C.FirstName, C.LastName, BT.Type, " +
-    "TH.DateBorrowed, TH.DueDate, F.Amount, F.PaymentStatus"
+"    I.Title, " +
+"    C.Email, " +
+"    C.FirstName, " +
+"    C.LastName, " +
+"    BT.Type, " +
+"    TH.DateBorrowed, " +
+"    TH.DueDate, " +
+"    F.Amount, " +
+"    F.PaymentStatus, " +
+"    IT.TypeName;"
 ).ToListAsync();
 
             if (fines == null)
@@ -151,24 +144,19 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<TransactionHistory>> GetTransactionWithFineConditional(bool isPaid)
         {
             var fines = await _context.TransactionFineConditional.FromSqlRaw("SELECT " +
-    "I.Title, " +
-    "C.Email, " +
-    "C.FirstName, " +
-    "C.LastName, " +
-    "BT.Type, " +
-    "TH.DateBorrowed, " +
-    "TH.DueDate, " +
-    "F.Amount, " +
-    "F.PaymentStatus, " +
-    "CASE " +
-        "WHEN MAX(M.MovieID) IS NOT NULL THEN 'Movie' " +
-        "WHEN MAX(Mu.SongID) IS NOT NULL THEN 'Music' " +
-        "WHEN MAX(B.BookID) IS NOT NULL THEN 'Book' " +
-        "WHEN MAX(T.DeviceID) IS NOT NULL THEN 'Technology' " +
-        "ELSE 'Unknown Table' " +
-    "END AS ItemType " +
+"    I.Title, " +
+"    C.Email, " +
+"    C.FirstName, " +
+"    C.LastName, " +
+"    BT.Type, " +
+"    TH.DateBorrowed, " +
+"    TH.DueDate, " +
+"    F.Amount, " +
+"    F.PaymentStatus, " +
+"    IT.TypeName AS ItemType " +
 "FROM TRANSACTION_HISTORY TH " +
 "JOIN Item I ON TH.ItemID = I.ItemID " +
+"LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID " +
 "LEFT JOIN Movie M ON I.ItemID = M.MovieID " +
 "LEFT JOIN Music Mu ON I.ItemID = Mu.SongID " +
 "LEFT JOIN Book B ON I.ItemID = B.BookID " +
@@ -177,9 +165,17 @@ namespace LibraryWebAPI.Controllers
 "JOIN Customer C ON F.CustomerID = C.CustomerID " +
 "JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
 "WHERE F.PaymentStatus = {0} " +
-" GROUP BY " +
-    "I.Title, C.Email, C.FirstName, C.LastName, BT.Type, " +
-    "TH.DateBorrowed, TH.DueDate, F.Amount, F.PaymentStatus"
+"GROUP BY " +
+"    I.Title, " +
+"    C.Email, " +
+"    C.FirstName, " +
+"    C.LastName, " +
+"    BT.Type, " +
+"    TH.DateBorrowed, " +
+"    TH.DueDate, " +
+"    F.Amount, " +
+"    F.PaymentStatus, " +
+"    IT.TypeName;"
 , isPaid).ToListAsync();
 
             if (fines == null)
@@ -190,7 +186,7 @@ namespace LibraryWebAPI.Controllers
             return Ok(fines);
         }
 
-        [HttpGet("masterTransactionReportConditional")]
+[HttpGet("masterTransactionReportConditional/{start}/{end}")]
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional(DateOnly start, DateOnly end)
         {
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
