@@ -29,15 +29,16 @@ interface Profile {
     amount: number;
     dueDate: Date;
     issueDate: Date;
-    status: boolean; // e.g., "Paid" or "Unpaid"
+    status: boolean;
   }>;
   transactionHistory: Array<{
-    transcationID: number;
-    customerID: number;
-    itemID: number;
+    transcationId: number;
+    customerId: number;
+    itemId: number;
     dateBorrowed: Date;
     dueDate: Date;
     returnDate: Date;
+    title?: string;
   }>;
   waitlists: Array<{
     waitlistId: number;
@@ -58,7 +59,9 @@ export default function UserProfile() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredWaitlists, setFilteredWaitlists] = useState<Profile["waitlists"]>([]);
+  const [filteredWaitlists, setFilteredWaitlists] = useState<
+    Profile["waitlists"]
+  >([]);
   const [filterDays, setFilterDays] = useState<number>(0);
 
   useEffect(() => {
@@ -85,7 +88,9 @@ export default function UserProfile() {
         const userType = "customer";
 
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/UserProfile/${userType}/${userIdNum}`,
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/UserProfile/${userType}/${userIdNum}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -98,6 +103,7 @@ export default function UserProfile() {
 
         const data = await response.json();
 
+        //console.log(data);
 
         const mappedProfile: Profile = {
           customerID: userIdNum,
@@ -110,8 +116,8 @@ export default function UserProfile() {
           membershipEndDate: data.membershipExpires || null,
           fines: data.fines || [],
           //checkedoutbooks implement later
-          transactionHistory: [],
-          waitlists: data.waitLists || []
+          transactionHistory: data.transcActHistory || [],
+          waitlists: data.waitLists || [],
         };
 
         setProfile(mappedProfile);
@@ -146,7 +152,9 @@ export default function UserProfile() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${editProfile.customerID}`,
+        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${
+          editProfile.customerID
+        }`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -174,24 +182,32 @@ export default function UserProfile() {
   const filterLast30Days = () => {
     const now = new Date();
     const last30Days = new Date(now.setDate(now.getDate() - 30));
-    const filtered = profile?.waitlists.filter((item) => new Date(item.reservationDate) >= last30Days) || [];
+    const filtered =
+      profile?.waitlists.filter(
+        (item) => new Date(item.reservationDate) >= last30Days
+      ) || [];
     setFilteredWaitlists(filtered);
   };
 
   const handleFilterDaysChange = (days: number) => {
     setFilterDays(days);
     const now = new Date();
-    const filtered = profile?.waitlists.filter((item) => {
-      const reservationDate = new Date(item.reservationDate);
-      return days === 0 || reservationDate >= new Date(now.setDate(now.getDate() - days));
-    }) || [];
+    const filtered =
+      profile?.waitlists.filter((item) => {
+        const reservationDate = new Date(item.reservationDate);
+        return (
+          days === 0 ||
+          reservationDate >= new Date(now.setDate(now.getDate() - days))
+        );
+      }) || [];
     setFilteredWaitlists(filtered);
   };
 
   useEffect(() => {
-    const filtered = profile?.waitlists.filter((item) =>
-      item.itemId.toString().includes(searchQuery)
-    ) || [];
+    const filtered =
+      profile?.waitlists.filter((item) =>
+        item.itemId.toString().includes(searchQuery)
+      ) || [];
     setFilteredWaitlists(filtered);
   }, [searchQuery, profile?.waitlists]);
 
@@ -217,6 +233,14 @@ export default function UserProfile() {
                 onClick={() => handleTabChange("account")}
               >
                 My Account
+              </button>
+            </li>
+            <li>
+              <button
+                className={activeTab === "inventory" ? "active" : ""}
+                onClick={() => handleTabChange("inventory")}
+              >
+                Inventory
               </button>
             </li>
             <li>
@@ -283,7 +307,7 @@ export default function UserProfile() {
                 {new Date(profile.membershipEndDate).toLocaleDateString()}
               </div>
             )}
-                      <div className="account-actions">
+            <div className="account-actions">
               <button
                 className="btn-delete"
                 onClick={() => {
@@ -293,13 +317,46 @@ export default function UserProfile() {
                     )
                   ) {
                     alert("Account deleted successfully.");
-                  // TODO: Implement actual delete logic
-}
+                    // TODO: Implement actual delete logic
+                  }
                 }}
               >
                 Delete Account
               </button>
             </div>
+          </div>
+        )}
+
+        {/* Inventory Tab */}
+        {activeTab === "inventory" && (
+          <div className="profile-section">
+            <h3>Inventory</h3>
+            {(profile.transactionHistory || []).length > 0 ? (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+                {profile.transactionHistory.map((transaction, index) => (
+                  <Paper
+                    key={index}
+                    elevation={3}
+                    style={{
+                      flex: "1 1 calc(33.333% - 16px)", // Adjust for 3 items per row
+                      padding: "15px",
+                      borderRadius: "8px",
+                      backgroundColor: "#f8f9fa",
+                      minWidth: "300px",
+                    }}
+                  >
+                    <div style={{ marginBottom: "10px" }}>
+                      <strong>Item ID "Change to Image of Item":</strong> {transaction.itemId}
+                    </div>
+                    <div style={{ marginBottom: "10px" }}>
+                      <strong>Title:</strong> {transaction.title || "N/A"}
+                    </div>
+                  </Paper>
+                ))}
+              </div>
+            ) : (
+              <p>No inventory data to display.</p>
+            )}
           </div>
         )}
 
@@ -310,11 +367,11 @@ export default function UserProfile() {
             <ul className="transaction-history-list">
               {profile.transactionHistory.map((transaction, index) => (
                 <li key={index}>
-                  <strong>{transaction.customerID}</strong>
+                  <strong>{transaction.customerId}</strong>
                   <br />
                   Date: {new Date(transaction.dueDate).toLocaleDateString()}
                   <br />
-                  TransactionID: ${transaction.transcationID.toFixed(2)}
+                  TransactionID: ${transaction.transcationId.toFixed(2)}
                 </li>
               ))}
             </ul>
@@ -342,7 +399,9 @@ export default function UserProfile() {
                 <FormControl className="filter-dropdown">
                   <Select
                     value={filterDays}
-                    onChange={(e) => handleFilterDaysChange(e.target.value as number)}
+                    onChange={(e) =>
+                      handleFilterDaysChange(e.target.value as number)
+                    }
                   >
                     <MenuItem value={0}>All</MenuItem>
                     <MenuItem value={30}>Last 30 Days</MenuItem>
@@ -428,10 +487,14 @@ export default function UserProfile() {
                         <TableCell>{fines.transactionId}</TableCell>
                         <TableCell>${fines.amount.toFixed(2)}</TableCell>
                         <TableCell>
-                          {fines.dueDate ? new Date(fines.dueDate).toLocaleDateString() : "N/A"}
+                          {fines.dueDate
+                            ? new Date(fines.dueDate).toLocaleDateString()
+                            : "N/A"}
                         </TableCell>
                         <TableCell>
-                          {fines.issueDate ? new Date(fines.issueDate).toLocaleDateString() : "N/A"}
+                          {fines.issueDate
+                            ? new Date(fines.issueDate).toLocaleDateString()
+                            : "N/A"}
                         </TableCell>
                         <TableCell>
                           {fines.status ? "Paid" : "Unpaid"}
