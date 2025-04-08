@@ -453,30 +453,6 @@ export default function UserProfile() {
             <h3>Account Settings</h3>
             <form onSubmit={handleSave}>
               <div className="profile-item">
-                <label htmlFor="firstName">
-                  <strong>First Name:</strong>
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={editProfile?.firstName || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="profile-item">
-                <label htmlFor="lastName">
-                  <strong>Last Name:</strong>
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={editProfile?.lastName || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="profile-item">
                 <label htmlFor="password">
                   <strong>Password:</strong>
                 </label>
