@@ -19,6 +19,18 @@ obj/
 LibraryWebAPI/bin/
 LibraryWebAPI/obj/
 
+# .NET build artifacts
+[Ll]ibraryWebAPI/[Bb]in/
+[Ll]ibraryWebAPI/[Oo]bj/
+*.dll
+*.pdb
+*.cache
+*.suo
+*.user
+*.nupkg
+bin/
+obj/
+
 # Node modules
 node_modules/
 libraryApp/node_modules/
