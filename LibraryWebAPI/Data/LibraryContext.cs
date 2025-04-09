@@ -520,6 +520,9 @@ modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
+            entity.HasOne(w => w.Item)
+                .WithMany()
+                .HasForeignKey(w => w.ItemId);
         
         });
 

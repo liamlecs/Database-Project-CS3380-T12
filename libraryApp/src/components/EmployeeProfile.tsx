@@ -25,6 +25,8 @@ interface EmployeeProfileProps {
     firstName: string;
     lastName: string;
     birthDate: string;
+    supervisorID?: number;
+    username: string;
   };
   onUpdate: (updatedData: any) => void;
 }

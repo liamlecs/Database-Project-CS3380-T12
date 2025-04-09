@@ -8,7 +8,6 @@ namespace LibraryWebAPI.Models;
 public partial class Waitlist
 {
     [Key]
-    [ForeignKey("CustomerId")]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int WaitlistId { get; set; }
     
@@ -20,4 +19,8 @@ public partial class Waitlist
 
     public bool isReceived { get; set; }
 
+
+    // Navigation property for the related Item
+    [ForeignKey("ItemId")]
+    public virtual Item Item { get; set; } = null!;
 }

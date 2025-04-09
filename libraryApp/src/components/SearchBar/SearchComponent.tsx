@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import Dropdown from '../SearchBar/Dropdown';
 import './SearchComponent.css';
+import { Book as BaseBook } from "../../types/Book";
+
+interface Book extends BaseBook {
+    isCheckedOut: boolean;
+}
 
 import { FC } from 'react';
 

@@ -33,39 +33,43 @@ namespace LibraryWebAPI.Controllers
         {
             var employee = await _context.Employees
                 .Include(e => e.Supervisor)
-                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+                .FirstOrDefaultAsync(e => e.EmployeeId == id);
 
             if (employee == null)
             {
                 return NotFound();
             }
 
-            return Ok(employee);
-        }
-
-        // POST: api/Employee
-        [HttpPost]
-        public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
-        {
-            if (ModelState.IsValid)
+            // Map to DTO or return directly
+            return Ok(new
             {
-                _context.Employees.Add(employee);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetEmployee), new { id = employee.EmployeeId }, employee);
-            }
-            return BadRequest(ModelState);
+                employeeID = employee.EmployeeId,
+                firstName = employee.FirstName,
+                lastName = employee.LastName,
+                birthDate = employee.BirthDate?.ToString("yyyy-MM-dd"),
+                supervisorID = employee.SupervisorId,
+                username = employee.Username
+            });
         }
 
         // PUT: api/Employee/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployee(int id, Employee employee)
+        public async Task<IActionResult> PutEmployee(int id, [FromBody] EmployeeUpdateDto employeeDto)
         {
-            if (id != employee.EmployeeId)
+            if (id != employeeDto.EmployeeId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(employee).State = EntityState.Modified;
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            employee.FirstName = employeeDto.FirstName;
+            employee.LastName = employeeDto.LastName;
+            employee.BirthDate = DateOnly.Parse(employeeDto.BirthDate);
 
             try
             {
@@ -86,22 +90,6 @@ namespace LibraryWebAPI.Controllers
             return NoContent();
         }
 
-        // DELETE: api/Employee/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmployee(int id)
-        {
-            var employee = await _context.Employees.FindAsync(id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
-            _context.Employees.Remove(employee);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
         private bool EmployeeExists(int id)
         {
             return _context.Employees.Any(e => e.EmployeeId == id);
@@ -109,3 +97,10 @@ namespace LibraryWebAPI.Controllers
     }
 }
 
+public class EmployeeUpdateDto
+{
+    public int EmployeeId { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string BirthDate { get; set; }
+}
