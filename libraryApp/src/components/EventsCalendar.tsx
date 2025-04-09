@@ -140,24 +140,19 @@ class EventsCalendar extends Component<
         >
           {this.state.selectedEvent && (
             <>
-              <DialogTitle>{this.state.selectedEvent.title}</DialogTitle>
+              <DialogTitle style={{ fontWeight: "bold", color: "darkblue" }}>
+  {this.state.selectedEvent.title} —{" "}
+  {dayjs(this.state.selectedEvent.start).format("MMMM D") ===
+  dayjs(this.state.selectedEvent.end).format("MMMM D")
+    ? `${dayjs(this.state.selectedEvent.start).format("MMMM D, h:mm A")} - ${dayjs(
+        this.state.selectedEvent.end
+      ).format("h:mm A")}`
+    : `${dayjs(this.state.selectedEvent.start).format("MMMM D, h:mm A")} - ${dayjs(
+        this.state.selectedEvent.end
+      ).format("MMMM D, h:mm A")}`}
+</DialogTitle>
               <DialogContent>
-                <p>
-                  {dayjs(this.state.selectedEvent.start).format("MMMM D") ===
-                  dayjs(this.state.selectedEvent.end).format("MMMM D")
-                    ? `${dayjs(this.state.selectedEvent.start).format(
-                        "h:mm A"
-                      )} - ${dayjs(this.state.selectedEvent.end).format(
-                        "h:mm A"
-                      )}`
-                    : `${dayjs(this.state.selectedEvent.start).format(
-                        "MMMM D, h:mm A"
-                      )} - ${dayjs(this.state.selectedEvent.end).format(
-                        "MMMM D, h:mm A"
-                      )}`}
-                </p>
-
-                <p> Location: {this.state.selectedEvent.location}</p>
+                <p> <strong>Location:</strong> {this.state.selectedEvent.location}</p>
 
                 <p>{this.state.selectedEvent.description}</p>
                 {this.state.selectedEvent.isPrivate && (
@@ -182,20 +177,20 @@ class EventsCalendar extends Component<
 >
   <Stack direction="row" justifyContent="space-between" sx={{ width: "100%", pr: 2 }}>
     <Stack direction="column" spacing={0.5}>
-      <p style={{ margin: 0 }}>Intended Age Group</p>
-      <p style={{ fontWeight: "bold", margin: 0 }}>
+      <p style={{fontWeight: "bold", margin: 0 }}>Intended Age Group</p>
+      <p style={{ margin: 0 }}>
         {this.state.selectedEvent.ageGroup}
       </p>
     </Stack>
     <Stack direction="column" spacing={0.5}>
-      <p style={{ margin: 0 }}>Category</p>
-      <p style={{ fontWeight: "bold", margin: 0 }}>
+      <p style={{ fontWeight: "bold", margin: 0 }}>Category</p>
+      <p style={{ margin: 0 }}>
         {this.state.selectedEvent.categoryDescription}
       </p>
     </Stack>
   </Stack>
 
-  <Button onClick={this.handleClose} color="secondary">
+  <Button onClick={this.handleClose} color="secondary" variant="outlined">
     Close
   </Button>
 </DialogActions>
