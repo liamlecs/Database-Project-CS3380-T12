@@ -281,8 +281,8 @@ namespace LibraryWebAPI.Controllers
                 return NotFound($"failed to display fines.");
             }
 
-            entity.TransactionPopularity = await GetTransactionPopularityDataAsync();
-            entity.TransactionFine = await GetTransactionFinesDataAsync();
+            entity.TransactionPopularity = await GetTransactionPopularityDataConditionalAsync(start, end);
+            entity.TransactionFine = await GetTransactionFinesDataConditionalAsync(start, end);
 
             return Ok(entity);
         }
@@ -515,7 +515,7 @@ namespace LibraryWebAPI.Controllers
 "LEFT JOIN Music ON Item.ItemID = Music.SongID " +
 "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
 "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-"WHERE {0}<TRANSACTION_HISTORY.DateBorrowed AND TRANSACTION_HISTORY.DateBorrowed<{1}" +
+"WHERE {0}<TRANSACTION_HISTORY.DateBorrowed AND TRANSACTION_HISTORY.DateBorrowed<{1} " +
 "GROUP BY Item.Title, ItemType.TypeName;", startDateTime, endDateTime).ToListAsync();
         }
 
@@ -547,7 +547,7 @@ namespace LibraryWebAPI.Controllers
 "JOIN Fines F ON TH.TransactionID = F.TransactionID " +
 "JOIN Customer C ON F.CustomerID = C.CustomerID " +
 "JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
-"WHERE {0}<F.IssueDate AND F.IssueDate<{1}" +
+"WHERE {0}<F.IssueDate AND F.IssueDate<{1} " +
 "GROUP BY " +
 "    I.Title, " +
 "    C.Email, " +
