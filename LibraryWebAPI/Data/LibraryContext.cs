@@ -10,6 +10,7 @@ namespace LibraryWebAPI.Data
 public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<BookAuthor> BookAuthors { get; set; }
+    
 
     public virtual DbSet<BookGenre> BookGenres { get; set; }
 
@@ -24,6 +25,8 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<Employee> Employees { get; set; }
 
     public virtual DbSet<Event> Events { get; set; }
+
+        public virtual DbSet<EventCalendarDto> EventCalendar { get; set; }
 
     public virtual DbSet<EventCategory> EventCategories { get; set; }
 
