@@ -32,6 +32,7 @@ import ItemFineReport from "./components/Reports/ItemFineReport.tsx";
 import CustomerLookupReport from "./components/Reports/CustomerLookupReport.tsx";
 import ReportsOutlet from "./components/ReportsOutlet.tsx";
 import { CheckoutProvider } from "./contexts/CheckoutContext.tsx";
+import MasterTransactionReport from "./components/Reports/MasterTransactionReport.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -71,6 +72,10 @@ function AppRoutes() {
             <Route
               path="customerlookupreport"
               element={<CustomerLookupReport />}
+            />
+            <Route
+              path="mastertransactionreport"
+              element={<MasterTransactionReport />}
             />
           </Route>
 
