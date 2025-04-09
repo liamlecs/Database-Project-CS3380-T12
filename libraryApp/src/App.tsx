@@ -33,6 +33,7 @@ import CustomerLookupReport from "./components/Reports/CustomerLookupReport.tsx"
 import ReportsOutlet from "./components/ReportsOutlet.tsx";
 import { CheckoutProvider } from "./contexts/CheckoutContext.tsx";
 import MasterTransactionReport from "./components/Reports/MasterTransactionReport.tsx";
+import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -64,6 +65,10 @@ function AppRoutes() {
           <Route path="/employee" element={<Employee />} />
           <Route path="/userprofile" element={<UserProfile />} />
           <Route path="/bookcheckout" element={<BookCheckOutPage />} />
+          <Route path="/userprofile" element={<UserProfile />}>
+            <Route path="changepassword" element={<ChangePassword />} /> {/* Nested route */}
+          </Route>
+          {/* <Route path="/bookcheckout" element={<BookCheckOutPage />} /> */}
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
           <Route path="/reportsoutlet" element={<ReportsOutlet />}>

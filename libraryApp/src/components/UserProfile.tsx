@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import "./UserProfile.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Outlet } from "react-router-dom";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -12,6 +12,11 @@ import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
+import Button from "@mui/material/Button";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import Box from "@mui/material/Box";
+//import InputLabel from "@mui/material/InputLabel";
+//import jsPDF from "jspdf";
 
 interface Profile {
   customerID: number;
@@ -32,7 +37,7 @@ interface Profile {
     status: boolean;
   }>;
   transactionHistory: Array<{
-    transcationId: number;
+    transactionId: number;
     customerId: number;
     itemId: number;
     dateBorrowed: Date;
@@ -44,6 +49,7 @@ interface Profile {
     waitlistId: number;
     customerId: number;
     itemId: number;
+    title: string;
     reservationDate: Date;
     isReceived: boolean;
   }>;
@@ -51,6 +57,7 @@ interface Profile {
 
 export default function UserProfile() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
@@ -71,6 +78,13 @@ export default function UserProfile() {
     }
   }, [navigate]);
 
+    // Reset `fromSettings` state to false when the component loads
+    useEffect(() => {
+      if (location.state?.fromSettings) {
+        navigate(location.pathname, { state: { fromSettings: false } });
+      }
+    }, [location, navigate]);
+
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -90,7 +104,7 @@ export default function UserProfile() {
         const response = await fetch(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/UserProfile/${userType}/${userIdNum}`,
+          }/api/UserProfile/${userType}/${userIdNum}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -100,11 +114,37 @@ export default function UserProfile() {
         if (!response.ok) {
           throw new Error("Failed to fetch profile data");
         }
-
         const data = await response.json();
 
         //console.log(data);
 
+        // e) call your GET /TransactionHistory/{userIdNum}
+        const transHistoryResponse = await fetch(
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/api/TransactionHistory/${userIdNum}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+
+        //check to see if null first
+        let transHistoryData = [];
+        if (transHistoryResponse.ok) {
+          transHistoryData = await transHistoryResponse.json();
+        } else if (transHistoryResponse.status === 404) {
+          console.warn("No tranaction history found");
+        } else {
+          throw new Error("Failed to fetch transaction data");
+        }
+
+        //see what the backend is sending
+        //console.log("FULL RESPONSE", data);
+        //console.log(transHistoryData);
+
+        // Map API fields to your Profile interface if needed
+        //Mapping Customer Fields to the fetch request
         const mappedProfile: Profile = {
           customerID: userIdNum,
           firstName: data.name.split(" ")[0],
@@ -116,7 +156,7 @@ export default function UserProfile() {
           membershipEndDate: data.membershipExpires || null,
           fines: data.fines || [],
           //checkedoutbooks implement later
-          transactionHistory: data.transcActHistory || [],
+          transactionHistory: transHistoryData || [],
           waitlists: data.waitLists || [],
         };
 
@@ -152,7 +192,7 @@ export default function UserProfile() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${
+        `${import.meta.env.VITE_API_BASE_URL}/api/UserProfile/customer/${
           editProfile.customerID
         }`,
         {
@@ -364,17 +404,80 @@ export default function UserProfile() {
         {activeTab === "transactions" && (
           <div className="profile-section">
             <h3>Transaction History</h3>
-            <ul className="transaction-history-list">
-              {profile.transactionHistory.map((transaction, index) => (
-                <li key={index}>
-                  <strong>{transaction.customerId}</strong>
-                  <br />
-                  Date: {new Date(transaction.dueDate).toLocaleDateString()}
-                  <br />
-                  TransactionID: ${transaction.transcationId.toFixed(2)}
-                </li>
-              ))}
-            </ul>
+
+            {/* Transaction History Table */}
+            {profile.transactionHistory.length > 0 ? (
+              <>
+                <TableContainer
+                  component={Paper}
+                  style={{ maxHeight: "500px" }}
+                >
+                  <Table stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>
+                          <strong>Transaction ID</strong>
+                        </TableCell>
+                        <TableCell>
+                          <strong>Title</strong>
+                        </TableCell>
+                        <TableCell>
+                          <strong>Date Borrowed</strong>
+                        </TableCell>
+                        <TableCell>
+                          <strong>Due Date</strong>
+                        </TableCell>
+                        <TableCell>
+                          <strong>Return Date</strong>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {profile.transactionHistory.map((transaction) => (
+                        <TableRow key={transaction.transactionId}>
+                          <TableCell>{transaction.transactionId}</TableCell>
+                          <TableCell>{transaction.title}</TableCell>
+                          <TableCell>
+                            {new Date(
+                              transaction.dateBorrowed
+                            ).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(transaction.dueDate).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            {transaction.returnDate
+                              ? new Date(
+                                  transaction.returnDate
+                                ).toLocaleDateString()
+                              : "Not Returned"}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                {/* Generate Report Button */}
+                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<SummarizeIcon />}
+                    onClick={async () => {
+                      // Logic to generate the report
+                      alert("Report generation is not implemented yet.");
+                      //await fetchTransactions();
+                      //generatePDF();
+                    }}
+                  >
+                    Generate Report
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <p>No transactions found.</p>
+            )}
           </div>
         )}
 
@@ -382,6 +485,7 @@ export default function UserProfile() {
         {activeTab === "waitlist" && (
           <div className="profile-section">
             <h3>Waitlist</h3>
+
             {/* Search and Filter Controls */}
             <div className="filter-container">
               {/* Search Bar */}
@@ -421,10 +525,7 @@ export default function UserProfile() {
                         <strong>Waitlist ID</strong>
                       </TableCell>
                       <TableCell>
-                        <strong>Customer ID</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Item ID</strong>
+                        <strong>Title</strong>
                       </TableCell>
                       <TableCell>
                         <strong>Reservation Date</strong>
@@ -438,8 +539,7 @@ export default function UserProfile() {
                     {filteredWaitlists.map((item) => (
                       <TableRow key={item.waitlistId}>
                         <TableCell>{item.waitlistId}</TableCell>
-                        <TableCell>{item.customerId}</TableCell>
-                        <TableCell>{item.itemId}</TableCell>
+                        <TableCell>{item.title}</TableCell>
                         <TableCell>
                           {new Date(item.reservationDate).toLocaleDateString()}
                         </TableCell>
@@ -510,28 +610,58 @@ export default function UserProfile() {
           </div>
         )}
 
-        {/* Settings Tab */}
         {activeTab === "settings" && (
           <div className="profile-section">
             <h3>Account Settings</h3>
             <form onSubmit={handleSave}>
-              <div className="profile-item">
-                <label htmlFor="password">
-                  <strong>Password:</strong>
-                </label>
-                <input
-                  type="text"
-                  id="password"
-                  name="password"
-                  value={editProfile?.password || ""}
+              <Box display="flex" flexDirection="column" gap={2}>
+                <TextField
+                  label="First Name"
+                  variant="outlined"
+                  id="firstName"
+                  name="firstName"
+                  value={editProfile?.firstName || ""}
                   onChange={handleInputChange}
-                  required
+                  fullWidth
                 />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Save Changes
-              </button>
+                <TextField
+                  label="Last Name"
+                  variant="outlined"
+                  id="lastName"
+                  name="lastName"
+                  value={editProfile?.lastName || ""}
+                  onChange={handleInputChange}
+                  fullWidth
+                />
+
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{ width: "200px", alignSelf: "center" }}
+                >
+                  Save Changes
+                </Button>
+
+                {/* Only show the Change Password button if we're NOT on /userprofile/changepassword */}
+                {location.pathname !== "/userprofile/changepassword" && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() =>
+                      navigate("/userprofile/changepassword", {
+                        state: { fromSettings: true },
+                      })
+                    }
+                  >
+                    Change Password
+                  </Button>
+                )}
+              </Box>
             </form>
+
+            {/* Only render ChangePassword route if user is on that exact path */}
+            {location.pathname === "/userprofile/changepassword" && <Outlet />}
           </div>
         )}
       </div>
