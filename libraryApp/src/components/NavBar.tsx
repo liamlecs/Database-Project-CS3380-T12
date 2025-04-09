@@ -7,6 +7,9 @@
 
     // Local state for login info and dropdown toggle
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isEmployeeLoggedIn, setIsEmployeeLoggedIn] = useState(false);
+    const [employeeFirstName, setEmployeeFirstName] = useState("");
+    const [employeeLastName, setEmployeeLastName] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
@@ -14,6 +17,16 @@
 
     // On component mount, read login info from localStorage
     useEffect(() => {
+      // Check if the employee is logged in
+      const employeeLoggedIn = localStorage.getItem("isEmployeeLoggedIn") === "true";
+      setIsEmployeeLoggedIn(employeeLoggedIn);
+      if (employeeLoggedIn) {
+        setEmployeeFirstName(localStorage.getItem("employeeFirstName") || "");
+        setEmployeeLastName(localStorage.getItem("employeeLastName") || "");
+      }
+
+
+      // Check if the user is logged in
       const loggedIn = localStorage.getItem("isLoggedIn") === "true";
       setIsLoggedIn(loggedIn);
       if (loggedIn) {
@@ -25,7 +38,8 @@
 
     // Toggle the dropdown menu when avatar is clicked
     const toggleMenu = () => {
-      if (isLoggedIn) {
+      // Check if the user is logged in before toggling the menu
+      if (isLoggedIn || isEmployeeLoggedIn) {
         setShowMenu((prev) => !prev);
       } else {
         navigate("/customer-login");
@@ -35,13 +49,18 @@
     // Handle log out by clearing localStorage and navigating to login
     const handleLogout = () => {
       localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("isEmployeeLoggedIn");
+      localStorage.removeItem("employeeFirstName");
+      localStorage.removeItem("employeeLastName");
       localStorage.removeItem("firstName");
       localStorage.removeItem("lastName");
       localStorage.removeItem("email");
       localStorage.removeItem("userId");
+      localStorage.removeItem("employeeId");
       localStorage.removeItem("userType");
       setIsLoggedIn(false);
       setShowMenu(false);
+      setIsEmployeeLoggedIn(false);
       // Force a full reload to ensure all components update their state
       window.location.href = "/customer-login";
       alert("Logged out successfully.");
@@ -60,8 +79,8 @@
             <Link to="/eventscalendar">Event Calendar</Link>
           </li>
 
-          {/* Only show these links if NOT logged in */}
-          {!isLoggedIn && (
+          {/* Only show these links if NOT customer or employee logged in */}
+          {!isLoggedIn && !isEmployeeLoggedIn && (
             <>
               <li>
                 <Link to="/registrationpage">Registration</Link>
@@ -75,47 +94,71 @@
             </>
           )}
 
-          {/* Only show these links if logged in */}
+
+          {/* Only show these links if customer logged in */}
           {isLoggedIn && (
             <>
-              <li>
-                <Link to="/createevent">Create Event</Link>
-              </li>
               <li>
                 <Link to="/bookcheckout">Book Checkout</Link>
               </li>
               <li>
                 <Link to="/UserProfile">User Profile</Link>
               </li>
+            </>
+          )}
+
+          {/* Only show these links if employee logged in */}
+          {isEmployeeLoggedIn && !isLoggedIn && (
+            <>
+              <li>
+                <Link to="/createevent">Create Event</Link>
+              </li>
               <li>
                 <Link to="/reportsoutlet">Reports Outlet</Link>
+              </li>
+              <li>
+                <Link to="/Employee">Employee Dashboard</Link>
               </li>
             </>
           )}
 
-          {/* Always show these links */}
-          <li>
-            <Link to="/donations">Donate</Link>
-          </li>
-
+          {/* Always show these links unless employee logged in*/}
+          {!isEmployeeLoggedIn && ( 
+            <>
+            <li>
+              <Link to="/donations">Donate</Link>
+            </li>
+            </>
+          )}
+          
         </ul>
 
         {/* Right side: User Avatar */}
         <div className="avatar-container" onClick={toggleMenu}>
           <div className="avatar-circle">
-            {isLoggedIn && firstName ? firstName.charAt(0).toUpperCase() : "?"}
+            {localStorage.getItem("isEmployeeLoggedIn") === "true" && localStorage.getItem("employeeFirstName")
+              ? localStorage.getItem("employeeFirstName")?.charAt(0).toUpperCase()
+              : localStorage.getItem("isLoggedIn") === "true" && localStorage.getItem("firstName")
+                ? localStorage.getItem("firstName")?.charAt(0).toUpperCase()
+                : "?"
+            }
           </div>
           {showMenu && (
             <div className="avatar-dropdown">
               <p className="avatar-name">
-                {firstName} {lastName}
+                {localStorage.getItem("isEmployeeLoggedIn") === "true"
+                  ? `${localStorage.getItem("employeeFirstName") || ''} ${localStorage.getItem("employeeLastName") || ''}`
+                  : `${localStorage.getItem("firstName") || ''} ${localStorage.getItem("lastName") || ''}`
+                }
               </p>
-              <p className="avatar-email">{email}</p>
+              {localStorage.getItem("isEmployeeLoggedIn") !== "true" && 
+                <p className="avatar-email">{localStorage.getItem("email") || ''}</p>
+              }
               <hr />
               <button onClick={handleLogout}>Sign Out</button>
             </div>
           )}
-        </div>
+      </div>
       </nav>
     );
   }

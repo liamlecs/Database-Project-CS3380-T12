@@ -82,7 +82,6 @@ interface EmployeeData {
   password?: string;
 }
 
-
 const Employee: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -188,6 +187,8 @@ const Employee: React.FC = () => {
   const handleEmployeeLogout = () => {
     localStorage.removeItem("employeeId");
     localStorage.removeItem("isEmployeeLoggedIn");
+    localStorage.removeItem("employeeFirstName");
+    localStorage.removeItem("employeeLastName");
     navigate("/employee-login");
   };
   
