@@ -15,8 +15,14 @@ import FormControl from "@mui/material/FormControl";
 import Button from "@mui/material/Button";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import Box from "@mui/material/Box";
-//import InputLabel from "@mui/material/InputLabel";
-//import jsPDF from "jspdf";
+import { DataGrid, GridColDef } from "@mui/x-data-grid"; // Import DataGrid
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Slider from "@mui/material/Slider"; // Import Slider
+import Typography from "@mui/material/Typography"; // Import Typography
 
 interface Profile {
   customerID: number;
@@ -70,6 +76,29 @@ export default function UserProfile() {
     Profile["waitlists"]
   >([]);
   const [filterDays, setFilterDays] = useState<number>(0);
+  const [filterReceived, setFilterReceived] = useState<string>("all");
+
+  const [inventorySearchQuery, setInventorySearchQuery] = useState<string>("");
+  const [filteredInventory, setFilteredInventory] = useState<
+    Profile["transactionHistory"]
+  >([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false); // State to control dialog visibility
+  const [filterStatus, setFilterStatus] = useState<string>("all"); // For status filter
+  const [filterAmount, setFilterAmount] = useState<number[]>([0, 100]); // For amount slider
+  const [filteredFines, setFilteredFines] = useState<Profile["fines"]>([]); // For filtered fines
+
+  const handleDialogOpen = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
+
+  const handleConfirmSave = async () => {
+    setIsDialogOpen(false);
+    await handleSave();
+  };
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -78,12 +107,12 @@ export default function UserProfile() {
     }
   }, [navigate]);
 
-    // Reset `fromSettings` state to false when the component loads
-    useEffect(() => {
-      if (location.state?.fromSettings) {
-        navigate(location.pathname, { state: { fromSettings: false } });
-      }
-    }, [location, navigate]);
+  // Reset `fromSettings` state to false when the component loads
+  useEffect(() => {
+    if (location.state?.fromSettings) {
+      navigate(location.pathname, { state: { fromSettings: false } });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -186,8 +215,7 @@ export default function UserProfile() {
     );
   };
 
-  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSave = async () => {
     if (!editProfile) return;
 
     try {
@@ -246,10 +274,51 @@ export default function UserProfile() {
   useEffect(() => {
     const filtered =
       profile?.waitlists.filter((item) =>
-        item.itemId.toString().includes(searchQuery)
+        item.title.toLowerCase().includes(searchQuery.toLowerCase())
       ) || [];
     setFilteredWaitlists(filtered);
   }, [searchQuery, profile?.waitlists]);
+
+  useEffect(() => {
+    const filtered =
+      profile?.waitlists.filter((item) => {
+        const matchesSearchQuery = item.title
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        const matchesReceivedFilter =
+          filterReceived === "all" ||
+          (filterReceived === "yes" && item.isReceived) ||
+          (filterReceived === "no" && !item.isReceived);
+        return matchesSearchQuery && matchesReceivedFilter;
+      }) || [];
+    setFilteredWaitlists(filtered);
+  }, [searchQuery, filterReceived, profile?.waitlists]);
+
+  useEffect(() => {
+    const filtered =
+      profile?.transactionHistory.filter((transaction) =>
+        transaction.title
+          ?.toLowerCase()
+          .includes(inventorySearchQuery.toLowerCase())
+      ) || [];
+    setFilteredInventory(filtered);
+  }, [inventorySearchQuery, profile?.transactionHistory]);
+
+  useEffect(() => {
+    const filtered =
+      profile?.fines.filter((fine) => {
+        const matchesStatus =
+          filterStatus === "all" ||
+          (filterStatus === "paid" && fine.status) ||
+          (filterStatus === "unpaid" && !fine.status);
+
+        const matchesAmount =
+          fine.amount >= filterAmount[0] && fine.amount <= filterAmount[1];
+
+        return matchesStatus && matchesAmount;
+      }) || [];
+    setFilteredFines(filtered);
+  }, [filterStatus, filterAmount, profile?.fines]);
 
   if (loading) {
     return <div className="loading">Loading profile...</div>;
@@ -371,9 +440,21 @@ export default function UserProfile() {
         {activeTab === "inventory" && (
           <div className="profile-section">
             <h3>Inventory</h3>
-            {(profile.transactionHistory || []).length > 0 ? (
+
+            {/* Search Bar */}
+            <div className="filter-container">
+              <TextField
+                label="Search by Title"
+                variant="outlined"
+                size="small"
+                onChange={(e) => setInventorySearchQuery(e.target.value)}
+                style={{ width: "40%", marginBottom: "16px" }}
+              />
+            </div>
+
+            {(filteredInventory || []).length > 0 ? (
               <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-                {profile.transactionHistory.map((transaction, index) => (
+                {filteredInventory.map((transaction, index) => (
                   <Paper
                     key={index}
                     elevation={3}
@@ -386,7 +467,7 @@ export default function UserProfile() {
                     }}
                   >
                     <div style={{ marginBottom: "10px" }}>
-                      <strong>Item ID "Change to Image of Item":</strong> {transaction.itemId}
+                      <strong>Item ID:</strong> {transaction.itemId}
                     </div>
                     <div style={{ marginBottom: "10px" }}>
                       <strong>Title:</strong> {transaction.title || "N/A"}
@@ -405,76 +486,41 @@ export default function UserProfile() {
           <div className="profile-section">
             <h3>Transaction History</h3>
 
-            {/* Transaction History Table */}
+            {/* Material-UI DataGrid */}
             {profile.transactionHistory.length > 0 ? (
-              <>
-                <TableContainer
-                  component={Paper}
-                  style={{ maxHeight: "500px" }}
-                >
-                  <Table stickyHeader>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>
-                          <strong>Transaction ID</strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Title</strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Date Borrowed</strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Due Date</strong>
-                        </TableCell>
-                        <TableCell>
-                          <strong>Return Date</strong>
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {profile.transactionHistory.map((transaction) => (
-                        <TableRow key={transaction.transactionId}>
-                          <TableCell>{transaction.transactionId}</TableCell>
-                          <TableCell>{transaction.title}</TableCell>
-                          <TableCell>
-                            {new Date(
-                              transaction.dateBorrowed
-                            ).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(transaction.dueDate).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            {transaction.returnDate
-                              ? new Date(
-                                  transaction.returnDate
-                                ).toLocaleDateString()
-                              : "Not Returned"}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-
-                {/* Generate Report Button */}
-                <div style={{ marginTop: "20px", textAlign: "center" }}>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    startIcon={<SummarizeIcon />}
-                    onClick={async () => {
-                      // Logic to generate the report
-                      alert("Report generation is not implemented yet.");
-                      //await fetchTransactions();
-                      //generatePDF();
-                    }}
-                  >
-                    Generate Report
-                  </Button>
-                </div>
-              </>
+              <div style={{ height: 500, width: "100%" }}>
+                <DataGrid
+                  rows={profile.transactionHistory.map((transaction) => ({
+                    id: transaction.transactionId, // DataGrid requires a unique `id` field
+                    title: transaction.title || "N/A",
+                    dateBorrowed: new Date(
+                      transaction.dateBorrowed
+                    ).toLocaleDateString(),
+                    dueDate: new Date(transaction.dueDate).toLocaleDateString(),
+                    returnDate: transaction.returnDate
+                      ? new Date(transaction.returnDate).toLocaleDateString()
+                      : "Not Returned",
+                  }))}
+                  columns={[
+                    { field: "id", headerName: "Transaction ID", width: 150 },
+                    { field: "title", headerName: "Title", width: 300 },
+                    {
+                      field: "dateBorrowed",
+                      headerName: "Date Borrowed",
+                      width: 200,
+                    },
+                    { field: "dueDate", headerName: "Due Date", width: 200 },
+                    {
+                      field: "returnDate",
+                      headerName: "Return Date",
+                      width: 200,
+                    },
+                  ]}
+                  //pageSize={10}
+                  //rowsPerPageOptions={[5, 10, 20]}
+                  //disableSelectionOnClick
+                />
+              </div>
             ) : (
               <p>No transactions found.</p>
             )}
@@ -490,7 +536,7 @@ export default function UserProfile() {
             <div className="filter-container">
               {/* Search Bar */}
               <TextField
-                label="Search by Item ID"
+                label="Search by Title"
                 variant="outlined"
                 size="small"
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -499,7 +545,7 @@ export default function UserProfile() {
 
               {/* Filter Dropdown with Label */}
               <div className="filter-wrapper">
-                <label className="filter-label">Filter:</label>
+                <label className="filter-label">Filter by Days:</label>
                 <FormControl className="filter-dropdown">
                   <Select
                     value={filterDays}
@@ -514,41 +560,54 @@ export default function UserProfile() {
                   </Select>
                 </FormControl>
               </div>
+
+              {/* New Filter for "Is Received" */}
+              <div className="filter-wrapper">
+                <label className="filter-label">Filter by Received:</label>
+                <FormControl className="filter-dropdown">
+                  <Select
+                    value={filterReceived}
+                    onChange={(e) => setFilterReceived(e.target.value)}
+                  >
+                    <MenuItem value="all">All</MenuItem>
+                    <MenuItem value="yes">Yes</MenuItem>
+                    <MenuItem value="no">No</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
             </div>
 
+            {/* Material-UI DataGrid */}
             {filteredWaitlists.length > 0 ? (
-              <TableContainer component={Paper} style={{ maxHeight: "500px" }}>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>
-                        <strong>Waitlist ID</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Title</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Reservation Date</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Is Received</strong>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredWaitlists.map((item) => (
-                      <TableRow key={item.waitlistId}>
-                        <TableCell>{item.waitlistId}</TableCell>
-                        <TableCell>{item.title}</TableCell>
-                        <TableCell>
-                          {new Date(item.reservationDate).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>{item.isReceived ? "Yes" : "No"}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <div style={{ height: 500, width: "100%" }}>
+                <DataGrid
+                  rows={filteredWaitlists.map((item) => ({
+                    id: item.waitlistId, // DataGrid requires a unique `id` field
+                    title: item.title,
+                    reservationDate: new Date(
+                      item.reservationDate
+                    ).toLocaleDateString(),
+                    isReceived: item.isReceived ? "Yes" : "No",
+                  }))}
+                  columns={[
+                    { field: "id", headerName: "Waitlist ID", width: 150 },
+                    { field: "title", headerName: "Title", width: 300 },
+                    {
+                      field: "reservationDate",
+                      headerName: "Reservation Date",
+                      width: 200,
+                    },
+                    {
+                      field: "isReceived",
+                      headerName: "Is Received",
+                      width: 150,
+                    },
+                  ]}
+                  //pageSize={10}
+                  //rowsPerPageOptions={[5, 10, 20]}
+                  //disableSelectionOnClick
+                />
+              </div>
             ) : (
               <p>No items in the waitlist.</p>
             )}
@@ -559,51 +618,112 @@ export default function UserProfile() {
         {activeTab === "fines" && (
           <div className="profile-section">
             <h3>Fines</h3>
-            {profile.fines.length > 0 ? (
-              <TableContainer component={Paper} style={{ maxHeight: "500px" }}>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>
-                        <strong>Transaction ID</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Amount</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Due Date</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Issue Date</strong>
-                      </TableCell>
-                      <TableCell>
-                        <strong>Status</strong>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {profile.fines.map((fines, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{fines.transactionId}</TableCell>
-                        <TableCell>${fines.amount.toFixed(2)}</TableCell>
-                        <TableCell>
-                          {fines.dueDate
-                            ? new Date(fines.dueDate).toLocaleDateString()
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          {fines.issueDate
-                            ? new Date(fines.issueDate).toLocaleDateString()
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell>
-                          {fines.status ? "Paid" : "Unpaid"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+
+            {/* Filters */}
+            <div className="filter-container">
+              {/* Filter by Status */}
+              <div className="filter-wrapper">
+                <label className="filter-label">Filter by Status:</label>
+                <FormControl className="filter-dropdown">
+                  <Select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  >
+                    <MenuItem value="all">All</MenuItem>
+                    <MenuItem value="paid">Paid</MenuItem>
+                    <MenuItem value="unpaid">Unpaid</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+
+              {/* Filter by Amount */}
+              <div className="filter-wrapper">
+                <label className="filter-label">
+                  Filter by Amount: ${filterAmount[0]} - ${filterAmount[1]}
+                </label>
+                <Box sx={{ width: 300, paddingTop: 2 }}>
+                  <Typography gutterBottom variant="subtitle1">
+                    Filter by Amount: ${filterAmount[0]} - ${filterAmount[1]}
+                  </Typography>
+                  <Slider
+                    value={filterAmount}
+                    onChange={(e, newValue) =>
+                      setFilterAmount(newValue as number[])
+                    }
+                    valueLabelDisplay="auto"
+                    min={0}
+                    max={Math.max(
+                      ...profile.fines.map((fine) => fine.amount),
+                      100
+                    )}
+                    step={5}
+                    marks={[
+                      { value: 0, label: "$0" },
+                      { value: 25, label: "$25" },
+                      { value: 50, label: "$50" },
+                      { value: 75, label: "$75" },
+                      { value: 100, label: "$100+" },
+                    ]}
+                    sx={{
+                      color: "primary.main",
+                      "& .MuiSlider-track": {
+                        height: 8,
+                      },
+                      "& .MuiSlider-rail": {
+                        height: 8,
+                        opacity: 0.3,
+                      },
+                      "& .MuiSlider-thumb": {
+                        height: 24,
+                        width: 24,
+                        backgroundColor: "#fff",
+                        border: "2px solid currentColor",
+                        "&:hover": {
+                          boxShadow: "0 0 0 8px rgba(25, 118, 210, 0.16)",
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              </div>
+            </div>
+
+            {/* Material-UI DataGrid */}
+            {filteredFines.length > 0 ? (
+              <div style={{ height: 500, width: "100%" }}>
+                <DataGrid
+                  rows={filteredFines.map((fine, index) => ({
+                    id: index, // DataGrid requires a unique `id` field
+                    transactionId: fine.transactionId,
+                    amount: `$${fine.amount.toFixed(2)}`,
+                    dueDate: fine.dueDate
+                      ? new Date(fine.dueDate).toLocaleDateString()
+                      : "N/A",
+                    issueDate: fine.issueDate
+                      ? new Date(fine.issueDate).toLocaleDateString()
+                      : "N/A",
+                    status: fine.status ? "Paid" : "Unpaid",
+                  }))}
+                  columns={[
+                    {
+                      field: "transactionId",
+                      headerName: "Transaction ID",
+                      width: 150,
+                    },
+                    { field: "amount", headerName: "Amount", width: 150 },
+                    { field: "dueDate", headerName: "Due Date", width: 200 },
+                    {
+                      field: "issueDate",
+                      headerName: "Issue Date",
+                      width: 200,
+                    },
+                    { field: "status", headerName: "Status", width: 150 },
+                  ]}
+                  //pageSize={10}
+                  //rowsPerPageOptions={[5, 10, 20]}
+                  //disableSelectionOnClick
+                />
+              </div>
             ) : (
               <p>No fines to display.</p>
             )}
@@ -613,7 +733,7 @@ export default function UserProfile() {
         {activeTab === "settings" && (
           <div className="profile-section">
             <h3>Account Settings</h3>
-            <form onSubmit={handleSave}>
+            <form onSubmit={(e) => e.preventDefault()}>
               <Box display="flex" flexDirection="column" gap={2}>
                 <TextField
                   label="First Name"
@@ -623,6 +743,7 @@ export default function UserProfile() {
                   value={editProfile?.firstName || ""}
                   onChange={handleInputChange}
                   fullWidth
+                  required
                 />
                 <TextField
                   label="Last Name"
@@ -632,13 +753,15 @@ export default function UserProfile() {
                   value={editProfile?.lastName || ""}
                   onChange={handleInputChange}
                   fullWidth
+                  required
                 />
 
                 <Button
-                  type="submit"
+                  type="button"
                   variant="contained"
                   color="primary"
                   sx={{ width: "200px", alignSelf: "center" }}
+                  onClick={handleDialogOpen} // Open the confirmation dialog
                 >
                   Save Changes
                 </Button>
@@ -659,6 +782,31 @@ export default function UserProfile() {
                 )}
               </Box>
             </form>
+
+            {/* Confirmation Dialog */}
+            <Dialog
+              open={isDialogOpen}
+              onClose={handleDialogClose}
+              aria-labelledby="confirm-dialog-title"
+              aria-describedby="confirm-dialog-description"
+            >
+              <DialogTitle id="confirm-dialog-title">
+                Confirm Changes
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="confirm-dialog-description">
+                  Are you sure you want to change these settings?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleDialogClose} color="secondary">
+                  Cancel
+                </Button>
+                <Button onClick={handleConfirmSave} color="primary" autoFocus>
+                  Confirm
+                </Button>
+              </DialogActions>
+            </Dialog>
 
             {/* Only render ChangePassword route if user is on that exact path */}
             {location.pathname === "/userprofile/changepassword" && <Outlet />}
