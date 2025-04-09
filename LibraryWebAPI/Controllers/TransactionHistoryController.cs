@@ -216,7 +216,7 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
                     (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TechTitleCount,
                     (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TotalTechCount,
                     (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS AvailableTechCount,
-                    (SELECT COUNT(*) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines,
+                    (SELECT SUM(Fines.Amount) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines,
                     (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers,
                     (SELECT COUNT(*) FROM TRANSACTION_HISTORY WHERE {startDateTime} < DateBorrowed AND DateBorrowed < {endDateTime}) AS CheckoutInstances,
                     (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY WHERE {startDateTime} < DateBorrowed AND DateBorrowed < {endDateTime}) AS UniqueCustomers
@@ -266,7 +266,7 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
 "        (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TotalTechCount, " +
 "        (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS AvailableTechCount, " +
 
-"        (SELECT COUNT(*) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines, " +
+"        (SELECT SUM(Fines.Amount) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines, " +
 "        (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers, " +
 "        (SELECT COUNT(*) FROM TRANSACTION_HISTORY) AS CheckoutInstances, " +
 "        (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY) AS UniqueCustomers " +
@@ -440,6 +440,7 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
 "JOIN Fines F ON TH.TransactionID = F.TransactionID " +
 "JOIN Customer C ON F.CustomerID = C.CustomerID " +
 "JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
+"WHERE F.PaymentStatus = 0 " +
 "GROUP BY " +
 "    I.Title, " +
 "    C.Email, " +
@@ -489,7 +490,7 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
         JOIN Fines F ON TH.TransactionID = F.TransactionID
         JOIN Customer C ON F.CustomerID = C.CustomerID
         JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
-        WHERE {startDateTime} < F.IssueDate AND F.IssueDate < {endDateTime}
+        WHERE {startDateTime} < F.IssueDate AND F.IssueDate < {endDateTime} AND F.PaymentStatus = 0
         GROUP BY I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, F.IssueDate, F.Amount, F.PaymentStatus, IT.TypeName
     ")
     .ToListAsync();

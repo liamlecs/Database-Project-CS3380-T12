@@ -43,6 +43,33 @@ namespace LibraryWebAPI.Controllers
             return Ok(fine);
         }
 
+        [HttpGet("CustomerFines/{email}")]
+        public async Task<ActionResult<List<CustomerFineDto>>> GetCustomerFines(string email)
+        {
+            // ✅ Query the database to find the customer by email
+            var fines = await _context.CustomerFines
+             .FromSql(
+                $@"
+SELECT 
+            Customer.Email,
+            Item.Title,
+            ItemType.TypeName,
+            Fines.Amount,
+            Fines.IssueDate,
+            Fines.PaymentStatus
+        FROM 
+            Customer
+        JOIN Fines ON Customer.CustomerID = Fines.CustomerID
+        JOIN TRANSACTION_HISTORY ON Fines.TransactionID = TRANSACTION_HISTORY.TransactionID
+        JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID
+        JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID
+        WHERE Customer.Email = {email}
+")
+                .ToListAsync();
+
+            return Ok(fines); // Return the customer entity
+        }
+
         // POST: api/Fine
         [HttpPost]
         public async Task<ActionResult<Fine>> PostFine(Fine fine)

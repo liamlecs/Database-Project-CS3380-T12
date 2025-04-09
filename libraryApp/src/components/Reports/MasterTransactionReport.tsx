@@ -127,7 +127,7 @@ export default function MasterTransactionReport() {
       {!loading && report && (
         <Paper elevation={3} sx={{ p: 4, width: "100%", maxWidth: "1000px" }}>
           <Typography variant="h5" gutterBottom>
-            Master Transaction Report
+            Master Library Report
           </Typography>
 
           <Divider sx={{ my: 2 }} />
@@ -141,7 +141,7 @@ export default function MasterTransactionReport() {
     {report.registeredUsersThatJoined}
   </Typography>
 )}
-          <Typography variant="subtitle1">Registered Users: {report.registeredUsers}</Typography>
+          <Typography variant="subtitle1">Total Registered Users: {report.registeredUsers}</Typography>
           <Typography variant="subtitle1">Outstanding Fines: ${report.outstandingFines}</Typography>
 
           <Divider sx={{ my: 3 }} />
@@ -199,15 +199,28 @@ export default function MasterTransactionReport() {
 
 
           <Divider sx={{ my: 3 }} />
+          {selectedStartDate != null &&
+  selectedEndDate != null && (
+    <Stack spacing={0.5}>
+          <Typography variant="h6" >
+            Checkout Activity
+            </Typography> 
+            <Typography variant="h6" gutterBottom >({selectedStartDate.format("MMM DD, YYYY")} -{" "}
+            {selectedEndDate.format("MMM DD, YYYY")}) </Typography>
+            </Stack>
+  )}
+  {selectedStartDate == null &&
+  selectedEndDate == null && (
           <Typography variant="h6" gutterBottom>
             Checkout Activity
           </Typography>
+  )}
           <Grid container spacing={2} sx={{ mt: 1 }}>
   <Grid item xs={12} sm={6}>
     <Card elevation={2}>
       <CardContent>
         <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-          Checkout Instances
+          Item Checkouts
         </Typography>
         <Typography variant="h5" fontWeight={600}>
           {report.checkoutInstances}
@@ -262,7 +275,7 @@ export default function MasterTransactionReport() {
           {/* Fines */}
           <Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
-            Transactions With Fines
+            Outstanding Fines
           </Typography>
           <TableContainer component={Paper}>
             <Table size="small">
@@ -276,7 +289,7 @@ export default function MasterTransactionReport() {
                   {/*<TableCell>Date Borrowed</TableCell>*/}
                   {/*<TableCell>Due Date</TableCell>*/}
                   <TableCell>Fine Amount</TableCell>
-                  <TableCell>Paid?</TableCell>
+                  {/*<TableCell>Paid?</TableCell>*/}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -291,7 +304,7 @@ export default function MasterTransactionReport() {
                     {/*<TableCell>{fine.dueDate}</TableCell>*/}
                     <TableCell>{fine.issueDate}</TableCell>
                     <TableCell>${fine.amount.toFixed(2)}</TableCell>
-                    <TableCell>{fine.paymentStatus === 1 ? "Yes" : "No"}</TableCell>
+                    {/*<TableCell>{fine.paymentStatus === 1 ? "Yes" : "No"}</TableCell>*/}
                   </TableRow>
                 ))}
               </TableBody>
