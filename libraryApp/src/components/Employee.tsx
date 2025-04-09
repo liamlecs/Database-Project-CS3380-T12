@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -76,11 +77,12 @@ interface EmployeeData {
   firstName: string;
   lastName: string;
   birthDate: string
-  sex: string;
   supervisorID?: number;
   username: string;
   password?: string;
 }
+
+const navigate = useNavigate();
 
 const Employee: React.FC = () => {
   const theme = useTheme();
@@ -117,8 +119,7 @@ const Employee: React.FC = () => {
           employeeID: employeeId,
           firstName: 'Elite',
           lastName: 'Employee',
-          birthDate: '2000-03-24',
-          sex: 'Male'
+          birthDate: '2000-03-24'
         };
         setEmployeeData(mockData); */
   
@@ -139,7 +140,6 @@ const Employee: React.FC = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           birthDate: data.birthDate,
-          sex: data.sex,
           supervisorID: data.supervisorID,
           username: data.username
         });
@@ -149,11 +149,17 @@ const Employee: React.FC = () => {
         setOpenDialog(true);
       }
     };
-
+    const isEmployeeLoggedIn = localStorage.getItem('isEmployeeLoggedIn') === "true";
     const storedEmployeeId = localStorage.getItem('employeeId');
-    if (storedEmployeeId) {
-      fetchEmployeeData(parseInt(storedEmployeeId));
+    
+    if (!isEmployeeLoggedIn || !storedEmployeeId) {
+      // not logged in => redirect
+      navigate("/employee-login");
+      return;
     }
+      
+    fetchEmployeeData(parseInt(storedEmployeeId, 10));
+
 
     // fetch inventory and events data
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
@@ -178,6 +184,13 @@ const Employee: React.FC = () => {
     }
   };
 
+  // Log out helper function
+  const handleEmployeeLogout = () => {
+    localStorage.removeItem("employeeId");
+    localStorage.removeItem("isEmployeeLoggedIn");
+    navigate("/employee-login");
+  };
+  
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
       // mock update, will replace with actual API call

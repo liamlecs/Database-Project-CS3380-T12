@@ -38,6 +38,8 @@ export default function EmployeeLoginPage() {
 
       localStorage.setItem("employeeId", result.employeeID.toString());
 
+      localStorage.setItem("isEmployeeLoggedIn", "true");
+
       // Get the EmployeeID from the Employee and send it to the Employee.tsx
       navigate("/Employee", {
         state: {
