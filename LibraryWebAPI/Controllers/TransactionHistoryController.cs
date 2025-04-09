@@ -106,6 +106,7 @@ namespace LibraryWebAPI.Controllers
 "    BT.Type, " +
 "    TH.DateBorrowed, " +
 "    TH.DueDate, " +
+"    F.IssueDate, " +
 "    F.Amount, " +
 "    F.PaymentStatus, " +
 "    IT.TypeName AS ItemType " +
@@ -127,6 +128,7 @@ namespace LibraryWebAPI.Controllers
 "    BT.Type, " +
 "    TH.DateBorrowed, " +
 "    TH.DueDate, " +
+"    F.IssueDate, " +
 "    F.Amount, " +
 "    F.PaymentStatus, " +
 "    IT.TypeName;"
@@ -151,6 +153,7 @@ namespace LibraryWebAPI.Controllers
 "    BT.Type, " +
 "    TH.DateBorrowed, " +
 "    TH.DueDate, " +
+"    F.IssueDate, " +
 "    F.Amount, " +
 "    F.PaymentStatus, " +
 "    IT.TypeName AS ItemType " +
@@ -173,6 +176,7 @@ namespace LibraryWebAPI.Controllers
 "    BT.Type, " +
 "    TH.DateBorrowed, " +
 "    TH.DueDate, " +
+"    F.IssueDate, " +
 "    F.Amount, " +
 "    F.PaymentStatus, " +
 "    IT.TypeName;"
@@ -186,106 +190,57 @@ namespace LibraryWebAPI.Controllers
             return Ok(fines);
         }
 
-[HttpGet("masterTransactionReportConditional/{start}/{end}")]
-        public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional(DateOnly start, DateOnly end)
-        {
-            var startDateTime = start.ToDateTime(TimeOnly.MinValue);
-            var endDateTime = end.ToDateTime(TimeOnly.MaxValue); // or MinValue
+ [HttpGet("masterTransactionReportConditional/{start:datetime}/{end:datetime}")]
+public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional([FromRoute] DateOnly start, [FromRoute] DateOnly end)
+{
+    _logger.LogInformation("Received master report request with start: {Start} and end: {End}", start, end);
 
-            var entity = _context.MasterTransaction.FromSqlRaw("WITH InventoryReport AS (" +
-"    SELECT " +
-"        GETUTCDATE() AS Timestamp, " +
+    var startDateTime = start.ToDateTime(TimeOnly.MinValue);
+    var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
 
-"        (SELECT COUNT(*) " +
-"         FROM Customer " +
-"         WHERE {0} < MembershipStartDate AND MembershipStartDate < {1} AND EmailConfirmed = 1) AS RegisteredUsersThatJoined, " +
+    var entity = _context.MasterTransaction
+        .FromSqlInterpolated($@"
+            WITH InventoryReport AS (
+                SELECT 
+                    GETUTCDATE() AS Timestamp,
+                    (SELECT COUNT(*) FROM Customer WHERE {startDateTime} < MembershipStartDate AND MembershipStartDate < {endDateTime} AND EmailConfirmed = 1) AS RegisteredUsersThatJoined,
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS BookTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS TotalBookCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS AvailableBookCount,
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS MovieTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS TotalMovieCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS AvailableMovieCount,
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS MusicTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS TotalMusicCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS AvailableMusicCount,
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TechTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TotalTechCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS AvailableTechCount,
+                    (SELECT COUNT(*) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines,
+                    (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers,
+                    (SELECT COUNT(*) FROM TRANSACTION_HISTORY WHERE {startDateTime} < DateBorrowed AND DateBorrowed < {endDateTime}) AS CheckoutInstances,
+                    (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY WHERE {startDateTime} < DateBorrowed AND DateBorrowed < {endDateTime}) AS UniqueCustomers
+            )
+            SELECT *, 
+                   (BookTitleCount + MovieTitleCount + MusicTitleCount + TechTitleCount) AS TotalTitleCount,
+                   (TotalBookCount + TotalMovieCount + TotalMusicCount + TotalTechCount) AS TotalCopiesCount,
+                   (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount
+            FROM InventoryReport;
+        ")
+        .AsEnumerable()
+        .FirstOrDefault();
 
-"        (SELECT COUNT(*) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Book') AS BookTitleCount, " +
+    if (entity == null)
+    {
+        return NotFound("Failed to fetch report data.");
+    }
 
-"        (SELECT SUM(Item.TotalCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Book') AS TotalBookCount, " +
+    entity.TransactionPopularity = await GetTransactionPopularityDataConditionalAsync(start, end);
+    entity.TransactionFine = await GetTransactionFinesDataConditionalAsync(start, end);
 
-"        (SELECT SUM(Item.AvailableCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Book') AS AvailableBookCount, " +
+    return Ok(entity);
+}
 
-"        (SELECT COUNT(*) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Movie') AS MovieTitleCount, " +
-
-"        (SELECT SUM(Item.TotalCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Movie') AS TotalMovieCount, " +
-
-"        (SELECT SUM(Item.AvailableCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Movie') AS AvailableMovieCount, " +
-
-"        (SELECT COUNT(*) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Music') AS MusicTitleCount, " +
-
-"        (SELECT SUM(Item.TotalCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Music') AS TotalMusicCount, " +
-
-"        (SELECT SUM(Item.AvailableCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Music') AS AvailableMusicCount, " +
-
-"        (SELECT COUNT(*) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Device') AS TechTitleCount, " +
-
-"        (SELECT SUM(Item.TotalCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Device') AS TotalTechCount, " +
-
-"        (SELECT SUM(Item.AvailableCopies) " +
-"         FROM Item " +
-"         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"         WHERE ItemType.TypeName = 'Device') AS AvailableTechCount, " +
-
-"        (SELECT COUNT(*) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines, " +
-
-"        (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers, " +
-
-"        (SELECT COUNT(*) FROM TRANSACTION_HISTORY WHERE {0} < DateBorrowed AND DateBorrowed < {1}) AS CheckoutInstances, " +
-
-"        (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY WHERE {0} < DateBorrowed AND DateBorrowed < {1}) AS UniqueCustomers " +
-") " +
-
-"SELECT *, " +
-"       (BookTitleCount + MovieTitleCount + MusicTitleCount + TechTitleCount) AS TotalTitleCount, " +
-"       (TotalBookCount + TotalMovieCount + TotalMusicCount + TotalTechCount) AS TotalCopiesCount, " +
-"       (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount " +
-"FROM InventoryReport;"
-, startDateTime, endDateTime).AsEnumerable().FirstOrDefault();
-
-            if (entity == null)
-            {
-                return NotFound($"failed to display fines.");
-            }
-
-            entity.TransactionPopularity = await GetTransactionPopularityDataConditionalAsync(start, end);
-            entity.TransactionFine = await GetTransactionFinesDataConditionalAsync(start, end);
-
-            return Ok(entity);
-        }
 
         [HttpGet("masterTransactionReport")]
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReport()
@@ -471,6 +426,7 @@ namespace LibraryWebAPI.Controllers
 "    BT.Type, " +
 "    TH.DateBorrowed, " +
 "    TH.DueDate, " +
+"    F.IssueDate, " +
 "    F.Amount, " +
 "    F.PaymentStatus, " +
 "    IT.TypeName AS ItemType " +
@@ -492,31 +448,29 @@ namespace LibraryWebAPI.Controllers
 "    BT.Type, " +
 "    TH.DateBorrowed, " +
 "    TH.DueDate, " +
+"    F.IssueDate, " +
 "    F.Amount, " +
 "    F.PaymentStatus, " +
 "    IT.TypeName;").ToListAsync();
         }
 
-       private async Task<List<TransactionPopularityDto>> GetTransactionPopularityDataConditionalAsync(DateOnly start, DateOnly end)
+        private async Task<List<TransactionPopularityDto>> GetTransactionPopularityDataConditionalAsync(DateOnly start, DateOnly end)
         {
 
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue); // or MinValue
 
 
-            return await _context.TransactionPopularity.FromSqlRaw("SELECT " +
-"    Item.Title, " +
-"    COUNT(*) AS count, " +
-"    ItemType.TypeName AS ItemType " +
-"FROM TRANSACTION_HISTORY " +
-"JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID " +
-"LEFT JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID " +
-"LEFT JOIN Movie ON Item.ItemID = Movie.MovieID " +
-"LEFT JOIN Music ON Item.ItemID = Music.SongID " +
-"LEFT JOIN Book ON Item.ItemID = Book.BookID " +
-"LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-"WHERE {0}<TRANSACTION_HISTORY.DateBorrowed AND TRANSACTION_HISTORY.DateBorrowed<{1} " +
-"GROUP BY Item.Title, ItemType.TypeName;", startDateTime, endDateTime).ToListAsync();
+            return await _context.TransactionPopularity
+                .FromSqlInterpolated($@"
+        SELECT Item.Title, COUNT(*) AS count, ItemType.TypeName AS ItemType
+        FROM TRANSACTION_HISTORY
+        JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID
+        LEFT JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID
+        WHERE {startDateTime} < TRANSACTION_HISTORY.DateBorrowed AND TRANSACTION_HISTORY.DateBorrowed < {endDateTime}
+        GROUP BY Item.Title, ItemType.TypeName
+    ")
+                .ToListAsync();
         }
 
         private async Task<List<TransactionFineDto>> GetTransactionFinesDataConditionalAsync(DateOnly start, DateOnly end)
@@ -526,39 +480,19 @@ namespace LibraryWebAPI.Controllers
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue); // or MinValue
 
 
-            return await _context.TransactionFine.FromSqlRaw("SELECT " +
-"    I.Title, " +
-"    C.Email, " +
-"    C.FirstName, " +
-"    C.LastName, " +
-"    BT.Type, " +
-"    TH.DateBorrowed, " +
-"    TH.DueDate, " +
-"    F.Amount, " +
-"    F.PaymentStatus, " +
-"    IT.TypeName AS ItemType " +
-"FROM TRANSACTION_HISTORY TH " +
-"JOIN Item I ON TH.ItemID = I.ItemID " +
-"LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID " +
-"LEFT JOIN Movie M ON I.ItemID = M.MovieID " +
-"LEFT JOIN Music Mu ON I.ItemID = Mu.SongID " +
-"LEFT JOIN Book B ON I.ItemID = B.BookID " +
-"LEFT JOIN Technology T ON I.ItemID = T.DeviceID " +
-"JOIN Fines F ON TH.TransactionID = F.TransactionID " +
-"JOIN Customer C ON F.CustomerID = C.CustomerID " +
-"JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
-"WHERE {0}<F.IssueDate AND F.IssueDate<{1} " +
-"GROUP BY " +
-"    I.Title, " +
-"    C.Email, " +
-"    C.FirstName, " +
-"    C.LastName, " +
-"    BT.Type, " +
-"    TH.DateBorrowed, " +
-"    TH.DueDate, " +
-"    F.Amount, " +
-"    F.PaymentStatus, " +
-"    IT.TypeName;", startDateTime, endDateTime).ToListAsync();
+            return await _context.TransactionFine
+    .FromSqlInterpolated($@"
+        SELECT I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, F.IssueDate, F.Amount, F.PaymentStatus, IT.TypeName AS ItemType
+        FROM TRANSACTION_HISTORY TH
+        JOIN Item I ON TH.ItemID = I.ItemID
+        LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID
+        JOIN Fines F ON TH.TransactionID = F.TransactionID
+        JOIN Customer C ON F.CustomerID = C.CustomerID
+        JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
+        WHERE {startDateTime} < F.IssueDate AND F.IssueDate < {endDateTime}
+        GROUP BY I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, F.IssueDate, F.Amount, F.PaymentStatus, IT.TypeName
+    ")
+    .ToListAsync();
         }
 
 

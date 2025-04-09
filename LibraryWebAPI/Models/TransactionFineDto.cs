@@ -21,6 +21,8 @@ namespace LibraryWebAPI.Models
         public DateOnly DateBorrowed { get; set; }
         public DateOnly DueDate { get; set; }
 
+        public DateOnly IssueDate { get; set; }
+
         public double Amount { get; set; }
 
         public string ItemType { get; set; }

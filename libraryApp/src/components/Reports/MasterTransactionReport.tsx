@@ -1,9 +1,23 @@
-import { Stack, FormControl, InputLabel, Select, Button, TextField } from "@mui/material";
+import {
+  Stack,
+  Typography,
+  Paper,
+  Divider,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Card,
+  CardContent,
+  Grid,
+} from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import type { Dayjs } from "dayjs";
 import React from "react";
-import { MenuItem } from "react-pro-sidebar";
+import type { Dayjs } from "dayjs";
 
 type TransactionFineDto = {
   title: string;
@@ -13,6 +27,7 @@ type TransactionFineDto = {
   type: string;
   dateBorrowed: string;
   dueDate: string;
+  issueDate: string;
   amount: number;
   paymentStatus: number;
   itemType: string;
@@ -55,23 +70,18 @@ type MasterTransactionReportDto = {
 export default function MasterTransactionReport() {
   const [selectedStartDate, setSelectedStartDate] = React.useState<Dayjs | null>(null);
   const [selectedEndDate, setSelectedEndDate] = React.useState<Dayjs | null>(null);
-    const [loading, setLoading] = React.useState(false);
-    const [reportOutput, setReportOutput] = React.useState<MasterTransactionReportDto[]>([]);
-  React.useEffect(() => {
-    console.log("Updated reportOutput:", reportOutput);
-    console.log("Report output length > 0:", reportOutput.length > 0);
-  }, [reportOutput]);
+  const [loading, setLoading] = React.useState(false);
+  const [reportOutput, setReportOutput] = React.useState<MasterTransactionReportDto[]>([]);
 
-const handleCall = async () => {
+  const handleCall = async () => {
     setLoading(true);
     try {
       // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
       let response;
-
       if (selectedStartDate && selectedEndDate) {
         const formattedStart = selectedStartDate.format("YYYY-MM-DD");
         const formattedEnd = selectedEndDate.format("YYYY-MM-DD");
-  
+        console.log(formattedStart, " - ", formattedEnd)
         response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/masterTransactionReportConditional/${formattedStart}/${formattedEnd}`
         );
@@ -80,102 +90,248 @@ const handleCall = async () => {
           `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/masterTransactionReport`
         );
       }
-      if (!response.ok) {
-        throw new Error(`Failed to fetch events: ${response.statusText}`);
-      }
 
+      if (!response.ok) throw new Error("Fetch failed");
       const report = await response.json();
-      console.log("API Response:", report);
-
+      console.log(report);
       setReportOutput([report]);
-
-    } catch (error) {
-      console.error("Error fetching events:", error);
+    } catch (err) {
+      console.error("Fetch error", err);
     } finally {
       setLoading(false);
-    console.log(reportOutput);
     }
   };
 
+  const report = reportOutput[0];
 
-
-    return (
-
-
-<Stack spacing={2} direction="column" alignItems="center" sx={{ marginTop: "20px" }}>
-        <Stack spacing={2} direction="row" alignItems="center" sx={{ marginTop: "20px" }}>
+  return (
+    <Stack spacing={4} alignItems="center" sx={{ mt: 4 }}>
+      {/* Date pickers and trigger button */}
+      <Stack direction="row" spacing={2} alignItems="center">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Select Start Date"
-              value={selectedStartDate}
-              onChange={(newDate) => setSelectedStartDate(newDate)}
-            />
-          </LocalizationProvider>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              label="Select End Date"
-              value={selectedEndDate}
-              onChange={(newDate) => setSelectedEndDate(newDate)}
-            />
-          </LocalizationProvider>
-          <Button
-            variant="contained"
-            onClick={handleCall}
-            disabled={loading || (!selectedStartDate && !!selectedEndDate) || (!!selectedStartDate && !selectedEndDate)}
-          >
-            {loading ? "Loading..." : "Generate Report"}
-          </Button>
-        </Stack>
-        {!loading && reportOutput.length > 0 && (
-  <p style={{ whiteSpace: "pre-line", margin: "20px" }}> 
+          <DatePicker label="Start Date" value={selectedStartDate} onChange={setSelectedStartDate} disableFuture/>
+        </LocalizationProvider>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker label="End Date" value={selectedEndDate} onChange={setSelectedEndDate} disableFuture/>
+        </LocalizationProvider>
+        <Button
+          variant="contained"
+          onClick={handleCall}
+          disabled={loading || (!!selectedStartDate !== !!selectedEndDate)}
+        >
+          {loading ? "Loading..." : "Generate Report"}
+        </Button>
+      </Stack>
 
-    {reportOutput[0].registeredUsersThatJoined > -1 &&
-    `\nUsers That Registered Within Bounds: ${reportOutput[0].registeredUsersThatJoined}`
-  }
-    {"\n"}Registered Users: {reportOutput[0].registeredUsers}
-    {"\n"}Outstanding Fines: {reportOutput[0].outstandingFines}
+      {/* Report output */}
+      {!loading && report && (
+        <Paper elevation={3} sx={{ p: 4, width: "100%", maxWidth: "1000px" }}>
+          <Typography variant="h5" gutterBottom>
+            Master Transaction Report
+          </Typography>
 
-    {"\n\n"}--- Book Stats ---
-    {"\n"}Titles: {reportOutput[0].bookTitleCount}
-    {"\n"}Total Copies: {reportOutput[0].totalBookCount}
-    {"\n"}Available: {reportOutput[0].availableBookCount}
+          <Divider sx={{ my: 2 }} />
 
-    {"\n\n"}--- Movie Stats ---
-    {"\n"}Titles: {reportOutput[0].movieTitleCount}
-    {"\n"}Total Copies: {reportOutput[0].totalMovieCount}
-    {"\n"}Available: {reportOutput[0].availableMovieCount}
-
-    {"\n\n"}--- Music Stats ---
-    {"\n"}Titles: {reportOutput[0].musicTitleCount}
-    {"\n"}Total Copies: {reportOutput[0].totalMusicCount}
-    {"\n"}Available: {reportOutput[0].availableMusicCount}
-
-    {"\n\n"}--- Tech Stats ---
-    {"\n"}Titles: {reportOutput[0].techTitleCount}
-    {"\n"}Total Copies: {reportOutput[0].totalTechCount}
-    {"\n"}Available: {reportOutput[0].availableTechCount}
-
-    {"\n\n"}Total Titles: {reportOutput[0].totalTitleCount}
-    {"\n"}Total Copies Across All Items: {reportOutput[0].totalCopiesCount}
-    {"\n"}Total Available Items: {reportOutput[0].totalAvailableCount}
-
-    {"\n\n"}Checkout Instances: {reportOutput[0].checkoutInstances}
-    {"\n"}Unique Customers: {reportOutput[0].uniqueCustomers}
-
-    {"\n\n"}--- Transaction Popularity ---
-    {reportOutput[0].transactionPopularity.map((pop, index) => (
-      `\n${index + 1}. ${pop.title} (${pop.itemType}) - ${pop.count} checkouts`
-    )).join('')}
-
-    {"\n\n"}--- Transactions with Fines ---
-    {reportOutput[0].transactionFine.map((fine, index) => (
-      `\n${index + 1}. ${fine.firstName} ${fine.lastName} (${fine.type}) - ${fine.title} | Borrowed: ${fine.dateBorrowed}, Due: ${fine.dueDate}, Fine: $${fine.amount}, Paid: ${fine.paymentStatus === 1 ? 'Yes' : 'No'}`
-    )).join('')}
-  </p>
+          {report.registeredUsersThatJoined > -1 && selectedStartDate != null &&
+  selectedEndDate != null && (
+  <Typography variant="subtitle1">
+   Users Registered from{" "}
+    <strong>{selectedStartDate.format("MMM DD, YYYY")}</strong> to{" "}
+    <strong>{selectedEndDate.format("MMM DD, YYYY")}</strong>:{" "}
+    {report.registeredUsersThatJoined}
+  </Typography>
 )}
+          <Typography variant="subtitle1">Registered Users: {report.registeredUsers}</Typography>
+          <Typography variant="subtitle1">Outstanding Fines: ${report.outstandingFines}</Typography>
 
-</Stack>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>
+            Inventory Statistics
+          </Typography>
+          <GridTable
+            headers={["Type", "Titles", "Total Copies", "Available Copies"]}
+            rows={[
+              ["Books", report.bookTitleCount, report.totalBookCount, report.availableBookCount],
+              ["Movies", report.movieTitleCount, report.totalMovieCount, report.availableMovieCount],
+              ["Music", report.musicTitleCount, report.totalMusicCount, report.availableMusicCount],
+              ["Tech", report.techTitleCount, report.totalTechCount, report.availableTechCount],
+            ]}
+          />
+
+<Grid container spacing={2} sx={{ mt: 2 }}>
+  <Grid item xs={12} sm={4}>
+    <Card elevation={2}>
+      <CardContent>
+        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          Total Titles
+        </Typography>
+        <Typography variant="h5" fontWeight={600}>
+          {report.totalTitleCount}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+  <Grid item xs={12} sm={4}>
+    <Card elevation={2}>
+      <CardContent>
+        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          Total Copies Across All Items
+        </Typography>
+        <Typography variant="h5" fontWeight={600}>
+          {report.totalCopiesCount}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+  <Grid item xs={12} sm={4}>
+    <Card elevation={2}>
+      <CardContent>
+        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          Total Available Items
+        </Typography>
+        <Typography variant="h5" fontWeight={600}>
+          {report.totalAvailableCount}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+</Grid>
 
 
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>
+            Checkout Activity
+          </Typography>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+  <Grid item xs={12} sm={6}>
+    <Card elevation={2}>
+      <CardContent>
+        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          Checkout Instances
+        </Typography>
+        <Typography variant="h5" fontWeight={600}>
+          {report.checkoutInstances}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+  <Grid item xs={12} sm={6}>
+    <Card elevation={2}>
+      <CardContent>
+        <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          Unique Customers
+        </Typography>
+        <Typography variant="h5" fontWeight={600}>
+          {report.uniqueCustomers}
+        </Typography>
+      </CardContent>
+    </Card>
+  </Grid>
+</Grid>
 
-    );}
+
+          {/* Transaction Popularity */}
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>
+            Most Popular Items
+          </Typography>
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Item Type</TableCell>
+                  <TableCell>Checkouts</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {report.transactionPopularity.map((item, index) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{item.title}</TableCell>
+                    <TableCell>{item.itemType}</TableCell>
+                    <TableCell>{item.count}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* Fines */}
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>
+            Transactions With Fines
+          </Typography>
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Item Type</TableCell>
+                  <TableCell>Fine Issued</TableCell>
+                  {/*<TableCell>Date Borrowed</TableCell>*/}
+                  {/*<TableCell>Due Date</TableCell>*/}
+                  <TableCell>Fine Amount</TableCell>
+                  <TableCell>Paid?</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {report.transactionFine.map((fine, index) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{`${fine.firstName} ${fine.lastName}`}</TableCell>
+                    <TableCell>{fine.title}</TableCell>
+                    <TableCell>{fine.itemType}</TableCell>
+                    {/*<TableCell>{fine.dateBorrowed}</TableCell>*/}
+                    {/*<TableCell>{fine.dueDate}</TableCell>*/}
+                    <TableCell>{fine.issueDate}</TableCell>
+                    <TableCell>${fine.amount.toFixed(2)}</TableCell>
+                    <TableCell>{fine.paymentStatus === 1 ? "Yes" : "No"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      )}
+    </Stack>
+  );
+}
+
+// Helper component for simple tabular data
+const GridTable = ({
+  headers,
+  rows,
+}: {
+  headers: string[];
+  rows: (string | number)[][];
+}) => (
+  <TableContainer component={Paper} sx={{ mb: 2 }}>
+    <Table size="small">
+      <TableHead>
+        <TableRow>
+          {headers.map((header, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<TableCell key={i}>{header}</TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {rows.map((row, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<TableRow key={i}>
+            {row.map((cell, j) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+<TableCell key={j}>{cell}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  </TableContainer>
+);
