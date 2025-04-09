@@ -82,9 +82,9 @@ interface EmployeeData {
   password?: string;
 }
 
-const navigate = useNavigate();
 
 const Employee: React.FC = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile'>('dashboard');
