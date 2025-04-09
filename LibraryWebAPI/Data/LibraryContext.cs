@@ -44,8 +44,6 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<Publisher> Publishers { get; set; }
 
-    public virtual DbSet<Sex> Sexes { get; set; }
-
     public virtual DbSet<Technology> Technologies { get; set; }
 
     public virtual DbSet<TechnologyManufacturer> TechnologyManufacturers { get; set; }
@@ -210,11 +208,6 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-
-            entity.HasOne(d => d.SexNavigation).WithMany(p => p.Employees)
-                .HasForeignKey(d => d.Sex)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Employee_Sex");
 
             entity.HasOne(d => d.Supervisor).WithMany(p => p.InverseSupervisor)
                 .HasForeignKey(d => d.SupervisorId)
@@ -416,22 +409,6 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.PublisherId).HasColumnName("PublisherID");
             entity.Property(e => e.PublisherName)
                 .HasMaxLength(50)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<Sex>(entity =>
-        {
-            entity.HasKey(e => e.SexID).HasName("PK__Sex__CA1E3C81ACCDEC3C");
-
-            entity.ToTable("Sex");
-
-            entity.HasIndex(e => e.Description, "UQ__Sex__4EBBBAC9A43B1219").IsUnique();
-
-            entity.Property(e => e.SexID)
-                .ValueGeneratedNever()
-                .HasColumnName("Sex");
-            entity.Property(e => e.Description)
-                .HasMaxLength(15)
                 .IsUnicode(false);
         });
 

@@ -23,7 +23,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
-            var employees = await _context.Employees.Include(e => e.SexNavigation).Include(e => e.Supervisor).ToListAsync();
+            var employees = await _context.Employees.Include(e => e.Supervisor).ToListAsync();
             return Ok(employees);
         }
 
@@ -32,7 +32,6 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
             var employee = await _context.Employees
-                .Include(e => e.SexNavigation)
                 .Include(e => e.Supervisor)
                 .FirstOrDefaultAsync(m => m.EmployeeId == id);
 
