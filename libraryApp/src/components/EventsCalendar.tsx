@@ -7,6 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { Stack } from "@mui/material";
 
 //consider removing RSVP button
 
@@ -17,7 +18,28 @@ interface CalendarEvent {
   end: Date;
   title: string;
   description: string;
+  location: string;
+  ageGroup: string;
+  isPrivate: boolean;
+  categoryDescription: string;
 }
+
+const mapAgeGroup = (ageGroupId: number): string => {
+  switch (ageGroupId) {
+    case 1:
+      return "0-2";
+    case 2:
+      return "3-8";
+    case 3:
+      return "9-13";
+    case 4:
+      return "14-17";
+    case 5:
+      return "18+";
+    default:
+      return "Unknown";
+  }
+};
 
 class EventsCalendar extends Component<
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
@@ -32,7 +54,9 @@ class EventsCalendar extends Component<
   // Fetch events from the backend when the component mounts
   async componentDidMount() {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`); // Adjust the URL to match your API endpoint
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Event/EventCalendar`
+      ); // Adjust the URL to match your API endpoint
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.statusText}`);
       }
@@ -58,11 +82,14 @@ class EventsCalendar extends Component<
       console.error("Error fetching events:", error);
     }*/
 
-      
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-const  processedEvents = eventsArray.map((event: any) => ({
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      const processedEvents = eventsArray.map((event: any) => ({
         title: event.title,
         description: event.description,
+        location: event.location,
+        isPrivate: event.isPrivate,
+        ageGroup: mapAgeGroup(event.ageGroup),
+        categoryDescription: event.categoryDescription,
         start: dayjs(event.startTimestamp).toDate(),
         end: dayjs(event.endTimestamp).toDate(),
       }));
@@ -88,10 +115,8 @@ const  processedEvents = eventsArray.map((event: any) => ({
   };*/
 
   render() {
-
     return (
       <>
-
         <div className="App">
           <Calendar
             localizer={localizer}
@@ -103,32 +128,72 @@ const  processedEvents = eventsArray.map((event: any) => ({
           />
         </div>
         {/* Event Details Dialog */}
-        <Dialog open={!!this.state.selectedEvent} onClose={this.handleClose}>
+        <Dialog
+          open={!!this.state.selectedEvent}
+          onClose={this.handleClose}
+          PaperProps={{
+            sx: {
+              minWidth: 500,
+              minHeight: 350,
+            },
+          }}
+        >
           {this.state.selectedEvent && (
             <>
-              <DialogTitle>{this.state.selectedEvent.title}</DialogTitle>
+              <DialogTitle style={{ fontWeight: "bold", color: "darkblue" }}>
+  {this.state.selectedEvent.title} —{" "}
+  {dayjs(this.state.selectedEvent.start).format("MMMM D") ===
+  dayjs(this.state.selectedEvent.end).format("MMMM D")
+    ? `${dayjs(this.state.selectedEvent.start).format("MMMM D, h:mm A")} - ${dayjs(
+        this.state.selectedEvent.end
+      ).format("h:mm A")}`
+    : `${dayjs(this.state.selectedEvent.start).format("MMMM D, h:mm A")} - ${dayjs(
+        this.state.selectedEvent.end
+      ).format("MMMM D, h:mm A")}`}
+</DialogTitle>
               <DialogContent>
+                <p> <strong>Location:</strong> {this.state.selectedEvent.location}</p>
+
                 <p>{this.state.selectedEvent.description}</p>
+                {this.state.selectedEvent.isPrivate && (
+                  <p
+                    style={{
+                      fontStyle: "italic",
+                      color: "red",
+                    }}
+                  >
+                    This is a private event
+                  </p>
+                )}
               </DialogContent>
               <DialogActions
-                style={{ display: "flex", justifyContent: "flex-end" }} //change justifycontent back to spacebetween later
-              >
-                {/* RSVP Button (Left Side) 
-                <Button
-                  onClick={() => {
-                    this.handleRSVP();
-                    this.handleClose();
-                  }}
-                  color="primary"
-                >
-                  RSVP
-                </Button>*/}
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    width: "100%",
+    mt: "auto", // push it to the bottom if wrapped in a flex parent
+  }}
+>
+  <Stack direction="row" justifyContent="space-between" sx={{ width: "100%", pr: 2 }}>
+    <Stack direction="column" spacing={0.5}>
+      <p style={{fontWeight: "bold", margin: 0 }}>Intended Age Group</p>
+      <p style={{ margin: 0 }}>
+        {this.state.selectedEvent.ageGroup}
+      </p>
+    </Stack>
+    <Stack direction="column" spacing={0.5}>
+      <p style={{ fontWeight: "bold", margin: 0 }}>Category</p>
+      <p style={{ margin: 0 }}>
+        {this.state.selectedEvent.categoryDescription}
+      </p>
+    </Stack>
+  </Stack>
 
-                {/* Close Button (Right Side) */}
-                <Button onClick={this.handleClose} color="secondary">
-                  Close
-                </Button>
-              </DialogActions>
+  <Button onClick={this.handleClose} color="secondary" variant="outlined">
+    Close
+  </Button>
+</DialogActions>
             </>
           )}
         </Dialog>
