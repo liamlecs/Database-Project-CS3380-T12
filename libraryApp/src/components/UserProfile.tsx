@@ -9,11 +9,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
-//import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-//import InputLabel from "@mui/material/InputLabel";
 
 interface Profile {
   customerID: number;
@@ -24,16 +22,23 @@ interface Profile {
   role: string; // e.g., "Customer"
   membershipStartDate: string;
   membershipEndDate: string | null;
-  //Future things to display
-  fines: number; // User's total fines
-  //checkedOutBooks: Array<{ title: string; dueDate: string }>; // List of checked-out books
+  //checkedBooks
+  fines: Array<{
+    transactionId: number;
+    customerId: number;
+    amount: number;
+    dueDate: Date;
+    issueDate: Date;
+    status: boolean;
+  }>;
   transactionHistory: Array<{
-    transcationID: number;
-    customerID: number;
-    itemID: number;
+    transcationId: number;
+    customerId: number;
+    itemId: number;
     dateBorrowed: Date;
     dueDate: Date;
     returnDate: Date;
+    title?: string;
   }>;
   waitlists: Array<{
     waitlistId: number;
@@ -54,10 +59,11 @@ export default function UserProfile() {
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("account"); // Active tab for navigation
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [filteredWaitlists, setFilteredWaitlists] = useState<Profile["waitlists"]>([]);
+  const [filteredWaitlists, setFilteredWaitlists] = useState<
+    Profile["waitlists"]
+  >([]);
   const [filterDays, setFilterDays] = useState<number>(0);
 
-  // 1. Check if user is logged in. If not, redirect
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
@@ -65,31 +71,26 @@ export default function UserProfile() {
     }
   }, [navigate]);
 
-  // 2. Read userId from localStorage and fetch the profile
   useEffect(() => {
     async function fetchProfile() {
       try {
-        // a) get userId from localStorage
         const userIdStr = localStorage.getItem("userId");
         if (!userIdStr) {
-          // if no userId, redirect to login
           navigate("/customer-login");
           return;
         }
-        // b) parse it
         const userIdNum = parseInt(userIdStr, 10);
         if (isNaN(userIdNum)) {
-          // if parse fails, also redirect
           navigate("/customer-login");
           return;
         }
 
-        // c) we assume "customer" for userType
         const userType = "customer";
 
-        // d) call your GET /UserProfile/{type}/{id}
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/UserProfile/${userType}/${userIdNum}`,
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/UserProfile/${userType}/${userIdNum}`,
           {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -102,12 +103,8 @@ export default function UserProfile() {
 
         const data = await response.json();
 
-        // e) Map the API response to your Profile structure
-        //console.log("API Response:", data);
+        //console.log(data);
 
-
-        // Map API fields to your Profile interface if needed
-        //Mapping Customer Fields to the fetch request
         const mappedProfile: Profile = {
           customerID: userIdNum,
           firstName: data.name.split(" ")[0],
@@ -117,26 +114,15 @@ export default function UserProfile() {
           role: data.role,
           membershipStartDate: data.memberSince,
           membershipEndDate: data.membershipExpires || null,
-          fines: data.fines, // Replace with actual fines if available in the API
-          //checkedOutBooks: [], // Replace with actual books if available in the API
-          transactionHistory: [], // Replace with actual transactions if available in the API
-          waitlists: data.waitList || [] //Populate these whenever we have waitlist stuff
+          fines: data.fines || [],
+          //checkedoutbooks implement later
+          transactionHistory: data.transcActHistory || [],
+          waitlists: data.waitLists || [],
         };
 
         setProfile(mappedProfile);
         setEditProfile({ ...mappedProfile });
         setFilteredWaitlists(data.waitList || []);
-
-        // Fetch waitlist (mocked for now)
-        // We can add this functionality later
-        {/*setWaitlist([
-          {
-            title: "The Great Gatsby",
-            author: "F. Scott Fitzgerald",
-            position: "5",
-          },
-          { title: "1984", author: "George Orwell", position: "3" },
-        ]);*/}
       } catch (error: any) {
         console.error("Error fetching profile:", error);
         setErrorMsg(error.message || "An error occurred.");
@@ -148,7 +134,6 @@ export default function UserProfile() {
     fetchProfile();
   }, [navigate]);
 
-  // Handle input changes when editing
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editProfile) return;
     setEditProfile((prev) =>
@@ -161,14 +146,15 @@ export default function UserProfile() {
     );
   };
 
-  // Save changes
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!editProfile) return;
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${editProfile.customerID}`,
+        `${import.meta.env.VITE_API_BASE_URL}/UserProfile/customer/${
+          editProfile.customerID
+        }`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -196,24 +182,32 @@ export default function UserProfile() {
   const filterLast30Days = () => {
     const now = new Date();
     const last30Days = new Date(now.setDate(now.getDate() - 30));
-    const filtered = profile?.waitlists.filter((item) => new Date(item.reservationDate) >= last30Days) || [];
+    const filtered =
+      profile?.waitlists.filter(
+        (item) => new Date(item.reservationDate) >= last30Days
+      ) || [];
     setFilteredWaitlists(filtered);
   };
 
   const handleFilterDaysChange = (days: number) => {
     setFilterDays(days);
     const now = new Date();
-    const filtered = profile?.waitlists.filter((item) => {
-      const reservationDate = new Date(item.reservationDate);
-      return days === 0 || reservationDate >= new Date(now.setDate(now.getDate() - days));
-    }) || [];
+    const filtered =
+      profile?.waitlists.filter((item) => {
+        const reservationDate = new Date(item.reservationDate);
+        return (
+          days === 0 ||
+          reservationDate >= new Date(now.setDate(now.getDate() - days))
+        );
+      }) || [];
     setFilteredWaitlists(filtered);
   };
 
   useEffect(() => {
-    const filtered = profile?.waitlists.filter((item) =>
-      item.itemId.toString().includes(searchQuery)
-    ) || [];
+    const filtered =
+      profile?.waitlists.filter((item) =>
+        item.itemId.toString().includes(searchQuery)
+      ) || [];
     setFilteredWaitlists(filtered);
   }, [searchQuery, profile?.waitlists]);
 
@@ -243,6 +237,14 @@ export default function UserProfile() {
             </li>
             <li>
               <button
+                className={activeTab === "inventory" ? "active" : ""}
+                onClick={() => handleTabChange("inventory")}
+              >
+                Inventory
+              </button>
+            </li>
+            <li>
+              <button
                 className={activeTab === "transactions" ? "active" : ""}
                 onClick={() => handleTabChange("transactions")}
               >
@@ -255,6 +257,14 @@ export default function UserProfile() {
                 onClick={() => handleTabChange("waitlist")}
               >
                 Waitlist
+              </button>
+            </li>
+            <li>
+              <button
+                className={activeTab === "fines" ? "active" : ""}
+                onClick={() => handleTabChange("fines")}
+              >
+                Fines
               </button>
             </li>
             <li>
@@ -297,7 +307,6 @@ export default function UserProfile() {
                 {new Date(profile.membershipEndDate).toLocaleDateString()}
               </div>
             )}
-
             <div className="account-actions">
               <button
                 className="btn-delete"
@@ -318,6 +327,39 @@ export default function UserProfile() {
           </div>
         )}
 
+        {/* Inventory Tab */}
+        {activeTab === "inventory" && (
+          <div className="profile-section">
+            <h3>Inventory</h3>
+            {(profile.transactionHistory || []).length > 0 ? (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+                {profile.transactionHistory.map((transaction, index) => (
+                  <Paper
+                    key={index}
+                    elevation={3}
+                    style={{
+                      flex: "1 1 calc(33.333% - 16px)", // Adjust for 3 items per row
+                      padding: "15px",
+                      borderRadius: "8px",
+                      backgroundColor: "#f8f9fa",
+                      minWidth: "300px",
+                    }}
+                  >
+                    <div style={{ marginBottom: "10px" }}>
+                      <strong>Item ID "Change to Image of Item":</strong> {transaction.itemId}
+                    </div>
+                    <div style={{ marginBottom: "10px" }}>
+                      <strong>Title:</strong> {transaction.title || "N/A"}
+                    </div>
+                  </Paper>
+                ))}
+              </div>
+            ) : (
+              <p>No inventory data to display.</p>
+            )}
+          </div>
+        )}
+
         {/* Transactions Tab */}
         {activeTab === "transactions" && (
           <div className="profile-section">
@@ -325,78 +367,154 @@ export default function UserProfile() {
             <ul className="transaction-history-list">
               {profile.transactionHistory.map((transaction, index) => (
                 <li key={index}>
-                  <strong>{transaction.customerID}</strong>
+                  <strong>{transaction.customerId}</strong>
                   <br />
                   Date: {new Date(transaction.dueDate).toLocaleDateString()}
                   <br />
-                  TransactionID: ${transaction.transcationID.toFixed(2)}
+                  TransactionID: ${transaction.transcationId.toFixed(2)}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-{activeTab === "waitlist" && (
-  <div className="profile-section">
-    <h3>Waitlist</h3>
-    <ul className="waitlist-list">
-      {filteredWaitlists.map(
-        (
-          item: {
-            waitlistId: number;
-            customerId: number;
-            itemId: number;
-            reservationDate: Date;
-            isReceived: boolean;
-          },
-          index: number
-        ) => (
-          <li key={index}>
-            <strong>Item ID:</strong> {item.itemId}
-            <br />
-            <strong>Waitlist ID:</strong> {item.waitlistId}
-            <br />
-            <strong>Reservation Date:</strong>{" "}
-            {new Date(item.reservationDate).toLocaleDateString()}
-            <br />
-            <strong>Is Received?</strong> {item.isReceived ? "Yes" : "No"}
-          </li>
-        )
-      )}
-    </ul>
-  </div>
-)}
+        {/* Waitlist Tab */}
+        {activeTab === "waitlist" && (
+          <div className="profile-section">
+            <h3>Waitlist</h3>
+            {/* Search and Filter Controls */}
+            <div className="filter-container">
+              {/* Search Bar */}
+              <TextField
+                label="Search by Item ID"
+                variant="outlined"
+                size="small"
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ width: "40%" }}
+              />
 
+              {/* Filter Dropdown with Label */}
+              <div className="filter-wrapper">
+                <label className="filter-label">Filter:</label>
+                <FormControl className="filter-dropdown">
+                  <Select
+                    value={filterDays}
+                    onChange={(e) =>
+                      handleFilterDaysChange(e.target.value as number)
+                    }
+                  >
+                    <MenuItem value={0}>All</MenuItem>
+                    <MenuItem value={30}>Last 30 Days</MenuItem>
+                    <MenuItem value={60}>Last 60 Days</MenuItem>
+                    <MenuItem value={360}>Last Year</MenuItem>
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
+
+            {filteredWaitlists.length > 0 ? (
+              <TableContainer component={Paper} style={{ maxHeight: "500px" }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Waitlist ID</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Customer ID</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Item ID</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Reservation Date</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Is Received</strong>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredWaitlists.map((item) => (
+                      <TableRow key={item.waitlistId}>
+                        <TableCell>{item.waitlistId}</TableCell>
+                        <TableCell>{item.customerId}</TableCell>
+                        <TableCell>{item.itemId}</TableCell>
+                        <TableCell>
+                          {new Date(item.reservationDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{item.isReceived ? "Yes" : "No"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <p>No items in the waitlist.</p>
+            )}
+          </div>
+        )}
+
+        {/* Fines Tab */}
+        {activeTab === "fines" && (
+          <div className="profile-section">
+            <h3>Fines</h3>
+            {profile.fines.length > 0 ? (
+              <TableContainer component={Paper} style={{ maxHeight: "500px" }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>
+                        <strong>Transaction ID</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Amount</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Due Date</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Issue Date</strong>
+                      </TableCell>
+                      <TableCell>
+                        <strong>Status</strong>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {profile.fines.map((fines, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{fines.transactionId}</TableCell>
+                        <TableCell>${fines.amount.toFixed(2)}</TableCell>
+                        <TableCell>
+                          {fines.dueDate
+                            ? new Date(fines.dueDate).toLocaleDateString()
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          {fines.issueDate
+                            ? new Date(fines.issueDate).toLocaleDateString()
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          {fines.status ? "Paid" : "Unpaid"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <p>No fines to display.</p>
+            )}
+          </div>
+        )}
 
         {/* Settings Tab */}
         {activeTab === "settings" && (
           <div className="profile-section">
             <h3>Account Settings</h3>
             <form onSubmit={handleSave}>
-              <div className="profile-item">
-                <label htmlFor="firstName">
-                  <strong>First Name:</strong>
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={editProfile?.firstName || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div className="profile-item">
-                <label htmlFor="lastName">
-                  <strong>Last Name:</strong>
-                </label>
-                <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={editProfile?.lastName || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
               <div className="profile-item">
                 <label htmlFor="password">
                   <strong>Password:</strong>

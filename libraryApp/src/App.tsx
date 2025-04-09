@@ -20,7 +20,7 @@ import CustomerLoginPage from "./components/CustomerLoginPage.tsx";
 import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
-import BookCheckOutPage from "./components/BookCheckoutPage/BookCheckOutPage.tsx";
+import BookCheckOutPage from "./components/CheckoutPage/Checkout.tsx";
 import Donations from "./components/Donations.tsx";
 import TermsAndConditionsPage from "./components/TermsAndConditionsPage.tsx";
 import ConfirmEmail from "./components/ConfirmEmail.tsx";
@@ -31,6 +31,8 @@ import PopularityReport from "./components/Reports/PopularityReport.tsx";
 import ItemFineReport from "./components/Reports/ItemFineReport.tsx";
 import CustomerLookupReport from "./components/Reports/CustomerLookupReport.tsx";
 import ReportsOutlet from "./components/ReportsOutlet.tsx";
+import { CheckoutProvider } from "./contexts/CheckoutContext.tsx";
+import MasterTransactionReport from "./components/Reports/MasterTransactionReport.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -61,7 +63,7 @@ function AppRoutes() {
           <Route path="/donations" element={<Donations />} />
           <Route path="/employee" element={<Employee />} />
           <Route path="/userprofile" element={<UserProfile />} />
-          {/* <Route path="/bookcheckout" element={<BookCheckOutPage />} /> */}
+          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
           <Route path="/terms" element={<TermsAndConditionsPage />} />
           <Route path="/confirm" element={<ConfirmEmail />} />
           <Route path="/reportsoutlet" element={<ReportsOutlet />}>
@@ -70,6 +72,10 @@ function AppRoutes() {
             <Route
               path="customerlookupreport"
               element={<CustomerLookupReport />}
+            />
+            <Route
+              path="mastertransactionreport"
+              element={<MasterTransactionReport />}
             />
           </Route>
 
@@ -90,7 +96,9 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <AppRoutes />
+      <CheckoutProvider>
+        <AppRoutes />
+      </CheckoutProvider>
     </Router>
   );
 }

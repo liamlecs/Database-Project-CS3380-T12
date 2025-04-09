@@ -21,9 +21,25 @@ namespace LibraryWebAPI.Controllers
 
         // GET: api/Technology
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Technology>>> GetTechnologies()
+        
+        public async Task<ActionResult<IEnumerable<TechnologyDTO>>> GetTechnologies()
         {
-            var technologies = await _context.Technologies.ToListAsync();
+            var technologies = await _context.Technologies
+                .Include(t => t.DeviceType)
+                .Include(t => t.Manufacturer)
+                .Include(t => t.Item)
+                .Select(t => new TechnologyDTO
+                {
+                    DeviceId = t.DeviceId,
+                    DeviceTypeName = t.DeviceType!.TypeName,
+                    ManufacturerName = t.Manufacturer!.Name,
+                    Title = t.Item!.Title,
+                    ModelNumber = t.ModelNumber,
+                    CoverImagePath = t.CoverImagePath!,
+                    itemId = t.ItemID
+                })
+                .ToListAsync();
+
             return Ok(technologies);
         }
 

@@ -7,6 +7,7 @@ namespace LibraryWebAPI.Models;
 
 public partial class Technology
 {
+    public int itemId { get; set; } // fk to the Item table
         [Key]
     public int DeviceId { get; set; }
 
@@ -20,6 +21,7 @@ public partial class Technology
 
     // fk for Item table
     public int ItemID { get; set; }
+
     public virtual Item? Item { get; set; }
 
     public string ModelNumber { get; set; } = null!;
