@@ -66,3 +66,11 @@ obj/
 # Others
 .DS_Store
 .envnode_modules
+
+
+# Ignore build artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.cache
