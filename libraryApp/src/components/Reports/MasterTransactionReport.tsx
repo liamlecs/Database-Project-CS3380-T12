@@ -109,10 +109,10 @@ export default function MasterTransactionReport() {
       {/* Date pickers and trigger button */}
       <Stack direction="row" spacing={2} alignItems="center">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker label="Start Date" value={selectedStartDate} onChange={setSelectedStartDate} disableFuture/>
+          <DatePicker label="Start Date (Optional)" value={selectedStartDate} onChange={setSelectedStartDate} disableFuture/>
         </LocalizationProvider>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker label="End Date" value={selectedEndDate} onChange={setSelectedEndDate} disableFuture/>
+          <DatePicker label="End Date (Optional)" value={selectedEndDate} onChange={setSelectedEndDate} disableFuture/>
         </LocalizationProvider>
         <Button
           variant="contained"
@@ -205,8 +205,9 @@ export default function MasterTransactionReport() {
           <Typography variant="h6" >
             Checkout Activity
             </Typography> 
-            <Typography variant="h6" gutterBottom >({selectedStartDate.format("MMM DD, YYYY")} -{" "}
-            {selectedEndDate.format("MMM DD, YYYY")}) </Typography>
+            <Typography variant="subtitle2" color="text.secondary">
+      ({selectedStartDate.format("MMM DD, YYYY")} - {selectedEndDate.format("MMM DD, YYYY")})
+    </Typography>
             </Stack>
   )}
   {selectedStartDate == null &&
@@ -245,9 +246,14 @@ export default function MasterTransactionReport() {
 
           {/* Transaction Popularity */}
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" gutterBottom>
-            Most Popular Items
-          </Typography>
+          <Stack spacing={0.5} mb={1}>
+  <Typography variant="h6">Most Popular Items</Typography>
+  {selectedStartDate && selectedEndDate && (
+    <Typography variant="subtitle2" color="text.secondary">
+      ({selectedStartDate.format("MMM DD, YYYY")} - {selectedEndDate.format("MMM DD, YYYY")})
+    </Typography>
+  )}
+</Stack>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
@@ -274,9 +280,14 @@ export default function MasterTransactionReport() {
 
           {/* Fines */}
           <Divider sx={{ my: 3 }} />
-          <Typography variant="h6" gutterBottom>
-            Outstanding Fines
-          </Typography>
+          <Stack spacing={0.5} mb={1}>
+  <Typography variant="h6">Outstanding Fines</Typography>
+  {selectedStartDate && selectedEndDate && (
+    <Typography variant="subtitle2" color="text.secondary">
+      ({selectedStartDate.format("MMM DD, YYYY")} - {selectedEndDate.format("MMM DD, YYYY")})
+    </Typography>
+  )}
+</Stack>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>

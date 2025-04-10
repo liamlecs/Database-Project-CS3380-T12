@@ -1,5 +1,4 @@
 import {
-  type SelectChangeEvent,
   FormControl,
   InputLabel,
   Select,
@@ -7,11 +6,10 @@ import {
   Button,
   Paper,
   Stack,
+  Typography,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { type Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import React from "react";
 
 const columns: GridColDef[] = [
@@ -23,49 +21,43 @@ const columns: GridColDef[] = [
   { field: "dateBorrowed", headerName: "Date Borrowed", width: 150 },
   { field: "dueDate", headerName: "Due Date", width: 150 },
   { field: "issueDate", headerName: "Issue Date", width: 150 },
-  { field: "daysOverdue", headerName: "Days Overdue", width: 100, type: 'number' },
-  { field: "amount", headerName: "Amount Due", width: 100, type: 'number', },
-  { field: "paymentStatus", headerName: "Payment Status", width: 100, type: 'boolean' },
+  { field: "daysOverdue", headerName: "Days Overdue", width: 100, type: "number" },
+  { field: "amount", headerName: "Amount Due", width: 100, type: "number" },
+  { field: "paymentStatus", headerName: "Payment Status", width: 100, type: "boolean" },
 ];
 
 const paginationModel = { page: 0, pageSize: 5 };
 
 export default function ItemFineReport() {
-  const [type, setType] = React.useState("");
-  const [isPaidBit, setIsPaidBit] = React.useState("");
-  const [reportData, setReportData] = React.useState<
-    { id: number; title: string; itemType: string; count: number }[] //CHANGE THIS (why does this work without changing anything?)
-  >([]);
-  const [isLaunched, setIsLaunched] = React.useState(false);
+  const [paymentStatusFilter, setPaymentStatusFilter] = React.useState("");
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  const [reportData, setReportData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [isLaunched, setIsLaunched] = React.useState(false);
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setType(event.target.value as string);
+  const handlePaymentStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    setPaymentStatusFilter(event.target.value as string);
   };
 
-  const handleBoolChange = (event: SelectChangeEvent) => {
-    setIsPaidBit(event.target.value as string);
-  };
-
-  const handleGenericCall = async () => {
+  const handleGenerateReport = async () => {
     setLoading(true);
     setIsLaunched(false);
 
-    try {
+    const shouldApplyCondition = paymentStatusFilter !== "";
+    // biome-ignore lint/complexity/noUselessTernary: <explanation>
+    const isPaid = paymentStatusFilter === "1" ? true : false;
 
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFine` //CHANGE THIS
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to fetch events: ${response.statusText}`);
-      }
+    try {
+      const url = shouldApplyCondition
+        ? `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFineConditional?isPaid=${encodeURIComponent(isPaid)}`
+        : `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFine`;
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch data");
 
       const report = await response.json();
-      console.log("API Response:", report);
-
       // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const formattedData = report.map((item: any, index: number) => ({ //CHANGE THIS
+      const formattedData = report.map((item: any, index: number) => ({
         id: index + 1,
         title: item.title,
         email: item.email,
@@ -83,121 +75,36 @@ export default function ItemFineReport() {
       setReportData(formattedData);
       setIsLaunched(true);
     } catch (error) {
-      console.error("Error fetching events:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleConditionalCall = async () => {
-
-    setLoading(true);
-    setIsLaunched(false);
-
-    // biome-ignore lint/complexity/noUselessTernary: <for some reason true returns a false-like output and false returns a true-like output>
-    const selectedPaymentStatus = isPaidBit === "1" ? false : true;
-    try {
-
-      console.log("Selected payment status:", selectedPaymentStatus);
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFineConditional?isPaid=${encodeURIComponent(selectedPaymentStatus)}`, //CHANGE THIS
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      
-      if (!response.ok) {
-        alert("No books have been checked out after this date.") //CHANGE THIS
-        //throw new Error(`Failed to fetch events: ${response.statusText}`);
-      }
-
-      const report = await response.json();
-      console.log("API Response:", report);
-
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const formattedData = report.map((item: any, index: number) => ({ //CHANGE THIS
-        id: index + 1,
-        title: item.title,
-        email: item.email,
-        firstName: item.firstName,
-        lastName: item.lastName,
-        type: item.type,
-        dateBorrowed: item.dateBorrowed,
-        dueDate: item.dueDate,
-        daysOverdue: dayjs().diff(item.dueDate, "day"),
-        amount: item.amount,
-      }));
-
-      setReportData(formattedData);
-      setIsLaunched(true);
-    } catch (error) {
-      console.error("Error fetching events:", error);
+      console.error("Error fetching report:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Select a Report Type</h1>
+    <Stack spacing={3}>
+      <Typography variant="h5">Fine Report</Typography>
+
       <FormControl fullWidth>
-      <InputLabel id="select1">Type</InputLabel>
+        <InputLabel id="paymentStatus-label">Payment Status (Optional)</InputLabel>
         <Select
-          labelId="select1"
-          id="select1"
-          value={type}
-          label="Payment Status"
-          onChange={handleChange}
+          labelId="paymentStatus-label"
+          value={paymentStatusFilter}
+          label="Payment Status (Optional)"
+          onChange={handlePaymentStatusChange}
         >
-          <MenuItem value="0">Without Conditions</MenuItem>
-          <MenuItem value="1">With Conditions</MenuItem>
+          <MenuItem value="">Any</MenuItem>
+          <MenuItem value="1">Paid</MenuItem>
+          <MenuItem value="0">Unpaid</MenuItem>
         </Select>
       </FormControl>
 
-      {type === "0" && (
-        <Button
-          variant="contained"
-          onClick={handleGenericCall}
-          style={{ marginTop: "20px" }}
-          disabled={loading}
-        >
-          {loading ? "Loading..." : "Generate Report"}
-        </Button>
-      )}
-
-      {type === "1" && (
-        <div className="centeredHor">
-        <Stack spacing={2} direction="row" alignItems="center" sx={{ marginTop: "20px" }}>
-        <FormControl fullWidth>
-        <InputLabel id="select2">Payment Status</InputLabel>
-        <Select
-          labelId="select2"
-          id="select2"
-          value={isPaidBit}
-          label="Payment Status"
-          onChange={handleBoolChange}
-        >
-        <MenuItem value="1">True</MenuItem>
-          <MenuItem value="0">False</MenuItem>
-        </Select>
-        </FormControl>
-          <Button
-            variant="contained"
-            onClick={handleConditionalCall}
-            disabled={loading || !isPaidBit}
-          >
-            {loading ? "Loading..." : "Generate Report"}
-          </Button>
-        </Stack>
-        </div>
-      )}
+      <Button variant="contained" onClick={handleGenerateReport} disabled={loading}>
+        {loading ? "Loading..." : "Generate Report"}
+      </Button>
 
       {isLaunched && (
-        <Paper sx={{ height: 400, width: "100%", marginTop: "20px" }}>
+        <Paper sx={{ height: 400, width: "100%" }}>
           <DataGrid
             rows={reportData}
             columns={columns}
@@ -208,6 +115,6 @@ export default function ItemFineReport() {
           />
         </Paper>
       )}
-    </div>
+    </Stack>
   );
 }

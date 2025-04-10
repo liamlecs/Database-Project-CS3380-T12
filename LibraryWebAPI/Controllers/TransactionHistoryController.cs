@@ -59,17 +59,11 @@ namespace LibraryWebAPI.Controllers
             return Ok(counts);
         }
 
-        [HttpGet("popularityConditional")]
-        public async Task<ActionResult<TransactionHistory>> GetBookPopularityConditional([FromQuery] DateTime dateFilter)
+        [HttpGet("popularityConditional/{start:datetime}/{end:datetime}")]
+        public async Task<ActionResult<List<TransactionHistory>>> GetBookPopularityConditional(DateTime start, DateTime end)
         {
 
-            if (dateFilter == default)
-            {
-                _logger.LogError("Invalid or missing dateFilter: {DateFilter}", dateFilter);
-                return BadRequest("Invalid date format. Ensure you're passing a valid date.");
-            }
 
-            _logger.LogInformation("Received request for popularityConditional with date: {DateFilter}", dateFilter);
 
             var counts = await _context.TransactionPopularityConditional
                 .FromSqlRaw("SELECT " +
@@ -83,8 +77,8 @@ namespace LibraryWebAPI.Controllers
 "LEFT JOIN Music ON Item.ItemID = Music.SongID " +
 "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
 "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-"WHERE TRANSACTION_HISTORY.DateBorrowed > {0} " +
-"GROUP BY Item.Title, ItemType.TypeName;", dateFilter)
+"WHERE {0} < TRANSACTION_HISTORY.DateBorrowed  AND TRANSACTION_HISTORY.DateBorrowed < {1} " +
+"GROUP BY Item.Title, ItemType.TypeName;", start, end)
                 .ToListAsync();
 
             if (counts == null || counts.Count == 0)
