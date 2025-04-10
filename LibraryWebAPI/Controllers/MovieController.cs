@@ -35,6 +35,7 @@ namespace LibraryWebAPI.Controllers
         var movies = await _context.Movies
             .Include(m => m.MovieDirector)
             .Include(m => m.MovieGenre)
+            .Include(m => m.Item) // Include the Item table to get available copies
             .Select(m => new MovieDTO
             {
                 MovieId = m.MovieId,
@@ -45,7 +46,8 @@ namespace LibraryWebAPI.Controllers
                 Director = m.MovieDirector.FirstName + " " + m.MovieDirector.LastName,
                 Genre = m.MovieGenre.Description,
                 CoverImagePath = m.CoverImagePath!,
-                ItemId = m.ItemId
+                ItemId = m.ItemId,
+                availableCopies = m.Item.AvailableCopies // fk to referenced Item table
             })
             .ToListAsync();
 

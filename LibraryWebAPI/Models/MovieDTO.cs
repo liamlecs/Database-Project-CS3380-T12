@@ -10,6 +10,8 @@ namespace LibraryWebAPI.Models
         public string Director { get; set; } = "Unknown Director";
         public string Genre { get; set; } = "Unknown Genre";
         public string CoverImagePath { get; set; } = string.Empty;
+
+        public int availableCopies { get; set; }
         public int ItemId { get; set; }
     }
 }
