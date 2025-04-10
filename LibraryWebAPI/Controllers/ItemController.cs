@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
+using LibraryWebAPI.DTOs; // Make sure this is added if you're using a DTO folder
+
 
 namespace LibraryWebAPI.Controllers
 {
@@ -101,5 +103,39 @@ namespace LibraryWebAPI.Controllers
         {
             return _context.Items.Any(e => e.ItemId == id);
         }
+    
+
+
+        // PATCH: api/Item/update-copies
+        [HttpPatch("update-copies")]
+        public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailableCopiesDto dto)
+        {
+            var item = await _context.Items.FindAsync(dto.ItemId);
+            if (item == null)
+            {
+                return NotFound($"Item with ID {dto.ItemId} not found.");
+            }
+
+            var proposedValue = item.AvailableCopies + dto.ChangeInCopies;
+
+            if (proposedValue < 0)
+            {
+                return BadRequest("Not enough copies available.");
+            }
+
+            if (proposedValue > item.TotalCopies)
+            {
+                return BadRequest("Cannot exceed total number of copies.");
+            }
+
+            item.AvailableCopies = proposedValue;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
+
+
+
+
