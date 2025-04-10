@@ -38,6 +38,7 @@ namespace LibraryWebAPI.Controllers
                     CoverImagePath = t.CoverImagePath!,
                     itemId = t.ItemID,
                     availableCopies = t.Item.AvailableCopies,
+                    itemLocation = t.Item.Location!,
                 })
                 .ToListAsync();
 

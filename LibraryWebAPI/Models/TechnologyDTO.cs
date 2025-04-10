@@ -16,6 +16,8 @@ public class TechnologyDTO
         public string CoverImagePath { get; set; } = string.Empty;
         
         public int availableCopies { get; set; }
+
+        public string itemLocation { get; set; } = string.Empty;
     }
 
 }
