@@ -38,6 +38,7 @@ namespace LibraryWebAPI.Controllers
                     SongTitle = m.Item.Title,
                     GenreDescription = m.MusicGenre.Description,
                     availableCopies = m.Item.AvailableCopies,
+                    itemLocation = m.Item.Location,
                 })
                 .ToListAsync();
 

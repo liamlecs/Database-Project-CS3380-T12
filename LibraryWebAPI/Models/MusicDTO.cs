@@ -10,5 +10,7 @@ public class MusicDto
     public string? GenreDescription { get; set; }
 
     public int availableCopies { get; set; }
+
+    public string? itemLocation { get; set; }
 }
 }

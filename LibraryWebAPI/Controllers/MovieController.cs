@@ -47,7 +47,9 @@ namespace LibraryWebAPI.Controllers
                 Genre = m.MovieGenre.Description,
                 CoverImagePath = m.CoverImagePath!,
                 ItemId = m.ItemId,
-                availableCopies = m.Item.AvailableCopies // fk to referenced Item table
+                availableCopies = m.Item.AvailableCopies, // fk to referenced Item table
+                itemLocation = m.Item.Location! // fk to referenced Item table
+
             })
             .ToListAsync();
 
