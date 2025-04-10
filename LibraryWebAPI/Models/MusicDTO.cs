@@ -8,5 +8,7 @@ public class MusicDto
     public string? ArtistName { get; set; }
     virtual public string? SongTitle { get; set; }
     public string? GenreDescription { get; set; }
+
+    public int availableCopies { get; set; }
 }
 }

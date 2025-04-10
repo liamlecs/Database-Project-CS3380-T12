@@ -27,6 +27,7 @@ namespace LibraryWebAPI.Controllers
             var musics = await _context.Musics
                 .Include(m => m.MusicArtist)
                 .Include(m => m.MusicGenre)
+                .Include(m => m.Item) // Include the Item table to get available copies
                 .Select(static m => new MusicDto
                 {
                     SongId = m.SongId,
@@ -35,7 +36,8 @@ namespace LibraryWebAPI.Controllers
                     CoverImagePath = m.CoverImagePath,
                     ArtistName = m.MusicArtist.ArtistName,
                     SongTitle = m.Item.Title,
-                    GenreDescription = m.MusicGenre.Description
+                    GenreDescription = m.MusicGenre.Description,
+                    availableCopies = m.Item.AvailableCopies,
                 })
                 .ToListAsync();
 
