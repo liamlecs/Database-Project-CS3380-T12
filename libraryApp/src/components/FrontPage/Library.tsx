@@ -237,6 +237,7 @@ const Library: React.FC = () => {
                     <p><strong>Author/Director:</strong> {selectedItem?.author ?? selectedItem?.director ?? selectedItem?.artistName ?? selectedItem?.manufacturerName ?? "Unknown"}</p>
                     <p><strong>Genre:</strong> {selectedItem?.genre ?? selectedItem?.genreDescription ?? "N/A"}</p>
                     <p><strong>Available Copies:</strong> {selectedItem?.availableCopies ?? "Unknown"}</p>
+                    <p><strong>Item Location:</strong> {selectedItem?.itemLocation ?? "Unknown"}</p>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenInfoDialog(false)}>Close</Button>

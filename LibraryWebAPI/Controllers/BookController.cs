@@ -45,6 +45,7 @@ namespace LibraryWebAPI.Controllers
                     Publisher = b.Publisher.PublisherName,  // from related Publisher
                     coverImagePath = b.CoverImagePath, // from related Image            })
                     availableCopies = b.Item.AvailableCopies, // from related Item
+                    itemLocation = b.Item.Location, // from related Item
                 })
                 .ToListAsync();
 
