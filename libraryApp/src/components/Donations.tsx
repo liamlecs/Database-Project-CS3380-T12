@@ -23,7 +23,7 @@ const Donations: React.FC = () => {
   const [donationSuccess, setDonationSuccess] = useState<boolean>(false);
   const [firstName, setFirstName] = useState<string>('');
   const [lastName, setLastName] = useState<string>('');
-  const [customerID, setCustomerID] = useState<number | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -31,25 +31,32 @@ const Donations: React.FC = () => {
     const fetchUserData = async () => {
       try {
         // check if customerId is stored in localStorage
-        const customerIDStored = localStorage.getItem('CustomerID');
-        if (!customerIDStored) {
+        const userIdStored = localStorage.getItem('userId');
+         
+        if (!userIdStored) {
           setIsLoggedIn(false);
           return;
         }
-
-        // fetchuser data from API
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerIDStored}`);
+  
+        // fetch user data from API
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Customer/${userIdStored}`
+        );
+        
         if (!response.ok) throw new Error('Failed to fetch user data');
-
+  
         const user = await response.json();
-        setCustomerID(user.CustomerID);
-        setFirstName(user.FirstName);
-        setLastName(user.LastName);
+        // store user data in state
+        setUserId(userIdStored ? Number(userIdStored) : null); // Ensure userId is a number
+      
+        setUserId(user.customerId || user.userId); // Using customerId from response
+        setFirstName(user.firstName || user.FirstName); // Handle both casing variants
+        setLastName(user.LastName || user.lastName); // Handle both casing variants
         setIsLoggedIn(true);
       } catch (error) {
         console.error('Error fetching user details:', error);
         setIsLoggedIn(false);
-        localStorage.removeItem('CustomerID'); // clear localStorage if error occurs
+        localStorage.removeItem('userId');
       }
     };
     fetchUserData();
@@ -77,15 +84,16 @@ const Donations: React.FC = () => {
       return;
     }
 
+    // validate first and last name if not logged in
     if (!isLoggedIn && (!firstName.trim() || !lastName.trim())) {
       alert('Please provide your first and last name.');
       return;
     }
 
     const donationData = {
-      CustomerID: isLoggedIn ? customerID : null,
-      FirstName: isLoggedIn ? undefined : firstName.trim(),
-      LastName: isLoggedIn ? undefined : lastName.trim(),
+      userId: isLoggedIn ? userId : null,
+      FirstName: isLoggedIn ? undefined : firstName.trim() , 
+      LastName: isLoggedIn ?  undefined: lastName.trim(),
       Amount: amount,
       Date: new Date().toISOString().split('T')[0],
     };
