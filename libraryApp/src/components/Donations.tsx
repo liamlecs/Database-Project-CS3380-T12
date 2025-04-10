@@ -23,32 +23,25 @@ const Donations: React.FC = () => {
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  
-  /* useEffect(() => {
-    const storedCustomerId = localStorage.getItem('customerId');
-    if (storedCustomerId) {
-      fetchUserData(parseInt(storedCustomerId));
-    }
-  }, []); */
-
+useEffect(() => {
   const fetchUserData = async () => {
     try {
 
       // check if customerId is stored in localStorage
-      const customerID = localStorage.getItem('customerId');
-      if (!customerID) {
+      const customerIDstorage = localStorage.getItem('customerId');
+      if (!customerIDstorage) {
         setIsLoggedIn(false);
         return;
       }
 
       // fetch user data from api
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerID}`);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerIDstorage}`);
       if (!response.ok) throw new Error('Failed to fetch user data');
 
       const user = await response.json();
-      setCustomerID(user.customerId || user.id);
-      setFirstName(user.firstName || user.first_name);
-      setLastName(user.lastName || user.last_name);
+      setCustomerID(user.CustomerID);
+      setFirstName(user.FirstName);
+      setLastName(user.LastName);
       setIsLoggedIn(true);
     } catch (error) {
       console.error('Error fetching user details:', error);
@@ -56,10 +49,8 @@ const Donations: React.FC = () => {
       localStorage.removeItem('customerId'); // clear customerId if fetch fails
     }
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+  fetchUserData();
+}, []);
 
   // handle predefined amount selection
   const handleAmountSelection = (amount: number) => {
@@ -96,11 +87,11 @@ const Donations: React.FC = () => {
     }
 
     const donationData = {
-      customerID: isLoggedIn ? customerID : null,
-      firstName: isLoggedIn ? undefined : firstName.trim(),
-      lastName: isLoggedIn ? undefined : lastName.trim(),
-      amount: amount,
-      date: new Date().toISOString().split('T')[0],
+      CustomerID: isLoggedIn ? customerID : null,
+      FirstName: isLoggedIn ? undefined : firstName.trim(),
+      LastName: isLoggedIn ? undefined : lastName.trim(),
+      Amount: amount,
+      Date: new Date().toISOString().split('T')[0],
     };
 
     try {
@@ -150,10 +141,50 @@ const Donations: React.FC = () => {
             </Typography>
             <Grid container spacing={2} sx={{ marginBottom: 2 }}>
               <Grid item xs={6}>
-                <TextField fullWidth label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                <TextField 
+                  fullWidth 
+                  label="First Name" 
+                  value={firstName} 
+                  onChange={(e) => setFirstName(e.target.value)} 
+                  required 
+                />
               </Grid>
               <Grid item xs={6}>
-                <TextField fullWidth label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                <TextField 
+                  fullWidth 
+                  label="Last Name" 
+                  value={lastName} 
+                  onChange={(e) => setLastName(e.target.value)} 
+                  required
+                />
+              </Grid>
+            </Grid>
+            <Divider sx={{ my: 3 }} />
+          </>
+        )}
+
+        {/* if logged in, autofill user information */}
+        {isLoggedIn && (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Your Information
+            </Typography>
+            <Grid container spacing={2} sx={{ marginBottom: 2 }}>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  value={firstName}
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  value={lastName}
+                  disabled
+                />
               </Grid>
             </Grid>
             <Divider sx={{ my: 3 }} />
@@ -202,7 +233,7 @@ const Donations: React.FC = () => {
       {/* Thank You Message */}
       <Snackbar
         open={donationSuccess}
-        autoHideDuration={50000}
+        autoHideDuration={5000}
         onClose={() => setDonationSuccess(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
