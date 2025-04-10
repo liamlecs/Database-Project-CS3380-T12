@@ -234,7 +234,7 @@ const Library: React.FC = () => {
                         }}
                     />
                     <h3 style={{ marginBottom: "0.5rem" }}>{getDisplayTitle(selectedItem, selectedItem?._category)}</h3>
-                    <p><strong>Author/Director:</strong> {selectedItem?.author ?? selectedItem?.artistName ?? selectedItem?.manufacturerName ?? "Unknown"}</p>
+                    <p><strong>Author/Director:</strong> {selectedItem?.author ?? selectedItem?.director ?? selectedItem?.artistName ?? selectedItem?.manufacturerName ?? "Unknown"}</p>
                     <p><strong>Genre:</strong> {selectedItem?.genre ?? selectedItem?.genreDescription ?? "N/A"}</p>
                     <p><strong>Available Copies:</strong> {selectedItem?.availableCopies ?? "Unknown"}</p>
                 </DialogContent>
