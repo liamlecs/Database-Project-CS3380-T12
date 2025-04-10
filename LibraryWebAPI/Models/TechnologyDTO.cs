@@ -14,6 +14,8 @@ public class TechnologyDTO
         public string ManufacturerName { get; set; } = string.Empty;
         public string ModelNumber { get; set; } = string.Empty;
         public string CoverImagePath { get; set; } = string.Empty;
+        
+        public int availableCopies { get; set; }
     }
 
 }

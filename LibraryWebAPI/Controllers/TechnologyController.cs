@@ -36,7 +36,8 @@ namespace LibraryWebAPI.Controllers
                     Title = t.Item!.Title,
                     ModelNumber = t.ModelNumber,
                     CoverImagePath = t.CoverImagePath!,
-                    itemId = t.ItemID
+                    itemId = t.ItemID,
+                    availableCopies = t.Item.AvailableCopies,
                 })
                 .ToListAsync();
 
