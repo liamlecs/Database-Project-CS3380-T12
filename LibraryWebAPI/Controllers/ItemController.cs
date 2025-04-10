@@ -131,7 +131,14 @@ namespace LibraryWebAPI.Controllers
             item.AvailableCopies = proposedValue;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new
+            {
+                item.ItemId,
+                item.Title,
+                item.AvailableCopies,
+                item.TotalCopies
+            });
+
         }
     }
 }
