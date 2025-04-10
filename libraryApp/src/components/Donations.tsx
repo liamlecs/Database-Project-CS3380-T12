@@ -92,8 +92,8 @@ const Donations: React.FC = () => {
 
     const donationData = {
       userId: isLoggedIn ? userId : null,
-      FirstName: isLoggedIn ? undefined : firstName.trim() , 
-      LastName: isLoggedIn ?  undefined: lastName.trim(),
+      FirstName: firstName.trim(),
+      LastName: lastName.trim(),
       Amount: amount,
       Date: new Date().toISOString().split('T')[0],
     };
