@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Models;
 using LibraryWebAPI.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace LibraryWebAPI.Controllers
 {
+
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class UserProfileController : ControllerBase
     {
         private readonly LibraryContext _context;
@@ -22,12 +24,15 @@ namespace LibraryWebAPI.Controllers
             if (type.ToLower() == "customer")
             {
                 var customer = await _context.Customers
+                    .Where(c => c.CustomerId == id)
                     .Include(c => c.Fines)
                     .Include(c => c.TransactionHistories)
                     .Include(c => c.Waitlists)
-                    .FirstOrDefaultAsync(c => c.CustomerId == id);
+                        .ThenInclude(w => w.Item) // Include the related Item table
+                    .FirstOrDefaultAsync();
 
                 if (customer == null) return NotFound();
+
 
                 return Ok(new
                 {
@@ -38,9 +43,17 @@ namespace LibraryWebAPI.Controllers
                     MemberSince = customer.MembershipStartDate,
                     MembershipExpires = customer.MembershipEndDate,
                     fines = customer.Fines,
-                    //checkedBooks = customer,
                     transcActHistory = customer.TransactionHistories,
-                    waitLists = customer.Waitlists
+                    waitLists = customer.Waitlists.Select(w => new
+                    {
+                        w.WaitlistId,
+                        customer.CustomerId,
+                        w.ItemId,
+                        w.Item.Title,
+                        w.ReservationDate,
+                        w.isReceived
+                    }),
+                    
                 });
             }
             else if (type.ToLower() == "employee")
@@ -59,6 +72,7 @@ namespace LibraryWebAPI.Controllers
 
             return BadRequest("Invalid user type");
         }
+
         [HttpGet("customers")]
         public async Task<IActionResult> GetAllCustomers()
         {
@@ -73,7 +87,6 @@ namespace LibraryWebAPI.Controllers
                     MemberSince = c.MembershipStartDate,
                     MembershipExpires = c.MembershipEndDate,
                     c.Fines,
-                    //checkedBooks = 
                     c.TransactionHistories,
                     c.Waitlists
                 })
@@ -81,6 +94,7 @@ namespace LibraryWebAPI.Controllers
 
             return Ok(customers);
         }
+
         [HttpPut("customer/{id}")]
         public async Task<IActionResult> UpdateCustomer(int id, [FromBody] CustomerUpdateDTO updatedCustomer)
         {
@@ -91,13 +105,13 @@ namespace LibraryWebAPI.Controllers
             customer.LastName = updatedCustomer.LastName ?? customer.LastName;
             customer.Email = updatedCustomer.Email ?? customer.Email;
             customer.AccountPassword = updatedCustomer.Password ?? customer.AccountPassword;
-           customer.MembershipStartDate = updatedCustomer.MembershipStartDate.HasValue
-        ? DateOnly.FromDateTime(updatedCustomer.MembershipStartDate.Value)
-        : customer.MembershipStartDate;
+            customer.MembershipStartDate = updatedCustomer.MembershipStartDate.HasValue
+                ? DateOnly.FromDateTime(updatedCustomer.MembershipStartDate.Value)
+                : customer.MembershipStartDate;
 
-    customer.MembershipEndDate = updatedCustomer.MembershipEndDate.HasValue
-        ? DateOnly.FromDateTime(updatedCustomer.MembershipEndDate.Value)
-        : customer.MembershipEndDate;
+            customer.MembershipEndDate = updatedCustomer.MembershipEndDate.HasValue
+                ? DateOnly.FromDateTime(updatedCustomer.MembershipEndDate.Value)
+                : customer.MembershipEndDate;
 
             if (updatedCustomer.MembershipEndDate.HasValue)
             {
@@ -106,6 +120,8 @@ namespace LibraryWebAPI.Controllers
             await _context.SaveChangesAsync();
             return Ok(customer);
         }
+
+
 
     }
 }

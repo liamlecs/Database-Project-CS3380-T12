@@ -1,37 +1,68 @@
-    # Logs
-    logs
-    *.log
-    npm-debug.log*
-    yarn-debug.log*
-    yarn-error.log*
-    pnpm-debug.log*
-    lerna-debug.log*
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-    node_modules
-    dist
-    dist-ssr
-    *.local
-    
-    LibraryWebAPI/bin
-    LibraryWebAPI/obj
+node_modules/
+dist
+dist-ssr
+*.local
+node_modules/@mui
 
-    LibraryWebAPI/appsettings.json
+# Ignore build output
+bin/
+obj/
+LibraryWebAPI/bin/
+LibraryWebAPI/obj/
 
-    # Editor directories and files
-    .vscode/*
-    !.vscode/extensions.json
-    .idea
-    .DS_Store
-    *.suo
-    *.ntvs*
-    *.njsproj
-    *.sln
-    *.sw?
-    bin/
-    obj/
+# .NET build artifacts
+[Ll]ibraryWebAPI/[Bb]in/
+[Ll]ibraryWebAPI/[Oo]bj/
+*.dll
+*.pdb
+*.cache
+*.suo
+*.user
+*.nupkg
+bin/
+obj/
 
-    # Others
-    node_modules/
+# Node modules
+node_modules/
+libraryApp/node_modules/
+
+# Ignore all node_modules folders recursively
+**/node_modules/
 
 .env
 
+node_modules
+# Ignore VS files
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Ignore build output
+bin/
+obj/
+
+# Others
+.DS_Store
+.envnode_modules

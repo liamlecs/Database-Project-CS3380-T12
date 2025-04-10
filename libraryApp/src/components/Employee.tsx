@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -31,6 +32,7 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
+  Stack,
 } from '@mui/material';
 import {
   Event as EventIcon,
@@ -49,6 +51,9 @@ import EventHistory from './LiHistSubcomponents/EventHistory';
 import FineHistory from './LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 import EmployeeProfile from './EmployeeProfile';
+import dayjs from 'dayjs';
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 interface Item {
   itemId: number;
@@ -62,8 +67,8 @@ interface Item {
 interface Event {
   eventId: number;
   title: string;
-  startTimeStamp: string;
-  endTimeStamp: string;
+  startTimestamp: string;
+  endTimestamp: string;
   location: string;
   ageGroup: number;
   categoryId: number;
@@ -76,13 +81,28 @@ interface EmployeeData {
   firstName: string;
   lastName: string;
   birthDate: string
-  sex: string;
   supervisorID?: number;
   username: string;
   password?: string;
 }
 
+const ageGroups = [
+  { id: 1, label: '0-2' },
+  { id: 2, label: '3-8' },
+  { id: 3, label: '9-13' },
+  { id: 4, label: '14-17' },
+  { id: 5, label: '18+' },
+];
+
+const eventCategories = [
+  { id: 1, label: 'Educational' },
+  { id: 2, label: 'Social' },
+  { id: 3, label: 'Cultural' },
+];
+
+
 const Employee: React.FC = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile'>('dashboard');
@@ -108,6 +128,12 @@ const Employee: React.FC = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
 
+//open and close edit event dialogue box
+const [openEditEventDialog, setOpenEditEventDialog] = useState(false);
+const [eventBeingEdited, setEventBeingEdited] = useState<Event | null>(null);
+const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
+
+
   // fetching data
   useEffect(() => {
     const fetchEmployeeData = async (employeeId: number) => {
@@ -117,8 +143,7 @@ const Employee: React.FC = () => {
           employeeID: employeeId,
           firstName: 'Elite',
           lastName: 'Employee',
-          birthDate: '2000-03-24',
-          sex: 'Male'
+          birthDate: '2000-03-24'
         };
         setEmployeeData(mockData); */
   
@@ -139,7 +164,6 @@ const Employee: React.FC = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           birthDate: data.birthDate,
-          sex: data.sex,
           supervisorID: data.supervisorID,
           username: data.username
         });
@@ -149,11 +173,17 @@ const Employee: React.FC = () => {
         setOpenDialog(true);
       }
     };
-
+    const isEmployeeLoggedIn = localStorage.getItem('isEmployeeLoggedIn') === "true";
     const storedEmployeeId = localStorage.getItem('employeeId');
-    if (storedEmployeeId) {
-      fetchEmployeeData(parseInt(storedEmployeeId));
+    
+    if (!isEmployeeLoggedIn || !storedEmployeeId) {
+      // not logged in => redirect
+      navigate("/employee-login");
+      return;
     }
+      
+    fetchEmployeeData(parseInt(storedEmployeeId, 10));
+
 
     // fetch inventory and events data
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
@@ -178,6 +208,15 @@ const Employee: React.FC = () => {
     }
   };
 
+  // Log out helper function
+  const handleEmployeeLogout = () => {
+    localStorage.removeItem("employeeId");
+    localStorage.removeItem("isEmployeeLoggedIn");
+    localStorage.removeItem("employeeFirstName");
+    localStorage.removeItem("employeeLastName");
+    navigate("/employee-login");
+  };
+  
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
       // mock update, will replace with actual API call
@@ -333,6 +372,33 @@ const Employee: React.FC = () => {
       setOpenDialog(true);
     }
   };
+
+  const handleEditEvent = async (id: number) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch event');
+  
+      const event: Event = await response.json();
+      const now = dayjs();
+      const eventStart = dayjs(event.startTimestamp);
+  console.log("event: ", event);
+      if (eventStart.isBefore(now)) {
+        setShowEditBlockedDialog(true); // 👈 Show warning if event already started
+        return;
+      }
+
+      setEventBeingEdited({
+        ...event,
+        startTimestamp: dayjs(event.startTimestamp).toISOString(),
+        endTimestamp: dayjs(event.endTimestamp).toISOString(),
+      });
+      setOpenEditEventDialog(true);
+
+    } catch (error) {
+      console.error('Error getting event:', error);
+    }
+  };
+  
 
   const handleRefreshEvents = () => {
     setRefreshData(true);
@@ -765,15 +831,15 @@ const Employee: React.FC = () => {
                 <TableCell>Age Group</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Private</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {events.map((event) => (
                 <TableRow key={event.eventId}>
                   <TableCell>{event.title}</TableCell>
-                  <TableCell>{new Date(event.startTimeStamp).toLocaleString()}</TableCell>
-                  <TableCell>{new Date(event.endTimeStamp).toLocaleString()}</TableCell>
+                  <TableCell>{new Date(event.startTimestamp).toLocaleString()}</TableCell>
+                  <TableCell>{new Date(event.endTimestamp).toLocaleString()}</TableCell>
                   <TableCell>{event.location}</TableCell>
                   <TableCell>
                     {event.ageGroup === 1 && '0-2'}
@@ -791,6 +857,9 @@ const Employee: React.FC = () => {
                   <TableCell>
                     <IconButton onClick={() => handleDeleteEvent(event.eventId)} color="error">
                       <DeleteIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleEditEvent(event.eventId)} color="error">
+                      <EditIcon style={{color:"green"}}/>
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -883,6 +952,190 @@ const Employee: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* event edit dialogue box */}
+        <Dialog open={openEditEventDialog} onClose={() => setOpenEditEventDialog(false)} PaperProps={{
+            sx: {
+              minWidth: 500,
+              minHeight: 350,
+            },
+          }}>
+          <DialogTitle style={{fontWeight: "bold"}}>Edit Event</DialogTitle>
+          <DialogContent>
+  {eventBeingEdited ? (
+    
+    <Stack spacing={2}>
+    <Box sx={{ mt: 2 }}>
+    <TextField
+      fullWidth
+      label="Title"
+      value={eventBeingEdited.title}
+      onChange={(e) =>
+        setEventBeingEdited({ ...eventBeingEdited, title: e.target.value })
+      }
+      margin="normal"
+    />
+    {/* ... other fields here */}
+  </Box>
+      <TextField
+        label="Location"
+        fullWidth
+        value={eventBeingEdited.location}
+        onChange={(e) =>
+          setEventBeingEdited({ ...eventBeingEdited, location: e.target.value })
+        }
+      />
+      <TextField
+        label="Description"
+        fullWidth
+        multiline
+        value={eventBeingEdited.description}
+        onChange={(e) =>
+          setEventBeingEdited({ ...eventBeingEdited, description: e.target.value })
+        }
+      />
+      <Stack spacing={2} direction="row">
+      <FormControl fullWidth>
+  <InputLabel>Age Group</InputLabel>
+  <Select
+    value={eventBeingEdited.ageGroup}
+    label="Age Group"
+    onChange={(e) =>
+      setEventBeingEdited({
+        ...eventBeingEdited,
+        ageGroup: Number.parseInt(e.target.value as string),
+      })
+    }
+  >
+    {ageGroups.map((group) => (
+      <MenuItem key={group.id} value={group.id}>
+        {group.label}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+<FormControl fullWidth>
+  <InputLabel>Category</InputLabel>
+  <Select
+    value={eventBeingEdited.categoryId}
+    label="Category"
+    onChange={(e) =>
+      setEventBeingEdited({
+        ...eventBeingEdited,
+        categoryId: Number.parseInt(e.target.value as string),
+      })
+    }
+  >
+    {eventCategories.map((category) => (
+      <MenuItem key={category.id} value={category.id}>
+        {category.label}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+<FormControl fullWidth>
+  <InputLabel>Private?</InputLabel>
+  <Select
+    value={eventBeingEdited.isPrivate ? 'Yes' : 'No'}
+    label="Private"
+    onChange={(e) =>
+      setEventBeingEdited({
+        ...eventBeingEdited,
+        isPrivate: e.target.value === 'Yes',
+      })
+    }
+  >
+    <MenuItem value="Yes">Yes</MenuItem>
+    <MenuItem value="No">No</MenuItem>
+  </Select>
+</FormControl>
+</Stack>
+
+
+<LocalizationProvider dateAdapter={AdapterDayjs}>
+  <Stack spacing={2} direction="row">
+    <DateTimePicker
+      label="Start Time"
+      value={dayjs(eventBeingEdited.startTimestamp)}
+      onChange={(newValue) =>
+        setEventBeingEdited({
+          ...eventBeingEdited,
+          startTimestamp: newValue?.toISOString() || '',
+        })
+      }
+      disablePast
+    />
+    <DateTimePicker
+      label="End Time"
+      value={dayjs(eventBeingEdited.endTimestamp)}
+      onChange={(newValue) =>
+        setEventBeingEdited({
+          ...eventBeingEdited,
+          endTimestamp: newValue?.toISOString() || '',
+        })
+      }
+      disablePast
+    />
+  </Stack>
+</LocalizationProvider>
+
+
+      {/* You can add more fields: categoryId, ageGroup, etc. */}
+    </Stack>
+  ) : (
+    <Typography>Loading...</Typography>
+  )}
+</DialogContent>
+          <DialogActions>
+            <Stack direction="row">
+            <Button
+  onClick={async () => {
+    if (!eventBeingEdited) return;
+
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${eventBeingEdited.eventId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(eventBeingEdited),
+    });
+
+    if (response.ok) {
+      setOpenEditEventDialog(false);
+      setRefreshData(true); // optional, refresh the events list
+    } else {
+      console.error("Failed to save event update.");
+    }
+  }}
+  color="primary"
+>
+  SAVE
+</Button>
+
+            <Button onClick={() => setOpenEditEventDialog(false)} color="error">
+              CANCEL
+            </Button>
+            </Stack>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+  open={showEditBlockedDialog}
+  onClose={() => setShowEditBlockedDialog(false)}
+>
+  <DialogTitle>Cannot Edit Event</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Events cannot be edited after they have started.
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setShowEditBlockedDialog(false)} autoFocus>
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
+
 
         {/* Current View */}
         {currentView === 'dashboard' && renderDashboard()}

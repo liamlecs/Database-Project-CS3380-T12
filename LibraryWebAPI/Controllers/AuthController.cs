@@ -35,7 +35,10 @@ namespace LibraryWebAPI.Controllers
             return Ok(new {
                 message = "Employee login successful!",
                 isEmployee = true,
-                EmployeeID = employee.EmployeeId
+                EmployeeID = employee.EmployeeId,
+                firstName = employee.FirstName,
+                lastName = employee.LastName,
+                birthDate = employee.BirthDate?.ToString("yyyy-MM-dd")
             });
         }
 

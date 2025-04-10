@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css"; // CSS import
 import bgImage from "../assets/library-bg.jpg";
+import { localStorageAvailable } from "@mui/x-data-grid/internals";
 
 export default function EmployeeLoginPage() {
   const [username, setUsername] = useState("");
@@ -35,15 +36,21 @@ export default function EmployeeLoginPage() {
 
       const result = await response.json();
       setMessage(result.message || "Login successful!");
+      console.log('Full API response:', result); // Add this line
 
       localStorage.setItem("employeeId", result.employeeID.toString());
+      localStorage.setItem("isEmployeeLoggedIn", "true");
+      localStorage.setItem("employeeFirstName", result.firstName);
+      localStorage.setItem("employeeLastName", result.lastName);
 
       // Get the EmployeeID from the Employee and send it to the Employee.tsx
-      navigate("/Employee", {
-        state: {
-          employeeID: result.employeeID,
-        },
-      });
+      // navigate("/Employee", {
+      //   state: {
+      //     employeeID: result.employeeID,
+      //   },
+      // });
+
+      window.location.href = "/employee";
 
     } catch (err: any) {
       console.error(err);

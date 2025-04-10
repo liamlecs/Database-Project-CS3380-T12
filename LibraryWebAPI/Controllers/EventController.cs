@@ -23,8 +23,32 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
         {
-              var events = await _context.Events.ToListAsync();
+            var events = await _context.Events.ToListAsync();
             return Ok(events);
+        }
+
+        // GET: api/Event
+        [HttpGet("EventCalendar")]
+        public async Task<ActionResult<IEnumerable<Event>>> EventCalendar()
+        {
+            var calendar = await _context.EventCalendar.FromSqlRaw("SELECT " +
+    "    E.EventID, " +
+    "    E.StartTimestamp, " +
+    "    E.EndTimestamp, " +
+    "    E.Location, " +
+    "    E.AgeGroup, " +
+    "    E.IsPrivate, " +
+    "    E.Description, " +
+    "    E.Title, " +
+    "    EC.CategoryDescription " +
+    "FROM dbo.Event AS E, dbo.EventCategory AS EC " +
+    "WHERE E.CategoryID = EC.CategoryID;"
+            ).ToListAsync();
+            if (calendar == null)
+            {
+                return NotFound($"failed to display calendar.");
+            }
+            return Ok(calendar);
         }
 
         // GET: api/Event/5

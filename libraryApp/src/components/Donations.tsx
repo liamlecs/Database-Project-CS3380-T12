@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Container,
   Paper,
@@ -10,11 +10,14 @@ import {
   Alert,
   Box,
   Grid,
-  Divider
+  Divider,
+  Card,
+  CardContent,
+  useTheme
 } from '@mui/material';
 
 const Donations: React.FC = () => {
-  // state for selected donation amount
+  const theme = useTheme();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [donationSuccess, setDonationSuccess] = useState<boolean>(false);
@@ -22,62 +25,46 @@ const Donations: React.FC = () => {
   const [lastName, setLastName] = useState<string>('');
   const [customerID, setCustomerID] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
-  
-  /* useEffect(() => {
-    const storedCustomerId = localStorage.getItem('customerId');
-    if (storedCustomerId) {
-      fetchUserData(parseInt(storedCustomerId));
-    }
-  }, []); */
-
-  const fetchUserData = async () => {
-    try {
-
-      // check if customerId is stored in localStorage
-      const customerID = localStorage.getItem('customerId');
-      if (!customerID) {
-        setIsLoggedIn(false);
-        return;
-      }
-
-      // fetch user data from api
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerID}`);
-      if (!response.ok) throw new Error('Failed to fetch user data');
-
-      const user = await response.json();
-      setCustomerID(user.customerId || user.id);
-      setFirstName(user.firstName || user.first_name);
-      setLastName(user.lastName || user.last_name);
-      setIsLoggedIn(true);
-    } catch (error) {
-      console.error('Error fetching user details:', error);
-      setIsLoggedIn(false);
-      localStorage.removeItem('customerId'); // clear customerId if fetch fails
-    }
-  };
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // check if customerId is stored in localStorage
+        const customerIDStored = localStorage.getItem('CustomerID');
+        if (!customerIDStored) {
+          setIsLoggedIn(false);
+          return;
+        }
+
+        // fetchuser data from API
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/${customerIDStored}`);
+        if (!response.ok) throw new Error('Failed to fetch user data');
+
+        const user = await response.json();
+        setCustomerID(user.CustomerID);
+        setFirstName(user.FirstName);
+        setLastName(user.LastName);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+        setIsLoggedIn(false);
+        localStorage.removeItem('CustomerID'); // clear localStorage if error occurs
+      }
+    };
     fetchUserData();
   }, []);
 
   // handle predefined amount selection
   const handleAmountSelection = (amount: number) => {
     setSelectedAmount(amount);
-    setCustomAmount(''); // reset custom amount if a predefined amount is selected
+    setCustomAmount('');
   };
 
   // handle custom amount input
   const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomAmount(e.target.value);
-    setSelectedAmount(null); // reset predefined amount if custom amount is entered
-  };
-
-  // retrieve user ID
-  const getCustomerId = async (): Promise<number> => {
-    const response = await fetch('/api/Customer');
-    const user = await response.json();
-    return user.id;
+    setSelectedAmount(null);
   };
 
   // handle donation submission
@@ -96,15 +83,16 @@ const Donations: React.FC = () => {
     }
 
     const donationData = {
-      customerID: isLoggedIn ? customerID : null,
-      firstName: isLoggedIn ? undefined : firstName.trim(),
-      lastName: isLoggedIn ? undefined : lastName.trim(),
-      amount: amount,
-      date: new Date().toISOString().split('T')[0],
+      CustomerID: isLoggedIn ? customerID : null,
+      FirstName: isLoggedIn ? undefined : firstName.trim(),
+      LastName: isLoggedIn ? undefined : lastName.trim(),
+      Amount: amount,
+      Date: new Date().toISOString().split('T')[0],
     };
 
+    setIsLoading(true);
     try {
-      // send donation data to the server
+      // send donation data to server
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Donation`, {
         method: 'POST',
         headers: {
@@ -116,18 +104,17 @@ const Donations: React.FC = () => {
       if (!response.ok) {
         throw new Error('Donation failed. Please try again.');
       }
-
       setDonationSuccess(true);
-
-      resetForm(); // reset form after successful donation
+      resetForm();
     } catch (error) {
       console.error('Error processing donation:', error);
       alert('Error. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Reset the form
-  const resetForm = () => {
+  const resetForm = () => { // reset form after successful donation
     setSelectedAmount(null);
     setCustomAmount('');
     if (!isLoggedIn) {
@@ -137,81 +124,232 @@ const Donations: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ marginTop: 4 }}>
-      <Paper elevation={3} sx={{ padding: 3 }}>
-        <Typography variant="h4" gutterBottom align="center">
-          Donate to the Library
-        </Typography>
-
-        {!isLoggedIn && (
-          <>
-            <Typography variant="h6" gutterBottom>
-              Your Information
+    <Container maxWidth="md" sx={{ my: 6 }}>
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={7}>
+          <Paper elevation={3} sx={{ 
+            padding: 4,
+            borderRadius: 3,
+            background: theme.palette.background.paper,
+          }}>
+            <Typography 
+              variant="h3" 
+              gutterBottom 
+              align="center"
+              sx={{ 
+                fontWeight: 700,
+                color: theme.palette.primary.main,
+                mb: 4
+              }}
+            >
+              Support Our Library
             </Typography>
-            <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-              <Grid item xs={6}>
-                <TextField fullWidth label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
-              </Grid>
-            </Grid>
-            <Divider sx={{ my: 3 }} />
-          </>
-        )}
 
-        {/* Donation Options */}
-        <Typography variant="h6" gutterBottom>
-          Choose an Amount
-        </Typography>
-        <Grid container spacing={2} sx={{ marginBottom: 2 }}>
-          {[5, 10, 50, 100].map((amount) => (
-            <Grid item xs={6} key={amount}>
-              <Button fullWidth variant={selectedAmount === amount ? 'contained' : 'outlined'} onClick={() => handleAmountSelection(amount)} sx={{ py: 1.5 }}>
-                ${amount}
-              </Button>
+            {isLoggedIn ? (
+              <>
+              {/* logged-in users have autofilled information */}
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                  Your Information
+                </Typography>
+                <Grid container spacing={2} sx={{ marginBottom: 3 }}>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      value={firstName}
+                      disabled
+                      variant="filled"
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      value={lastName}
+                      disabled
+                      variant="filled"
+                    />
+                  </Grid>
+                </Grid>
+                <Divider sx={{ my: 3, borderColor: theme.palette.divider }} />
+              </>
+            ) : (
+              <>
+              {/* non-logged-in users must fill in information */}
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                  Your Information
+                </Typography>
+                <Grid container spacing={2} sx={{ marginBottom: 3 }}>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="First Name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Last Name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                </Grid>
+                <Divider sx={{ my: 3, borderColor: theme.palette.divider }} />
+              </>
+            )}
+
+            {/* donation amount selection */}
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+              Choose an Amount
+            </Typography>
+            <Grid container spacing={2} sx={{ marginBottom: 3 }}>
+              {[5, 10, 50, 100].map((amount) => (
+                <Grid item xs={6} sm={3} key={amount}>
+                  <Button 
+                    fullWidth 
+                    variant={selectedAmount === amount ? 'contained' : 'outlined'} 
+                    onClick={() => handleAmountSelection(amount)} 
+                    sx={{ 
+                      py: 2,
+                      borderRadius: 2,
+                      fontWeight: selectedAmount === amount ? 600 : 500,
+                      borderWidth: selectedAmount === amount ? 0 : 2,
+                      '&:hover': {
+                        borderWidth: 2
+                      }
+                    }}
+                  >
+                    ${amount}
+                  </Button>
+                </Grid>
+              ))}
             </Grid>
-          ))}
+
+            {/* custom amount input */}
+            <TextField
+              fullWidth
+              label="Or enter a custom amount"
+              type="number"
+              value={customAmount}
+              onChange={handleCustomAmountChange}
+              margin="normal"
+              InputProps={{ 
+                inputProps: { min: 1 },
+                startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>
+              }}
+              sx={{ mb: 3 }}
+              variant="outlined"
+            />
+
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleDonate}
+              size="large"
+              disabled={isLoading}
+              sx={{
+                py: 2,
+                borderRadius: 2,
+                fontWeight: 700,
+                fontSize: '1.1rem',
+                boxShadow: theme.shadows[4],
+                '&:hover': {
+                  boxShadow: theme.shadows[8]
+                }
+              }}
+            >
+              {isLoading ? 'Processing...' : 'Donate Now'}
+            </Button>
+          </Paper>
         </Grid>
 
-        {/* Custom Amount Input */}
-        <TextField
-          fullWidth
-          label="Custom Amount"
-          type="number"
-          value={customAmount}
-          onChange={handleCustomAmountChange}
-          margin="normal"
-          InputProps={{ inputProps: { min: 1 } }}
-        />
+        <Grid item xs={12} md={5}>
+          <Card sx={{ height: '100%', borderRadius: 3 }}>
+            <CardContent sx={{ p: 4 }}>
+              <Typography variant="h5" gutterBottom sx={{ fontWeight: 700, mb: 3 }}>
+                Your Donation Matters
+              </Typography>
+              <Typography paragraph sx={{ mb: 2 }}>
+                Every contribution helps us maintain and expand our collection, 
+                improve facilities, and provide better services to our community.
+              </Typography>
+              <Typography paragraph sx={{ mb: 2 }}>
+                With your support, we hope to:
+              </Typography>
+              <ul style={{ 
+                paddingLeft: 24,
+                marginBottom: 24,
+                listStyleType: 'none',
+              }}>
+                <li style={{ marginBottom: 8, position: 'relative', paddingLeft: 24 }}>
+                  <span style={{ 
+                    position: 'absolute', 
+                    left: 0,
+                    color: theme.palette.primary.main
+                  }}>✓</span>
+                  Purchase new books and materials
+                </li>
+                <li style={{ marginBottom: 8, position: 'relative', paddingLeft: 24 }}>
+                  <span style={{ 
+                    position: 'absolute', 
+                    left: 0,
+                    color: theme.palette.primary.main
+                  }}>✓</span>
+                  Upgrade technology and equipment
+                </li>
+                <li style={{ marginBottom: 8, position: 'relative', paddingLeft: 24 }}>
+                  <span style={{ 
+                    position: 'absolute', 
+                    left: 0,
+                    color: theme.palette.primary.main
+                  }}>✓</span>
+                  Fund community programs and events
+                </li>
+                <li style={{ position: 'relative', paddingLeft: 24 }}>
+                  <span style={{ 
+                    position: 'absolute', 
+                    left: 0,
+                    color: theme.palette.primary.main
+                  }}>✓</span>
+                  Maintain our beautiful library spaces
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-        {/* Donate Button */}
-        <Box sx={{ marginTop: 2 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={handleDonate}
-            size="large"
-          >
-            Donate Now
-          </Button>
-        </Box>
-      </Paper>
-
-      {/* Thank You Message */}
       <Snackbar
         open={donationSuccess}
-        autoHideDuration={50000}
+        autoHideDuration={6000}
         onClose={() => setDonationSuccess(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert
           onClose={() => setDonationSuccess(false)}
           severity="success"
-          sx={{ width: '100%' }}
+          sx={{ 
+            width: '100%',
+            boxShadow: theme.shadows[6],
+            '& .MuiAlert-icon': {
+              fontSize: 32
+            }
+          }}
         >
-          Thank you for your donation!
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Thank you for your generous donation!
+          </Typography>
+          <Typography variant="body1" sx={{ mt: 1 }}>
+            Your support makes a difference in our community.
+          </Typography>
         </Alert>
       </Snackbar>
     </Container>

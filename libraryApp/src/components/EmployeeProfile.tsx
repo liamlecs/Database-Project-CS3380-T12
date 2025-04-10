@@ -25,7 +25,8 @@ interface EmployeeProfileProps {
     firstName: string;
     lastName: string;
     birthDate: string;
-    sex: string;
+    supervisorID?: number;
+    username: string;
   };
   onUpdate: (updatedData: any) => void;
 }
@@ -116,14 +117,6 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeData, onUpdat
               {new Date(employeeData.birthDate).toLocaleDateString()}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex' }}>
-            <Typography variant="body1" sx={{ width: 120, fontWeight: 500 }}>
-              Sex:
-            </Typography>
-            <Typography variant="body1">
-              {employeeData.sex}
-            </Typography>
-          </Box>
         </Box>
       </Paper>
 
@@ -156,19 +149,6 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeData, onUpdat
             margin="normal"
             InputLabelProps={{ shrink: true }}
           />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Sex</InputLabel>
-            <Select
-              name="sex"
-              value={formData.sex}
-              label="Sex"
-              onChange={handleSelectChange}
-            >
-              <MenuItem value="Male">Male</MenuItem>
-              <MenuItem value="Female">Female</MenuItem>
-              <MenuItem value="Other">Other</MenuItem>
-            </Select>
-          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditMode(false)}>Cancel</Button>

@@ -10,6 +10,7 @@ namespace LibraryWebAPI.Data
 public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<BookAuthor> BookAuthors { get; set; }
+    
 
     public virtual DbSet<BookGenre> BookGenres { get; set; }
 
@@ -25,9 +26,13 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<Event> Events { get; set; }
 
+        public virtual DbSet<EventCalendarDto> EventCalendar { get; set; }
+
     public virtual DbSet<EventCategory> EventCategories { get; set; }
 
     public virtual DbSet<Fine> Fines { get; set; }
+
+        public virtual DbSet<CustomerFineDto> CustomerFines { get; set; }
 
     public virtual DbSet<Item> Items { get; set; }
 
@@ -43,8 +48,6 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<MusicGenre> MusicGenres { get; set; }
 
     public virtual DbSet<Publisher> Publishers { get; set; }
-
-    public virtual DbSet<Sex> Sexes { get; set; }
 
     public virtual DbSet<Technology> Technologies { get; set; }
 
@@ -211,11 +214,6 @@ public virtual DbSet<Book> Books { get; set; }
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.SexNavigation).WithMany(p => p.Employees)
-                .HasForeignKey(d => d.Sex)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Employee_Sex");
-
             entity.HasOne(d => d.Supervisor).WithMany(p => p.InverseSupervisor)
                 .HasForeignKey(d => d.SupervisorId)
                 .HasConstraintName("FK_Employee_Supervisor");
@@ -265,6 +263,7 @@ public virtual DbSet<Book> Books { get; set; }
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TransactionId).HasColumnName("TransactionID");
 
+modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
         });
 
         modelBuilder.Entity<Item>(entity =>
@@ -419,22 +418,6 @@ public virtual DbSet<Book> Books { get; set; }
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Sex>(entity =>
-        {
-            entity.HasKey(e => e.SexID).HasName("PK__Sex__CA1E3C81ACCDEC3C");
-
-            entity.ToTable("Sex");
-
-            entity.HasIndex(e => e.Description, "UQ__Sex__4EBBBAC9A43B1219").IsUnique();
-
-            entity.Property(e => e.SexID)
-                .ValueGeneratedNever()
-                .HasColumnName("Sex");
-            entity.Property(e => e.Description)
-                .HasMaxLength(15)
-                .IsUnicode(false);
-        });
-
         modelBuilder.Entity<Technology>(entity =>
         {
             entity.HasKey(e => e.DeviceId).HasName("PK_Technology");
@@ -543,6 +526,9 @@ modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
+            entity.HasOne(w => w.Item)
+                .WithMany()
+                .HasForeignKey(w => w.ItemId);
         
         });
 

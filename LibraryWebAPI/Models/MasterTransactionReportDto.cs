@@ -11,7 +11,7 @@ namespace LibraryWebAPI.Models
 
         public DateTime Timestamp { get; set; }
 
-        public int OutstandingFines { get; set; }
+        public double OutstandingFines { get; set; }
 
         public int RegisteredUsers { get; set; }
 
