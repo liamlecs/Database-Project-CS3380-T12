@@ -23,6 +23,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slider from "@mui/material/Slider"; // Import Slider
 import Typography from "@mui/material/Typography"; // Import Typography
+import InventoryTable from "./InventoryTable"; // Adjust the path if it's in a different folder
+
 
 interface Profile {
   customerID: number;
@@ -441,43 +443,7 @@ export default function UserProfile() {
           <div className="profile-section">
             <h3>Inventory</h3>
 
-            {/* Search Bar */}
-            <div className="filter-container">
-              <TextField
-                label="Search by Title"
-                variant="outlined"
-                size="small"
-                onChange={(e) => setInventorySearchQuery(e.target.value)}
-                style={{ width: "40%", marginBottom: "16px" }}
-              />
-            </div>
-
-            {(filteredInventory || []).length > 0 ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-                {filteredInventory.map((transaction, index) => (
-                  <Paper
-                    key={index}
-                    elevation={3}
-                    style={{
-                      flex: "1 1 calc(33.333% - 16px)", // Adjust for 3 items per row
-                      padding: "15px",
-                      borderRadius: "8px",
-                      backgroundColor: "#f8f9fa",
-                      minWidth: "300px",
-                    }}
-                  >
-                    <div style={{ marginBottom: "10px" }}>
-                      <strong>Item ID:</strong> {transaction.itemId}
-                    </div>
-                    <div style={{ marginBottom: "10px" }}>
-                      <strong>Title:</strong> {transaction.title || "N/A"}
-                    </div>
-                  </Paper>
-                ))}
-              </div>
-            ) : (
-              <p>No inventory data to display.</p>
-            )}
+            <InventoryTable />
           </div>
         )}
 
