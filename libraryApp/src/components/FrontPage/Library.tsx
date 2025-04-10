@@ -5,12 +5,7 @@ import welcomeBg from "../../assets/welcome_background.jpg";
 import defaultItemImage from "../../assets/welcome_background.jpg";
 import { useCheckout } from "../../contexts/CheckoutContext";
 
-
-
 const tables = ["Book", "Movie", "Music", "Technology"];
-
-
-
 
 const fieldOptions: Record<string, string[]> = {
     Book: ["ISBN", "Title", "Author", "Publisher", "Genre"],
@@ -19,14 +14,8 @@ const fieldOptions: Record<string, string[]> = {
     Technology: ["Item Name", "Serial Number", "Brand"],
 };
 
-
-
-
 const itemsPerRowView = 7;
 const maxRowItems = 21;
-
-
-
 
 const Library: React.FC = () => {
     const [selectedTable, setSelectedTable] = useState<string>("");
@@ -37,47 +26,29 @@ const Library: React.FC = () => {
     const [rowPage, setRowPage] = useState<Record<string, number>>({ Book: 0, Movie: 0, Music: 0, Technology: 0 });
     const [openDialog, setOpenDialog] = useState(false);
     const [itemToCheckout, setItemToCheckout] = useState<any>(null);
-    const [checkoutCart, setCheckoutCart] = useState<any[]>([]);
-    const [openCheckoutPage, setOpenCheckoutPage] = useState(false);
+    const [openInfoDialog, setOpenInfoDialog] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<any>(null);
     const { addToCart, userType } = useCheckout();
-
-
 
     useEffect(() => {
         if (!selectedTable) return;
         fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${selectedTable}`)
             .then((res) => res.json())
-            .then((data) => {
-                console.log("[Fetched selected table items]", data);
-                setItems(data);
-            })
+            .then((data) => setItems(data))
             .catch((err) => console.error(err));
     }, [selectedTable]);
-
-
-
 
     useEffect(() => {
         Promise.all(
             tables.map((table) =>
                 fetch(`${import.meta.env.VITE_API_BASE_URL}/api/${table}`)
                     .then((res) => res.json())
-                    .then((data) => {
-                        console.log(`[Fetched ${table}]`, data);
-                        return { [table]: data };
-                    })
+                    .then((data) => ({ [table]: data }))
             )
         )
-            .then((results) => {
-                const merged = Object.assign({}, ...results);
-                console.log("[Merged all items]", merged); // for debugging purposes
-                setAllItems(merged);
-            })
+            .then((results) => setAllItems(Object.assign({}, ...results)))
             .catch((err) => console.error(err));
     }, []);
-
-
-
 
     const filteredItems = useMemo(() => {
         if (!searchQuery.trim()) return items;
@@ -85,30 +56,18 @@ const Library: React.FC = () => {
         return items.filter((item) => Object.values(item).some((val) => String(val ?? "").toLowerCase().includes(q)));
     }, [searchQuery, items]);
 
-
-
-
     const handleRowNext = (category: string, totalPages: number) => {
         setRowPage((prev) => ({ ...prev, [category]: Math.min(prev[category] + 1, totalPages - 1) }));
     };
-
-
-
 
     const handleRowPrev = (category: string) => {
         setRowPage((prev) => ({ ...prev, [category]: Math.max(prev[category] - 1, 0) }));
     };
 
-
-
-
     const handleCheckout = (item: any, category: string) => {
         setItemToCheckout({ ...item, _category: category });
         setOpenDialog(true);
     };
-
-
-
 
     const handleConfirmCheckout = () => {
         if (itemToCheckout) {
@@ -116,7 +75,6 @@ const Library: React.FC = () => {
             const dueDate = new Date(now);
             dueDate.setDate(now.getDate() + (userType === "faculty" ? 14 : 7));
 
-            // handleCon
             addToCart({
                 ItemID: itemToCheckout.itemId || itemToCheckout.id || 0,
                 ItemType: itemToCheckout._category,
@@ -129,48 +87,19 @@ const Library: React.FC = () => {
         setItemToCheckout(null);
     };
 
-
-
-
+    const handleCardClick = (item: any, category: string) => {
+        setSelectedItem({ ...item, _category: category });
+        setOpenInfoDialog(true);
+    };
 
     const getDisplayTitle = (item: any, category: string): string => {
         if (!item) return "Untitled";
-
-        if (category === "Book") {
-            const title = item.title || "Untitled Book";
-            const author = item.author || "Unknown Author";
-            const genre = item.genre || "Unknown Genre";
-            return `${title} \n \n \n by ${author} \n \n \n (${genre})`;
-        }
-
-
-        if (category === "Movie") {
-            const title = item.title || "Untited Movie";
-            const director = item.director || "Unknown Director";
-            const genre = item.genre || "Unknown Genre";
-            return `${title} \n \n \n  by ${director} \n \n \n (${genre})`;
-        }
-
-
-        if (category === "Music") {
-            const title = item.songTitle || "Untitled Song";
-            const artist = item.artistName || "Unknown Artist";
-            const genre = item.genreDescription || "Unknown Genre";
-            return `${title} \n \n \n by ${artist} \n \n \n (${genre})`;
-        }
-
-        if (category === "Technology") {
-            const title = item.title || "Untitled Device";
-            const brand = item.manufacturerName || "Unknown Brand";
-            return `${title} \n \n \n ${brand}`;
-
-        }
-
+        if (category === "Book") return `${item.title || "Untitled Book"}\n\nby ${item.author || "Unknown Author"}\n\n(${item.genre || "Unknown Genre"})`;
+        if (category === "Movie") return `${item.title || "Untitled Movie"}\n\nby ${item.director || "Unknown Director"}\n\n(${item.genre || "Unknown Genre"})`;
+        if (category === "Music") return `${item.songTitle || "Untitled Song"}\n\nby ${item.artistName || "Unknown Artist"}\n\n(${item.genreDescription || "Unknown Genre"})`;
+        if (category === "Technology") return `${item.title || "Untitled Device"}\n\n${item.manufacturerName || "Unknown Brand"}`;
         return item.title || "Untitled";
     };
-
-
-
 
     const renderCardRow = (title: string, rowItems: any[]) => {
         const currentPage = rowPage[title] || 0;
@@ -180,9 +109,6 @@ const Library: React.FC = () => {
         const currentRowItems = limitedItems.slice(startIndex, startIndex + itemsPerRowView);
         const filledItems = [...currentRowItems];
         while (filledItems.length < itemsPerRowView) filledItems.push(null);
-
-
-
 
         return (
             <div className="carousel-row" key={title} style={{ padding: "1rem", border: "1px solid #ddd", marginBottom: "1rem" }}>
@@ -196,7 +122,6 @@ const Library: React.FC = () => {
                         {filledItems.map((item, index) => (
                             <div
                                 key={`${title}-${index}`}
-                                title={`${item?.title ?? item?.songTitle ?? "Untitled"} by ${item?.author ?? item?.artistName ?? item?.manufacturerName ?? "Unknown"} (${item?.genre ?? item?.genreDescription ?? "Unknown Genre"})`}
                                 style={{
                                     width: "160px",
                                     minHeight: "260px",
@@ -209,6 +134,7 @@ const Library: React.FC = () => {
                                     transition: "transform 0.3s ease-in-out",
                                     cursor: item ? "pointer" : "default",
                                 }}
+                                onClick={() => item && handleCardClick(item, title)}
                                 onMouseEnter={(e) => item && (e.currentTarget.style.transform = "scale(1.05)")}
                                 onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
                             >
@@ -217,44 +143,16 @@ const Library: React.FC = () => {
                                         <img
                                             src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
                                             alt={getDisplayTitle(item, title)}
-                                            style={{
-                                                width: "100%",
-                                                height: "180px",
-                                                objectFit: "cover",
-                                                borderBottom: "1px solid #ccc",
-                                            }}
+                                            style={{ width: "100%", height: "180px", objectFit: "cover", borderBottom: "1px solid #ccc" }}
                                         />
-                                        <h4
-                                            style={{
-                                                fontSize: "0.85rem",
-                                                margin: "0.5rem",
-                                                fontWeight: 500,
-                                                color: "#333",
-                                                whiteSpace: "pre-line",
-                                            }}
-                                        >
+                                        <h4 style={{ fontSize: "0.85rem", margin: "0.5rem", fontWeight: 500, color: "#333", whiteSpace: "pre-line" }}>
                                             {getDisplayTitle(item, title)}
                                         </h4>
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            style={{
-                                                backgroundColor: "#0077cc",
-                                                marginBottom: "0.5rem",
-                                                padding: "0.3rem 0.7rem",
-                                                fontSize: "0.75rem",
-                                            }}
-                                            onClick={() => handleCheckout(item, title)}
-                                        >
-                                            Checkout
-                                        </Button>
                                     </>
                                 ) : (
                                     <div style={{ color: "#aaa", paddingTop: "2rem" }}>Empty</div>
                                 )}
                             </div>
-
-
                         ))}
                     </div>
                     <button onClick={() => handleRowNext(title, totalPages)} disabled={currentPage >= totalPages - 1}>
@@ -265,60 +163,31 @@ const Library: React.FC = () => {
         );
     };
 
-
-
-
     return (
         <div className="library-container">
             <div className="welcome-message" style={{ backgroundImage: `url(${welcomeBg})` }}>
                 <h1>Checkout Your Favorite Items Today!</h1>
             </div>
 
-
-
-
             <div className="search-bar-container-row">
                 <select value={selectedTable} onChange={(e) => { setSelectedTable(e.target.value); setItems([]); setSearchQuery(""); }}>
                     <option value="">-- Select Table --</option>
                     {tables.map((table) => <option key={table} value={table}>{table}</option>)}
                 </select>
-
-
-
-
                 {selectedTable && (
                     <select value={selectedField} onChange={(e) => setSelectedField(e.target.value)}>
                         <option value="">-- Select Field --</option>
                         {fieldOptions[selectedTable].map((field) => <option key={field}>{field}</option>)}
                     </select>
                 )}
-
-
-
-
-                <input
-                    type="text"
-                    placeholder="Start typing to search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <input type="text" placeholder="Start typing to search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
-
-
-
 
             {searchQuery && selectedTable && filteredItems.length > 0 && (
                 <div className="search-results-row">
                     {filteredItems.map((item, index) => (
                         <div className="search-result-card" key={`${selectedTable}-${index}`}>
-
-                            <img
-                                loading="lazy"
-                                src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
-                                alt="preview"
-                                className="search-result-image"
-                            />
-
+                            <img loading="lazy" src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage} alt="preview" className="search-result-image" />
                             <div className="search-result-title">{getDisplayTitle(item, selectedTable)}</div>
                             <Button onClick={() => handleCheckout(item, selectedTable)}>Checkout</Button>
                         </div>
@@ -326,27 +195,66 @@ const Library: React.FC = () => {
                 </div>
             )}
 
-
-
-
             {Object.entries(allItems).map(([category, items]) => renderCardRow(category, items))}
-
-
-
 
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
                 <DialogTitle>Confirm Checkout</DialogTitle>
                 <DialogContent>
-                    Do you want to checkout: <strong>{itemToCheckout?.title}</strong>?
+                    <img
+                        src={itemToCheckout?.coverImagePath ?? itemToCheckout?.imageUrl ?? defaultItemImage}
+                        alt={(itemToCheckout?.title || itemToCheckout?.songTitle) ?? "Item Cover"}
+                        style={{
+                            maxWidth: "120px",
+                            height: "auto",
+                            marginBottom: "1rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                        }}
+                    />
+                    Do you want to checkout: <strong>{itemToCheckout?.title || itemToCheckout?.songTitle }</strong>?
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
                     <Button onClick={handleConfirmCheckout}>Confirm</Button>
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={openInfoDialog} onClose={() => setOpenInfoDialog(false)}>
+                <DialogTitle>{(selectedItem?.title || selectedItem?.songTitle) ?? "Item Details"}</DialogTitle>
+                <DialogContent>
+                    <img
+                        src={selectedItem?.coverImagePath ?? selectedItem?.imageUrl ?? defaultItemImage}
+                        alt={selectedItem?.title ?? "Item Cover"}
+                        style={{
+                            maxWidth: "120px",
+                            height: "auto",
+                            marginBottom: "1rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                        }}
+                    />
+                    <h3 style={{ marginBottom: "0.5rem" }}>{getDisplayTitle(selectedItem, selectedItem?._category)}</h3>
+                    <p><strong>Author/Director:</strong> {selectedItem?.author ?? selectedItem?.artistName ?? selectedItem?.manufacturerName ?? "Unknown"}</p>
+                    <p><strong>Genre:</strong> {selectedItem?.genre ?? selectedItem?.genreDescription ?? "N/A"}</p>
+                    <p><strong>Available Copies:</strong> {selectedItem?.availableCopies ?? "Unknown"}</p>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenInfoDialog(false)}>Close</Button>
+                    <Button
+                        onClick={() => {
+                            handleCheckout(selectedItem, selectedItem._category);
+                            setOpenInfoDialog(false);
+                        }}
+                        disabled={selectedItem?.availableCopies === 0}
+                        variant="contained"
+                        color="primary"
+                    >
+                        Checkout
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };
-
 
 export default Library;
