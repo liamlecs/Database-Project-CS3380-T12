@@ -237,6 +237,9 @@ export default function UserProfile() {
       }
 
       setProfile(editProfile);
+      // Update localStorage
+      localStorage.setItem("firstName", editProfile.firstName);
+      localStorage.setItem("lastName", editProfile.lastName);
       setEditingField(null);
       alert("Settings Changed Successfully");
     } catch (error: any) {
