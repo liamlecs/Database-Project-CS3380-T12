@@ -332,6 +332,33 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
             }
         }
 
+ [HttpGet("CustomerTransactions/{email}")]
+        public async Task<ActionResult<List<CustomerTransactionDto>>> GetCustomerFines(string email)
+        {
+            // ✅ Query the database to find the customer by email
+            var transactions = await _context.CustomerTransactions
+             .FromSql(
+                $@"
+SELECT 
+            Customer.Email,
+            Item.Title,
+            ItemType.TypeName,
+            TRANSACTION_HISTORY.DateBorrowed,
+            TRANSACTION_HISTORY.DueDate,
+            ISNULL(TRANSACTION_HISTORY.ReturnDate, '0001-01-01') AS ReturnDate
+        FROM 
+            Customer
+        JOIN TRANSACTION_HISTORY ON Customer.CustomerID = TRANSACTION_HISTORY.CustomerID
+        JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID
+        JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID
+        WHERE Customer.Email = {email}
+")
+                .ToListAsync();
+
+return Ok(transactions);
+        }
+
+
         // POST: api/TransactionHistory
         [HttpPost]
         public async Task<ActionResult<TransactionHistory>> PostTransactionHistory(TransactionHistory transactionHistory)

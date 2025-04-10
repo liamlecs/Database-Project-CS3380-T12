@@ -67,7 +67,11 @@ public virtual DbSet<Book> Books { get; set; }
     public virtual DbSet<TransactionHistoryDto> TransactionHistory {get; set;}
 
     public virtual DbSet<TransactionFineDto> TransactionFineConditional { get; set; }
+
+        public virtual DbSet<CustomerTransactionDto> CustomerTransactions { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
+
+    public virtual DbSet<CustomerWaitlistDto> CustomerWaitlists { get; set; }
 
     // registering MovieDirector entity 
     public virtual DbSet<MovieDirector> MovieDirector { get; set; }
@@ -514,6 +518,8 @@ modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
 
 modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
 
+modelBuilder.Entity<CustomerTransactionDto>().HasNoKey().ToView(null);
+
         });
 
         modelBuilder.Entity<Waitlist>(entity =>
@@ -530,6 +536,8 @@ modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
                 .WithMany()
                 .HasForeignKey(w => w.ItemId);
         
+modelBuilder.Entity<CustomerWaitlistDto>().HasNoKey().ToView(null);
+
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -538,4 +546,5 @@ modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
     }
+
 }

@@ -48,6 +48,40 @@ namespace LibraryWebAPI.Controllers
             return Ok(waitlist);
         }
 
+[HttpGet("CustomerWaitlists/{email}")]
+        public async Task<ActionResult<List<CustomerWaitlistDto>>> GetCustomerWaitlists(string email)
+        {
+            // ✅ Query the database to find the customer by email
+            var waitlists = await _context.CustomerWaitlists
+             .FromSql(
+                $@"
+SELECT 
+    Customer.Email,
+    Item.Title,
+    ItemType.TypeName,
+    Waitlist.ReservationDate,
+    CASE 
+        WHEN Waitlist.IsReceived = 1 THEN -1
+        ELSE (
+            SELECT COUNT(*)+1 
+            FROM Waitlist w2
+            WHERE w2.ItemID = Waitlist.ItemID
+              AND w2.IsReceived = 0
+              AND w2.ReservationDate < Waitlist.ReservationDate
+        )
+    END AS WaitlistPosition
+FROM 
+    Customer
+JOIN Waitlist ON Customer.CustomerID = Waitlist.CustomerID
+JOIN Item ON Waitlist.ItemID = Item.ItemID
+JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID
+WHERE Customer.Email = {email}
+")
+                .ToListAsync();
+
+return Ok(waitlists);
+        }
+
         // POST: api/Waitlist
         [HttpPost]
         public async Task<ActionResult<Waitlist>> PostWaitlist([FromBody] Waitlist waitlist)
