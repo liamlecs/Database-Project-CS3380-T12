@@ -19,6 +19,8 @@ public partial class Book
 
     public int ItemID { get; set; }
 
+    // public int AvailableCopies { get; set; } // Added property
+
     public string? CoverImagePath {get; set;} 
 
 

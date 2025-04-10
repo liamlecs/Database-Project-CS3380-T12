@@ -43,7 +43,8 @@ namespace LibraryWebAPI.Controllers
                     Author = b.BookAuthor.FirstName + " " + b.BookAuthor.LastName,      // from related Author
                     Genre = b.BookGenre.Description,         // from related Genre
                     Publisher = b.Publisher.PublisherName,  // from related Publisher
-                    coverImagePath = b.CoverImagePath // from related Image            })
+                    coverImagePath = b.CoverImagePath, // from related Image            })
+                    availableCopies = b.Item.AvailableCopies, // from related Item
                 })
                 .ToListAsync();
 
