@@ -190,16 +190,16 @@ namespace LibraryWebAPI.Controllers
             return Ok(fines);
         }
 
- [HttpGet("masterTransactionReportConditional/{start:datetime}/{end:datetime}")]
-public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional([FromRoute] DateOnly start, [FromRoute] DateOnly end)
-{
-    _logger.LogInformation("Received master report request with start: {Start} and end: {End}", start, end);
+        [HttpGet("masterTransactionReportConditional/{start:datetime}/{end:datetime}")]
+        public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional([FromRoute] DateOnly start, [FromRoute] DateOnly end)
+        {
+            _logger.LogInformation("Received master report request with start: {Start} and end: {End}", start, end);
 
-    var startDateTime = start.ToDateTime(TimeOnly.MinValue);
-    var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
+            var startDateTime = start.ToDateTime(TimeOnly.MinValue);
+            var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
 
-    var entity = _context.MasterTransaction
-        .FromSqlInterpolated($@"
+            var entity = _context.MasterTransaction
+                .FromSqlInterpolated($@"
             WITH InventoryReport AS (
                 SELECT 
                     GETUTCDATE() AS Timestamp,
@@ -227,19 +227,19 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
                    (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount
             FROM InventoryReport;
         ")
-        .AsEnumerable()
-        .FirstOrDefault();
+                .AsEnumerable()
+                .FirstOrDefault();
 
-    if (entity == null)
-    {
-        return NotFound("Failed to fetch report data.");
-    }
+            if (entity == null)
+            {
+                return NotFound("Failed to fetch report data.");
+            }
 
-    entity.TransactionPopularity = await GetTransactionPopularityDataConditionalAsync(start, end);
-    entity.TransactionFine = await GetTransactionFinesDataConditionalAsync(start, end);
+            entity.TransactionPopularity = await GetTransactionPopularityDataConditionalAsync(start, end);
+            entity.TransactionFine = await GetTransactionFinesDataConditionalAsync(start, end);
 
-    return Ok(entity);
-}
+            return Ok(entity);
+        }
 
 
         [HttpGet("masterTransactionReport")]
@@ -391,6 +391,35 @@ public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionRep
 
             return NoContent();
         }
+
+        // PUT: api/TransactionHistory/Return/5
+        [HttpPut("Return/{transactionId}")]
+        public async Task<IActionResult> ReturnItem(int transactionId, [FromBody] ReturnRequest request)
+        {
+            if (!DateOnly.TryParse(request.ReturnDate, out var parsedReturnDate))
+            {
+                return BadRequest("Invalid date format for ReturnDate.");
+            }
+
+            var result = await _context.Database.ExecuteSqlInterpolatedAsync($@"
+        UPDATE TRANSACTION_HISTORY
+        SET ReturnDate = {parsedReturnDate}
+        WHERE TransactionID = {transactionId}");
+
+            if (result == 0)
+            {
+                return NotFound($"Transaction with ID {transactionId} not found.");
+            }
+
+            return Ok();
+        }
+
+
+        public class ReturnRequest
+        {
+            public string ReturnDate { get; set; }
+        }
+
 
         private bool TransactionHistoryExists(int id)
         {
