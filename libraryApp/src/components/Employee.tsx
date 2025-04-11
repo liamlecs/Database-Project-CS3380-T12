@@ -52,6 +52,7 @@ import FineHistory from './LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 import EmployeeProfile from './EmployeeProfile';
 import dayjs from 'dayjs';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
@@ -80,7 +81,7 @@ interface EmployeeData {
   employeeID: number;
   firstName: string;
   lastName: string;
-  birthDate: string
+  birthDate: string;
   supervisorID?: number;
   username: string;
   password?: string;
@@ -100,18 +101,65 @@ const eventCategories = [
   { id: 3, label: 'Cultural' },
 ];
 
+const EmployeesList: React.FC = () => {
+  const [employees, setEmployees] = useState<EmployeeData[]>([]);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee`);
+        if (!response.ok) throw new Error('Failed to fetch employees');
+        const data = await response.json();
+        setEmployees(data);
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+  const columns: GridColDef[] = [
+    { field: 'employeeId', headerName: 'Employee ID', width: 150 },
+    { field: 'firstName', headerName: 'First Name', width: 150 },
+    { field: 'lastName', headerName: 'Last Name', width: 150 },
+    {
+      field: 'birthDate',
+      headerName: 'Birth Date',
+      width: 150,
+      renderCell: (params) => new Date(params.value).toLocaleDateString()
+    },
+    { field: 'username', headerName: 'Username', width: 150 },
+  ];
+
+  return (
+    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Employees List
+      </Typography>
+      <div style={{ height: 500, width: '100%' }}>
+        <DataGrid 
+          rows={employees}
+          getRowId={(row) => row.employeeId}
+          columns={columns}
+        />
+      </div>
+    </Paper>
+  );
+};
+
 
 const Employee: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile'>('dashboard');
+  // Extend currentView to include "employees"
+  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile' | 'employees'>('dashboard');
   const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<Item[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [refreshData, setRefreshData] = useState(false);
   const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
-  // inventory form States
+  // inventory form state
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
     availabilityStatus: 'Available',
@@ -119,46 +167,27 @@ const Employee: React.FC = () => {
     availableCopies: 1,
     location: '',
   });
-
-  // edit States
+  // edit state
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-
-  // dialog States
+  // dialog state
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-
-//open and close edit event dialogue box
-const [openEditEventDialog, setOpenEditEventDialog] = useState(false);
-const [eventBeingEdited, setEventBeingEdited] = useState<Event | null>(null);
-const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
-
+  // Event edit dialog state
+  const [openEditEventDialog, setOpenEditEventDialog] = useState(false);
+  const [eventBeingEdited, setEventBeingEdited] = useState<Event | null>(null);
+  const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
 
   // fetching data
   useEffect(() => {
     const fetchEmployeeData = async (employeeId: number) => {
       try {
-        // mock data, will replace with actual API call
-        /* const mockData = {
-          employeeID: employeeId,
-          firstName: 'Elite',
-          lastName: 'Employee',
-          birthDate: '2000-03-24'
-        };
-        setEmployeeData(mockData); */
-  
-        // actual API call
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`, 
-        {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
         });
-
         if (!response.ok) throw new Error('Failed to fetch employee data');
-        
         const data = await response.json();
         setEmployeeData({
           employeeID: data.employeeID,
@@ -174,19 +203,17 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
         setOpenDialog(true);
       }
     };
+
     const isEmployeeLoggedIn = localStorage.getItem('isEmployeeLoggedIn') === "true";
     const storedEmployeeId = localStorage.getItem('employeeId');
     
     if (!isEmployeeLoggedIn || !storedEmployeeId) {
-      // not logged in => redirect
       navigate("/employee-login");
       return;
     }
       
     fetchEmployeeData(parseInt(storedEmployeeId, 10));
 
-
-    // fetch inventory and events data
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
     }
@@ -194,11 +221,11 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
       fetchEvents();
     }
     setRefreshData(false);
-  }, [currentView, refreshData]);
+  }, [currentView, refreshData, navigate]);
 
   const fetchInventory = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`);
       if (!response.ok) throw new Error('Failed to fetch inventory');
       const data = await response.json();
       setInventory(data);
@@ -209,7 +236,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     }
   };
 
-  // Log out helper function
+  // Logout helper function
   const handleEmployeeLogout = () => {
     localStorage.removeItem("employeeId");
     localStorage.removeItem("isEmployeeLoggedIn");
@@ -217,24 +244,14 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     localStorage.removeItem("employeeLastName");
     navigate("/employee-login");
   };
-  
+
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
-      // mock update, will replace with actual API call
-      /* setEmployeeData(updatedData);
-      setDialogMessage('Profile updated successfully!');
-      setOpenDialog(true); */
-
-      // actual API call for later
-      
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedData),
       });
-
       if (response.ok) {
         setEmployeeData(updatedData);
         setDialogMessage('Profile updated successfully!');
@@ -244,7 +261,6 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
         setDialogMessage(errorData.message || 'Failed to update profile.');
         setOpenDialog(true);
       }
-
     } catch (error) {
       console.error('Error updating employee:', error);
       setDialogMessage('Network error. Please try again.');
@@ -254,7 +270,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`);
       if (!response.ok) throw new Error('Failed to fetch events');
       const data = await response.json();
       setEvents(data);
@@ -265,36 +281,22 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     }
   };
 
-  // inventory CRUD operations
+  // Inventory CRUD operations
   const handleAddItem = async () => {
     if (!itemForm.title || !itemForm.availabilityStatus) {
       setDialogMessage('Title and status are required fields.');
       setOpenDialog(true);
       return;
     }
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, 
-        {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...itemForm,
-          availableCopies: itemForm.totalCopies,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...itemForm, availableCopies: itemForm.totalCopies }),
       });
-
       if (response.ok) {
         setRefreshData(true);
-        setItemForm({
-          title: '',
-          availabilityStatus: 'Available',
-          totalCopies: 1,
-          availableCopies: 1,
-          location: '',
-        });
+        setItemForm({ title: '', availabilityStatus: 'Available', totalCopies: 1, availableCopies: 1, location: '' });
       } else {
         const errorData = await response.json();
         setDialogMessage(errorData.message || 'Failed to add item.');
@@ -309,21 +311,15 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
 
   const handleUpdateCopies = async (itemId: number, changeInCopies: number) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ItemId: itemId, ChangeInCopies: changeInCopies })
-        }
-      );
-      
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ItemId: itemId, ChangeInCopies: changeInCopies })
+      });
       if (response.ok) {
-        // Optionally, refresh inventory or update local UI state.
         const data = await response.json();
         console.log("Updated item data:", data);
       } else {
-        // Handle errors appropriately.
         const errorData = await response.json();
         console.error("Update copies error:", errorData);
         alert(errorData.message || "Failed to update copies.");
@@ -333,60 +329,40 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
       alert("Network error. Please try again.");
     }
   };
-  
+
   const handleUpdateItem = async () => {
     if (!editingItem || !originalItem) return;
-  
     try {
-      // 1. Compare old and new availableCopies
       const wasZero = originalItem.availableCopies === 0;
       const nowPositive = editingItem.availableCopies > 0;
-  
       if (wasZero && nowPositive) {
-        // --- 2A. Send PATCH request to update available copies & process waitlist ---
-        const changeInCopies = editingItem.availableCopies - originalItem.availableCopies; 
-        // In many cases, that's just editingItem.availableCopies if it was previously 0
-  
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ItemId: editingItem.itemId,
-              ChangeInCopies: changeInCopies,
-            }),
-          }
-        );
-  
+        const changeInCopies = editingItem.availableCopies - originalItem.availableCopies;
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ItemId: editingItem.itemId, ChangeInCopies: changeInCopies }),
+        });
         if (!response.ok) {
           const errorData = await response.json();
           setDialogMessage(errorData.message || "Failed to update copies.");
           setOpenDialog(true);
         } else {
-          // If success, refresh data & close dialog
           setRefreshData(true);
           setOpenEditDialog(false);
           setEditingItem(null);
           setOriginalItem(null);
         }
       } else {
-        // --- 2B. Send PUT request for normal updates (title, location, or other fields) ---
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(editingItem),
-          }
-        );
-  
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editingItem),
+        });
         if (!response.ok) {
           const errorData = await response.json();
           setDialogMessage(errorData.message || "Failed to update item.");
           setOpenDialog(true);
         } else {
-          // If success, refresh data & close dialog
           setRefreshData(true);
           setOpenEditDialog(false);
           setEditingItem(null);
@@ -399,14 +375,10 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
       setOpenDialog(true);
     }
   };
-  
 
   const handleDeleteItem = async (id: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${id}`, {
-        method: 'DELETE',
-      });
-
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${id}`, { method: 'DELETE' });
       if (response.ok) {
         setRefreshData(true);
       } else {
@@ -426,12 +398,10 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     setOpenEditDialog(true);
   };
 
-  // event operations
+  // Event operations
   const handleDeleteEvent = async (id: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Failed to delete event');
       setRefreshData(true);
     } catch (error) {
@@ -445,39 +415,35 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`);
       if (!response.ok) throw new Error('Failed to fetch event');
-  
       const event: Event = await response.json();
       const now = dayjs();
       const eventStart = dayjs(event.startTimestamp);
-  console.log("event: ", event);
       if (eventStart.isBefore(now)) {
-        setShowEditBlockedDialog(true); // 👈 Show warning if event already started
+        setShowEditBlockedDialog(true);
         return;
       }
-
       setEventBeingEdited({
         ...event,
         startTimestamp: dayjs(event.startTimestamp).toISOString(),
         endTimestamp: dayjs(event.endTimestamp).toISOString(),
       });
       setOpenEditEventDialog(true);
-
     } catch (error) {
       console.error('Error getting event:', error);
     }
   };
-  
 
   const handleRefreshEvents = () => {
     setRefreshData(true);
   };
 
-  const views: ('dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile')[] = [
+  const views: ('dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile' | 'employees')[] = [
     'dashboard',
     'inventory',
     'events',
     'libraryHistory',
-    'profile'
+    'profile',
+    'employees'
   ];
 
   const handleNextView = () => {
@@ -505,7 +471,30 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     },
   };
 
-  // improved dashboard design
+  // Render Library History (dummy implementation)
+  const renderLibraryHistory = () => (
+    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+      <Typography variant="h5" gutterBottom>
+        Library History
+      </Typography>
+      <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+        <Tab label="Checkout History" />
+        <Tab label="Donation History" />
+        <Tab label="Event History" />
+        <Tab label="Fine History" />
+        <Tab label="Waitlist History" />
+      </Tabs>
+      <Box sx={{ marginTop: 2 }}>
+        {tabValue === 0 && <CheckoutHistory />}
+        {tabValue === 1 && <DonationHistory />}
+        {tabValue === 2 && <EventHistory />}
+        {tabValue === 3 && <FineHistory />}
+        {tabValue === 4 && <WaitlistHistory />}
+      </Box>
+    </Paper>
+  );
+
+  // Render Dashboard
   const renderDashboard = () => {
     const dashboardItems = [
       {
@@ -555,9 +544,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
         }}>
           Employee Dashboard
         </Typography>
-
         <Divider sx={{ my: 2 }} />
-
         <Grid container spacing={3}>
           {dashboardItems.map((item, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
@@ -602,16 +589,14 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
                     fontStyle: 'italic'
                   }}>
                     {item.title === 'Inventory' ? 'Items in stock' :
-                      item.title === 'Events' ? 'Upcoming events' :
-                        item.title === 'My Profile' ? 'View profile' :
-                          'View details'}
+                     item.title === 'Events' ? 'Upcoming events' :
+                     item.title === 'My Profile' ? 'View profile' : 'View details'}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
-
         <Box sx={{
           mt: 4,
           p: 3,
@@ -664,23 +649,17 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
 
   const renderProfile = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      {employeeData? (
-        <EmployeeProfile
-        employeeData={employeeData}
-        onUpdate={handleUpdateEmployee}
-      />
+      {employeeData ? (
+        <EmployeeProfile employeeData={employeeData} onUpdate={handleUpdateEmployee} />
       ) : <Typography>No employee data available.</Typography>}
     </Box>
   );
 
-  // other view components
   const renderInventoryManagement = () => (
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       <Typography variant="h5" gutterBottom>
         Inventory Management
       </Typography>
-
-      {/* Add Item Form */}
       <Box component="form" sx={{ mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Add New Item
@@ -713,11 +692,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
           value={itemForm.totalCopies}
           onChange={(e) => {
             const total = parseInt(e.target.value) || 0;
-            setItemForm({
-              ...itemForm,
-              totalCopies: total,
-              availableCopies: Math.min(itemForm.availableCopies, total),
-            });
+            setItemForm({ ...itemForm, totalCopies: total, availableCopies: Math.min(itemForm.availableCopies, total) });
           }}
           margin="normal"
           inputProps={{ min: 1 }}
@@ -729,10 +704,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
           value={itemForm.availableCopies}
           onChange={(e) => {
             const available = parseInt(e.target.value) || 0;
-            setItemForm({
-              ...itemForm,
-              availableCopies: Math.min(available, itemForm.totalCopies),
-            });
+            setItemForm({ ...itemForm, availableCopies: Math.min(available, itemForm.totalCopies) });
           }}
           margin="normal"
           inputProps={{ min: 0, max: itemForm.totalCopies }}
@@ -744,17 +716,10 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
           onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
           margin="normal"
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleAddItem}
-          sx={{ mt: 2 }}
-        >
+        <Button variant="contained" color="primary" onClick={handleAddItem} sx={{ mt: 2 }}>
           Add Item
         </Button>
       </Box>
-
-      {/* Inventory Table */}
       <Typography variant="h6" gutterBottom>
         Current Inventory
       </Typography>
@@ -791,8 +756,6 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* Edit Dialog */}
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Edit Item</DialogTitle>
         <DialogContent>
@@ -826,11 +789,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
                 value={editingItem.totalCopies}
                 onChange={(e) => {
                   const total = parseInt(e.target.value) || 0;
-                  setEditingItem({
-                    ...editingItem,
-                    totalCopies: total,
-                    availableCopies: Math.min(editingItem.availableCopies, total),
-                  });
+                  setEditingItem({ ...editingItem, totalCopies: total, availableCopies: Math.min(editingItem.availableCopies, total) });
                 }}
                 margin="normal"
                 inputProps={{ min: 1 }}
@@ -842,10 +801,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
                 value={editingItem.availableCopies}
                 onChange={(e) => {
                   const available = parseInt(e.target.value) || 0;
-                  setEditingItem({
-                    ...editingItem,
-                    availableCopies: Math.min(available, editingItem.totalCopies),
-                  });
+                  setEditingItem({ ...editingItem, availableCopies: Math.min(available, editingItem.totalCopies) });
                 }}
                 margin="normal"
                 inputProps={{ min: 0, max: editingItem.totalCopies }}
@@ -875,15 +831,10 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
           Create New Event
         </Typography>
         <CreateEvent />
-        <Button
-          variant="outlined"
-          onClick={handleRefreshEvents}
-          sx={{ mt: 2 }}
-        >
+        <Button variant="outlined" onClick={handleRefreshEvents} sx={{ mt: 2 }}>
           Refresh Events List
         </Button>
       </Paper>
-
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant="h5" gutterBottom>
           Existing Events
@@ -927,7 +878,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
                       <DeleteIcon />
                     </IconButton>
                     <IconButton onClick={() => handleEditEvent(event.eventId)} color="error">
-                      <EditIcon style={{color:"green"}}/>
+                      <EditIcon style={{ color: "green" }} />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -937,28 +888,6 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
         </TableContainer>
       </Paper>
     </Box>
-  );
-
-  const renderLibraryHistory = () => (
-    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Library History
-      </Typography>
-      <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
-        <Tab label="Checkout History" />
-        <Tab label="Donation History" />
-        <Tab label="Event History" />
-        <Tab label="Fine History" />
-        <Tab label="Waitlist History" />
-      </Tabs>
-      <Box sx={{ marginTop: 2 }}>
-        {tabValue === 0 && <CheckoutHistory />}
-        {tabValue === 1 && <DonationHistory />}
-        {tabValue === 2 && <EventHistory />}
-        {tabValue === 3 && <FineHistory />}
-        {tabValue === 4 && <WaitlistHistory />}
-      </Box>
-    </Paper>
   );
 
   return (
@@ -985,40 +914,25 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
           </Button>
         </Toolbar>
       </AppBar>
-
       <Container sx={{ marginTop: 3 }}>
-          {/* Admin-only Buttons */}
-          {employeeData?.username === "admin" && (
+        {/* Admin-only Buttons */}
+        {employeeData?.username === "admin" && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
             <Button variant="contained" color="primary" sx={{ mr: 2 }}>
               Add Employee
             </Button>
-            <Button variant="contained" color="secondary">
+            <Button variant="contained" color="secondary" onClick={() => setCurrentView('employees')}>
               View Employees
             </Button>
           </Box>
         )}
         {/* Navigation Arrows */}
-        <IconButton
-          onClick={handlePrevView}
-          sx={{
-            ...navigationStyles,
-            left: 16,
-          }}
-        >
+        <IconButton onClick={handlePrevView} sx={{ ...navigationStyles, left: 16 }}>
           <ChevronLeft fontSize="large" />
         </IconButton>
-
-        <IconButton
-          onClick={handleNextView}
-          sx={{
-            ...navigationStyles,
-            right: 16,
-          }}
-        >
+        <IconButton onClick={handleNextView} sx={{ ...navigationStyles, right: 16 }}>
           <ChevronRight fontSize="large" />
         </IconButton>
-
         {/* Message Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
           <DialogTitle>Notification</DialogTitle>
@@ -1031,197 +945,152 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
             </Button>
           </DialogActions>
         </Dialog>
-
-        {/* event edit dialogue box */}
-        <Dialog open={openEditEventDialog} onClose={() => setOpenEditEventDialog(false)} PaperProps={{
-            sx: {
-              minWidth: 500,
-              minHeight: 350,
-            },
-          }}>
-          <DialogTitle style={{fontWeight: "bold"}}>Edit Event</DialogTitle>
+        {/* Event Edit Dialog */}
+        <Dialog open={openEditEventDialog} onClose={() => setOpenEditEventDialog(false)} PaperProps={{ sx: { minWidth: 500, minHeight: 350 } }}>
+          <DialogTitle style={{ fontWeight: "bold" }}>Edit Event</DialogTitle>
           <DialogContent>
-  {eventBeingEdited ? (
-    
-    <Stack spacing={2}>
-    <Box sx={{ mt: 2 }}>
-    <TextField
-      fullWidth
-      label="Title"
-      value={eventBeingEdited.title}
-      onChange={(e) =>
-        setEventBeingEdited({ ...eventBeingEdited, title: e.target.value })
-      }
-      margin="normal"
-    />
-    {/* ... other fields here */}
-  </Box>
-      <TextField
-        label="Location"
-        fullWidth
-        value={eventBeingEdited.location}
-        onChange={(e) =>
-          setEventBeingEdited({ ...eventBeingEdited, location: e.target.value })
-        }
-      />
-      <TextField
-        label="Description"
-        fullWidth
-        multiline
-        value={eventBeingEdited.description}
-        onChange={(e) =>
-          setEventBeingEdited({ ...eventBeingEdited, description: e.target.value })
-        }
-      />
-      <Stack spacing={2} direction="row">
-      <FormControl fullWidth>
-  <InputLabel>Age Group</InputLabel>
-  <Select
-    value={eventBeingEdited.ageGroup}
-    label="Age Group"
-    onChange={(e) =>
-      setEventBeingEdited({
-        ...eventBeingEdited,
-        ageGroup: Number.parseInt(e.target.value as string),
-      })
-    }
-  >
-    {ageGroups.map((group) => (
-      <MenuItem key={group.id} value={group.id}>
-        {group.label}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
-<FormControl fullWidth>
-  <InputLabel>Category</InputLabel>
-  <Select
-    value={eventBeingEdited.categoryId}
-    label="Category"
-    onChange={(e) =>
-      setEventBeingEdited({
-        ...eventBeingEdited,
-        categoryId: Number.parseInt(e.target.value as string),
-      })
-    }
-  >
-    {eventCategories.map((category) => (
-      <MenuItem key={category.id} value={category.id}>
-        {category.label}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
-<FormControl fullWidth>
-  <InputLabel>Private?</InputLabel>
-  <Select
-    value={eventBeingEdited.isPrivate ? 'Yes' : 'No'}
-    label="Private"
-    onChange={(e) =>
-      setEventBeingEdited({
-        ...eventBeingEdited,
-        isPrivate: e.target.value === 'Yes',
-      })
-    }
-  >
-    <MenuItem value="Yes">Yes</MenuItem>
-    <MenuItem value="No">No</MenuItem>
-  </Select>
-</FormControl>
-</Stack>
-
-
-<LocalizationProvider dateAdapter={AdapterDayjs}>
-  <Stack spacing={2} direction="row">
-    <DateTimePicker
-      label="Start Time"
-      value={dayjs(eventBeingEdited.startTimestamp)}
-      onChange={(newValue) =>
-        setEventBeingEdited({
-          ...eventBeingEdited,
-          startTimestamp: newValue?.toISOString() || '',
-        })
-      }
-      disablePast
-    />
-    <DateTimePicker
-      label="End Time"
-      value={dayjs(eventBeingEdited.endTimestamp)}
-      onChange={(newValue) =>
-        setEventBeingEdited({
-          ...eventBeingEdited,
-          endTimestamp: newValue?.toISOString() || '',
-        })
-      }
-      disablePast
-    />
-  </Stack>
-</LocalizationProvider>
-
-
-      {/* You can add more fields: categoryId, ageGroup, etc. */}
-    </Stack>
-  ) : (
-    <Typography>Loading...</Typography>
-  )}
-</DialogContent>
+            {eventBeingEdited ? (
+              <Stack spacing={2}>
+                <Box sx={{ mt: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Title"
+                    value={eventBeingEdited.title}
+                    onChange={(e) => setEventBeingEdited({ ...eventBeingEdited, title: e.target.value })}
+                    margin="normal"
+                  />
+                  {/* ... other fields */}
+                </Box>
+                <TextField
+                  label="Location"
+                  fullWidth
+                  value={eventBeingEdited.location}
+                  onChange={(e) => setEventBeingEdited({ ...eventBeingEdited, location: e.target.value })}
+                />
+                <TextField
+                  label="Description"
+                  fullWidth
+                  multiline
+                  value={eventBeingEdited.description}
+                  onChange={(e) => setEventBeingEdited({ ...eventBeingEdited, description: e.target.value })}
+                />
+                <Stack spacing={2} direction="row">
+                  <FormControl fullWidth>
+                    <InputLabel>Age Group</InputLabel>
+                    <Select
+                      value={eventBeingEdited.ageGroup}
+                      label="Age Group"
+                      onChange={(e) =>
+                        setEventBeingEdited({ ...eventBeingEdited, ageGroup: Number.parseInt(e.target.value as string) })
+                      }
+                    >
+                      {ageGroups.map((group) => (
+                        <MenuItem key={group.id} value={group.id}>
+                          {group.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={eventBeingEdited.categoryId}
+                      label="Category"
+                      onChange={(e) =>
+                        setEventBeingEdited({ ...eventBeingEdited, categoryId: Number.parseInt(e.target.value as string) })
+                      }
+                    >
+                      {eventCategories.map((category) => (
+                        <MenuItem key={category.id} value={category.id}>
+                          {category.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl fullWidth>
+                    <InputLabel>Private?</InputLabel>
+                    <Select
+                      value={eventBeingEdited.isPrivate ? 'Yes' : 'No'}
+                      label="Private"
+                      onChange={(e) =>
+                        setEventBeingEdited({ ...eventBeingEdited, isPrivate: e.target.value === 'Yes' })
+                      }
+                    >
+                      <MenuItem value="Yes">Yes</MenuItem>
+                      <MenuItem value="No">No</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Stack>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <Stack spacing={2} direction="row">
+                    <DateTimePicker
+                      label="Start Time"
+                      value={dayjs(eventBeingEdited.startTimestamp)}
+                      onChange={(newValue) =>
+                        setEventBeingEdited({ ...eventBeingEdited, startTimestamp: newValue?.toISOString() || '' })
+                      }
+                      disablePast
+                    />
+                    <DateTimePicker
+                      label="End Time"
+                      value={dayjs(eventBeingEdited.endTimestamp)}
+                      onChange={(newValue) =>
+                        setEventBeingEdited({ ...eventBeingEdited, endTimestamp: newValue?.toISOString() || '' })
+                      }
+                      disablePast
+                    />
+                  </Stack>
+                </LocalizationProvider>
+              </Stack>
+            ) : (
+              <Typography>Loading...</Typography>
+            )}
+          </DialogContent>
           <DialogActions>
             <Stack direction="row">
-            <Button
-  onClick={async () => {
-    if (!eventBeingEdited) return;
-
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${eventBeingEdited.eventId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventBeingEdited),
-    });
-
-    if (response.ok) {
-      setOpenEditEventDialog(false);
-      setRefreshData(true); // optional, refresh the events list
-    } else {
-      console.error("Failed to save event update.");
-    }
-  }}
-  color="primary"
->
-  SAVE
-</Button>
-
-            <Button onClick={() => setOpenEditEventDialog(false)} color="error">
-              CANCEL
-            </Button>
+              <Button
+                onClick={async () => {
+                  if (!eventBeingEdited) return;
+                  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${eventBeingEdited.eventId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventBeingEdited),
+                  });
+                  if (response.ok) {
+                    setOpenEditEventDialog(false);
+                    setRefreshData(true);
+                  } else {
+                    console.error("Failed to save event update.");
+                  }
+                }}
+                color="primary"
+              >
+                SAVE
+              </Button>
+              <Button onClick={() => setOpenEditEventDialog(false)} color="error">
+                CANCEL
+              </Button>
             </Stack>
           </DialogActions>
         </Dialog>
-
-        <Dialog
-  open={showEditBlockedDialog}
-  onClose={() => setShowEditBlockedDialog(false)}
->
-  <DialogTitle>Cannot Edit Event</DialogTitle>
-  <DialogContent>
-    <Typography>
-      Events cannot be edited after they have started.
-    </Typography>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setShowEditBlockedDialog(false)} autoFocus>
-      OK
-    </Button>
-  </DialogActions>
-</Dialog>
-
-
-        {/* Current View */}
+        <Dialog open={showEditBlockedDialog} onClose={() => setShowEditBlockedDialog(false)}>
+          <DialogTitle>Cannot Edit Event</DialogTitle>
+          <DialogContent>
+            <Typography>Events cannot be edited after they have started.</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowEditBlockedDialog(false)} autoFocus>
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {/* Render the current view */}
         {currentView === 'dashboard' && renderDashboard()}
         {currentView === 'inventory' && renderInventoryManagement()}
         {currentView === 'events' && renderEventManagement()}
         {currentView === 'libraryHistory' && renderLibraryHistory()}
         {currentView === 'profile' && renderProfile()}
+        {currentView === 'employees' && <EmployeesList />}
       </Container>
     </Box>
   );
