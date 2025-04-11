@@ -34,6 +34,7 @@ import ReportsOutlet from "./components/ReportsOutlet.tsx";
 import { CheckoutProvider } from "./contexts/CheckoutContext.tsx";
 import MasterTransactionReport from "./components/Reports/MasterTransactionReport.tsx";
 import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
+import Return from "./components/Return.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ function AppRoutes() {
           <Route path="/employee" element={<Employee />} />
           <Route path="/userprofile" element={<UserProfile />} />
           <Route path="/bookcheckout" element={<BookCheckOutPage />} />
+          <Route path="/return" element={<Return />} />
           <Route path="/userprofile" element={<UserProfile />}>
             <Route path="changepassword" element={<ChangePassword />} /> {/* Nested route */}
           </Route>

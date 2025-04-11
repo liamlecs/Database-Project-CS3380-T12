@@ -68,7 +68,8 @@ namespace LibraryWebAPI.Controllers
                 userId = customer.CustomerId,
                 firstName = customer.FirstName,
                 lastName = customer.LastName,
-                email = customer.Email
+                email = customer.Email,
+                borrowerTypeId = customer.BorrowerTypeId
             });
         }
     }

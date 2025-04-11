@@ -1,5 +1,4 @@
-# Database-Project-3380
-The name of the this repository will change to the name of the project once we get assigned a topic. 
+# E-Library Database Project Team 12 COSC 3380
 
 ### File System Orginization Outline
 #### There will be two folders and two documents in the main view 

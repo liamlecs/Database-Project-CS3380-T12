@@ -160,6 +160,7 @@ public virtual DbSet<Book> Books { get; set; }
 
         modelBuilder.Entity<Customer>(entity =>
         {
+            entity.ToTable(t => t.HasTrigger("trg_CustomerNameUpdate"));
             entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B8D9801C7B");
 
             entity.ToTable("Customer");
@@ -177,10 +178,12 @@ public virtual DbSet<Book> Books { get; set; }
                 .IsUnicode(false);
             entity.Property(e => e.FirstName)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
             entity.Property(e => e.LastName)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
         });
 
         modelBuilder.Entity<Donation>(entity =>
@@ -196,6 +199,7 @@ public virtual DbSet<Book> Books { get; set; }
 
         modelBuilder.Entity<Employee>(entity =>
         {
+            entity.ToTable(t => t.HasTrigger("trg_EmployeeNameUpdate"));
             entity.HasKey(e => e.EmployeeId).HasName("PK__Employee__7AD04FF12260513D");
 
             entity.ToTable("Employee");
@@ -209,10 +213,12 @@ public virtual DbSet<Book> Books { get; set; }
                 .HasColumnType("datetime");
             entity.Property(e => e.FirstName)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
             entity.Property(e => e.LastName)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
             entity.Property(e => e.SupervisorId).HasColumnName("SupervisorID");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)

@@ -23,6 +23,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slider from "@mui/material/Slider"; // Import Slider
 import Typography from "@mui/material/Typography"; // Import Typography
+import InventoryTable from "./InventoryTable"; // Adjust the path if it's in a different folder
+
 
 interface Profile {
   customerID: number;
@@ -235,6 +237,9 @@ export default function UserProfile() {
       }
 
       setProfile(editProfile);
+      // Update localStorage
+      localStorage.setItem("firstName", editProfile.firstName);
+      localStorage.setItem("lastName", editProfile.lastName);
       setEditingField(null);
       alert("Settings Changed Successfully");
     } catch (error: any) {
@@ -349,7 +354,7 @@ export default function UserProfile() {
                 className={activeTab === "inventory" ? "active" : ""}
                 onClick={() => handleTabChange("inventory")}
               >
-                Inventory
+                My Checked-Out Items
               </button>
             </li>
             <li>
@@ -436,50 +441,49 @@ export default function UserProfile() {
           </div>
         )}
 
-        {/* Inventory Tab */}
         {activeTab === "inventory" && (
           <div className="profile-section">
-            <h3>Inventory</h3>
-
-            {/* Search Bar */}
-            <div className="filter-container">
-              <TextField
-                label="Search by Title"
-                variant="outlined"
-                size="small"
-                onChange={(e) => setInventorySearchQuery(e.target.value)}
-                style={{ width: "40%", marginBottom: "16px" }}
-              />
-            </div>
-
-            {(filteredInventory || []).length > 0 ? (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
-                {filteredInventory.map((transaction, index) => (
-                  <Paper
-                    key={index}
-                    elevation={3}
-                    style={{
-                      flex: "1 1 calc(33.333% - 16px)", // Adjust for 3 items per row
-                      padding: "15px",
-                      borderRadius: "8px",
-                      backgroundColor: "#f8f9fa",
-                      minWidth: "300px",
-                    }}
-                  >
-                    <div style={{ marginBottom: "10px" }}>
-                      <strong>Item ID:</strong> {transaction.itemId}
-                    </div>
-                    <div style={{ marginBottom: "10px" }}>
-                      <strong>Title:</strong> {transaction.title || "N/A"}
-                    </div>
-                  </Paper>
-                ))}
+            <h3>My Checked-Out Items</h3>
+            {profile.transactionHistory.filter((t) => !t.returnDate).length > 0 ? (
+              <div style={{ height: 500, width: "100%" }}>
+                <DataGrid
+                  rows={profile.transactionHistory
+                    .filter((t) => !t.returnDate)
+                    .map((transaction) => ({
+                      id: transaction.transactionId, // DataGrid requires a unique 'id'
+                      title: transaction.title || "Untitled",
+                      dateBorrowed: new Date(transaction.dateBorrowed).toLocaleDateString(),
+                      dueDate: new Date(transaction.dueDate).toLocaleDateString(),
+                      transactionId: transaction.transactionId, // Pass along for action handling
+                    }))}
+                  columns={[
+                    { field: "title", headerName: "Title", width: 300 },
+                    { field: "dateBorrowed", headerName: "Date Borrowed", width: 200 },
+                    { field: "dueDate", headerName: "Due Date", width: 200 },
+                    {
+                      field: "action",
+                      headerName: "Actions",
+                      width: 200,
+                      renderCell: (params) => (
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            window.location.href = "/return";
+                          }}
+                        >
+                          Return This Item
+                        </Button>
+                      ),
+                    },
+                  ]}
+                />
               </div>
             ) : (
-              <p>No inventory data to display.</p>
+              <p>You have no items currently checked out.</p>
             )}
           </div>
         )}
+
 
         {/* Transactions Tab */}
         {activeTab === "transactions" && (

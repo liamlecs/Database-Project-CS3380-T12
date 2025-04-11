@@ -24,7 +24,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Donation>>> GetDonations()
         {
-            var donations = await _context.Donations.Include(d => d.Customer).ToListAsync();
+            var donations = await _context.Donations.ToListAsync();
             return Ok(donations);
         }
 
@@ -67,7 +67,7 @@ public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto do
     // Map the DTO to Donation entity
     var donation = new Donation
     {
-         CustomerId = donationDto.CustomerId,
+        CustomerId = donationDto.CustomerId,
         FirstName = donationDto.CustomerId == null ? donationDto.FirstName : customer?.FirstName, // Use provided name for anonymous donors
         LastName = donationDto.CustomerId == null ? donationDto.LastName : customer?.LastName,
         Amount = donationDto.Amount,
@@ -78,7 +78,8 @@ public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto do
     {
         _context.Donations.Add(donation);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetDonation), new { id = donation.DonationId }, donation);
+        // Instead of using CreatedAtAction, return a simple OK response:
+        return Ok(new { success = true, donationId = donation.DonationId });
     }
     catch (DbUpdateException)
     {

@@ -122,6 +122,7 @@ const Employee: React.FC = () => {
 
   // edit States
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
   // dialog States
@@ -306,33 +307,99 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
     }
   };
 
-  const handleUpdateItem = async () => {
-    if (!editingItem) return;
-
+  const handleUpdateCopies = async (itemId: number, changeInCopies: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editingItem),
-      });
-
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ItemId: itemId, ChangeInCopies: changeInCopies })
+        }
+      );
+      
       if (response.ok) {
-        setRefreshData(true);
-        setOpenEditDialog(false);
-        setEditingItem(null);
+        // Optionally, refresh inventory or update local UI state.
+        const data = await response.json();
+        console.log("Updated item data:", data);
       } else {
+        // Handle errors appropriately.
         const errorData = await response.json();
-        setDialogMessage(errorData.message || 'Failed to update item.');
-        setOpenDialog(true);
+        console.error("Update copies error:", errorData);
+        alert(errorData.message || "Failed to update copies.");
       }
     } catch (error) {
-      console.error('Error updating item:', error);
-      setDialogMessage('Network error. Please try again.');
+      console.error("Network error:", error);
+      alert("Network error. Please try again.");
+    }
+  };
+  
+  const handleUpdateItem = async () => {
+    if (!editingItem || !originalItem) return;
+  
+    try {
+      // 1. Compare old and new availableCopies
+      const wasZero = originalItem.availableCopies === 0;
+      const nowPositive = editingItem.availableCopies > 0;
+  
+      if (wasZero && nowPositive) {
+        // --- 2A. Send PATCH request to update available copies & process waitlist ---
+        const changeInCopies = editingItem.availableCopies - originalItem.availableCopies; 
+        // In many cases, that's just editingItem.availableCopies if it was previously 0
+  
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ItemId: editingItem.itemId,
+              ChangeInCopies: changeInCopies,
+            }),
+          }
+        );
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          setDialogMessage(errorData.message || "Failed to update copies.");
+          setOpenDialog(true);
+        } else {
+          // If success, refresh data & close dialog
+          setRefreshData(true);
+          setOpenEditDialog(false);
+          setEditingItem(null);
+          setOriginalItem(null);
+        }
+      } else {
+        // --- 2B. Send PUT request for normal updates (title, location, or other fields) ---
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(editingItem),
+          }
+        );
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          setDialogMessage(errorData.message || "Failed to update item.");
+          setOpenDialog(true);
+        } else {
+          // If success, refresh data & close dialog
+          setRefreshData(true);
+          setOpenEditDialog(false);
+          setEditingItem(null);
+          setOriginalItem(null);
+        }
+      }
+    } catch (error) {
+      console.error("Error updating item:", error);
+      setDialogMessage("Network error. Please try again.");
       setOpenDialog(true);
     }
   };
+  
 
   const handleDeleteItem = async (id: number) => {
     try {
@@ -355,6 +422,7 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
 
   const handleEditClick = (item: Item) => {
     setEditingItem(item);
+    setOriginalItem({ ...item });
     setOpenEditDialog(true);
   };
 
@@ -919,6 +987,17 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
       </AppBar>
 
       <Container sx={{ marginTop: 3 }}>
+          {/* Admin-only Buttons */}
+          {employeeData?.username === "admin" && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+              Add Employee
+            </Button>
+            <Button variant="contained" color="secondary">
+              View Employees
+            </Button>
+          </Box>
+        )}
         {/* Navigation Arrows */}
         <IconButton
           onClick={handlePrevView}

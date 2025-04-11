@@ -75,7 +75,59 @@ export default function ItemFineReport() {
       setReportData(formattedData);
       setIsLaunched(true);
     } catch (error) {
-      console.error("Error fetching report:", error);
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConditionalCall = async () => {
+
+    setLoading(true);
+    setIsLaunched(false);
+
+    // biome-ignore lint/complexity/noUselessTernary: <for some reason true returns a false-like output and false returns a true-like output>
+    const selectedPaymentStatus = isPaidBit === "0" ? false : true;
+    try {
+
+      console.log("Selected payment status:", selectedPaymentStatus);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFineConditional?isPaid=${encodeURIComponent(selectedPaymentStatus)}`, //CHANGE THIS
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        alert("No books have been checked out after this date.") //CHANGE THIS
+        //throw new Error(`Failed to fetch events: ${response.statusText}`);
+      }
+
+      const report = await response.json();
+      console.log("API Response:", report);
+
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      const formattedData = report.map((item: any, index: number) => ({ //CHANGE THIS
+        id: index + 1,
+        title: item.title,
+        email: item.email,
+        firstName: item.firstName,
+        lastName: item.lastName,
+        type: item.type,
+        dateBorrowed: item.dateBorrowed,
+        dueDate: item.dueDate,
+        daysOverdue: dayjs().diff(item.dueDate, "day"),
+        amount: item.amount,
+      }));
+
+      setReportData(formattedData);
+      setIsLaunched(true);
+    } catch (error) {
+      console.error("Error fetching events:", error);
     } finally {
       setLoading(false);
     }

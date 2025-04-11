@@ -33,12 +33,15 @@ namespace LibraryWebAPI.Controllers
 
                 if (customer == null) return NotFound();
 
+                // Determine role based on email domain
+                string role = customer.Email.EndsWith("@uh.edu", StringComparison.OrdinalIgnoreCase) ? "Faculty" : "Student";
+
 
                 return Ok(new
                 {
                     Name = customer.FirstName + " " + customer.LastName,
                     Email = customer.Email,
-                    Role = "Student",
+                    Role = role,
                     password = customer.AccountPassword,
                     MemberSince = customer.MembershipStartDate,
                     MembershipExpires = customer.MembershipEndDate,
@@ -53,7 +56,7 @@ namespace LibraryWebAPI.Controllers
                         w.ReservationDate,
                         w.isReceived
                     }),
-                    
+
                 });
             }
             else if (type.ToLower() == "employee")
@@ -77,13 +80,15 @@ namespace LibraryWebAPI.Controllers
         public async Task<IActionResult> GetAllCustomers()
         {
             var customers = await _context.Customers
+
+
                 .Select(c => new
                 {
                     c.CustomerId,
                     Name = c.FirstName + " " + c.LastName,
                     c.Email,
                     c.AccountPassword,
-                    Role = "Student",
+                    Role = c.Email.EndsWith("@uh.edu", StringComparison.OrdinalIgnoreCase) ? "Faculty" : "Student", // Role check
                     MemberSince = c.MembershipStartDate,
                     MembershipExpires = c.MembershipEndDate,
                     c.Fines,

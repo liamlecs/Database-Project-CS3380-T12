@@ -47,6 +47,8 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeData, onUpdat
   };
 
   const handleSubmit = () => {
+    localStorage.setItem("employeeFirstName", formData.firstName);
+    localStorage.setItem("employeeLastName", formData.lastName);
     onUpdate(formData);
     setEditMode(false);
   };
