@@ -67,7 +67,7 @@ public async Task<ActionResult<Donation>> PostDonation([FromBody] DonationDto do
     // Map the DTO to Donation entity
     var donation = new Donation
     {
-         CustomerId = donationDto.CustomerId,
+        CustomerId = donationDto.CustomerId,
         FirstName = donationDto.CustomerId == null ? donationDto.FirstName : customer?.FirstName, // Use provided name for anonymous donors
         LastName = donationDto.CustomerId == null ? donationDto.LastName : customer?.LastName,
         Amount = donationDto.Amount,
