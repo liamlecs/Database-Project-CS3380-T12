@@ -354,7 +354,7 @@ export default function UserProfile() {
                 className={activeTab === "inventory" ? "active" : ""}
                 onClick={() => handleTabChange("inventory")}
               >
-                Inventory
+                My Checked-Out Items
               </button>
             </li>
             <li>
@@ -441,14 +441,51 @@ export default function UserProfile() {
           </div>
         )}
 
-        {/* Inventory Tab */}
         {activeTab === "inventory" && (
           <div className="profile-section">
-            <h3>Inventory</h3>
-
-            <InventoryTable />
+            <h3>My Checked-Out Items</h3>
+            {profile.transactionHistory.filter((t) => !t.returnDate).length > 0 ? (
+              <div style={{ height: 500, width: "100%" }}>
+                <DataGrid
+                  rows={profile.transactionHistory
+                    .filter((t) => !t.returnDate)
+                    .map((transaction) => ({
+                      id: transaction.transactionId, // DataGrid requires a unique 'id'
+                      title: transaction.title || "Untitled",
+                      dateBorrowed: new Date(transaction.dateBorrowed).toLocaleDateString(),
+                      dueDate: new Date(transaction.dueDate).toLocaleDateString(),
+                      transactionId: transaction.transactionId, // Pass along for action handling
+                    }))}
+                  columns={[
+                    { field: "title", headerName: "Title", width: 300 },
+                    { field: "dateBorrowed", headerName: "Date Borrowed", width: 200 },
+                    { field: "dueDate", headerName: "Due Date", width: 200 },
+                    {
+                      field: "action",
+                      headerName: "Actions",
+                      width: 200,
+                      renderCell: (params) => (
+                        <Button
+                          variant="contained"
+                          onClick={() => {
+                            // For now, simply log the transaction Id or show an alert.
+                            console.log("Return item", params.row.transactionId);
+                            alert(`Return item ${params.row.transactionId} (Not implemented yet)`);
+                          }}
+                        >
+                          Return This Item
+                        </Button>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+            ) : (
+              <p>You have no items currently checked out.</p>
+            )}
           </div>
         )}
+
 
         {/* Transactions Tab */}
         {activeTab === "transactions" && (
