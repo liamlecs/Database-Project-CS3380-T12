@@ -401,6 +401,10 @@ const Employee: React.FC = () => {
   // Dialog states
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
+  const [openDeleteEventDialog, setOpenDeleteEventDialog] = useState(false);
+  const [storedEventIdDeletion, setStoredEventIdDeletion] = useState(-1);
+  const [openDeleteItemDialog, setOpenDeleteItemDialog] = useState(false);
+  const [storedItemIdDeletion, setStoredItemIdDeletion] = useState(-1);
 
   // Event edit dialog states
   const [openEditEventDialog, setOpenEditEventDialog] = useState(false);
@@ -1076,7 +1080,10 @@ const Employee: React.FC = () => {
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    onClick={() => handleDeleteItem(item.itemId)}
+                    onClick={() => {
+                      setStoredItemIdDeletion(item.itemId);
+                      setOpenDeleteItemDialog(true);
+                    }}
                     color="error"
                   >
                     <DeleteIcon />
@@ -1238,7 +1245,10 @@ const Employee: React.FC = () => {
                   <TableCell>{event.isPrivate ? 'Yes' : 'No'}</TableCell>
                   <TableCell>
                     <IconButton
-                      onClick={() => handleDeleteEvent(event.eventId)}
+                      onClick={() => {
+                        setStoredEventIdDeletion(event.eventId);
+                        setOpenDeleteEventDialog(true);
+                      }}
                       color="error"
                     >
                       <DeleteIcon />
@@ -1534,6 +1544,50 @@ const Employee: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Dialog open={openDeleteEventDialog} onClose={() => setOpenDeleteEventDialog(false)}>
+  <DialogTitle>Delete Event</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to delete this event? <br />
+      <strong>This action is permanent and cannot be undone.</strong>
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenDeleteEventDialog(false)} color="primary">
+      Cancel
+    </Button>
+    <Button onClick={() => {
+      handleDeleteEvent(storedEventIdDeletion);
+      setOpenDeleteEventDialog(false)
+      console.log("Delete logic goes here");
+    }} color="error" variant="contained">
+      Delete
+    </Button>
+  </DialogActions>
+</Dialog>
+
+<Dialog open={openDeleteItemDialog} onClose={() => setOpenDeleteItemDialog(false)}>
+  <DialogTitle>Delete Item</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to delete this item? <br />
+      <strong>This action is permanent and cannot be undone.</strong>
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenDeleteItemDialog(false)} color="primary">
+      Cancel
+    </Button>
+    <Button onClick={() => {
+      handleDeleteItem(storedItemIdDeletion);
+      setOpenDeleteItemDialog(false);
+    }} color="error" variant="contained">
+      Delete
+    </Button>
+  </DialogActions>
+</Dialog>
+
 
         {/* Render the current view */}
         {currentView === 'dashboard' && renderDashboard()}
