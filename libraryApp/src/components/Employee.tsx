@@ -289,13 +289,29 @@ const EmployeesList: React.FC = () => {
   };
 
   // For now, just log to the console. Implement actual delete call later.
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!employeeToDelete) return;
     console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeID}`);
+
+    try{
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeToDelete.employeeID}`,
+        {
+          method: 'DELETE',
+        }
+      );
+
+    
+    
     // TODO: Implement DELETE API call here.
     setOpenConfirmDialog(false);
     setEmployeeToDelete(null);
-  };
+    }
+  catch(err){
+    console.error("Fetch error", err);
+  }
+};
 
   const columns: GridColDef[] = [
     { field: 'employeeId', headerName: 'Employee ID', width: 150 },
