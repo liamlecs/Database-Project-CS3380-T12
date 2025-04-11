@@ -23,8 +23,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slider from "@mui/material/Slider"; // Import Slider
 import Typography from "@mui/material/Typography"; // Import Typography
+import Checkbox from "@mui/material/Checkbox"; // Import Checkbox
 import InventoryTable from "./InventoryTable"; // Adjust the path if it's in a different folder
-
 
 interface Profile {
   customerID: number;
@@ -37,12 +37,13 @@ interface Profile {
   membershipEndDate: string | null;
   //checkedBooks
   fines: Array<{
+    fineId: number;
     transactionId: number;
     customerId: number;
     amount: number;
     dueDate: Date;
     issueDate: Date;
-    status: boolean;
+    paymentStatus: boolean;
   }>;
   transactionHistory: Array<{
     transactionId: number;
@@ -88,20 +89,27 @@ export default function UserProfile() {
   const [filterStatus, setFilterStatus] = useState<string>("all"); // For status filter
   const [filterAmount, setFilterAmount] = useState<number[]>([0, 100]); // For amount slider
   const [filteredFines, setFilteredFines] = useState<Profile["fines"]>([]); // For filtered fines
+  const [selectedFines, setSelectedFines] = useState<number[]>([]); // For selected fines
 
+  //Dialog open/close handlers
   const handleDialogOpen = () => {
+    const unpaidFines =
+      profile?.fines.filter((fine) => !fine.paymentStatus) || [];
+    setFilteredFines(unpaidFines); // Only set unpaid fines for the dialog
     setIsDialogOpen(true);
   };
-
   const handleDialogClose = () => {
     setIsDialogOpen(false);
+    setFilteredFines([]);
   };
 
+  //Handle save confirmation
   const handleConfirmSave = async () => {
     setIsDialogOpen(false);
     await handleSave();
   };
 
+  // Check if user is logged in when the component mounts
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
@@ -110,12 +118,14 @@ export default function UserProfile() {
   }, [navigate]);
 
   // Reset `fromSettings` state to false when the component loads
+  //This is for change password settings
   useEffect(() => {
     if (location.state?.fromSettings) {
       navigate(location.pathname, { state: { fromSettings: false } });
     }
   }, [location, navigate]);
 
+  //Loads the user from the database
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -276,6 +286,30 @@ export default function UserProfile() {
     setFilteredWaitlists(filtered);
   };
 
+  const handleRemoveItem = async (waitlistId: number) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/${waitlistId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to remove item from waitlist");
+      }
+
+      // Update the waitlist after successful removal
+      setFilteredWaitlists((prev) =>
+        prev.filter((item) => item.waitlistId !== waitlistId)
+      );
+      alert("Item removed successfully!");
+    } catch (error) {
+      console.error("Error removing item:", error);
+      alert("Failed to remove item.");
+    }
+  };
+
   useEffect(() => {
     const filtered =
       profile?.waitlists.filter((item) =>
@@ -314,8 +348,8 @@ export default function UserProfile() {
       profile?.fines.filter((fine) => {
         const matchesStatus =
           filterStatus === "all" ||
-          (filterStatus === "paid" && fine.status) ||
-          (filterStatus === "unpaid" && !fine.status);
+          (filterStatus === "paid" && fine.paymentStatus) ||
+          (filterStatus === "unpaid" && !fine.paymentStatus);
 
         const matchesAmount =
           fine.amount >= filterAmount[0] && fine.amount <= filterAmount[1];
@@ -444,7 +478,8 @@ export default function UserProfile() {
         {activeTab === "inventory" && (
           <div className="profile-section">
             <h3>My Checked-Out Items</h3>
-            {profile.transactionHistory.filter((t) => !t.returnDate).length > 0 ? (
+            {profile.transactionHistory.filter((t) => !t.returnDate).length >
+            0 ? (
               <div style={{ height: 500, width: "100%" }}>
                 <DataGrid
                   rows={profile.transactionHistory
@@ -452,13 +487,21 @@ export default function UserProfile() {
                     .map((transaction) => ({
                       id: transaction.transactionId, // DataGrid requires a unique 'id'
                       title: transaction.title || "Untitled",
-                      dateBorrowed: new Date(transaction.dateBorrowed).toLocaleDateString(),
-                      dueDate: new Date(transaction.dueDate).toLocaleDateString(),
+                      dateBorrowed: new Date(
+                        transaction.dateBorrowed
+                      ).toLocaleDateString(),
+                      dueDate: new Date(
+                        transaction.dueDate
+                      ).toLocaleDateString(),
                       transactionId: transaction.transactionId, // Pass along for action handling
                     }))}
                   columns={[
                     { field: "title", headerName: "Title", width: 300 },
-                    { field: "dateBorrowed", headerName: "Date Borrowed", width: 200 },
+                    {
+                      field: "dateBorrowed",
+                      headerName: "Date Borrowed",
+                      width: 200,
+                    },
                     { field: "dueDate", headerName: "Due Date", width: 200 },
                     {
                       field: "action",
@@ -483,7 +526,6 @@ export default function UserProfile() {
             )}
           </div>
         )}
-
 
         {/* Transactions Tab */}
         {activeTab === "transactions" && (
@@ -595,7 +637,7 @@ export default function UserProfile() {
                   }))}
                   columns={[
                     { field: "id", headerName: "Waitlist ID", width: 150 },
-                    { field: "title", headerName: "Title", width: 300 },
+                    { field: "title", headerName: "Title", width: 230 },
                     {
                       field: "reservationDate",
                       headerName: "Reservation Date",
@@ -605,6 +647,69 @@ export default function UserProfile() {
                       field: "isReceived",
                       headerName: "Is Received",
                       width: 150,
+                    },
+                    {
+                      field: "action",
+                      headerName: "Actions",
+                      width: 200,
+                      renderCell: (params) => {
+                        const [dialogOpen, setDialogOpen] =
+                          React.useState(false);
+
+                        const handleDialogOpen = () => setDialogOpen(true);
+                        const handleDialogClose = () => setDialogOpen(false);
+
+                        const handleConfirmRemove = () => {
+                          handleRemoveItem(params.row.id);
+                          setDialogOpen(false);
+                        };
+
+                        if (params.row.isReceived === "No") {
+                          return (
+                            <>
+                              <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={handleDialogOpen}
+                              >
+                                Remove Item
+                              </Button>
+                              <Dialog
+                                open={dialogOpen}
+                                onClose={handleDialogClose}
+                                aria-labelledby="remove-dialog-title"
+                                aria-describedby="remove-dialog-description"
+                              >
+                                <DialogTitle id="remove-dialog-title">
+                                  Confirm Removal
+                                </DialogTitle>
+                                <DialogContent>
+                                  <DialogContentText id="remove-dialog-description">
+                                    Are you sure you want to remove this item
+                                    from the waitlist?
+                                  </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button
+                                    onClick={handleDialogClose}
+                                    color="secondary"
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={handleConfirmRemove}
+                                    color="primary"
+                                    autoFocus
+                                  >
+                                    Confirm
+                                  </Button>
+                                </DialogActions>
+                              </Dialog>
+                            </>
+                          );
+                        }
+                        return null;
+                      },
                     },
                   ]}
                   //pageSize={10}
@@ -622,7 +727,6 @@ export default function UserProfile() {
         {activeTab === "fines" && (
           <div className="profile-section">
             <h3>Fines</h3>
-
             {/* Filters */}
             <div className="filter-container">
               {/* Filter by Status */}
@@ -641,14 +745,14 @@ export default function UserProfile() {
               </div>
 
               {/* Filter by Amount */}
-              <div className="filter-wrapper">
+              <div
+                className="filter-wrapper"
+                style={{ display: "flex", alignItems: "center", gap: "25px" }}
+              >
                 <label className="filter-label">
                   Filter by Amount: ${filterAmount[0]} - ${filterAmount[1]}
                 </label>
                 <Box sx={{ width: 300, paddingTop: 2 }}>
-                  <Typography gutterBottom variant="subtitle1">
-                    Filter by Amount: ${filterAmount[0]} - ${filterAmount[1]}
-                  </Typography>
                   <Slider
                     value={filterAmount}
                     onChange={(e, newValue) =>
@@ -691,35 +795,46 @@ export default function UserProfile() {
                 </Box>
               </div>
             </div>
-
             {/* Material-UI DataGrid */}
             {filteredFines.length > 0 ? (
               <div style={{ height: 500, width: "100%" }}>
                 <DataGrid
-                  rows={filteredFines.map((fine, index) => ({
-                    id: index, // DataGrid requires a unique `id` field
-                    transactionId: fine.transactionId,
-                    amount: `$${fine.amount.toFixed(2)}`,
-                    dueDate: fine.dueDate
-                      ? new Date(fine.dueDate).toLocaleDateString()
-                      : "N/A",
-                    issueDate: fine.issueDate
-                      ? new Date(fine.issueDate).toLocaleDateString()
-                      : "N/A",
-                    status: fine.status ? "Paid" : "Unpaid",
-                  }))}
+                  rows={filteredFines.map((fine, index) => {
+                    // Find the corresponding transaction to get the title
+                    const transaction = profile.transactionHistory.find(
+                      (t) => t.transactionId === fine.transactionId
+                    );
+                    return {
+                      id: index, // DataGrid requires a unique `id` field
+                      transactionId: fine.transactionId,
+                      title: transaction?.title || "N/A", // Use the title from the transaction
+                      amount: `$${fine.amount.toFixed(2)}`,
+                      dueDate: fine.dueDate
+                        ? new Date(fine.dueDate).toLocaleDateString()
+                        : "N/A",
+                      issueDate: fine.issueDate
+                        ? new Date(fine.issueDate).toLocaleDateString()
+                        : "N/A",
+                      status: fine.paymentStatus ? "Paid" : "Unpaid",
+                    };
+                  })}
                   columns={[
                     {
                       field: "transactionId",
                       headerName: "Transaction ID",
                       width: 150,
                     },
+                    {
+                      field: "title",
+                      headerName: "Title",
+                      width: 200,
+                    },
                     { field: "amount", headerName: "Amount", width: 150 },
-                    { field: "dueDate", headerName: "Due Date", width: 200 },
+                    { field: "dueDate", headerName: "Due Date", width: 175 },
                     {
                       field: "issueDate",
                       headerName: "Issue Date",
-                      width: 200,
+                      width: 175,
                     },
                     { field: "status", headerName: "Status", width: 150 },
                   ]}
@@ -731,6 +846,229 @@ export default function UserProfile() {
             ) : (
               <p>No fines to display.</p>
             )}
+
+            {/* Pay Fines Button */}
+            <Box
+              sx={{ display: "flex", justifyContent: "flex-end", marginTop: 2 }}
+            >
+              <Button
+                type="button"
+                variant="contained"
+                color="secondary"
+                sx={{ width: "200px" }}
+                onClick={handleDialogOpen}
+              >
+                Pay Fines
+              </Button>
+            </Box>
+
+            {/* Pay Fines Dialog */}
+            <Dialog
+              open={isDialogOpen}
+              onClose={handleDialogClose}
+              aria-labelledby="pay-fines-dialog-title"
+              aria-describedby="pay-fines-dialog-description"
+            >
+              <DialogTitle id="pay-fines-dialog-title">Pay Fines</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="pay-fines-dialog-description">
+                  Below is a list of your fines. Select the fines you want to
+                  pay:
+                </DialogContentText>
+                <TableContainer component={Paper} sx={{ marginTop: 2 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>
+                          <Checkbox
+                            checked={
+                              selectedFines.length === filteredFines.length
+                            }
+                            indeterminate={
+                              selectedFines.length > 0 &&
+                              selectedFines.length < filteredFines.length
+                            }
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedFines(
+                                  filteredFines.map(
+                                    (fine) => fine.transactionId
+                                  )
+                                );
+                              } else {
+                                setSelectedFines([]);
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>Transaction ID</TableCell>
+                        <TableCell>Title</TableCell>
+                        <TableCell>Amount</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredFines.map((fine) => {
+                        const transaction = profile.transactionHistory.find(
+                          (t) => t.transactionId === fine.transactionId
+                        );
+                        return (
+                          <TableRow key={fine.transactionId}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedFines.includes(
+                                  fine.transactionId
+                                )}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedFines((prev) => [
+                                      ...prev,
+                                      fine.transactionId,
+                                    ]);
+                                  } else {
+                                    setSelectedFines((prev) =>
+                                      prev.filter(
+                                        (id) => id !== fine.transactionId
+                                      )
+                                    );
+                                  }
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell>{fine.transactionId}</TableCell>
+                            <TableCell>{transaction?.title || "N/A"}</TableCell>
+                            <TableCell>${fine.amount.toFixed(2)}</TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {/* Total Amount */}
+                <Typography
+                  variant="h6"
+                  sx={{ marginTop: 2, textAlign: "right", fontWeight: "bold" }}
+                >
+                  Total: $
+                  {filteredFines
+                    .filter((fine) =>
+                      selectedFines.includes(fine.transactionId)
+                    )
+                    .reduce((total, fine) => total + fine.amount, 0)
+                    .toFixed(2)}
+                </Typography>
+
+                {/* Credit Card Information Fields */}
+                <Box sx={{ marginTop: 3 }}>
+                  <TextField
+                    label="Credit Card Number"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    inputProps={{ maxLength: 16 }}
+                    required
+                  />
+                  <TextField
+                    label="Expiration Date (MM/YY)"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    inputProps={{ maxLength: 5 }}
+                    required
+                  />
+                  <TextField
+                    label="CVC"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    inputProps={{ maxLength: 3 }}
+                    required
+                  />
+                  <TextField
+                    label="Cardholder Name"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    required
+                  />
+                </Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleDialogClose} color="secondary">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (selectedFines.length === 0) {
+                      alert("Please select at least one fine to pay.");
+                      return;
+                    }
+
+                    try {
+                      // Send a request to update the payment status for each selected fine
+                      for (const fineId of selectedFines) {
+                        const fineToUpdate = filteredFines.find(
+                          (fine) => fine.transactionId === fineId
+                        );
+
+                        if (!fineToUpdate) {
+                          console.error(
+                            `Fine with transactionId ${fineId} not found.`
+                          );
+                          continue;
+                        }
+
+                        // Construct the full fine object to send in the PUT request
+                        const updatedFine = {
+                          ...fineToUpdate,
+                          PaymentStatus: true, // Update the payment status to true
+                        };
+
+                        await fetch(
+                          `${import.meta.env.VITE_API_BASE_URL}/api/Fine/${
+                            fineToUpdate.fineId
+                          }`,
+                          {
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(updatedFine), // Send the full fine object
+                          }
+                        );
+                      }
+
+                      alert(
+                        `Fines paid successfully for Transaction IDs: ${selectedFines.join(
+                          ", "
+                        )}`
+                      );
+
+                      // Update the local state to reflect the changes
+                      setFilteredFines((prev) =>
+                        prev.map((fine) =>
+                          selectedFines.includes(fine.fineId)
+                            ? { ...fine, PaymentStatus: true }
+                            : fine
+                        )
+                      );
+
+                      setSelectedFines([]); // Clear the selected fines
+                      handleDialogClose(); // Close the dialog
+                    } catch (error) {
+                      console.error(
+                        "Error updating fine payment status:",
+                        error
+                      );
+                      alert(
+                        "Failed to update fine payment status. Please try again."
+                      );
+                    }
+                  }}
+                  color="primary"
+                  autoFocus
+                >
+                  Pay Fines
+                </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         )}
 
