@@ -208,7 +208,7 @@ const Library: React.FC = () => {
             <div className="carousel-row" key={title} style={{ padding: "1rem", border: "1px solid #ddd", marginBottom: "1rem" }}>
                 <div className="carousel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <h3>{title}</h3>
-                    <a href="#" style={{ fontSize: "0.9rem" }}>View All</a>
+                    {/* <a href="#" style={{ fontSize: "0.9rem" }}>View All</a> */}
                 </div>
                 <div className="carousel-container" style={{ display: "flex", alignItems: "center" }}>
                     <button onClick={() => handleRowPrev(title)} disabled={currentPage === 0}>&lt;</button>
