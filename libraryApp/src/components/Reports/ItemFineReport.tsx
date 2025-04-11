@@ -11,6 +11,7 @@ import {
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import React from "react";
+import type { SelectChangeEvent } from "@mui/material";
 
 const columns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 150 },
@@ -35,8 +36,8 @@ export default function ItemFineReport() {
   const [loading, setLoading] = React.useState(false);
   const [isLaunched, setIsLaunched] = React.useState(false);
 
-  const handlePaymentStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setPaymentStatusFilter(event.target.value as string);
+  const handlePaymentStatusChange = (event: SelectChangeEvent<string>) => {
+    setPaymentStatusFilter(event.target.value);
   };
 
   const handleGenerateReport = async () => {
@@ -87,7 +88,7 @@ export default function ItemFineReport() {
     setIsLaunched(false);
 
     // biome-ignore lint/complexity/noUselessTernary: <for some reason true returns a false-like output and false returns a true-like output>
-    const selectedPaymentStatus = isPaidBit === "0" ? false : true;
+    const selectedPaymentStatus = paymentStatusFilter === "0" ? false : true;
     try {
 
       console.log("Selected payment status:", selectedPaymentStatus);
