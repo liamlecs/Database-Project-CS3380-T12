@@ -468,9 +468,7 @@ export default function UserProfile() {
                         <Button
                           variant="contained"
                           onClick={() => {
-                            // For now, simply log the transaction Id or show an alert.
-                            console.log("Return item", params.row.transactionId);
-                            alert(`Return item ${params.row.transactionId} (Not implemented yet)`);
+                            window.location.href = "/return";
                           }}
                         >
                           Return This Item
