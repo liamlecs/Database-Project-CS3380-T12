@@ -21,7 +21,7 @@ import { People as PeopleIcon, Edit as EditIcon } from '@mui/icons-material';
 
 interface EmployeeProfileProps {
   employeeData: {
-    employeeID: number;
+    employeeId: number;
     firstName: string;
     lastName: string;
     birthDate: string;
@@ -87,7 +87,7 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeData, onUpdat
               {employeeData.firstName} {employeeData.lastName}
             </Typography>
             <Typography variant="subtitle1" color="text.secondary">
-              Employee ID: {employeeData.employeeID}
+              Employee ID: {employeeData.employeeId}
             </Typography>
           </Box>
         </Box>
