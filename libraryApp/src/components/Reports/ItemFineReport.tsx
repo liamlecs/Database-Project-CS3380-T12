@@ -95,7 +95,7 @@ export default function ItemFineReport() {
     setIsLaunched(false);
 
     // biome-ignore lint/complexity/noUselessTernary: <for some reason true returns a false-like output and false returns a true-like output>
-    const selectedPaymentStatus = isPaidBit === "1" ? false : true;
+    const selectedPaymentStatus = isPaidBit === "0" ? false : true;
     try {
 
       console.log("Selected payment status:", selectedPaymentStatus);
