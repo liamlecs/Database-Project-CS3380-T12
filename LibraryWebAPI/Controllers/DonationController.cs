@@ -24,7 +24,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Donation>>> GetDonations()
         {
-            var donations = await _context.Donations.Include(d => d.Customer).ToListAsync();
+            var donations = await _context.Donations.ToListAsync();
             return Ok(donations);
         }
 
