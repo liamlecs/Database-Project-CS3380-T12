@@ -147,12 +147,12 @@ Thank you for registering!
             var customers = await _context.Customers.ToListAsync();
             return Ok(customers);
         }
-                // GET: api/Customer/5
+        // GET: api/Customer/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
             var customer = await _context.Customers
-                
+
                 .FirstOrDefaultAsync(m => m.CustomerId == id);
 
             if (customer == null)
@@ -163,6 +163,27 @@ Thank you for registering!
             return Ok(customer);
         }
 
+        [HttpGet("CheckFine/{id}")]
+        public async Task<ActionResult<CustomerFineCheck>> CheckFine(int id)
+        {
+            // ✅ Query the database to find the customer by email
+            var result = await _context.CheckFine
+             .FromSqlRaw(
+                @"SELECT COUNT(Fines.FineID) AS ActiveFineCount
+                    FROM Fines, Customer
+                WHERE Customer.CustomerID = {0} AND Fines.CustomerID = Customer.CustomerID AND Fines.PaymentStatus = '0'"
+             , id)
+                .FirstOrDefaultAsync();
+
+            if (result == null)
+            {
+                return NotFound($"Customer with id {id} not found.");
+            }
+
+            return Ok(result); // Return the customer entity
+        }
+
+
         [HttpGet("by-email/{email}")]
         public async Task<ActionResult<Customer>> GetCustomerByEmail(string email)
         {
@@ -170,7 +191,7 @@ Thank you for registering!
             var customer = await _context.CustomerReports
              .FromSqlRaw(
                 "SELECT Customer.Email, Customer.FirstName, Customer.LastName, BorrowerType.Type, Customer.MembershipStartDate, Customer.MembershipEndDate, BorrowerType.BorrowingLimit, Customer.EmailConfirmed " +
-             "FROM Customer, BorrowerType "+
+             "FROM Customer, BorrowerType " +
              "WHERE Email = {0} AND Customer.BorrowerTypeID = BorrowerType.BorrowerTypeID"
              , email)
                 .FirstOrDefaultAsync();
@@ -202,7 +223,7 @@ Thank you for registering!
             return Ok(customer); // Return the customer entity
         }
 
-                // POST: api/Customer
+        // POST: api/Customer
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
@@ -215,7 +236,7 @@ Thank you for registering!
             return BadRequest();
         }
 
-                // PUT: api/Customer/5
+        // PUT: api/Customer/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCustomer(int id, Customer customer)
         {
@@ -243,7 +264,7 @@ Thank you for registering!
 
             return NoContent();
         }
-                private bool CustomerExists(int id)
+        private bool CustomerExists(int id)
         {
             return _context.Customers.Any(e => e.CustomerId == id);
         }

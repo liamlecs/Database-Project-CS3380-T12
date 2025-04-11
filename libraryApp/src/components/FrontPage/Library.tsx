@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from "@mui/material";
 import "./Library.css";
 import welcomeBg from "../../assets/welcome_background.jpg";
 import defaultItemImage from "../../assets/welcome_background.jpg";
@@ -27,6 +27,7 @@ const Library: React.FC = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [itemToCheckout, setItemToCheckout] = useState<any>(null);
     const [openInfoDialog, setOpenInfoDialog] = useState(false);
+    const [openFineDialog, setOpenFineDialog] = useState(false);
     const [selectedItem, setSelectedItem] = useState<any>(null);
     const { addToCart, userType } = useCheckout();
 
@@ -64,9 +65,33 @@ const Library: React.FC = () => {
         setRowPage((prev) => ({ ...prev, [category]: Math.max(prev[category] - 1, 0) }));
     };
 
-    const handleCheckout = (item: any, category: string) => {
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    const handleCheckout = async (item: any, category: string) => {
+
+        const customerIdStr = localStorage.getItem("userId");
+        if (!customerIdStr) {
+          alert("No user ID found. Please log in again.");
+          return;
+        }
+        const customerId = Number.parseInt(customerIdStr, 10);
+        try {
+
+        const response = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/Customer/CheckFine/${customerId}`
+          );
+
+          const fineCheck = await response.json();
+
+        if(fineCheck.activeFineCount>0)
+        setOpenFineDialog(true);
+    else{
+        
         setItemToCheckout({ ...item, _category: category });
         setOpenDialog(true);
+    }
+    } catch (err) {
+        console.error("Fetch error", err);
+      }
     };
 
 
@@ -88,6 +113,16 @@ const Library: React.FC = () => {
           }
           const customerId = parseInt(customerIdStr, 10);
       
+          const response = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/Customer/CheckFine/${customerId}`
+          );
+
+          const fineCheck = await response.json();
+
+        if(fineCheck.activeFineCount>0)
+        setOpenFineDialog(true);
+    else{
+
           // 3. Determine the current ItemID (ensure you use the correct property from your item object).
           const currentItemId = item.itemId || item.id;
           if (!currentItemId) {
@@ -143,7 +178,12 @@ const Library: React.FC = () => {
       
           // 10. Notify the user.
           alert("Successfully joined the waitlist!");
-        } catch (error) {
+        
+        }
+        
+        }
+        
+        catch (error) {
           console.error("Error joining waitlist:", error);
           alert("There was an error joining the waitlist. Please try again later.");
         }
@@ -361,6 +401,21 @@ const Library: React.FC = () => {
                 )}
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={openFineDialog} onClose={() => setOpenFineDialog(false)}>
+  <DialogTitle>Unpaid Fine Detected</DialogTitle>
+  <DialogContent>
+    <Typography>
+      You currently have an unpaid fine. Please resolve your fine before checking out any new items.
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenFineDialog(false)} color="primary">
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
+
         </div>
     );
 };

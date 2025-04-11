@@ -34,6 +34,8 @@ public virtual DbSet<Book> Books { get; set; }
 
         public virtual DbSet<CustomerFineDto> CustomerFines { get; set; }
 
+        public virtual DbSet<CustomerFineCheck> CheckFine { get; set; }
+
     public virtual DbSet<Item> Items { get; set; }
 
     public virtual DbSet<Movie> Movies { get; set; }
@@ -184,6 +186,9 @@ public virtual DbSet<Book> Books { get; set; }
                 .HasMaxLength(30)
                 .IsUnicode(false)
                 .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
+
+modelBuilder.Entity<CustomerFineCheck>().HasNoKey().ToView(null);
+
         });
 
         modelBuilder.Entity<Donation>(entity =>
