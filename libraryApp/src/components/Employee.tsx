@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import dayjs from 'dayjs';
+
+// --- Material UI Imports ---
 import {
   AppBar,
   Toolbar,
@@ -7,43 +10,58 @@ import {
   Button,
   Container,
   Paper,
-  Tab,
-  Tabs,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Box,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  IconButton,
+  Box,
+  Divider,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Grid,
   Card,
   CardContent,
-  Divider,
+  Stack,
+  Tabs,
+  Tab,
   useTheme,
   useMediaQuery,
-  Stack,
 } from '@mui/material';
+
+// MUI Icons
 import {
   Event as EventIcon,
   Inventory as InventoryIcon,
   History as HistoryIcon,
   People as PeopleIcon,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
 } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+
+// MUI Table Components
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
+
+// MUI X DataGrid
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+
+// MUI X DatePicker
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+// --- Custom Imports (your own components) ---
 import CreateEvent from './CreateEvent';
 import CheckoutHistory from './LiHistSubcomponents/CheckoutHistory';
 import DonationHistory from './LiHistSubcomponents/DonationHistory';
@@ -51,11 +69,8 @@ import EventHistory from './LiHistSubcomponents/EventHistory';
 import FineHistory from './LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 import EmployeeProfile from './EmployeeProfile';
-import dayjs from 'dayjs';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
+// --- Type Definitions ---
 interface Item {
   itemId: number;
   title: string;
@@ -65,7 +80,7 @@ interface Item {
   location?: string;
 }
 
-interface Event {
+interface EventData {
   eventId: number;
   title: string;
   startTimestamp: string;
@@ -87,6 +102,7 @@ interface EmployeeData {
   password?: string;
 }
 
+// Example arrays for ageGroups and eventCategories
 const ageGroups = [
   { id: 1, label: '0-2' },
   { id: 2, label: '3-8' },
@@ -101,6 +117,141 @@ const eventCategories = [
   { id: 3, label: 'Cultural' },
 ];
 
+// --- AddEmployeeDialog Component ---
+interface AddEmployeeDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onEmployeeAdded: () => void; // Callback to refresh the employees list
+}
+
+const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
+  open,
+  onClose,
+  onEmployeeAdded,
+}) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  // Simple password generator function
+  const generatePassword = () => {
+    const generated = Math.random().toString(36).slice(-8);
+    setPassword(generated);
+  };
+
+  const handleSubmit = async () => {
+    const newEmployee = {
+      firstName,
+      lastName,
+      birthDate,
+      username,
+      password,
+    };
+
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Employee`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newEmployee),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to add employee.');
+      } else {
+        alert('Employee added successfully!');
+        onEmployeeAdded(); // Refresh employees list
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error adding employee:', error);
+      alert('Network error. Please try again.');
+    }
+  };
+
+  const clearFields = () => {
+    setFirstName('');
+    setLastName('');
+    setBirthDate('');
+    setUsername('');
+    setPassword('');
+  };
+
+  const handleClose = () => {
+    clearFields();
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>Add New Employee</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField
+            label="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Birth Date"
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            required
+          />
+          <TextField
+            label="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            fullWidth
+            required
+          />
+          <Stack direction="row" spacing={2} alignItems="center">
+            <TextField
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              required
+            />
+            <Button variant="outlined" onClick={generatePassword}>
+              Generate
+            </Button>
+          </Stack>
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="secondary">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary">
+          Add Employee
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+// --- EmployeesList Component ---
 const EmployeesList: React.FC = () => {
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
 
@@ -118,6 +269,7 @@ const EmployeesList: React.FC = () => {
     fetchEmployees();
   }, []);
 
+  // Update columns to reflect the correct property names returned by your API.
   const columns: GridColDef[] = [
     { field: 'employeeId', headerName: 'Employee ID', width: 150 },
     { field: 'firstName', headerName: 'First Name', width: 150 },
@@ -126,7 +278,7 @@ const EmployeesList: React.FC = () => {
       field: 'birthDate',
       headerName: 'Birth Date',
       width: 150,
-      renderCell: (params) => new Date(params.value).toLocaleDateString()
+      renderCell: (params) => new Date(params.value).toLocaleDateString(),
     },
     { field: 'username', headerName: 'Username', width: 150 },
   ];
@@ -148,18 +300,24 @@ const EmployeesList: React.FC = () => {
 };
 
 
+// --- Main Employee Component ---
 const Employee: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   // Extend currentView to include "employees"
-  const [currentView, setCurrentView] = useState<'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile' | 'employees'>('dashboard');
+  const [currentView, setCurrentView] = useState<
+    'dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile' | 'employees'
+  >('dashboard');
+
   const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<Item[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventData[]>([]);
   const [refreshData, setRefreshData] = useState(false);
   const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
-  // inventory form state
+
+  // Inventory form
   const [itemForm, setItemForm] = useState<Omit<Item, 'itemId'>>({
     title: '',
     availabilityStatus: 'Available',
@@ -167,26 +325,35 @@ const Employee: React.FC = () => {
     availableCopies: 1,
     location: '',
   });
-  // edit state
+
+  // Edit item states
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [originalItem, setOriginalItem] = useState<Item | null>(null);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  // dialog state
+
+  // Dialog states
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState('');
-  // Event edit dialog state
+
+  // Event edit dialog states
   const [openEditEventDialog, setOpenEditEventDialog] = useState(false);
-  const [eventBeingEdited, setEventBeingEdited] = useState<Event | null>(null);
+  const [eventBeingEdited, setEventBeingEdited] = useState<EventData | null>(null);
   const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
 
-  // fetching data
+  // Add Employee dialog state
+  const [openAddEmployeeDialog, setOpenAddEmployeeDialog] = useState(false);
+
+  // --- useEffect: fetch data ---
   useEffect(() => {
     const fetchEmployeeData = async (employeeId: number) => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeId}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
         if (!response.ok) throw new Error('Failed to fetch employee data');
         const data = await response.json();
         setEmployeeData({
@@ -195,7 +362,7 @@ const Employee: React.FC = () => {
           lastName: data.lastName,
           birthDate: data.birthDate,
           supervisorID: data.supervisorID,
-          username: data.username
+          username: data.username,
         });
       } catch (error) {
         console.error('Error fetching employee data:', error);
@@ -204,14 +371,15 @@ const Employee: React.FC = () => {
       }
     };
 
-    const isEmployeeLoggedIn = localStorage.getItem('isEmployeeLoggedIn') === "true";
+    const isEmployeeLoggedIn =
+      localStorage.getItem('isEmployeeLoggedIn') === 'true';
     const storedEmployeeId = localStorage.getItem('employeeId');
-    
+
     if (!isEmployeeLoggedIn || !storedEmployeeId) {
-      navigate("/employee-login");
+      navigate('/employee-login');
       return;
     }
-      
+
     fetchEmployeeData(parseInt(storedEmployeeId, 10));
 
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
@@ -223,6 +391,7 @@ const Employee: React.FC = () => {
     setRefreshData(false);
   }, [currentView, refreshData, navigate]);
 
+  // --- fetchInventory ---
   const fetchInventory = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`);
@@ -236,22 +405,40 @@ const Employee: React.FC = () => {
     }
   };
 
-  // Logout helper function
-  const handleEmployeeLogout = () => {
-    localStorage.removeItem("employeeId");
-    localStorage.removeItem("isEmployeeLoggedIn");
-    localStorage.removeItem("employeeFirstName");
-    localStorage.removeItem("employeeLastName");
-    navigate("/employee-login");
+  // --- fetchEvents ---
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`);
+      if (!response.ok) throw new Error('Failed to fetch events');
+      const data = await response.json();
+      setEvents(data);
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      setDialogMessage('Failed to fetch events. Please try again.');
+      setOpenDialog(true);
+    }
   };
 
+  // --- Logout ---
+  const handleEmployeeLogout = () => {
+    localStorage.removeItem('employeeId');
+    localStorage.removeItem('isEmployeeLoggedIn');
+    localStorage.removeItem('employeeFirstName');
+    localStorage.removeItem('employeeLastName');
+    navigate('/employee-login');
+  };
+
+  // --- Update Employee (Profile) ---
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData),
+        }
+      );
       if (response.ok) {
         setEmployeeData(updatedData);
         setDialogMessage('Profile updated successfully!');
@@ -268,20 +455,7 @@ const Employee: React.FC = () => {
     }
   };
 
-  const fetchEvents = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event`);
-      if (!response.ok) throw new Error('Failed to fetch events');
-      const data = await response.json();
-      setEvents(data);
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setDialogMessage('Failed to fetch events. Please try again.');
-      setOpenDialog(true);
-    }
-  };
-
-  // Inventory CRUD operations
+  // --- Inventory CRUD ---
   const handleAddItem = async () => {
     if (!itemForm.title || !itemForm.availabilityStatus) {
       setDialogMessage('Title and status are required fields.');
@@ -289,14 +463,26 @@ const Employee: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...itemForm, availableCopies: itemForm.totalCopies }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Item`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...itemForm,
+            availableCopies: itemForm.totalCopies,
+          }),
+        }
+      );
       if (response.ok) {
         setRefreshData(true);
-        setItemForm({ title: '', availabilityStatus: 'Available', totalCopies: 1, availableCopies: 1, location: '' });
+        setItemForm({
+          title: '',
+          availabilityStatus: 'Available',
+          totalCopies: 1,
+          availableCopies: 1,
+          location: '',
+        });
       } else {
         const errorData = await response.json();
         setDialogMessage(errorData.message || 'Failed to add item.');
@@ -309,42 +495,29 @@ const Employee: React.FC = () => {
     }
   };
 
-  const handleUpdateCopies = async (itemId: number, changeInCopies: number) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ItemId: itemId, ChangeInCopies: changeInCopies })
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Updated item data:", data);
-      } else {
-        const errorData = await response.json();
-        console.error("Update copies error:", errorData);
-        alert(errorData.message || "Failed to update copies.");
-      }
-    } catch (error) {
-      console.error("Network error:", error);
-      alert("Network error. Please try again.");
-    }
-  };
-
   const handleUpdateItem = async () => {
     if (!editingItem || !originalItem) return;
     try {
       const wasZero = originalItem.availableCopies === 0;
       const nowPositive = editingItem.availableCopies > 0;
       if (wasZero && nowPositive) {
-        const changeInCopies = editingItem.availableCopies - originalItem.availableCopies;
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ItemId: editingItem.itemId, ChangeInCopies: changeInCopies }),
-        });
+        // PATCH: update-copies
+        const changeInCopies =
+          editingItem.availableCopies - originalItem.availableCopies;
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ItemId: editingItem.itemId,
+              ChangeInCopies: changeInCopies,
+            }),
+          }
+        );
         if (!response.ok) {
           const errorData = await response.json();
-          setDialogMessage(errorData.message || "Failed to update copies.");
+          setDialogMessage(errorData.message || 'Failed to update copies.');
           setOpenDialog(true);
         } else {
           setRefreshData(true);
@@ -353,14 +526,18 @@ const Employee: React.FC = () => {
           setOriginalItem(null);
         }
       } else {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editingItem),
-        });
+        // PUT: update item
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editingItem),
+          }
+        );
         if (!response.ok) {
           const errorData = await response.json();
-          setDialogMessage(errorData.message || "Failed to update item.");
+          setDialogMessage(errorData.message || 'Failed to update item.');
           setOpenDialog(true);
         } else {
           setRefreshData(true);
@@ -370,15 +547,20 @@ const Employee: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error("Error updating item:", error);
-      setDialogMessage("Network error. Please try again.");
+      console.error('Error updating item:', error);
+      setDialogMessage('Network error. Please try again.');
       setOpenDialog(true);
     }
   };
 
   const handleDeleteItem = async (id: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/${id}`, { method: 'DELETE' });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Item/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
       if (response.ok) {
         setRefreshData(true);
       } else {
@@ -398,10 +580,15 @@ const Employee: React.FC = () => {
     setOpenEditDialog(true);
   };
 
-  // Event operations
+  // --- Event CRUD ---
   const handleDeleteEvent = async (id: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`, { method: 'DELETE' });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`,
+        {
+          method: 'DELETE',
+        }
+      );
       if (!response.ok) throw new Error('Failed to delete event');
       setRefreshData(true);
     } catch (error) {
@@ -413,19 +600,21 @@ const Employee: React.FC = () => {
 
   const handleEditEvent = async (id: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Event/${id}`
+      );
       if (!response.ok) throw new Error('Failed to fetch event');
-      const event: Event = await response.json();
+      const eventData: EventData = await response.json();
       const now = dayjs();
-      const eventStart = dayjs(event.startTimestamp);
+      const eventStart = dayjs(eventData.startTimestamp);
       if (eventStart.isBefore(now)) {
         setShowEditBlockedDialog(true);
         return;
       }
       setEventBeingEdited({
-        ...event,
-        startTimestamp: dayjs(event.startTimestamp).toISOString(),
-        endTimestamp: dayjs(event.endTimestamp).toISOString(),
+        ...eventData,
+        startTimestamp: dayjs(eventData.startTimestamp).toISOString(),
+        endTimestamp: dayjs(eventData.endTimestamp).toISOString(),
       });
       setOpenEditEventDialog(true);
     } catch (error) {
@@ -437,13 +626,21 @@ const Employee: React.FC = () => {
     setRefreshData(true);
   };
 
-  const views: ('dashboard' | 'inventory' | 'events' | 'libraryHistory' | 'profile' | 'employees')[] = [
+  // --- Navigation ---
+  const views: (
+    | 'dashboard'
+    | 'inventory'
+    | 'events'
+    | 'libraryHistory'
+    | 'profile'
+    | 'employees'
+  )[] = [
     'dashboard',
     'inventory',
     'events',
     'libraryHistory',
     'profile',
-    'employees'
+    'employees',
   ];
 
   const handleNextView = () => {
@@ -458,6 +655,7 @@ const Employee: React.FC = () => {
     setCurrentView(views[prevIndex]);
   };
 
+  // --- Layout Helper ---
   const navigationStyles = {
     position: 'fixed',
     top: '50%',
@@ -471,7 +669,7 @@ const Employee: React.FC = () => {
     },
   };
 
-  // Render Library History (dummy implementation)
+  // --- Render Library History ---
   const renderLibraryHistory = () => (
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       <Typography variant="h5" gutterBottom>
@@ -494,7 +692,7 @@ const Employee: React.FC = () => {
     </Paper>
   );
 
-  // Render Dashboard
+  // --- Render Dashboard ---
   const renderDashboard = () => {
     const dashboardItems = [
       {
@@ -502,46 +700,63 @@ const Employee: React.FC = () => {
         count: inventory.length,
         icon: <InventoryIcon fontSize="large" color="primary" />,
         action: () => setCurrentView('inventory'),
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
       },
       {
         title: 'Events',
         count: events.length,
         icon: <EventIcon fontSize="large" color="secondary" />,
         action: () => setCurrentView('events'),
-        color: theme.palette.secondary.main
+        color: theme.palette.secondary.main,
       },
       {
         title: 'Library History',
         count: '-',
-        icon: <HistoryIcon fontSize="large" style={{ color: theme.palette.success.main }} />,
+        icon: (
+          <HistoryIcon
+            fontSize="large"
+            style={{ color: theme.palette.success.main }}
+          />
+        ),
         action: () => setCurrentView('libraryHistory'),
-        color: theme.palette.success.main
+        color: theme.palette.success.main,
       },
       {
         title: 'My Profile',
         count: '-',
-        icon: <PeopleIcon fontSize="large" style={{ color: theme.palette.info.main }} />,
+        icon: (
+          <PeopleIcon
+            fontSize="large"
+            style={{ color: theme.palette.info.main }}
+          />
+        ),
         action: () => setCurrentView('profile'),
-        color: theme.palette.info.main
+        color: theme.palette.info.main,
       },
     ];
 
     return (
-      <Paper elevation={3} sx={{
-        padding: 3,
-        marginBottom: 3,
-        borderRadius: 4,
-        background: theme.palette.background.paper
-      }}>
-        <Typography variant="h4" gutterBottom sx={{
-          fontWeight: 600,
-          color: theme.palette.text.primary,
-          mb: 3,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2
-        }}>
+      <Paper
+        elevation={3}
+        sx={{
+          padding: 3,
+          marginBottom: 3,
+          borderRadius: 4,
+          background: theme.palette.background.paper,
+        }}
+      >
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontWeight: 600,
+            color: theme.palette.text.primary,
+            mb: 3,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
           Employee Dashboard
         </Typography>
         <Divider sx={{ my: 2 }} />
@@ -552,58 +767,78 @@ const Employee: React.FC = () => {
                 onClick={item.action}
                 sx={{
                   cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  transition: 'transform 0.2s, boxShadow 0.2s',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: theme.shadows[6]
+                    boxShadow: theme.shadows[6],
                   },
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   borderRadius: 3,
-                  borderLeft: `4px solid ${item.color}`
+                  borderLeft: `4px solid ${item.color}`,
                 }}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 2
-                  }}>
-                    <Typography variant="h6" component="div" sx={{ fontWeight: 500 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mb: 2,
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      sx={{ fontWeight: 500 }}
+                    >
                       {item.title}
                     </Typography>
                     {item.icon}
                   </Box>
-                  <Typography variant="h3" component="div" sx={{
-                    fontWeight: 700,
-                    color: item.color,
-                    textAlign: 'center',
-                    my: 2
-                  }}>
+                  <Typography
+                    variant="h3"
+                    component="div"
+                    sx={{
+                      fontWeight: 700,
+                      color: item.color,
+                      textAlign: 'center',
+                      my: 2,
+                    }}
+                  >
                     {item.count}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{
-                    textAlign: 'center',
-                    fontStyle: 'italic'
-                  }}>
-                    {item.title === 'Inventory' ? 'Items in stock' :
-                     item.title === 'Events' ? 'Upcoming events' :
-                     item.title === 'My Profile' ? 'View profile' : 'View details'}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      textAlign: 'center',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    {item.title === 'Inventory'
+                      ? 'Items in stock'
+                      : item.title === 'Events'
+                      ? 'Upcoming events'
+                      : item.title === 'My Profile'
+                      ? 'View profile'
+                      : 'View details'}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           ))}
         </Grid>
-        <Box sx={{
-          mt: 4,
-          p: 3,
-          backgroundColor: theme.palette.grey[100],
-          borderRadius: 3,
-          borderLeft: `4px solid ${theme.palette.info.main}`
-        }}>
+        <Box
+          sx={{
+            mt: 4,
+            p: 3,
+            backgroundColor: theme.palette.grey[100],
+            borderRadius: 3,
+            borderLeft: `4px solid ${theme.palette.info.main}`,
+          }}
+        >
           <Typography variant="h6" sx={{ mb: 1, fontWeight: 500 }}>
             Quick Actions
           </Typography>
@@ -647,19 +882,24 @@ const Employee: React.FC = () => {
     );
   };
 
+  // --- Render Profile ---
   const renderProfile = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {employeeData ? (
         <EmployeeProfile employeeData={employeeData} onUpdate={handleUpdateEmployee} />
-      ) : <Typography>No employee data available.</Typography>}
+      ) : (
+        <Typography>No employee data available.</Typography>
+      )}
     </Box>
   );
 
+  // --- Render Inventory Management ---
   const renderInventoryManagement = () => (
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       <Typography variant="h5" gutterBottom>
         Inventory Management
       </Typography>
+      {/* Add Item Form */}
       <Box component="form" sx={{ mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Add New Item
@@ -676,7 +916,12 @@ const Employee: React.FC = () => {
           <InputLabel>Status</InputLabel>
           <Select
             value={itemForm.availabilityStatus}
-            onChange={(e) => setItemForm({ ...itemForm, availabilityStatus: e.target.value as string })}
+            onChange={(e) =>
+              setItemForm({
+                ...itemForm,
+                availabilityStatus: e.target.value as string,
+              })
+            }
             label="Status"
           >
             <MenuItem value="Available">Available</MenuItem>
@@ -692,7 +937,11 @@ const Employee: React.FC = () => {
           value={itemForm.totalCopies}
           onChange={(e) => {
             const total = parseInt(e.target.value) || 0;
-            setItemForm({ ...itemForm, totalCopies: total, availableCopies: Math.min(itemForm.availableCopies, total) });
+            setItemForm({
+              ...itemForm,
+              totalCopies: total,
+              availableCopies: Math.min(itemForm.availableCopies, total),
+            });
           }}
           margin="normal"
           inputProps={{ min: 1 }}
@@ -704,7 +953,10 @@ const Employee: React.FC = () => {
           value={itemForm.availableCopies}
           onChange={(e) => {
             const available = parseInt(e.target.value) || 0;
-            setItemForm({ ...itemForm, availableCopies: Math.min(available, itemForm.totalCopies) });
+            setItemForm({
+              ...itemForm,
+              availableCopies: Math.min(available, itemForm.totalCopies),
+            });
           }}
           margin="normal"
           inputProps={{ min: 0, max: itemForm.totalCopies }}
@@ -716,10 +968,16 @@ const Employee: React.FC = () => {
           onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
           margin="normal"
         />
-        <Button variant="contained" color="primary" onClick={handleAddItem} sx={{ mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddItem}
+          sx={{ mt: 2 }}
+        >
           Add Item
         </Button>
       </Box>
+
       <Typography variant="h6" gutterBottom>
         Current Inventory
       </Typography>
@@ -744,10 +1002,16 @@ const Employee: React.FC = () => {
                 <TableCell>{item.availableCopies}</TableCell>
                 <TableCell>{item.location || '-'}</TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleEditClick(item)} color="primary">
+                  <IconButton
+                    onClick={() => handleEditClick(item)}
+                    color="primary"
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={() => handleDeleteItem(item.itemId)} color="error">
+                  <IconButton
+                    onClick={() => handleDeleteItem(item.itemId)}
+                    color="error"
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -756,6 +1020,8 @@ const Employee: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Edit Item Dialog */}
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
         <DialogTitle>Edit Item</DialogTitle>
         <DialogContent>
@@ -765,7 +1031,9 @@ const Employee: React.FC = () => {
                 fullWidth
                 label="Title"
                 value={editingItem.title}
-                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                onChange={(e) =>
+                  setEditingItem({ ...editingItem, title: e.target.value })
+                }
                 margin="normal"
                 required
               />
@@ -773,7 +1041,12 @@ const Employee: React.FC = () => {
                 <InputLabel>Status</InputLabel>
                 <Select
                   value={editingItem.availabilityStatus}
-                  onChange={(e) => setEditingItem({ ...editingItem, availabilityStatus: e.target.value as string })}
+                  onChange={(e) =>
+                    setEditingItem({
+                      ...editingItem,
+                      availabilityStatus: e.target.value as string,
+                    })
+                  }
                   label="Status"
                 >
                   <MenuItem value="Available">Available</MenuItem>
@@ -789,7 +1062,14 @@ const Employee: React.FC = () => {
                 value={editingItem.totalCopies}
                 onChange={(e) => {
                   const total = parseInt(e.target.value) || 0;
-                  setEditingItem({ ...editingItem, totalCopies: total, availableCopies: Math.min(editingItem.availableCopies, total) });
+                  setEditingItem({
+                    ...editingItem,
+                    totalCopies: total,
+                    availableCopies: Math.min(
+                      editingItem.availableCopies,
+                      total
+                    ),
+                  });
                 }}
                 margin="normal"
                 inputProps={{ min: 1 }}
@@ -801,16 +1081,24 @@ const Employee: React.FC = () => {
                 value={editingItem.availableCopies}
                 onChange={(e) => {
                   const available = parseInt(e.target.value) || 0;
-                  setEditingItem({ ...editingItem, availableCopies: Math.min(available, editingItem.totalCopies) });
+                  setEditingItem({
+                    ...editingItem,
+                    availableCopies: Math.min(available, editingItem.totalCopies),
+                  });
                 }}
                 margin="normal"
-                inputProps={{ min: 0, max: editingItem.totalCopies }}
+                inputProps={{
+                  min: 0,
+                  max: editingItem.totalCopies,
+                }}
               />
               <TextField
                 fullWidth
                 label="Location"
                 value={editingItem.location || ''}
-                onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })}
+                onChange={(e) =>
+                  setEditingItem({ ...editingItem, location: e.target.value })
+                }
                 margin="normal"
               />
             </Box>
@@ -818,12 +1106,15 @@ const Employee: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateItem} color="primary">Save</Button>
+          <Button onClick={handleUpdateItem} color="primary">
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
     </Paper>
   );
 
+  // --- Render Events ---
   const renderEventManagement = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
@@ -835,6 +1126,7 @@ const Employee: React.FC = () => {
           Refresh Events List
         </Button>
       </Paper>
+
       <Paper elevation={3} sx={{ padding: 3 }}>
         <Typography variant="h5" gutterBottom>
           Existing Events
@@ -857,8 +1149,12 @@ const Employee: React.FC = () => {
               {events.map((event) => (
                 <TableRow key={event.eventId}>
                   <TableCell>{event.title}</TableCell>
-                  <TableCell>{new Date(event.startTimestamp).toLocaleString()}</TableCell>
-                  <TableCell>{new Date(event.endTimestamp).toLocaleString()}</TableCell>
+                  <TableCell>
+                    {new Date(event.startTimestamp).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(event.endTimestamp).toLocaleString()}
+                  </TableCell>
                   <TableCell>{event.location}</TableCell>
                   <TableCell>
                     {event.ageGroup === 1 && '0-2'}
@@ -874,11 +1170,17 @@ const Employee: React.FC = () => {
                   </TableCell>
                   <TableCell>{event.isPrivate ? 'Yes' : 'No'}</TableCell>
                   <TableCell>
-                    <IconButton onClick={() => handleDeleteEvent(event.eventId)} color="error">
+                    <IconButton
+                      onClick={() => handleDeleteEvent(event.eventId)}
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
-                    <IconButton onClick={() => handleEditEvent(event.eventId)} color="error">
-                      <EditIcon style={{ color: "green" }} />
+                    <IconButton
+                      onClick={() => handleEditEvent(event.eventId)}
+                      color="error"
+                    >
+                      <EditIcon style={{ color: 'green' }} />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -914,25 +1216,58 @@ const Employee: React.FC = () => {
           </Button>
         </Toolbar>
       </AppBar>
+
       <Container sx={{ marginTop: 3 }}>
         {/* Admin-only Buttons */}
-        {employeeData?.username === "admin" && (
+        {employeeData?.username === 'admin' && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mr: 2 }}
+              onClick={() => setOpenAddEmployeeDialog(true)}
+            >
               Add Employee
             </Button>
-            <Button variant="contained" color="secondary" onClick={() => setCurrentView('employees')}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setCurrentView('employees')}
+            >
               View Employees
             </Button>
           </Box>
         )}
+
+        {/* AddEmployeeDialog */}
+        <AddEmployeeDialog
+          open={openAddEmployeeDialog}
+          onClose={() => setOpenAddEmployeeDialog(false)}
+          onEmployeeAdded={() => {
+            setCurrentView('employees');
+          }}
+        />
+
         {/* Navigation Arrows */}
-        <IconButton onClick={handlePrevView} sx={{ ...navigationStyles, left: 16 }}>
+        <IconButton
+          onClick={handlePrevView}
+          sx={{
+            ...navigationStyles,
+            left: 16,
+          }}
+        >
           <ChevronLeft fontSize="large" />
         </IconButton>
-        <IconButton onClick={handleNextView} sx={{ ...navigationStyles, right: 16 }}>
+        <IconButton
+          onClick={handleNextView}
+          sx={{
+            ...navigationStyles,
+            right: 16,
+          }}
+        >
           <ChevronRight fontSize="large" />
         </IconButton>
+
         {/* Message Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
           <DialogTitle>Notification</DialogTitle>
@@ -945,9 +1280,14 @@ const Employee: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
         {/* Event Edit Dialog */}
-        <Dialog open={openEditEventDialog} onClose={() => setOpenEditEventDialog(false)} PaperProps={{ sx: { minWidth: 500, minHeight: 350 } }}>
-          <DialogTitle style={{ fontWeight: "bold" }}>Edit Event</DialogTitle>
+        <Dialog
+          open={openEditEventDialog}
+          onClose={() => setOpenEditEventDialog(false)}
+          PaperProps={{ sx: { minWidth: 500, minHeight: 350 } }}
+        >
+          <DialogTitle style={{ fontWeight: 'bold' }}>Edit Event</DialogTitle>
           <DialogContent>
             {eventBeingEdited ? (
               <Stack spacing={2}>
@@ -956,23 +1296,37 @@ const Employee: React.FC = () => {
                     fullWidth
                     label="Title"
                     value={eventBeingEdited.title}
-                    onChange={(e) => setEventBeingEdited({ ...eventBeingEdited, title: e.target.value })}
+                    onChange={(e) =>
+                      setEventBeingEdited({
+                        ...eventBeingEdited,
+                        title: e.target.value,
+                      })
+                    }
                     margin="normal"
                   />
-                  {/* ... other fields */}
                 </Box>
                 <TextField
                   label="Location"
                   fullWidth
                   value={eventBeingEdited.location}
-                  onChange={(e) => setEventBeingEdited({ ...eventBeingEdited, location: e.target.value })}
+                  onChange={(e) =>
+                    setEventBeingEdited({
+                      ...eventBeingEdited,
+                      location: e.target.value,
+                    })
+                  }
                 />
                 <TextField
                   label="Description"
                   fullWidth
                   multiline
                   value={eventBeingEdited.description}
-                  onChange={(e) => setEventBeingEdited({ ...eventBeingEdited, description: e.target.value })}
+                  onChange={(e) =>
+                    setEventBeingEdited({
+                      ...eventBeingEdited,
+                      description: e.target.value,
+                    })
+                  }
                 />
                 <Stack spacing={2} direction="row">
                   <FormControl fullWidth>
@@ -981,7 +1335,12 @@ const Employee: React.FC = () => {
                       value={eventBeingEdited.ageGroup}
                       label="Age Group"
                       onChange={(e) =>
-                        setEventBeingEdited({ ...eventBeingEdited, ageGroup: Number.parseInt(e.target.value as string) })
+                        setEventBeingEdited({
+                          ...eventBeingEdited,
+                          ageGroup: Number.parseInt(
+                            e.target.value as string
+                          ),
+                        })
                       }
                     >
                       {ageGroups.map((group) => (
@@ -997,12 +1356,17 @@ const Employee: React.FC = () => {
                       value={eventBeingEdited.categoryId}
                       label="Category"
                       onChange={(e) =>
-                        setEventBeingEdited({ ...eventBeingEdited, categoryId: Number.parseInt(e.target.value as string) })
+                        setEventBeingEdited({
+                          ...eventBeingEdited,
+                          categoryId: Number.parseInt(
+                            e.target.value as string
+                          ),
+                        })
                       }
                     >
-                      {eventCategories.map((category) => (
-                        <MenuItem key={category.id} value={category.id}>
-                          {category.label}
+                      {eventCategories.map((cat) => (
+                        <MenuItem key={cat.id} value={cat.id}>
+                          {cat.label}
                         </MenuItem>
                       ))}
                     </Select>
@@ -1013,7 +1377,10 @@ const Employee: React.FC = () => {
                       value={eventBeingEdited.isPrivate ? 'Yes' : 'No'}
                       label="Private"
                       onChange={(e) =>
-                        setEventBeingEdited({ ...eventBeingEdited, isPrivate: e.target.value === 'Yes' })
+                        setEventBeingEdited({
+                          ...eventBeingEdited,
+                          isPrivate: e.target.value === 'Yes',
+                        })
                       }
                     >
                       <MenuItem value="Yes">Yes</MenuItem>
@@ -1027,7 +1394,11 @@ const Employee: React.FC = () => {
                       label="Start Time"
                       value={dayjs(eventBeingEdited.startTimestamp)}
                       onChange={(newValue) =>
-                        setEventBeingEdited({ ...eventBeingEdited, startTimestamp: newValue?.toISOString() || '' })
+                        setEventBeingEdited({
+                          ...eventBeingEdited,
+                          startTimestamp:
+                            newValue?.toISOString() || '',
+                        })
                       }
                       disablePast
                     />
@@ -1035,7 +1406,11 @@ const Employee: React.FC = () => {
                       label="End Time"
                       value={dayjs(eventBeingEdited.endTimestamp)}
                       onChange={(newValue) =>
-                        setEventBeingEdited({ ...eventBeingEdited, endTimestamp: newValue?.toISOString() || '' })
+                        setEventBeingEdited({
+                          ...eventBeingEdited,
+                          endTimestamp:
+                            newValue?.toISOString() || '',
+                        })
                       }
                       disablePast
                     />
@@ -1051,16 +1426,19 @@ const Employee: React.FC = () => {
               <Button
                 onClick={async () => {
                   if (!eventBeingEdited) return;
-                  const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Event/${eventBeingEdited.eventId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(eventBeingEdited),
-                  });
+                  const response = await fetch(
+                    `${import.meta.env.VITE_API_BASE_URL}/api/Event/${eventBeingEdited.eventId}`,
+                    {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(eventBeingEdited),
+                    }
+                  );
                   if (response.ok) {
                     setOpenEditEventDialog(false);
                     setRefreshData(true);
                   } else {
-                    console.error("Failed to save event update.");
+                    console.error('Failed to save event update.');
                   }
                 }}
                 color="primary"
@@ -1073,10 +1451,15 @@ const Employee: React.FC = () => {
             </Stack>
           </DialogActions>
         </Dialog>
-        <Dialog open={showEditBlockedDialog} onClose={() => setShowEditBlockedDialog(false)}>
+        <Dialog
+          open={showEditBlockedDialog}
+          onClose={() => setShowEditBlockedDialog(false)}
+        >
           <DialogTitle>Cannot Edit Event</DialogTitle>
           <DialogContent>
-            <Typography>Events cannot be edited after they have started.</Typography>
+            <Typography>
+              Events cannot be edited after they have started.
+            </Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setShowEditBlockedDialog(false)} autoFocus>
@@ -1084,6 +1467,7 @@ const Employee: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
         {/* Render the current view */}
         {currentView === 'dashboard' && renderDashboard()}
         {currentView === 'inventory' && renderInventoryManagement()}

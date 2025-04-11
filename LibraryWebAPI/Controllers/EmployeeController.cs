@@ -23,7 +23,9 @@ namespace LibraryWebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
         {
-            var employees = await _context.Employees.Include(e => e.Supervisor).ToListAsync();
+            var employees = await _context.Employees
+                .Include(e => e.Supervisor)
+                .ToListAsync();
             return Ok(employees);
         }
 
@@ -40,8 +42,44 @@ namespace LibraryWebAPI.Controllers
                 return NotFound();
             }
 
-            // Map to DTO or return directly
             return Ok(new
+            {
+                employeeID = employee.EmployeeId,
+                firstName = employee.FirstName,
+                lastName = employee.LastName,
+                birthDate = employee.BirthDate?.ToString("yyyy-MM-dd"),
+                supervisorID = employee.SupervisorId,
+                username = employee.Username
+            });
+        }
+
+        // POST: api/Employee
+        [HttpPost]
+        public async Task<ActionResult> PostEmployee([FromBody] EmployeeCreateDto employeeDto)
+        {
+            if (employeeDto == null)
+            {
+                return BadRequest("Employee data is required.");
+            }
+
+            // Create a new Employee object
+            var employee = new Employee
+            {
+                FirstName = employeeDto.FirstName,
+                LastName = employeeDto.LastName,
+                BirthDate = DateOnly.Parse(employeeDto.BirthDate),
+                SupervisorId = employeeDto.SupervisorId,
+                Username = employeeDto.Username,
+                // You can also assign the password here.
+                // It is recommended to hash the password before storing.
+                AccountPassword = employeeDto.Password 
+            };
+
+            _context.Employees.Add(employee);
+            await _context.SaveChangesAsync();
+
+            // Return the created employee with HTTP 201
+            return CreatedAtAction(nameof(GetEmployee), new { id = employee.EmployeeId }, new
             {
                 employeeID = employee.EmployeeId,
                 firstName = employee.FirstName,
@@ -95,12 +133,25 @@ namespace LibraryWebAPI.Controllers
             return _context.Employees.Any(e => e.EmployeeId == id);
         }
     }
-}
 
-public class EmployeeUpdateDto
-{
-    public int EmployeeId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string BirthDate { get; set; }
+    // DTO for updating an employee (existing code)
+    public class EmployeeUpdateDto
+    {
+        public int EmployeeId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string BirthDate { get; set; }
+    }
+
+    // New DTO for creating a new employee
+    public class EmployeeCreateDto
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        // BirthDate as a string in "yyyy-MM-dd" format.
+        public string BirthDate { get; set; }
+        public int? SupervisorId { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
 }
