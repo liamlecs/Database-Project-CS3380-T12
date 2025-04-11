@@ -1,61 +1,133 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function ReactivateAccount() {
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [reactivationCode, setReactivationCode] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Customer/ReactivateAccount`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, reactivationCode: code }),
+          body: JSON.stringify({ email, reactivationCode }),
         }
       );
+
       if (!response.ok) {
-        const errorData = await response.json();
-        setMessage(errorData.message || "Reactivation failed.");
-        return;
+        const errorText = await response.text();
+        setMessage(`Error: ${errorText}`);
+      } else {
+        const successText = await response.text();
+        setMessage(successText);
       }
-      setMessage("Account reactivated successfully.");
-      // Redirect to login or home after a short delay.
-      setTimeout(() => navigate("/customer-login"), 2000);
-    } catch (error) {
-      setMessage("Error reactivating account. Please try again.");
+    } catch (err: any) {
+      console.error(err);
+      setMessage("An error occurred while reactivating your account.");
     }
   };
 
   return (
-    <div className="reactivate-account">
-      <h2>Reactivate Account</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
+    <div
+      style={{
+        maxWidth: "400px",
+        margin: "2rem auto",
+        textAlign: "center",
+        paddingTop: "80px", // Adjust for fixed navbar, if needed
+      }}
+    >
+      <h2 style={{ marginBottom: "1.5rem" }}>Reactivate Account</h2>
+
+      <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
+        {/* Email Field */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <label
+            htmlFor="email"
+            style={{
+              display: "block",
+              fontWeight: "bold",
+              marginBottom: "0.25rem",
+            }}
+          >
+            Email:
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "0.5rem",
+              boxSizing: "border-box",
+            }}
           />
         </div>
-        <div>
-          <label>Reactivation Code:</label>
-          <input 
-            type="text" 
-            value={code} 
-            onChange={(e) => setCode(e.target.value)} 
-            required 
+
+        {/* Reactivation Code Field */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          <label
+            htmlFor="reactivationCode"
+            style={{
+              display: "block",
+              fontWeight: "bold",
+              marginBottom: "0.25rem",
+            }}
+          >
+            Reactivation Code:
+          </label>
+          <input
+            id="reactivationCode"
+            type="text"
+            value={reactivationCode}
+            onChange={(e) => setReactivationCode(e.target.value)}
+            required
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "0.5rem",
+              boxSizing: "border-box",
+            }}
           />
         </div>
-        <button type="submit">Reactivate Account</button>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          style={{
+            width: "100%",
+            backgroundColor: "#007bff",
+            color: "#fff",
+            border: "none",
+            padding: "0.75rem",
+            fontSize: "1rem",
+            cursor: "pointer",
+            borderRadius: "4px",
+          }}
+        >
+          Reactivate Account
+        </button>
       </form>
-      {message && <p>{message}</p>}
+
+      {/* Message */}
+      {message && (
+        <div
+          style={{
+            marginTop: "1rem",
+            fontWeight: "bold",
+            textAlign: "center",
+            whiteSpace: "pre-wrap", // preserves line breaks if any
+          }}
+        >
+          {message}
+        </div>
+      )}
     </div>
   );
 }
