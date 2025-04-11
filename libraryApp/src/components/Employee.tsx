@@ -987,6 +987,17 @@ const [showEditBlockedDialog, setShowEditBlockedDialog] = useState(false);
       </AppBar>
 
       <Container sx={{ marginTop: 3 }}>
+          {/* Admin-only Buttons */}
+          {employeeData?.username === "admin" && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button variant="contained" color="primary" sx={{ mr: 2 }}>
+              Add Employee
+            </Button>
+            <Button variant="contained" color="secondary">
+              View Employees
+            </Button>
+          </Box>
+        )}
         {/* Navigation Arrows */}
         <IconButton
           onClick={handlePrevView}
