@@ -43,6 +43,7 @@ export default function EmployeeLoginPage() {
       localStorage.setItem("employeeFirstName", result.firstName);
       localStorage.setItem("employeeLastName", result.lastName);
       localStorage.setItem("username", result.username);
+      console.log("Login result:", result);
 
       // Get the EmployeeID from the Employee and send it to the Employee.tsx
       // navigate("/Employee", {

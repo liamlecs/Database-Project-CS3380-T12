@@ -35,6 +35,8 @@ namespace LibraryWebAPI.Controllers
             return Ok(new {
                 message = "Employee login successful!",
                 isEmployee = true,
+                username = employee.Username,
+                debugTime = DateTime.Now.ToString(), // something obviously new
                 EmployeeID = employee.EmployeeId,
                 firstName = employee.FirstName,
                 lastName = employee.LastName,

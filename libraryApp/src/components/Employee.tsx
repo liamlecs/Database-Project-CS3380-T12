@@ -254,6 +254,13 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 // --- EmployeesList Component ---
 const EmployeesList: React.FC = () => {
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
+  // Retrieve the logged-in username from localStorage
+  const currentUsername = localStorage.getItem("username");
+  console.log('Current Username:', currentUsername);
+
+  // State for controlling the confirmation dialog
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<EmployeeData | null>(null);
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -269,7 +276,27 @@ const EmployeesList: React.FC = () => {
     fetchEmployees();
   }, []);
 
-  // Update columns to reflect the correct property names returned by your API.
+  // Open the confirmation dialog
+  const handleOpenConfirmDialog = (employee: EmployeeData) => {
+    setEmployeeToDelete(employee);
+    setOpenConfirmDialog(true);
+  };
+
+  // Close the confirmation dialog
+  const handleCloseConfirmDialog = () => {
+    setEmployeeToDelete(null);
+    setOpenConfirmDialog(false);
+  };
+
+  // For now, just log to the console. Implement actual delete call later.
+  const handleConfirmDelete = () => {
+    if (!employeeToDelete) return;
+    console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeID}`);
+    // TODO: Implement DELETE API call here.
+    setOpenConfirmDialog(false);
+    setEmployeeToDelete(null);
+  };
+
   const columns: GridColDef[] = [
     { field: 'employeeId', headerName: 'Employee ID', width: 150 },
     { field: 'firstName', headerName: 'First Name', width: 150 },
@@ -281,6 +308,27 @@ const EmployeesList: React.FC = () => {
       renderCell: (params) => new Date(params.value).toLocaleDateString(),
     },
     { field: 'username', headerName: 'Username', width: 150 },
+    {
+      field: 'action',
+      headerName: 'Actions',
+      width: 150,
+      renderCell: (params) => {
+        const row = params.row as EmployeeData;
+        // Hide the Delete button if the row's username is the logged-in user's username.
+        if (row.username === currentUsername) {
+          return null;
+        }
+        return (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => handleOpenConfirmDialog(row)}
+          >
+            Delete
+          </Button>
+        );
+      },
+    },
   ];
 
   return (
@@ -295,9 +343,28 @@ const EmployeesList: React.FC = () => {
           columns={columns}
         />
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this employee?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmDialog} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
 };
+
 
 
 // --- Main Employee Component ---
