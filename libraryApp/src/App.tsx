@@ -35,6 +35,8 @@ import { CheckoutProvider } from "./contexts/CheckoutContext.tsx";
 import MasterTransactionReport from "./components/Reports/MasterTransactionReport.tsx";
 import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
 import Return from "./components/Return.tsx";
+import RequestReactivation from "./components/RequestReactivation.tsx";
+import ReactivateAccount from "./components/ReactivateAccount.tsx";
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -56,6 +58,7 @@ function AppRoutes() {
       <NavBar />
       <div className="container">
         <Routes>
+
           <Route path="/" element={<FrontPage />} />
           <Route path="/eventscalendar" element={<EventsCalendar />} />
           <Route path="/createevent" element={<CreateEvent />} />
@@ -67,6 +70,8 @@ function AppRoutes() {
           <Route path="/userprofile" element={<UserProfile />} />
           <Route path="/bookcheckout" element={<BookCheckOutPage />} />
           <Route path="/return" element={<Return />} />
+          <Route path="/reactivateaccount" element={<ReactivateAccount />} />
+          <Route path="/requestreactivation" element={<RequestReactivation />} />
           <Route path="/userprofile" element={<UserProfile />}>
             <Route path="changepassword" element={<ChangePassword />} /> {/* Nested route */}
           </Route>

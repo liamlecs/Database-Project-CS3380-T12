@@ -109,6 +109,45 @@ export default function UserProfile() {
     await handleSave();
   };
 
+  const handleDeleteAccount = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete your account? This action cannot be undone."
+      )
+    ) {
+      try {
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+          alert("No user ID found.");
+          return;
+        }
+        // Call the soft-delete endpoint on your backend
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Customer/soft/${userId}`,
+          { method: "DELETE" }
+        );
+  
+        if (!response.ok) {
+          throw new Error("Failed to deactivate the account.");
+        }
+  
+        // Clear local storage to sign out automatically
+        localStorage.clear();
+  
+        // Notify the user
+        alert("Your account has been deactivated successfully.");
+  
+        // Redirect to the customer-login page
+        navigate("/customer-login");
+      } catch (error) {
+        console.error("Error deleting account:", error);
+        alert("Failed to delete your account. Please try again later.");
+      }
+    }
+  };
+  
+  
+
   // Check if user is logged in when the component mounts
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
@@ -458,16 +497,7 @@ export default function UserProfile() {
             <div className="account-actions">
               <button
                 className="btn-delete"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Are you sure you want to delete your account? This action cannot be undone."
-                    )
-                  ) {
-                    alert("Account deleted successfully.");
-                    // TODO: Implement actual delete logic
-                  }
-                }}
+                onClick={handleDeleteAccount}
               >
                 Delete Account
               </button>

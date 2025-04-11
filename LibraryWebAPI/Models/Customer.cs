@@ -12,6 +12,11 @@ namespace LibraryWebAPI.Models
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CustomerId { get; set; }
 
+        public bool IsActive { get; set; } = true;
+
+        // You can use this field to store the code that is sent out for reactivation.
+        public string? ReactivationCode { get; set; }
+
         public string FirstName { get; set; } = null!;
 
         public string LastName { get; set; } = null!;

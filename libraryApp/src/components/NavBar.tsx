@@ -128,6 +128,9 @@
             <li>
               <Link to="/donations">Donate</Link>
             </li>
+            <li>
+              <Link to="/requestreactivation">Request Reactivation</Link>
+            </li>
             </>
           )}
           

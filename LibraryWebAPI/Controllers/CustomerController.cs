@@ -21,6 +21,86 @@ namespace LibraryWebAPI.Controllers
             _context = context;
             _emailService = emailService;
         }
+        public class ReactivationRequestDto
+        {
+            public string Email { get; set; }
+        }
+
+        [HttpPost("RequestReactivate")]
+        public async Task<IActionResult> RequestReactivate([FromBody] ReactivationRequestDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email))
+            {
+                return BadRequest("Email is required.");
+            }
+            
+            // Find the deactivated customer by email.
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == dto.Email && !c.IsActive);
+            if (customer == null)
+            {
+                return NotFound("No deactivated account found with that email.");
+            }
+            
+            // Generate a reactivation code. For instance, a 6-character alphanumeric string.
+            string reactivationCode = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
+            customer.ReactivationCode = reactivationCode;
+            
+            await _context.SaveChangesAsync();
+            
+            // Prepare and send the reactivation email.
+            string subject = "Reactivate Your E-Library Account";
+            string body = $@"
+        Hi {customer.FirstName},
+
+        You have requested to reactivate your account. Please use the following reactivation code to reactivate your account:
+
+        Reactivation Code: {reactivationCode}
+
+        To reactivate your account, please visit:
+        https://database-project-cs-3380-t12.vercel.app/reactivateaccount
+
+        Thank you!";
+            
+            await _emailService.SendEmailAsync(customer.Email, subject, body);
+            
+            return Ok("Reactivation code sent. Please check your email.");
+        }
+
+        
+        public class ReactivationDto
+        {
+            public string Email { get; set; }
+            public string ReactivationCode { get; set; }
+        }
+
+        [HttpPost("ReactivateAccount")]
+        public async Task<IActionResult> ReactivateAccount([FromBody] ReactivationDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.ReactivationCode))
+            {
+                return BadRequest("Both email and reactivation code are required.");
+            }
+            
+            // Find the deactivated customer by email.
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Email == dto.Email && !c.IsActive);
+            if (customer == null)
+            {
+                return NotFound("No deactivated account found with that email.");
+            }
+            
+            if (!string.Equals(customer.ReactivationCode, dto.ReactivationCode, StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest("Invalid reactivation code.");
+            }
+            
+            // Reactivate the account.
+            customer.IsActive = true;
+            customer.ReactivationCode = null; // Clear the code.
+            await _context.SaveChangesAsync();
+            
+            return Ok("Account reactivated successfully.");
+        }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterCustomerDto dto)
@@ -108,6 +188,30 @@ Thank you for registering!
 
             return Ok("Registration successful. A confirmation email has been sent.");
         }
+
+        // DELETE: api/Customer/soft/5
+        [HttpDelete("soft/{id}")]
+        public async Task<IActionResult> SoftDeleteCustomer(int id)
+        {
+            // Find the customer by ID.
+            var customer = await _context.Customers.FindAsync(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            // Instead of removing the customer, set IsActive to false.
+            customer.IsActive = false;
+            
+            // Save the changes to the database.
+            await _context.SaveChangesAsync();
+
+            // Optionally, you can return NoContent or Ok with a message.
+            return NoContent();
+        }
+
+        
+
 
         [HttpPost("confirm")]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)

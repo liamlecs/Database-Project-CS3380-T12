@@ -50,12 +50,12 @@ namespace LibraryWebAPI.Controllers
         {
             // Look up customer by Email
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.Email == dto.Email);
+                .FirstOrDefaultAsync(c => c.Email == dto.Email && c.IsActive);
 
             // Validate password
             if (customer == null || customer.AccountPassword != dto.Password)
             {
-                return Unauthorized(new { message = "Invalid customer credentials." });
+                return Unauthorized(new { message = "Invalid customer credentials or account deactivated" });
             }
 
             if (!customer.EmailConfirmed)
