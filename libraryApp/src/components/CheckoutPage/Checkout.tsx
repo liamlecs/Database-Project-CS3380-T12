@@ -10,14 +10,13 @@ const CheckoutPage: React.FC = () => {
   const borrowerTypeId = localStorage.getItem("borrowerTypeId");
   console.log("borrowerTypeId from localStorage:", borrowerTypeId);
 
-  
   // Set loan period based on borrowerTypeId:
   // Faculty (2) = 14 days, Student (1) = 7 days.
   let loanPeriod = 7; // default to student
   if (borrowerTypeId === "2") {
     loanPeriod = 14;
   }
-  
+
   // Compute checkout date and due date (format "yyyy-MM-dd").
   const now = new Date();
   const checkoutDate = now.toISOString().split("T")[0];
@@ -38,10 +37,11 @@ const CheckoutPage: React.FC = () => {
     }
 
     try {
-
       // Fetch the user's transaction history to check for items with ReturnDate = NULL
       const transactionHistoryResponse = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/${customerId}`
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/api/TransactionHistory/${customerId}`
       );
       if (!transactionHistoryResponse.ok) {
         const errorText = await transactionHistoryResponse.text();
@@ -53,15 +53,24 @@ const CheckoutPage: React.FC = () => {
 
       //Filter for how many transactions have a null return date
       const activeItemCount = activeTransactions.filter(
-        (transaction: { returnDate: string | null }) => transaction.returnDate === null
+        (transaction: { returnDate: string | null }) =>
+          transaction.returnDate === null
       ).length;
 
+      // Calculate the total number of items after this transaction
+      const totalItemsAfterCheckout = activeItemCount + cart.length;
+
+      //console.log("Total items after checkout:", totalItemsAfterCheckout);
       //Check how many active items the user has checked out
       //console.log("Active transactions:", activeItemCount);
-      
+
+      // Determine the borrowing limit based on the user type
+      const borrowingLimit = borrowerTypeId === "2" ? 10 : 5;
+
+
       if (borrowerTypeId === "2") {
         // Faculty can have 10 active items
-        if (activeItemCount >= 10) {
+        if (totalItemsAfterCheckout == 11) {
           alert(
             "You have reached your borrowing limit. You already have 10 or more items checked out that have not been returned."
           );
@@ -69,13 +78,23 @@ const CheckoutPage: React.FC = () => {
         }
       } else if (borrowerTypeId === "1") {
         // Students can have 5 active items
-        if (activeItemCount >= 5) {
+        if (totalItemsAfterCheckout == 6) {
           alert(
             "You have reached your borrowing limit. You already have 5 or more items checked out that have not been returned."
           );
           return;
         }
       }
+
+      // Check if the total exceeds the borrowing limit
+      if (totalItemsAfterCheckout > borrowingLimit) {
+        const itemsToRemove = totalItemsAfterCheckout - borrowingLimit;
+        alert(
+          `You cannot check out these items. You currently have ${activeItemCount} active items, and adding ${cart.length} item(s) would exceed your limit of ${borrowingLimit}. Please remove at least ${itemsToRemove} item(s) from your cart to proceed.`
+        );
+        return;
+      }
+
 
 
       for (const item of cart) {
@@ -135,7 +154,14 @@ const CheckoutPage: React.FC = () => {
     <div className="checkout-container">
       <h1>Checkout Summary</h1>
       <p>
-        User Type: <strong>{borrowerTypeId === "1" ? "Student" : borrowerTypeId === "2" ? "Faculty" : "Unknown"}</strong>
+        User Type:{" "}
+        <strong>
+          {borrowerTypeId === "1"
+            ? "Student"
+            : borrowerTypeId === "2"
+            ? "Faculty"
+            : "Unknown"}
+        </strong>
       </p>
       {cart.length === 0 ? (
         <p>Your cart is empty.</p>
