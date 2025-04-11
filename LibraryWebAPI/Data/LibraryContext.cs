@@ -173,10 +173,12 @@ public virtual DbSet<Book> Books { get; set; }
                 .IsUnicode(false);
             entity.Property(e => e.FirstName)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
             entity.Property(e => e.LastName)
                 .HasMaxLength(30)
-                .IsUnicode(false);
+                .IsUnicode(false)
+                .ValueGeneratedNever(); // Prevent EF Core from including this in OUTPUT
         });
 
         modelBuilder.Entity<Donation>(entity =>
