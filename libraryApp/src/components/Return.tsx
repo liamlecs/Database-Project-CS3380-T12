@@ -31,7 +31,7 @@ const Return: React.FC = () => {
     const due = new Date(transaction.dueDate);
     const isLate = today > due;
   
-    // 1. Call Return API with valid date
+    // call Return API
     await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/Return/${transaction.transactionId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
