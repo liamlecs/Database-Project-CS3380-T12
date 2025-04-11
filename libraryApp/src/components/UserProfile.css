@@ -114,7 +114,7 @@
     border-right: 1px solid #ddd;
     height: 100vh;
     position: fixed;
-    top: 72px;
+    top: 60px;
     left: 0;
     padding: 20px 0;
   }
@@ -152,6 +152,7 @@
   }
   
   .profile-content {
+    margin-top: 60px;  /* Same height as navbar */
     margin-left: 220px; /* Adjust to account for the nav bar width */
     padding: 20px;
   }
