@@ -72,7 +72,7 @@ const Library: React.FC = () => {
     const handleConfirmCheckout = () => {
           // 1. Check if the user is logged in using localStorage.
         if (localStorage.getItem("isLoggedIn") !== "true") {
-            alert("Sorry, you need to be logged in to checkout an item. Please try again");
+            alert("Sorry, you need to be logged in as a customer to checkout an item. Please try again");
             // Optionally close the checkout dialog and reset the checkout state.
             setOpenDialog(false);
             setItemToCheckout(null);
@@ -84,7 +84,7 @@ const Library: React.FC = () => {
             const dueDate = new Date(now);
             // Retrieve the user type stored in localStorage (e.g., "customer" or "faculty").
             const storedUserType = localStorage.getItem("userType");
-            
+
             // Adjust due dates based on the user type. Adjust the numbers below as needed.
             dueDate.setDate(now.getDate() + (storedUserType === "faculty" ? 14 : 7));
 
