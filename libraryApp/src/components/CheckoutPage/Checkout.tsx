@@ -38,6 +38,46 @@ const CheckoutPage: React.FC = () => {
     }
 
     try {
+
+      // Fetch the user's transaction history to check for items with ReturnDate = NULL
+      const transactionHistoryResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/${customerId}`
+      );
+      if (!transactionHistoryResponse.ok) {
+        const errorText = await transactionHistoryResponse.text();
+        throw new Error(`Failed to fetch transaction history: ${errorText}`);
+      }
+
+      const activeTransactions = await transactionHistoryResponse.json();
+      //console.log("Active transactions:", activeTransactions);
+
+      //Filter for how many transactions have a null return date
+      const activeItemCount = activeTransactions.filter(
+        (transaction: { returnDate: string | null }) => transaction.returnDate === null
+      ).length;
+
+      //Check how many active items the user has checked out
+      //console.log("Active transactions:", activeItemCount);
+      
+      if (borrowerTypeId === "2") {
+        // Faculty can have 10 active items
+        if (activeItemCount >= 10) {
+          alert(
+            "You have reached your borrowing limit. You already have 10 or more items checked out that have not been returned."
+          );
+          return;
+        }
+      } else if (borrowerTypeId === "1") {
+        // Students can have 5 active items
+        if (activeItemCount >= 5) {
+          alert(
+            "You have reached your borrowing limit. You already have 5 or more items checked out that have not been returned."
+          );
+          return;
+        }
+      }
+
+
       for (const item of cart) {
         // 1. Update the available copies (subtract one).
         const updateResponse = await fetch(
@@ -95,7 +135,7 @@ const CheckoutPage: React.FC = () => {
     <div className="checkout-container">
       <h1>Checkout Summary</h1>
       <p>
-        User Type: <strong>{userType.toUpperCase()}</strong>
+        User Type: <strong>{borrowerTypeId === "1" ? "Student" : borrowerTypeId === "2" ? "Faculty" : "Unknown"}</strong>
       </p>
       {cart.length === 0 ? (
         <p>Your cart is empty.</p>
