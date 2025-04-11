@@ -183,6 +183,25 @@ Thank you for registering!
             return Ok(customer); // Return the customer entity
         }
 
+        [HttpGet("CustomerDetails")]
+        public async Task<ActionResult<List<CustomerReportDto>>> CustomerDetails()
+        {
+            // ✅ Query the database to find the customer by email
+            var customer = await _context.CustomerReports
+             .FromSqlRaw(
+                "SELECT Customer.Email, Customer.FirstName, Customer.LastName, BorrowerType.Type, Customer.MembershipStartDate, Customer.MembershipEndDate, BorrowerType.BorrowingLimit, Customer.EmailConfirmed " +
+             "FROM Customer, BorrowerType "
+             )
+                .ToListAsync();
+
+            if (customer == null)
+            {
+                return NotFound($"Customers with were not found.");
+            }
+
+            return Ok(customer); // Return the customer entity
+        }
+
                 // POST: api/Customer
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
