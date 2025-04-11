@@ -5,7 +5,7 @@ export default function ReportsOutput() {
   return (
     <div>
       {/* Top Navigation Bar */}
-      <AppBar position="static">
+      <AppBar position="static" sx={{ mt: "80px" }}>
         <Toolbar sx={{ display: "flex", gap: "20px" }}>
           <Button color="inherit" component={Link} to="customerlookupreport">
             Customer Lookup

@@ -1290,7 +1290,7 @@ const Employee: React.FC = () => {
   );
 
   return (
-    <Box>
+    <Box sx={{ mt: "80px" }}> 
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
