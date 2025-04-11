@@ -93,7 +93,7 @@ interface EventData {
 }
 
 interface EmployeeData {
-  employeeID: number;
+  employeeId: number;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -278,6 +278,10 @@ const EmployeesList: React.FC = () => {
 
   // Open the confirmation dialog
   const handleOpenConfirmDialog = (employee: EmployeeData) => {
+    if (!employee) {
+      console.warn("No employee passed to dialog");
+      return;
+    }
     setEmployeeToDelete(employee);
     setOpenConfirmDialog(true);
   };
@@ -291,12 +295,12 @@ const EmployeesList: React.FC = () => {
   // For now, just log to the console. Implement actual delete call later.
   const handleConfirmDelete = async () => {
     if (!employeeToDelete) return;
-    console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeID}`);
+    console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeId}`);
 
     try{
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeToDelete.employeeID}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeToDelete.employeeId}`,
         {
           method: 'DELETE',
         }
@@ -444,7 +448,7 @@ const Employee: React.FC = () => {
         if (!response.ok) throw new Error('Failed to fetch employee data');
         const data = await response.json();
         setEmployeeData({
-          employeeID: data.employeeID,
+          employeeId: data.employeeId,
           firstName: data.firstName,
           lastName: data.lastName,
           birthDate: data.birthDate,
@@ -519,7 +523,7 @@ const Employee: React.FC = () => {
   const handleUpdateEmployee = async (updatedData: EmployeeData) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeID}`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
