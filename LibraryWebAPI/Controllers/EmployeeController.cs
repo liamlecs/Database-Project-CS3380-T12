@@ -90,6 +90,22 @@ namespace LibraryWebAPI.Controllers
             });
         }
 
+        // DELETE: api/Employee/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEmployee(int id)
+        {
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound(new { message = "Employee not found." });
+            }
+
+            _context.Employees.Remove(employee);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Employee deleted successfully." });
+        }
+
         // PUT: api/Employee/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEmployee(int id, [FromBody] EmployeeUpdateDto employeeDto)
