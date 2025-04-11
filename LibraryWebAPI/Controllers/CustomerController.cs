@@ -206,6 +206,25 @@ Thank you for registering!
             // Save the changes to the database.
             await _context.SaveChangesAsync();
 
+            // Prepare the deactivation email.
+            string subject = "Your E-Library Account Has Been Deactivated";
+            string body = $@"
+        Hi {customer.FirstName},
+
+        Your E-Library account associated with {customer.Email} has been deactivated.
+
+        If you believe this is a mistake or you wish to regain access, please visit our reactivation page:
+        https://database-project-cs-3380-t12.vercel.app/requestreactivation
+
+        Thank you for using E-Library.
+
+        Best regards,
+        The E-Library Team
+        ";
+
+    // Send the email to the customer.
+    await _emailService.SendEmailAsync(customer.Email, subject, body);
+
             // Optionally, you can return NoContent or Ok with a message.
             return NoContent();
         }
