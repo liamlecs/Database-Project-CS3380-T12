@@ -307,10 +307,10 @@ const EmployeesList: React.FC = () => {
       );
 
     
-    
-    // TODO: Implement DELETE API call here.
+
     setOpenConfirmDialog(false);
     setEmployeeToDelete(null);
+    window.location.href = "/employee";
     }
   catch(err){
     console.error("Fetch error", err);
