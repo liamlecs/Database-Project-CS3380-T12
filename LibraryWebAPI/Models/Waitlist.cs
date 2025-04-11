@@ -22,5 +22,6 @@ public partial class Waitlist
 
     // Navigation property for the related Item
     [ForeignKey("ItemId")]
-    public virtual Item Item { get; set; } = null!;
+    public virtual Item? Item { get; set; }
+
 }

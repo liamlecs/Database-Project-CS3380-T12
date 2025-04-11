@@ -69,6 +69,87 @@ const Library: React.FC = () => {
         setOpenDialog(true);
     };
 
+
+
+    const handleJoinWaitlist = async (item: any) => {
+        try {
+          // 1. Ensure the customer is logged in.
+          const isLoggedIn = localStorage.getItem("isLoggedIn");
+          if (isLoggedIn !== "true") {
+            alert("You must be logged in to join a waitlist.");
+            return;
+          }
+      
+          // 2. Retrieve the CustomerId from localStorage.
+          const customerIdStr = localStorage.getItem("userId");
+          if (!customerIdStr) {
+            alert("No user ID found. Please log in again.");
+            return;
+          }
+          const customerId = parseInt(customerIdStr, 10);
+      
+          // 3. Determine the current ItemID (ensure you use the correct property from your item object).
+          const currentItemId = item.itemId || item.id;
+          if (!currentItemId) {
+            alert("No item id available for this item.");
+            return;
+          }
+      
+          // 4. Fetch current waitlist entries to check for an existing entry.
+          const waitlistResponse = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Waitlist`);
+          if (!waitlistResponse.ok) {
+            alert("Error checking waitlist. Please try again later.");
+            return;
+          }
+          const existingWaitlists = await waitlistResponse.json();
+      
+          // 5. Check if this customer is already in the waitlist for the current item and hasn't received the item yet.
+          const alreadyWaitlisted = existingWaitlists.some(
+            (entry: any) =>
+              entry.customerId === customerId &&
+              entry.itemId === currentItemId &&
+              entry.isReceived === false
+          );
+          if (alreadyWaitlisted) {
+            alert("You are already in the waitlist for this item.");
+            return;
+          }
+      
+          // 6. Prepare a new waitlist entry.
+          const newWaitlistEntry = {
+            customerId,
+            itemId: currentItemId,
+            reservationDate: new Date().toISOString(), // set current date/time in ISO format
+            isReceived: false,
+          };
+      
+          // 7. Send a POST request to join the waitlist.
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Waitlist`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newWaitlistEntry),
+          });
+      
+          // 8. Handle errors from the POST.
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error details:", errorData);
+            throw new Error(`Failed to join the waitlist: ${errorData.title || "Unknown Error"}`);
+          }
+      
+          // 9. Parse the created waitlist record.
+          const createdWaitlist = await response.json();
+          console.log("Waitlist entry created:", createdWaitlist);
+      
+          // 10. Notify the user.
+          alert("Successfully joined the waitlist!");
+        } catch (error) {
+          console.error("Error joining waitlist:", error);
+          alert("There was an error joining the waitlist. Please try again later.");
+        }
+      };
+      
+
     const handleConfirmCheckout = () => {
           // 1. Check if the user is logged in using localStorage.
         if (localStorage.getItem("isLoggedIn") !== "true") {
@@ -265,6 +346,19 @@ const Library: React.FC = () => {
                     >
                         Checkout
                     </Button>
+                {/* If no copies are available, show "Join Waitlist" */}
+                {selectedItem?.availableCopies === 0 && (
+                    <Button
+                    onClick={() => {
+                        handleJoinWaitlist(selectedItem); // Implement this function to handle waitlist logic
+                        setOpenInfoDialog(false);
+                    }}
+                    variant="contained"
+                    color="secondary"
+                    >
+                    Join Waitlist
+                    </Button>
+                )}
                 </DialogActions>
             </Dialog>
         </div>
