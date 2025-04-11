@@ -114,9 +114,6 @@
           {isEmployeeLoggedIn && !isLoggedIn && (
             <>
               <li>
-                <Link to="/createevent">Create Event</Link>
-              </li>
-              <li>
                 <Link to="/reportsoutlet">Reports Outlet</Link>
               </li>
               <li>
