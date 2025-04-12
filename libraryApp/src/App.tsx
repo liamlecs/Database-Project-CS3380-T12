@@ -37,7 +37,7 @@ import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
 import Return from "./components/Return.tsx";
 import RequestReactivation from "./components/RequestReactivation.tsx";
 import ReactivateAccount from "./components/ReactivateAccount.tsx";
-
+import Footer from "./components/Footer.tsx"; 
 function AppRoutes() {
   const navigate = useNavigate();
 
@@ -101,6 +101,7 @@ function AppRoutes() {
           </Route>
         </Routes>
       </div>
+      <Footer /> {/* Footer component added here */}
     </>
   );
 }
