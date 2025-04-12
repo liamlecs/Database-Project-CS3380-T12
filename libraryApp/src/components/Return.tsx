@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Paper, Box } from "@mui/material";
+import { Button, Paper, Box, Typography } from "@mui/material";
 
 interface Transaction {
   transactionId: number;
@@ -20,19 +20,17 @@ const Return: React.FC = () => {
     fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        // Filter for items that have not been returned yet
+        // Only keep items that have not been returned
         const outstanding = data.filter((t: Transaction) => t.returnDate === null);
         setTransactions(outstanding);
-      });
+      })
+      .catch((err) => console.error("Error fetching transactions:", err));
   }, []);
 
   const handleReturn = async (transaction: Transaction) => {
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0]; // 'YYYY-MM-DD'
-    const due = new Date(transaction.dueDate);
-    const isLate = today > due;
-
-    // call Return API
+    const todayStr = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD'
+    
+    // Call Return API
     await fetch(
       `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/Return/${transaction.transactionId}`,
       {
@@ -44,7 +42,7 @@ const Return: React.FC = () => {
 
     alert("Item returned successfully.");
 
-    // remove item from the list after successfully returned
+    // Remove returned item from the state
     setTransactions((prev) =>
       prev.filter((t) => t.transactionId !== transaction.transactionId)
     );
@@ -53,49 +51,68 @@ const Return: React.FC = () => {
   return (
     <Box
       sx={{
-        // Add top margin so global NavBar won't hide this content
+        // Enough top margin so it won't be hidden by the navbar
         mt: "80px",
+        // Some horizontal padding
         px: 2,
+        // Center everything horizontally
+        display: "flex",
+        justifyContent: "center",
       }}
     >
-      <Paper style={{ padding: "2rem" }}>
-        <h2>Your Checked Out Items</h2>
+      <Paper
+        sx={{
+          // Make the paper narrower and center its content
+          width: "100%",
+          maxWidth: 700,
+          p: 3,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center", // centers everything horizontally inside the Paper
+        }}
+      >
+        <Typography variant="h5" sx={{ mb: 3, textAlign: "center" }}>
+          Your Checked Out Items
+        </Typography>
+
         {transactions.map((t) => {
           const dueDate = new Date(t.dueDate);
           const isOverdue = new Date() > dueDate;
 
           return (
-            <div
+            <Box
               key={t.transactionId}
-              style={{
-                marginBottom: "1rem",
-                padding: "1rem",
-                borderRadius: "8px",
+              sx={{
+                mb: 2,
+                p: 2,
+                borderRadius: 2,
+                textAlign: "center",
                 backgroundColor: isOverdue ? "#ffe0e0" : "#f0f0f0",
                 borderLeft: isOverdue ? "6px solid red" : "6px solid green",
+                width: "100%",
+                maxWidth: 500,        // narrower content box
+                mx: "auto",           // center horizontally
               }}
             >
-              <div style={{ fontWeight: 600, fontSize: "1.1rem" }}>
+              <Typography fontWeight={600} fontSize="1.1rem">
                 {t.title}
-              </div>
-              <div>
+              </Typography>
+              <Box>
                 <span>Due: {dueDate.toLocaleDateString()}</span>
                 {isOverdue && (
-                  <span
-                    style={{ color: "red", marginLeft: "1rem", fontWeight: 500 }}
-                  >
+                  <span style={{ color: "red", marginLeft: "1rem", fontWeight: 500 }}>
                     Overdue!
                   </span>
                 )}
-              </div>
+              </Box>
               <Button
                 variant="contained"
                 onClick={() => handleReturn(t)}
-                style={{ marginTop: "0.5rem" }}
+                sx={{ mt: 1 }}
               >
                 Return
               </Button>
-            </div>
+            </Box>
           );
         })}
       </Paper>
