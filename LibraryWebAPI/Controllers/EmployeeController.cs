@@ -154,20 +154,20 @@ namespace LibraryWebAPI.Controllers
     public class EmployeeUpdateDto
     {
         public int EmployeeId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string BirthDate { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public required string BirthDate { get; set; }
     }
 
     // New DTO for creating a new employee
     public class EmployeeCreateDto
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
         // BirthDate as a string in "yyyy-MM-dd" format.
-        public string BirthDate { get; set; }
+        public required string BirthDate { get; set; }
         public int? SupervisorId { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public required string Username { get; set; }
+        public required string Password { get; set; }
     }
 }

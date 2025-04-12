@@ -443,7 +443,7 @@ return Ok(transactions);
 
         public class ReturnRequest
         {
-            public string ReturnDate { get; set; }
+            public string? ReturnDate { get; set; }
         }
 
 

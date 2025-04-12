@@ -48,10 +48,10 @@ public int? CheckoutInstances { get; set; }
 public int? UniqueCustomers { get; set; }
 
 [NotMapped]
-        public List<TransactionPopularityDto> TransactionPopularity { get; set; }
+        public List<TransactionPopularityDto>? TransactionPopularity { get; set; }
 
 [NotMapped]
-        public List<TransactionFineDto> TransactionFine { get; set; }
+        public List<TransactionFineDto>? TransactionFine { get; set; }
 
     }
 }

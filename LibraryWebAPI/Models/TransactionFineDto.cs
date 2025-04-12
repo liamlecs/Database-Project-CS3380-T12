@@ -8,15 +8,15 @@ namespace LibraryWebAPI.Models
     public partial class TransactionFineDto
     {
     
-        public string Title { get; set; }
+        public required string Title { get; set; }
 
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
-        public string FirstName { get; set; }
+        public required string FirstName { get; set; }
 
-        public string LastName { get; set; }
+        public required string LastName { get; set; }
 
-        public string Type { get; set; }
+        public required string Type { get; set; }
 
         public DateOnly DateBorrowed { get; set; }
         public DateOnly DueDate { get; set; }
@@ -25,7 +25,7 @@ namespace LibraryWebAPI.Models
 
         public double Amount { get; set; }
 
-        public string ItemType { get; set; }
+        public required string ItemType { get; set; }
 
         public bool PaymentStatus { get; set; }
     }

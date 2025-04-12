@@ -10,10 +10,10 @@ namespace LibraryWebAPI.Models;
 public partial class CustomerWaitlistDto
 {
 
-    public string Email {get; set;}
-    public string Title { get; set; }
+    public required string Email {get; set;}
+    public required string Title { get; set; }
 
-    public string TypeName { get; set; }
+    public required string TypeName { get; set; }
 
     public DateTime ReservationDate { get; set; }
 

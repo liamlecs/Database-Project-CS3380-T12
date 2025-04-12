@@ -23,7 +23,7 @@ namespace LibraryWebAPI.Controllers
         }
         public class ReactivationRequestDto
         {
-            public string Email { get; set; }
+            public required string Email { get; set; }
         }
 
         [HttpPost("RequestReactivate")]
@@ -69,8 +69,8 @@ namespace LibraryWebAPI.Controllers
         
         public class ReactivationDto
         {
-            public string Email { get; set; }
-            public string ReactivationCode { get; set; }
+            public required string  Email { get; set; }
+            public required string ReactivationCode { get; set; }
         }
 
         [HttpPost("ReactivateAccount")]
