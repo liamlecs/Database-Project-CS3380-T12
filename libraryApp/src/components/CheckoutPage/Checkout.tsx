@@ -199,9 +199,12 @@ const CheckoutPage: React.FC = () => {
               ))}
             </tbody>
           </table>
-          <button className="checkout-button" onClick={handleCheckout}>
-            Finalize Checkout
-          </button>
+          <div style={{ textAlign: "center", marginTop: "1rem" }}>
+  <button className="checkout-button" onClick={handleCheckout}>
+    Finalize Checkout
+  </button>
+</div>
+
         </>
       )}
     </div>
