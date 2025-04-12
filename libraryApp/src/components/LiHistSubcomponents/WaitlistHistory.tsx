@@ -34,7 +34,7 @@ export default function WaitlistHistory() {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Waitlist`);
         if (!response.ok) {
-          throw new Error("Failed to fetch donation data");
+          throw new Error("Failed to fetch waitlist history data");
         }
         const data = await response.json();
 console.log("raw data: ", data);

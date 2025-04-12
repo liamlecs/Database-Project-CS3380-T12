@@ -29,7 +29,7 @@ export default function FineHistory() {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Fine`);
         if (!response.ok) {
-          throw new Error("Failed to fetch donation data");
+          throw new Error("Failed to fetch fine history data");
         }
         const data = await response.json();
 console.log("raw data: ", data);

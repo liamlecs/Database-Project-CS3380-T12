@@ -19,7 +19,7 @@ type: 'date',
     width: 90,
   },
   {
-    field: 'dateReturned',
+    field: 'returnDate',
     headerName: 'Date Returned',
     type: 'date',
     width: 90,
@@ -40,7 +40,7 @@ export default function CheckoutHistory() {
       try {
         const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory`);
         if (!response.ok) {
-          throw new Error("Failed to fetch donation data");
+          throw new Error("Failed to fetch transaction history data");
         }
         const data = await response.json();
         console.log("raw data: ", data);
@@ -59,6 +59,9 @@ export default function CheckoutHistory() {
               : null,
             customerId: transaction.customerId || -1,
             itermId: transaction.itemId || -1,
+            returnDate: transaction.returnDate
+              ? new Date(transaction.returnDate)
+              : null,
           };
         });
         console.log("formatted data: ", formattedData);
