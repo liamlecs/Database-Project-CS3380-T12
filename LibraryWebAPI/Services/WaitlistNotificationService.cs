@@ -51,16 +51,28 @@ public class WaitlistNotificationService : BackgroundService
                     var customer = await context.Customers
                         .FirstOrDefaultAsync(c => c.CustomerId == notification.CustomerId, stoppingToken);
 
-                    if (customer != null)
-                    {
-                        var subject = "Your reserved item is now available!";
-                        var body = $"Hello {customer.FirstName},\n\nYour reserved item is now available.It is due on {notification.DueDate:MMMM dd, yyyy}. Have a good day!";
 
-                        await _emailService.SendEmailAsync(customer.Email, subject, body);
+                            // Fetch the item details using the item ID from the notification.
+                    var item = await context.Items
+                        .FirstOrDefaultAsync(i => i.ItemId == notification.ItemId, stoppingToken);
 
-                        notification.EmailSent = true;
-                        context.Update(notification);
-                    }
+if (customer != null && item != null)
+{
+    var subject = $"Item '{item.Title}' Now Available!";
+    var body = $@"Good news! A copy of '{item.Title}' has been assigned to you.
+It is due on {notification.DueDate:MM/dd/yyyy}. Enjoy!
+
+Thank you for using E-Library.
+Best regards,
+The E-Library Team";
+
+    await _emailService.SendEmailAsync(customer.Email, subject, body);
+
+    notification.EmailSent = true;
+    context.Update(notification);
+}
+
+
                 }
                 catch (Exception ex)
                 {
