@@ -90,7 +90,7 @@ export default function ChangePassword() {
           <TextField
             label="Old Password"
             variant="outlined"
-            type="text"
+            type="password"
             value={oldPassword}
             onChange={(e) => setOldPassword(e.target.value)}
             fullWidth
@@ -99,7 +99,7 @@ export default function ChangePassword() {
           <TextField
             label="New Password"
             variant="outlined"
-            type="text"
+            type="password"
             value={password}
             onChange={(e) => setNewPassword(e.target.value)}
             fullWidth
@@ -108,7 +108,7 @@ export default function ChangePassword() {
           <TextField
             label="Confirm New Password"
             variant="outlined"
-            type="text"
+            type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             fullWidth
