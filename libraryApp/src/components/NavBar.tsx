@@ -70,7 +70,7 @@
       <nav className="nav">
         {/* Left side: Site Title */}
         <Link to="/" className="site-title">
-          E-Library
+          E-Library @ UH
         </Link>
 
         {/* Middle: Navigation Links */}
