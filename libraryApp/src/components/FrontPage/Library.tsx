@@ -298,7 +298,7 @@ const Library: React.FC = () => {
     };
 
     return (
-        <div className="library-container">
+        <div className="library-container" style={{ marginTop: "80px" }}>
             <div className="welcome-message" style={{ backgroundImage: `url(${welcomeBg})` }}>
                 <h1>Checkout Your Favorite Items Today!</h1>
             </div>
