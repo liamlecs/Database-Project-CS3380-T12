@@ -90,17 +90,18 @@ export default function UserProfile() {
   const [filterAmount, setFilterAmount] = useState<number[]>([0, 100]); // For amount slider
   const [filteredFines, setFilteredFines] = useState<Profile["fines"]>([]); // For filtered fines
   const [selectedFines, setSelectedFines] = useState<number[]>([]); // For selected fines
+  const [dialogFines, setDialogFines] = useState<Profile["fines"]>([]);
 
   //Dialog open/close handlers
   const handleDialogOpen = () => {
-    const unpaidFines =
-      profile?.fines.filter((fine) => !fine.paymentStatus) || [];
-    setFilteredFines(unpaidFines); // Only set unpaid fines for the dialog
+    const unpaidFines = profile?.fines.filter((fine) => !fine.paymentStatus) || [];
+    setDialogFines(unpaidFines); // Use dialog-specific state
     setIsDialogOpen(true);
   };
+
   const handleDialogClose = () => {
     setIsDialogOpen(false);
-    setFilteredFines([]);
+    setSelectedFines([]); // Reset selections
   };
 
   //Handle save confirmation
@@ -922,7 +923,7 @@ export default function UserProfile() {
                               if (e.target.checked) {
                                 setSelectedFines(
                                   filteredFines.map(
-                                    (fine) => fine.transactionId
+                                    (fine) => fine.fineId
                                   )
                                 );
                               } else {
@@ -937,7 +938,7 @@ export default function UserProfile() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {filteredFines.map((fine) => {
+                      {dialogFines.map((fine) => {
                         const transaction = profile.transactionHistory.find(
                           (t) => t.transactionId === fine.transactionId
                         );
@@ -946,18 +947,18 @@ export default function UserProfile() {
                             <TableCell>
                               <Checkbox
                                 checked={selectedFines.includes(
-                                  fine.transactionId
+                                  fine.fineId
                                 )}
                                 onChange={(e) => {
                                   if (e.target.checked) {
                                     setSelectedFines((prev) => [
                                       ...prev,
-                                      fine.transactionId,
+                                      fine.fineId,
                                     ]);
                                   } else {
                                     setSelectedFines((prev) =>
                                       prev.filter(
-                                        (id) => id !== fine.transactionId
+                                        (id) => id !== fine.fineId
                                       )
                                     );
                                   }
@@ -979,9 +980,9 @@ export default function UserProfile() {
                   sx={{ marginTop: 2, textAlign: "right", fontWeight: "bold" }}
                 >
                   Total: $
-                  {filteredFines
+                  {dialogFines
                     .filter((fine) =>
-                      selectedFines.includes(fine.transactionId)
+                      selectedFines.includes(fine.fineId)
                     )
                     .reduce((total, fine) => total + fine.amount, 0)
                     .toFixed(2)}
@@ -1026,77 +1027,69 @@ export default function UserProfile() {
                 <Button onClick={handleDialogClose} color="secondary">
                   Cancel
                 </Button>
-                <Button
-                  onClick={async () => {
-                    if (selectedFines.length === 0) {
-                      alert("Please select at least one fine to pay.");
-                      return;
-                    }
+                              <Button
+                onClick={async () => {
+                  if (selectedFines.length === 0) {
+                    alert("Please select at least one fine to pay.");
+                    return;
+                  }
 
-                    try {
-                      // Send a request to update the payment status for each selected fine
-                      for (const fineId of selectedFines) {
-                        const fineToUpdate = filteredFines.find(
-                          (fine) => fine.transactionId === fineId
-                        );
+                  try {
+                    // 1. Update backend
+                    await Promise.all(
+                      selectedFines.map(async (fineId) => {
+                        const fineToUpdate = dialogFines.find(f => f.fineId === fineId);
+                        if (!fineToUpdate) return;
 
-                        if (!fineToUpdate) {
-                          console.error(
-                            `Fine with transactionId ${fineId} not found.`
-                          );
-                          continue;
-                        }
-
-                        // Construct the full fine object to send in the PUT request
-                        const updatedFine = {
-                          ...fineToUpdate,
-                          PaymentStatus: true, // Update the payment status to true
-                        };
-
+                        const updatedFine = { ...fineToUpdate, paymentStatus: true };
                         await fetch(
-                          `${import.meta.env.VITE_API_BASE_URL}/api/Fine/${
-                            fineToUpdate.fineId
-                          }`,
+                          `${import.meta.env.VITE_API_BASE_URL}/api/Fine/${fineId}`,
                           {
                             method: "PUT",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(updatedFine), // Send the full fine object
+                            body: JSON.stringify(updatedFine),
                           }
                         );
-                      }
+                      })
+                    );
 
-                      alert(
-                        `Fines paid successfully for Transaction IDs: ${selectedFines.join(
-                          ", "
-                        )}`
-                      );
-
-                      // Update the local state to reflect the changes
-                      setFilteredFines((prev) =>
-                        prev.map((fine) =>
+                    // 2. Update frontend state
+                    if (profile) {
+                      const updatedProfile = {
+                        ...profile,
+                        fines: profile.fines.map(fine => 
                           selectedFines.includes(fine.fineId)
-                            ? { ...fine, PaymentStatus: true }
+                            ? { ...fine, paymentStatus: true }
                             : fine
                         )
-                      );
-
-                      setSelectedFines([]); // Clear the selected fines
-                      handleDialogClose(); // Close the dialog
-                    } catch (error) {
-                      console.error(
-                        "Error updating fine payment status:",
-                        error
-                      );
-                      alert(
-                        "Failed to update fine payment status. Please try again."
-                      );
+                      };
+                      setProfile(updatedProfile);
+                      
+                      // 3. Recalculate filtered fines based on current filters
+                      const newFiltered = updatedProfile.fines.filter(fine => {
+                        const matchesStatus = filterStatus === "all" || 
+                          (filterStatus === "paid" && fine.paymentStatus) || 
+                          (filterStatus === "unpaid" && !fine.paymentStatus);
+                        const matchesAmount = fine.amount >= filterAmount[0] && 
+                          fine.amount <= filterAmount[1];
+                        return matchesStatus && matchesAmount;
+                      });
+                      setFilteredFines(newFiltered);
                     }
-                  }}
-                  color="primary"
-                  autoFocus
-                >
-                  Pay Fines
-                </Button>
+
+                    alert("Payment successful!");
+                    setSelectedFines([]);
+                    handleDialogClose();
+                  } catch (error) {
+                    console.error("Payment failed:", error);
+                    alert("Payment failed. Please try again.");
+                  }
+                }}
+                color="primary"
+                autoFocus
+              >
+                Pay Fines
+              </Button>
               </DialogActions>
             </Dialog>
           </div>
