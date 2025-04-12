@@ -81,6 +81,31 @@ interface InventoryItem {
   location?: string;
 }
 
+
+interface TransactionGeneralReportDto {
+  title: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  type: string;
+  dateBorrowed: string;
+  dueDate: string;
+  itemType: string;
+}
+
+// Column definitions
+const transactionGeneralColumns: GridColDef[] = [
+  { field: "id", headerName: "#", width: 70 },
+  { field: "title", headerName: "Title", width: 200 },
+  { field: "email", headerName: "Email", width: 200 },
+  { field: "firstName", headerName: "First Name", width: 150 },
+  { field: "lastName", headerName: "Last Name", width: 150 },
+  { field: "type", headerName: "Type", width: 120 },
+  { field: "dateBorrowed", headerName: "Borrowed", width: 130 },
+  { field: "dueDate", headerName: "Due", width: 130 },
+  { field: "itemType", headerName: "Item Type", width: 130 },
+];
+
 const customerReportColumns: GridColDef[] = [
   { field: "email", headerName: "Email", width: 200 },
   { field: "firstName", headerName: "First Name", width: 150 },
@@ -92,6 +117,8 @@ const customerReportColumns: GridColDef[] = [
   { field: "emailConfirmed", headerName: "Email Confirmed", width: 150, type: "boolean" },
 ];
 
+
+
 export default function MasterTransactionReport() {
   const [selectedStartDate, setSelectedStartDate] = React.useState<Dayjs | null>(null);
   const [selectedEndDate, setSelectedEndDate] = React.useState<Dayjs | null>(null);
@@ -99,28 +126,47 @@ export default function MasterTransactionReport() {
   const [reportOutput, setReportOutput] = React.useState<MasterTransactionReportDto[]>([]);
   const [inventoryData, setInventoryData] = React.useState<InventoryItem[]>([]);
   const [customerData, setCustomerData] = React.useState<CustomerReportDto[]>([]);
+  const [transactionGeneralData, setTransactionGeneralData] = React.useState<TransactionGeneralReportDto[]>([]);
+
 
   const handleCall = async () => {
     setLoading(true);
     try {
+
       // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
       let response;
+      // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+      let generalReport;
+
       if (selectedStartDate && selectedEndDate) {
         const formattedStart = selectedStartDate.format("YYYY-MM-DD");
         const formattedEnd = selectedEndDate.format("YYYY-MM-DD");
         response = await fetch(
+
           `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/masterTransactionReportConditional/${formattedStart}/${formattedEnd}`
         );
+
+        generalReport = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/TransactionGeneralReportConditional/${formattedStart}/${formattedEnd}`);
+
       } else {
         response = await fetch(
+
           `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/masterTransactionReport`
         );
+
+        generalReport = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/TransactionGeneralReport`);
+
       }
 
       if (!response.ok) throw new Error("Fetch failed");
       const report = await response.json();
       setReportOutput([report]);
       console.log(report);
+
+
+      if (!generalReport.ok) throw new Error("Failed to fetch transaction general report");
+      const generalData: TransactionGeneralReportDto[] = await generalReport.json();
+      setTransactionGeneralData(generalData);
 
       const inventoryRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`);
       if (!inventoryRes.ok) throw new Error("Failed to fetch inventory");
@@ -131,6 +177,11 @@ export default function MasterTransactionReport() {
       if (!customerDetails.ok) throw new Error("Failed to fetch customers");
       const parsedCustomerDetails: CustomerReportDto[] = await customerDetails.json();
       setCustomerData(parsedCustomerDetails);
+
+
+
+
+
     } catch (err) {
       console.error("Fetch error", err);
     } finally {
@@ -244,7 +295,9 @@ export default function MasterTransactionReport() {
 
           <Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
-            Checkout Activity
+            Checkout Activity {selectedStartDate && selectedEndDate && (
+    <> ({selectedStartDate.format("MMM DD, YYYY")} - {selectedEndDate.format("MMM DD, YYYY")})</>
+  )}
           </Typography>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12} sm={6}>
@@ -263,7 +316,7 @@ export default function MasterTransactionReport() {
               <Card elevation={2}>
                 <CardContent>
                   <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                    Unique Customers
+                    Unique Customers 
                   </Typography>
                   <Typography variant="h5" fontWeight={600}>
                     {report.uniqueCustomers}
@@ -306,6 +359,23 @@ export default function MasterTransactionReport() {
             />
           </div>*/}
 
+<>
+          <Divider sx={{ my: 3 }} />
+          <Typography variant="h6" gutterBottom>
+            Transaction General Report {selectedStartDate && selectedEndDate && (
+    <> ({selectedStartDate.format("MMM DD, YYYY")} - {selectedEndDate.format("MMM DD, YYYY")})</>
+  )}
+          </Typography>
+          <div style={{ height: 400, width: "100%" }}>
+            <DataGrid
+              rows={transactionGeneralData.map((row, index) => ({ id: index + 1, ...row }))}
+              columns={transactionGeneralColumns}
+              pageSizeOptions={[5, 10, 20]}
+              disableRowSelectionOnClick
+            />
+          </div>
+        </>
+
           <Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
             Current Inventory Snapshot
@@ -331,7 +401,9 @@ export default function MasterTransactionReport() {
               disableRowSelectionOnClick
             />
           </div>
-        </Paper>
+        
+        
+      </Paper>
       )}
     </Stack>
   );

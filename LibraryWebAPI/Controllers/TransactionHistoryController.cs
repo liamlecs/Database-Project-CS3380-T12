@@ -212,8 +212,8 @@ namespace LibraryWebAPI.Controllers
                     (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS AvailableTechCount,
                     (SELECT SUM(Fines.Amount) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines,
                     (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers,
-                    (SELECT COUNT(*) FROM TRANSACTION_HISTORY WHERE {startDateTime} < DateBorrowed AND DateBorrowed < {endDateTime}) AS CheckoutInstances,
-                    (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY WHERE {startDateTime} < DateBorrowed AND DateBorrowed < {endDateTime}) AS UniqueCustomers
+                    (SELECT COUNT(*) FROM TRANSACTION_HISTORY WHERE {startDateTime} <= DateBorrowed AND DateBorrowed <= {endDateTime}) AS CheckoutInstances,
+                    (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY WHERE {startDateTime} <= DateBorrowed AND DateBorrowed <= {endDateTime}) AS UniqueCustomers
             )
             SELECT *, 
                    (BookTitleCount + MovieTitleCount + MusicTitleCount + TechTitleCount) AS TotalTitleCount,
@@ -351,6 +351,47 @@ SELECT
         JOIN Item ON TRANSACTION_HISTORY.ItemID = Item.ItemID
         JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID
         WHERE Customer.Email = {email}
+")
+                .ToListAsync();
+
+return Ok(transactions);
+        }
+
+        [HttpGet("TransactionGeneralReport")]
+        public async Task<ActionResult<List<TransactionGeneralReportDto>>> TransactionGeneralReport()
+        {
+            // ✅ Query the database to find the customer by email
+            var transactions = await _context.TransactionGeneralReport
+             .FromSql(
+                $@"
+            SELECT I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, IT.TypeName AS ItemType
+        FROM TRANSACTION_HISTORY TH
+        JOIN Item I ON TH.ItemID = I.ItemID
+        LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID
+        JOIN Customer C ON TH.CustomerID = C.CustomerID
+        JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
+        GROUP BY I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, IT.TypeName
+")
+                .ToListAsync();
+
+return Ok(transactions);
+        }
+
+        [HttpGet("TransactionGeneralReportConditional/{start:datetime}/{end:datetime}")]
+        public async Task<ActionResult<List<TransactionGeneralReportDto>>> TransactionGeneralReportConditional(DateTime start, DateTime end)
+        {
+            // ✅ Query the database to find the customer by email
+            var transactions = await _context.TransactionGeneralReport
+             .FromSql(
+                $@"
+            SELECT I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, IT.TypeName AS ItemType
+        FROM TRANSACTION_HISTORY TH
+        JOIN Item I ON TH.ItemID = I.ItemID
+        LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID
+        JOIN Customer C ON TH.CustomerID = C.CustomerID
+        JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
+        WHERE {start} <= TH.DateBorrowed AND TH.DateBorrowed <= {end}
+        GROUP BY I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, IT.TypeName
 ")
                 .ToListAsync();
 

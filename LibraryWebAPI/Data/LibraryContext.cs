@@ -70,6 +70,8 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
 
     public virtual DbSet<TransactionHistoryDto> TransactionHistory {get; set;}
 
+        public virtual DbSet<TransactionGeneralReportDto> TransactionGeneralReport {get; set;}
+
     public virtual DbSet<TransactionFineDto> TransactionFineConditional { get; set; }
 
         public virtual DbSet<CustomerTransactionDto> CustomerTransactions { get; set; }
@@ -532,6 +534,8 @@ modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
 modelBuilder.Entity<MasterTransactionReportDto>().HasNoKey().ToView(null);
 
 modelBuilder.Entity<CustomerTransactionDto>().HasNoKey().ToView(null);
+
+modelBuilder.Entity<TransactionGeneralReportDto>().HasNoKey().ToView(null);
 
         });
 
