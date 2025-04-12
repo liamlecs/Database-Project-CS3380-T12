@@ -40,6 +40,16 @@ const Return: React.FC = () => {
       }
     );
 
+    // increase AvailableCopies in inventory after return
+    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itemId: transaction.itemId,
+        changeInCopies: 1,
+      }),
+    });
+
     alert("Item returned successfully.");
 
     // Remove returned item from the state
@@ -47,6 +57,7 @@ const Return: React.FC = () => {
       prev.filter((t) => t.transactionId !== transaction.transactionId)
     );
   };
+
 
   return (
     <Box

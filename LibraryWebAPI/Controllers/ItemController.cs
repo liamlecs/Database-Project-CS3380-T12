@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
-using LibraryWebAPI.DTOs; // Contains UpdateAvailableCopiesDto
+using LibraryWebAPI.DTOs; // Contains UpdateCopiesDto
 using LibraryWebAPI.Services; // Contains IEmailService
 
 namespace LibraryWebAPI.Controllers
