@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Box, TextField, Button, Typography, Paper } from "@mui/material";
 
 interface ConfirmEmailProps {
   // optional props if needed
@@ -36,39 +37,67 @@ export default function ConfirmEmail({}: ConfirmEmailProps) {
   }
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Confirm Your Email</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Email:</label>
-          <input
+    <Box sx={{
+      pt: 8, // Add padding for navbar
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      bgcolor: 'background.default'
+    }}>
+      <Paper elevation={3} sx={{
+        p: 4,
+        width: '100%',
+        maxWidth: 400,
+        mx: 2
+      }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Confirm Your Email
+        </Typography>
+        
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Email"
+            variant="outlined"
+            margin="normal"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ display: "block", width: "100%" }}
           />
-        </div>
-
-        <div style={{ marginBottom: "1rem" }}>
-          <label>Confirmation Code:</label>
-          <input
-            type="text"
+          
+          <TextField
+            fullWidth
+            label="Confirmation Code"
+            variant="outlined"
+            margin="normal"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             required
-            style={{ display: "block", width: "100%" }}
           />
-        </div>
 
-        <button type="submit">Confirm Email</button>
-      </form>
+          <Button
+            fullWidth
+            variant="contained"
+            type="submit"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Confirm Email
+          </Button>
+        </form>
 
-      {message && (
-        <div style={{ marginTop: "1rem", fontWeight: "bold" }}>
-          {message}
-        </div>
-      )}
-    </div>
+        {message && (
+          <Typography 
+            sx={{ 
+              mt: 2,
+              color: message.startsWith('Error') ? 'error.main' : 'success.main'
+            }}
+          >
+            {message}
+          </Typography>
+        )}
+      </Paper>
+    </Box>
   );
 }
