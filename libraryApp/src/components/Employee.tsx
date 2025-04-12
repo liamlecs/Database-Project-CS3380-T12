@@ -444,12 +444,24 @@ const EmployeesList: React.FC = () => {
         const isAdmin = currentUsername === 'admin';
         
         return (
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} 
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
             {isAdmin && row.username !== 'admin' && (
               <Button
                 variant="contained"
                 color="primary"
                 onClick={() => handleOpenEditDialog(row)}
+                sx={{ 
+                  minWidth: 80,
+                  py: 0.5,
+                  fontSize: '0.75rem'
+                }}
               >
                 Edit
               </Button>
@@ -459,6 +471,11 @@ const EmployeesList: React.FC = () => {
                 variant="contained"
                 color="error"
                 onClick={() => handleOpenConfirmDialog(row)}
+                sx={{ 
+                  minWidth: 80,
+                  py: 0.5,
+                  fontSize: '0.75rem'
+                }}
               >
                 Delete
               </Button>
