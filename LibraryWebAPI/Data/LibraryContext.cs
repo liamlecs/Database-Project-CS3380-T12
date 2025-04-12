@@ -11,6 +11,8 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<BookAuthor> BookAuthors { get; set; }
     
+    public DbSet<DeviceType> DeviceTypes { get; set; }
+    public DbSet<TechnologyManufacturer> TechnologyManufacturers { get; set; }
 
     public virtual DbSet<BookGenre> BookGenres { get; set; }
 
@@ -56,9 +58,6 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
     public virtual DbSet<Publisher> Publishers { get; set; }
 
     public virtual DbSet<Technology> Technologies { get; set; }
-
-    public virtual DbSet<TechnologyManufacturer> TechnologyManufacturers { get; set; }
-    public virtual DbSet<DeviceType> DeviceTypes { get; set; }
 
     public virtual DbSet<TransactionHistory> TransactionHistories { get; set; }
 

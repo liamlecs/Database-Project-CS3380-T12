@@ -7,7 +7,7 @@ namespace LibraryWebAPI.Models;
 
 public partial class Technology
 {
-    public int itemId { get; set; } // fk to the Item table
+    // public int ItemId { get; set; } // fk to the Item table
         [Key]
     public int DeviceId { get; set; }
 
