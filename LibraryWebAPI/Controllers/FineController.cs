@@ -70,6 +70,67 @@ SELECT
             return Ok(fines); // Return the customer entity
         }
 
+        [HttpGet("FineSummary")]
+        public ActionResult<FineSummaryDto> FineSummary()
+        {
+            // ✅ Query the database to find the customer by email
+            var fines = _context.Database
+    .SqlQuery<FineSummaryDto>(
+                $@"
+WITH FineCounts AS (
+    SELECT 
+        c.CustomerID,
+        c.Email,
+        COUNT(*) AS FineCount
+    FROM Fines f
+    JOIN Customer c ON f.CustomerID = c.CustomerID
+    GROUP BY c.CustomerID, c.Email
+)
+
+SELECT 
+    -- Worst offender (most fines)
+    fc.Email AS MostFinedCustomerEmail,
+    fc.FineCount AS NumberOfFines,
+
+    -- Most expensive unpaid fine (can be null)
+    ISNULL(mf.Amount, 0) AS MaxUnpaidFineAmount,
+    mf.Title AS AssociatedItemTitle,
+    mf.ItemType AS AssociatedItemType,
+    mf.OffenderEmail AS MaxFineCustomerEmail,
+
+    -- Average days late (can be null)
+    ISNULL(a.AvgDaysLate, 0) AS AvgDaysLate
+FROM 
+    (SELECT TOP 1 * FROM FineCounts ORDER BY FineCount DESC) fc
+    OUTER APPLY (
+        SELECT TOP 1 
+            f.Amount,
+            i.Title,
+            it.TypeName AS ItemType,
+            c.Email AS OffenderEmail
+        FROM Fines f
+        JOIN TRANSACTION_HISTORY th ON f.TransactionID = th.TransactionID
+        JOIN Item i ON th.ItemID = i.ItemID
+        JOIN ItemType it ON i.ItemTypeID = it.ItemTypeID
+        JOIN Customer c ON f.CustomerID = c.CustomerID
+        WHERE f.PaymentStatus = 0
+        ORDER BY f.Amount DESC
+    ) mf
+    OUTER APPLY (
+        SELECT 
+            AVG(CAST(DATEDIFF(DAY, th.DueDate, th.ReturnDate) AS FLOAT)) AS AvgDaysLate
+        FROM TRANSACTION_HISTORY th
+        WHERE th.ReturnDate > th.DueDate
+    ) a;
+
+")
+                .AsNoTracking()
+                    .AsEnumerable()
+        .FirstOrDefault();
+            return Ok(fines); // Return the customer entity
+        }
+
+
         // POST: api/Fine
         [HttpPost]
         public async Task<ActionResult<Fine>> PostFine(Fine fine)
