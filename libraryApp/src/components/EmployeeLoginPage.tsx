@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../App.css"; // CSS import
-import bgImage from "../assets/library-bg.jpg";
+import bgImage from "../assets/employee-bg.jpg";
 import { localStorageAvailable } from "@mui/x-data-grid/internals";
 
 export default function EmployeeLoginPage() {
