@@ -128,7 +128,7 @@ export default function MasterTransactionReport() {
 
       const customerDetails = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/CustomerDetails`);
       if (!customerDetails.ok) throw new Error("Failed to fetch customers");
-      const parsedCustomerDetails = await customerDetails.json();
+      const parsedCustomerDetails: CustomerReportDto[] = await customerDetails.json();
       setCustomerData(parsedCustomerDetails);
     } catch (err) {
       console.error("Fetch error", err);
