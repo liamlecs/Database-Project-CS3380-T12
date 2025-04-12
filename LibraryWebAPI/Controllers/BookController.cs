@@ -4,6 +4,7 @@ using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using LibraryWebAPI.Models.DTOs;
 
 namespace LibraryWebAPI.Controllers
 {
@@ -18,12 +19,6 @@ namespace LibraryWebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Book
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        // {
-        //     return Ok(await _context.Books.ToListAsync());
-        // }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetBooks()
         {
@@ -50,7 +45,7 @@ namespace LibraryWebAPI.Controllers
                 .ToListAsync();
 
             return Ok(books);
-        }
+        } // stashed my changes loll
 
 
         // GET: api/Book/5
@@ -67,15 +62,47 @@ namespace LibraryWebAPI.Controllers
             return Ok(book);
         }
 
-        // POST: api/Book
-        [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(Book book)
+        // // POST: api/Book
+        // [HttpPost]
+        // public async Task<ActionResult<Book>> PostBook(Book book)
+        // {
+        //     _context.Books.Add(book);
+        //     await _context.SaveChangesAsync();
+
+        //     return CreatedAtAction(nameof(GetBook), new { id = book.BookId }, book);
+        // }
+
+        [HttpPost("add-book")]
+        public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
         {
+            var item = new Item {
+                Title = model.Title!,
+                AvailabilityStatus = "Available",
+                TotalCopies = model.TotalCopies,
+                AvailableCopies = model.TotalCopies,
+                Location = model.Location,
+                ItemTypeID = 1
+            };
+
+            _context.Items.Add(item);
+            await _context.SaveChangesAsync();
+
+            var book = new Book {
+                Isbn = model.ISBN,
+                PublisherId = model.PublisherID,
+                BookGenreId = model.BookGenreID,
+                BookAuthorId = model.BookAuthorID,
+                YearPublished = model.YearPublished,
+                CoverImagePath = model.CoverImagePath,
+                ItemID = item.ItemId
+            };
+
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetBook), new { id = book.BookId }, book);
+            return Ok(new { message = "Book and Item added successfully", itemId = item.ItemId });
         }
+
 
         // PUT: api/Book/5
         [HttpPut("{id}")]
