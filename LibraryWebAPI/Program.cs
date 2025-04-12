@@ -79,10 +79,13 @@ builder.Services.AddControllers()
             });
         };
     });
+builder.Services.AddHostedService<WaitlistNotificationService>(); //waitlist email system
+
 
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
     
+
 
 var app = builder.Build();
 

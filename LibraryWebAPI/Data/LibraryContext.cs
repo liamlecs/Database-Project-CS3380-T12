@@ -46,6 +46,8 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<MusicArtist> MusicArtists { get; set; }
 
+public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlist email service
+
 
     public virtual DbSet<MusicGenre> MusicGenres { get; set; }
 
