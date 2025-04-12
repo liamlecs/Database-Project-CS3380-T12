@@ -37,7 +37,8 @@ import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
 import Return from "./components/Return.tsx";
 import RequestReactivation from "./components/RequestReactivation.tsx";
 import ReactivateAccount from "./components/ReactivateAccount.tsx";
-import Footer from "./components/Footer.tsx"; 
+import Layout from "./components/Layout.tsx";
+
 function AppRoutes() {
   const navigate = useNavigate();
 
@@ -47,62 +48,46 @@ function AppRoutes() {
     const userId = localStorage.getItem("userId");
 
     if (isLoggedIn === "true" && userId) {
-      // Optional: If you want to auto-redirect logged-in users to profile
-      // navigate("/UserProfile");
       console.log("User is logged in:", userId);
     }
   }, []);
 
   return (
-    <>
-      <NavBar />
-      <div className="container">
-        <Routes>
-
-          <Route path="/" element={<FrontPage />} />
-          <Route path="/eventscalendar" element={<EventsCalendar />} />
-          <Route path="/createevent" element={<CreateEvent />} />
-          <Route path="/customer-login" element={<CustomerLoginPage />} />
-          <Route path="/employee-login" element={<EmployeeLoginPage />} />
-          <Route path="/registrationpage" element={<RegistrationPage />} />
-          <Route path="/donations" element={<Donations />} />
-          <Route path="/employee" element={<Employee />} />
-          <Route path="/userprofile" element={<UserProfile />} />
-          <Route path="/bookcheckout" element={<BookCheckOutPage />} />
-          <Route path="/return" element={<Return />} />
-          <Route path="/reactivateaccount" element={<ReactivateAccount />} />
-          <Route path="/requestreactivation" element={<RequestReactivation />} />
-          <Route path="/userprofile" element={<UserProfile />}>
-            <Route path="changepassword" element={<ChangePassword />} /> {/* Nested route */}
-          </Route>
-          {/* <Route path="/bookcheckout" element={<BookCheckOutPage />} /> */}
-          <Route path="/terms" element={<TermsAndConditionsPage />} />
-          <Route path="/confirm" element={<ConfirmEmail />} />
-          <Route path="/reportsoutlet" element={<ReportsOutlet />}>
-            <Route path="popularityreport" element={<PopularityReport />} />
-            <Route path="itemfinereport" element={<ItemFineReport />} />
-            <Route
-              path="customerlookupreport"
-              element={<CustomerLookupReport />}
-            />
-            <Route
-              path="mastertransactionreport"
-              element={<MasterTransactionReport />}
-            />
-          </Route>
-
-          {/* Optional Nested Routes */}
-          <Route path="/libraryhistory" element={<LibraryHistory />}>
-            <Route path="checkouthistory" element={<CheckoutHistory />} />
-            <Route path="donationhistory" element={<DonationHistory />} />
-            <Route path="finehistory" element={<FineHistory />} />
-            <Route path="waitlisthistory" element={<WaitlistHistory />} />
-            <Route path="eventhistory" element={<EventHistory />} />
-          </Route>
-        </Routes>
-      </div>
-      <Footer /> {/* Footer component added here */}
-    </>
+    // All routes are nested inside the Layout so every page gets the NavBar and Footer.
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<FrontPage />} />
+        <Route path="eventscalendar" element={<EventsCalendar />} />
+        <Route path="createevent" element={<CreateEvent />} />
+        <Route path="customer-login" element={<CustomerLoginPage />} />
+        <Route path="employee-login" element={<EmployeeLoginPage />} />
+        <Route path="registrationpage" element={<RegistrationPage />} />
+        <Route path="donations" element={<Donations />} />
+        <Route path="employee" element={<Employee />} />
+        <Route path="userprofile" element={<UserProfile />}>
+          <Route path="changepassword" element={<ChangePassword />} />
+        </Route>
+        <Route path="bookcheckout" element={<BookCheckOutPage />} />
+        <Route path="return" element={<Return />} />
+        <Route path="reactivateaccount" element={<ReactivateAccount />} />
+        <Route path="requestreactivation" element={<RequestReactivation />} />
+        <Route path="terms" element={<TermsAndConditionsPage />} />
+        <Route path="confirm" element={<ConfirmEmail />} />
+        <Route path="reportsoutlet" element={<ReportsOutlet />}>
+          <Route path="popularityreport" element={<PopularityReport />} />
+          <Route path="itemfinereport" element={<ItemFineReport />} />
+          <Route path="customerlookupreport" element={<CustomerLookupReport />} />
+          <Route path="mastertransactionreport" element={<MasterTransactionReport />} />
+        </Route>
+        <Route path="libraryhistory" element={<LibraryHistory />}>
+          <Route path="checkouthistory" element={<CheckoutHistory />} />
+          <Route path="donationhistory" element={<DonationHistory />} />
+          <Route path="finehistory" element={<FineHistory />} />
+          <Route path="waitlisthistory" element={<WaitlistHistory />} />
+          <Route path="eventhistory" element={<EventHistory />} />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
 
