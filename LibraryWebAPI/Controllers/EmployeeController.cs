@@ -106,6 +106,46 @@ namespace LibraryWebAPI.Controllers
             return Ok(new { message = "Employee deleted successfully." });
         }
 
+        [HttpPut("{id}/password")]
+        public async Task<IActionResult> UpdatePassword(int id, [FromBody] PasswordUpdateDto passwordDto)
+        {
+            // Validate password match
+            if (passwordDto.NewPassword != passwordDto.ConfirmPassword)
+            {
+                return BadRequest("New password and confirmation do not match");
+            }
+
+            var employee = await _context.Employees.FindAsync(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            // Verify old password (plain text comparison)
+            if (passwordDto.OldPassword != employee.AccountPassword)
+            {
+                return BadRequest("Invalid old password");
+            }
+
+            // Update password
+            employee.AccountPassword = passwordDto.NewPassword;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmployeeExists(id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+
+            return Ok(new { message = "Password updated" }); // Return JSON response
+        }
+
         // PUT: api/Employee/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEmployee(int id, [FromBody] EmployeeUpdateDto employeeDto)
@@ -158,6 +198,15 @@ namespace LibraryWebAPI.Controllers
         public required string LastName { get; set; }
         public required string BirthDate { get; set; }
     }
+
+        public class PasswordUpdateDto
+    {
+        public required string OldPassword { get; set; }
+        public required string NewPassword { get; set; }
+        public required string ConfirmPassword { get; set; }
+    }
+
+    
 
     // New DTO for creating a new employee
     public class EmployeeCreateDto
