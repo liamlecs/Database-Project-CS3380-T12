@@ -106,7 +106,6 @@ namespace LibraryWebAPI.Controllers
             return _context.Items.Any(e => e.ItemId == id);
         }
 
-// PATCH: api/Item/update-copies
 [HttpPatch("update-copies")]
 public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailableCopiesDto dto)
 {
@@ -116,7 +115,6 @@ public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailabl
         return NotFound($"Item with ID {dto.ItemId} not found.");
     }
 
-    // Store the original available copies count.
     int oldAvailableCopies = item.AvailableCopies;
     var proposedValue = oldAvailableCopies + dto.ChangeInCopies;
 
@@ -130,80 +128,68 @@ public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailabl
         return BadRequest("Cannot exceed total number of copies.");
     }
 
-    // Update available copies and commit that change.
-    item.AvailableCopies = proposedValue;
-    await _context.SaveChangesAsync();
+    // Use ExecuteUpdateAsync to bypass OUTPUT clause
+    await _context.Items
+        .Where(i => i.ItemId == dto.ItemId)
+        .ExecuteUpdateAsync(setters => setters
+            .SetProperty(i => i.AvailableCopies, proposedValue));
+
+    // Reload the item to get updated values
+    item = await _context.Items.FindAsync(dto.ItemId);
 
     Console.WriteLine($"oldAvailableCopies = {oldAvailableCopies}, proposedValue = {proposedValue}");
 
-    // Process waitlist only when going from 0 to a positive number.
     if (oldAvailableCopies == 0 && proposedValue > 0)
     {
         Console.WriteLine("Waitlist block triggered!");
 
-        // Retrieve active waitlist entries for this item, ordered by ReservationDate.
         var waitlistEntries = await _context.Waitlists
             .Where(w => w.ItemId == item.ItemId && w.isReceived == false)
             .OrderBy(w => w.ReservationDate)
             .ToListAsync();
 
-        // For each waitlist entry, process one copy at a time.
-        for (int i = 0; i < waitlistEntries.Count; i++)
+        foreach (var entry in waitlistEntries)
         {
-            // Stop processing if no copies remain.
             if (item.AvailableCopies <= 0)
-            {
                 break;
-            }
 
-            var entry = waitlistEntries[i];
-
-            // Mark the waitlist entry as received.
             entry.isReceived = true;
 
-            // Lookup the customer to retrieve the email and borrower type.
             var customer = await _context.Customers.FindAsync(entry.CustomerId);
 
-            // Determine the loan period based on BorrowerTypeID.
-            // Assume: BorrowerTypeID = 1 (default) is Student -> 7 days,
-            //          BorrowerTypeID = 2 is Faculty -> 14 days.
-            int loanPeriod = 7; // default to 7 days for students.
-            if (customer != null && customer.BorrowerTypeId == 2)
-            {
-                loanPeriod = 14;
-            }
+            int loanPeriod = customer?.BorrowerTypeId == 2 ? 14 : 7;
 
             DateTime now = DateTime.Now;
-            DateOnly dueDate = DateOnly.FromDateTime(now).AddDays(loanPeriod);
-            DateOnly dateBorrowed = DateOnly.FromDateTime(now);
-
-            // Create a TransactionHistory record for the assignment.
             var transaction = new TransactionHistory
             {
                 CustomerId = entry.CustomerId,
                 ItemId = item.ItemId,
-                DateBorrowed = dateBorrowed,
-                DueDate = dueDate,
-                // Add additional properties as needed.
+                DateBorrowed = DateOnly.FromDateTime(now),
+                DueDate = DateOnly.FromDateTime(now).AddDays(loanPeriod),
             };
             _context.TransactionHistories.Add(transaction);
 
-            // Decrease the available copies by 1.
-            item.AvailableCopies--;
+            // Decrement using ExecuteUpdateAsync to avoid OUTPUT clause
+            await _context.Items
+                .Where(i => i.ItemId == item.ItemId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(i => i.AvailableCopies, i => i.AvailableCopies - 1));
 
-            // Send an email notification to the customer.
+            // Reload the item after each update
+            item = await _context.Items.FindAsync(dto.ItemId);
+
             if (customer != null && !string.IsNullOrEmpty(customer.Email))
             {
                 await _emailService.SendEmailAsync(
                     customer.Email,
                     $"Item '{item.Title}' Now Available!",
                     $"Good news! A copy of '{item.Title}' has been assigned to you. " +
-                    $"It is due on {dueDate.ToString("MM/dd/yyyy")}. Enjoy!"
+                    $"It is due on {transaction.DueDate.ToString("MM/dd/yyyy")}. Enjoy!"
                 );
             }
         }
 
-        // Save the updates for waitlist entries, transaction records, and the modified available copies.
+        // Save changes for waitlist entries and transactions
         await _context.SaveChangesAsync();
     }
 
