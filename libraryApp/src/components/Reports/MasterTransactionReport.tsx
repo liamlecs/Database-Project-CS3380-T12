@@ -272,7 +272,7 @@ export default function MasterTransactionReport() {
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: 3 }} />
+          {/*<Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
             Most Popular Items
           </Typography>
@@ -283,9 +283,9 @@ export default function MasterTransactionReport() {
               pageSizeOptions={[5, 10, 20]}
               disableRowSelectionOnClick
             />
-          </div>
+          </div>*/}
 
-          <Divider sx={{ my: 3 }} />
+          {/*<Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
             Outstanding Fines
           </Typography>
@@ -303,7 +303,7 @@ export default function MasterTransactionReport() {
               pageSizeOptions={[5, 10, 20]}
               disableRowSelectionOnClick
             />
-          </div>
+          </div>*/}
 
           <Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
