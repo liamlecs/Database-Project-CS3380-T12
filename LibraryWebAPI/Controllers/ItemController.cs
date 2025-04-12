@@ -57,33 +57,33 @@ namespace LibraryWebAPI.Controllers
             return BadRequest();
         }
 
-        // PUT: api/Item/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutItem(int id, Item item)
-        {
-            if (id != item.ItemId)
-            {
-                return BadRequest();
-            }
+// PUT: api/Item/5
+[HttpPut("{id}")]
+public async Task<IActionResult> PutItem(int id, Item item)
+{
+    if (id != item.ItemId)
+    {
+        return BadRequest("ID mismatch");
+    }
 
-            try
-            {
-                _context.Entry(item).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return NoContent();
-        }
+    // Directly update the database using ExecuteUpdateAsync
+    var rowsAffected = await _context.Items
+        .Where(i => i.ItemId == id)
+        .ExecuteUpdateAsync(setters => setters
+            .SetProperty(i => i.Title, item.Title)
+            .SetProperty(i => i.AvailabilityStatus, item.AvailabilityStatus)
+            .SetProperty(i => i.TotalCopies, item.TotalCopies)
+            .SetProperty(i => i.AvailableCopies, item.AvailableCopies)
+            .SetProperty(i => i.Location, item.Location)
+        );
+
+    if (rowsAffected == 0)
+    {
+        return NotFound($"Item with ID {id} not found.");
+    }
+
+    return NoContent(); // 204 No Content is standard for successful PUT
+}
 
         // DELETE: api/Item/5
         [HttpDelete("{id}")]

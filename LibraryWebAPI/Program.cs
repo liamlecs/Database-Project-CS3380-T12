@@ -9,6 +9,7 @@ using LibraryWebAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +63,22 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<IEmailService, EmailService>(); 
+
+// Add global error handling (for .NET 6+)
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            return new BadRequestObjectResult(new
+            {
+                Message = "Validation failed",
+                Errors = context.ModelState
+                    .SelectMany(m => m.Value.Errors)
+                    .Select(e => e.ErrorMessage)
+            });
+        };
+    });
 
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
