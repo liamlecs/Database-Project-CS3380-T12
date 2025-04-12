@@ -18,5 +18,7 @@ public partial class Item
     public int AvailableCopies { get; set; }
 
     public string? Location { get; set; }
+
+    public int ItemTypeID { get; set; }
     
 }
