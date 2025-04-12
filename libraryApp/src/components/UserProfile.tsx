@@ -145,7 +145,7 @@ export default function UserProfile() {
       }
     }
   };
-  
+    
   
 
   // Check if user is logged in when the component mounts
@@ -620,8 +620,8 @@ export default function UserProfile() {
               />
 
               {/* Filter Dropdown with Label */}
-              <div className="filter-wrapper">
-                <label className="filter-label">Filter by Days:</label>
+              <div className="filter-wrapper" style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "16px" }}>
+                <label className="filter-label" style={{ whiteSpace: "nowrap" }}>Filter by Days:</label>
                 <FormControl className="filter-dropdown">
                   <Select
                     value={filterDays}
@@ -638,8 +638,8 @@ export default function UserProfile() {
               </div>
 
               {/* New Filter for "Is Received" */}
-              <div className="filter-wrapper">
-                <label className="filter-label">Filter by Received:</label>
+              <div className="filter-wrapper" style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "16px" }}>
+                <label className="filter-label" style={{ whiteSpace: "nowrap" }}>Filter by Received:</label>
                 <FormControl className="filter-dropdown">
                   <Select
                     value={filterReceived}
