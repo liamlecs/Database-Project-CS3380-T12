@@ -8,9 +8,9 @@ namespace LibraryWebAPI.Models
     public partial class TransactionPopularityDto
     {
 
-    public string Title { get; set; }
+    public required string Title { get; set; }
     public int Count { get; set; }
 
-    public string ItemType { get; set; }
+    public required string ItemType { get; set; }
     }
 }
