@@ -1247,24 +1247,6 @@ const Employee: React.FC = () => {
                 margin="normal"
                 required
               />
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={editingItem.availabilityStatus}
-                  onChange={(e) =>
-                    setEditingItem({
-                      ...editingItem,
-                      availabilityStatus: e.target.value as string,
-                    })
-                  }
-                  label="Status"
-                >
-                  <MenuItem value="Available">Available</MenuItem>
-                  <MenuItem value="Checked Out">Checked Out</MenuItem>
-                  <MenuItem value="On Hold">On Hold</MenuItem>
-                  <MenuItem value="Lost">Lost</MenuItem>
-                </Select>
-              </FormControl>
               <TextField
                 fullWidth
                 label="Total Copies"
