@@ -18,12 +18,6 @@ namespace LibraryWebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Book
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
-        // {
-        //     return Ok(await _context.Books.ToListAsync());
-        // }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetBooks()
         {
@@ -50,7 +44,7 @@ namespace LibraryWebAPI.Controllers
                 .ToListAsync();
 
             return Ok(books);
-        }
+        } // stashed my changes lol 
 
 
         // GET: api/Book/5
