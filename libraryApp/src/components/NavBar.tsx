@@ -1,9 +1,12 @@
   import React, { useState, useEffect } from "react";
   import { Link, useNavigate } from "react-router-dom";
   import "./NavBar.css";
+  import { useCheckout } from "../contexts/CheckoutContext";
+  
 
   export default function Navbar() {
     const navigate = useNavigate();
+    const { cart } = useCheckout(); // Get cart from checkout context
 
     // Local state for login info and dropdown toggle
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -99,7 +102,7 @@
           {isLoggedIn && (
             <>
               <li>
-                <Link to="/bookcheckout">Book Checkout</Link>
+                <Link to="/bookcheckout">Cart ({cart.length})</Link>
               </li>
               <li>
                 <Link to="/UserProfile">User Profile</Link>
