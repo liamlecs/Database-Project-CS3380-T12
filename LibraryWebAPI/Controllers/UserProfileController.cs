@@ -34,8 +34,7 @@ namespace LibraryWebAPI.Controllers
                 if (customer == null) return NotFound();
 
                 // Determine role based on email domain
-                string role = customer.Email.EndsWith("@uh.edu", StringComparison.OrdinalIgnoreCase) ? "Faculty" : "Student";
-
+                string role = customer.Email?.EndsWith("@uh.edu", StringComparison.OrdinalIgnoreCase) == true ? "Faculty" : "Student";
 
                 return Ok(new
                 {
@@ -52,7 +51,7 @@ namespace LibraryWebAPI.Controllers
                         w.WaitlistId,
                         customer.CustomerId,
                         w.ItemId,
-                        w.Item.Title,
+                        Title = w.Item?.Title ?? "No Title", // Optional: check for null item
                         w.ReservationDate,
                         w.isReceived
                     }),

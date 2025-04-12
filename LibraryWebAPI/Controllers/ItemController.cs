@@ -143,6 +143,11 @@ public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailabl
     {
         Console.WriteLine("Waitlist block triggered!");
 
+        if (item == null)
+        {
+            return NotFound($"Item with ID {dto.ItemId} not found.");
+        }
+
         var waitlistEntries = await _context.Waitlists
             .Where(w => w.ItemId == item.ItemId && w.isReceived == false)
             .OrderBy(w => w.ReservationDate)
@@ -150,6 +155,10 @@ public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailabl
 
         foreach (var entry in waitlistEntries)
         {
+            if (item == null)
+            {
+                return NotFound($"Item with ID {dto.ItemId} not found.");
+            }
             if (item.AvailableCopies <= 0)
                 break;
 
@@ -177,7 +186,10 @@ public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailabl
 
             // Reload the item after each update
             item = await _context.Items.FindAsync(dto.ItemId);
-
+            if (item == null)
+            {
+                return NotFound($"Item with ID {dto.ItemId} not found.");
+            }
             if (customer != null && !string.IsNullOrEmpty(customer.Email))
             {
                 await _emailService.SendEmailAsync(
@@ -192,7 +204,12 @@ public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailabl
         // Save changes for waitlist entries and transactions
         await _context.SaveChangesAsync();
     }
-
+    
+    // Ensure item is not null before accessing its properties
+    if (item == null)
+    {
+        return NotFound($"Item with ID {dto.ItemId} not found.");
+    }
     return Ok(new
     {
         item.ItemId,

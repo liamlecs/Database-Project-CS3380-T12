@@ -19,7 +19,13 @@ public partial class EventCalendarDto
 
     public int AgeGroup { get; set; }
 
-    public string CategoryDescription { get; set; }
+    public required string  CategoryDescription { get; set; }
+
+    // Constructor forcing CategoryDescription initialization
+    public EventCalendarDto(string categoryDescription)
+    {
+        CategoryDescription = categoryDescription;
+    }
     public bool IsPrivate { get; set; }
 
     public string Description { get; set; } = null!;
