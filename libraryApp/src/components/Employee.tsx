@@ -102,6 +102,77 @@ interface EmployeeData {
   password?: string;
 }
 
+interface EditEmployeeDialogProps {
+  open: boolean;
+  employee: EmployeeData | null;
+  onClose: () => void;
+  onSave: (updatedData: EmployeeData) => void;
+}
+
+const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
+  open,
+  employee,
+  onClose,
+  onSave
+}) => {
+  const [formData, setFormData] = useState<EmployeeData>({
+    employeeId: 0,
+    firstName: '',
+    lastName: '',
+    birthDate: '',
+    username: '',
+  });
+
+  useEffect(() => {
+    if (employee) {
+      setFormData(employee);
+    }
+  }, [employee]);
+
+  const handleSubmit = () => {
+    onSave(formData);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Edit Employee Profile</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField
+            label="First Name"
+            value={formData.firstName}
+            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+            fullWidth
+          />
+          <TextField
+            label="Last Name"
+            value={formData.lastName}
+            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+            fullWidth
+          />
+          <TextField
+            label="Birth Date"
+            type="date"
+            value={formData.birthDate}
+            onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="secondary">
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} color="primary">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 // Example arrays for ageGroups and eventCategories
 const ageGroups = [
   { id: 1, label: '0-2' },
@@ -141,6 +212,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     setPassword(generated);
   };
 
+  
   const handleSubmit = async () => {
     const newEmployee = {
       firstName,
@@ -254,9 +326,44 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
 // --- EmployeesList Component ---
 const EmployeesList: React.FC = () => {
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<EmployeeData | null>(null);
   // Retrieve the logged-in username from localStorage
   const currentUsername = localStorage.getItem("username");
   console.log('Current Username:', currentUsername);
+  const handleOpenEditDialog = (employee: EmployeeData) => {
+    setEmployeeToEdit(employee);
+    setOpenEditDialog(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setEmployeeToEdit(null);
+    setOpenEditDialog(false);
+  };
+
+  const handleUpdateEmployee = async (updatedData: EmployeeData) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${updatedData.employeeId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedData),
+        }
+      );
+  
+      if (response.ok) {
+        // Refresh employee list
+        const updatedEmployees = employees.map(e => 
+          e.employeeId === updatedData.employeeId ? updatedData : e
+        );
+        setEmployees(updatedEmployees);
+        handleCloseEditDialog();
+      }
+    } catch (error) {
+      console.error('Error updating employee:', error);
+    }
+  };
 
   // State for controlling the confirmation dialog
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -331,21 +438,32 @@ const EmployeesList: React.FC = () => {
     {
       field: 'action',
       headerName: 'Actions',
-      width: 150,
+      width: 200,
       renderCell: (params) => {
         const row = params.row as EmployeeData;
-        // Hide the Delete button if the row's username is the logged-in user's username.
-        if (row.username === currentUsername) {
-          return null;
-        }
+        const isAdmin = currentUsername === 'admin';
+        
         return (
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => handleOpenConfirmDialog(row)}
-          >
-            Delete
-          </Button>
+          <Stack direction="row" spacing={1}>
+            {isAdmin && row.username !== 'admin' && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleOpenEditDialog(row)}
+              >
+                Edit
+              </Button>
+            )}
+            {row.username !== currentUsername && (
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleOpenConfirmDialog(row)}
+              >
+                Delete
+              </Button>
+            )}
+          </Stack>
         );
       },
     },
@@ -381,6 +499,12 @@ const EmployeesList: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <EditEmployeeDialog
+      open={openEditDialog}
+      employee={employeeToEdit}
+      onClose={handleCloseEditDialog}
+      onSave={handleUpdateEmployee}
+    />
     </Paper>
   );
 };
