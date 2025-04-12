@@ -7,9 +7,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Stack } from "@mui/material";
-
-//consider removing RSVP button
+import { Stack, Box } from "@mui/material";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -24,6 +22,7 @@ interface CalendarEvent {
   categoryDescription: string;
 }
 
+// Helper to map numeric ageGroup to label
 const mapAgeGroup = (ageGroupId: number): string => {
   switch (ageGroupId) {
     case 1:
@@ -41,22 +40,22 @@ const mapAgeGroup = (ageGroupId: number): string => {
   }
 };
 
-class EventsCalendar extends Component<
-  // biome-ignore lint/complexity/noBannedTypes: <explanation>
-  {},
-  { events: CalendarEvent[]; selectedEvent: CalendarEvent | null }
-> {
-  state = {
+type EventsCalendarState = {
+  events: CalendarEvent[];
+  selectedEvent: CalendarEvent | null;
+};
+
+class EventsCalendar extends Component<{}, EventsCalendarState> {
+  state: EventsCalendarState = {
     events: [],
-    selectedEvent: null as CalendarEvent | null,
+    selectedEvent: null,
   };
 
-  // Fetch events from the backend when the component mounts
   async componentDidMount() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Event/EventCalendar`
-      ); // Adjust the URL to match your API endpoint
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.statusText}`);
       }
@@ -64,26 +63,8 @@ class EventsCalendar extends Component<
       const events = await response.json();
       console.log("API Response:", events);
 
-      const eventsArray = events; //this code is fucking frankensteins monster atp, im afraid to try to streamline it and break something.
-
-      // Assuming the response is in the correct format to match CalendarEvent structure
-      /*this.setState({
-        // biome-ignore lint/suspicious/noExplicitAny: <circle back later and define a type>
-        events: eventsArray.map((event: any) => {
-          return {
-            start: dayjs(event.startTimestamp).toDate(),
-            end: dayjs(event.endTimestamp).toDate(),
-            title: event.title, // Assuming title is part of your event
-            description: event.description, // Assuming description is part of your event
-          };
-        }),
-      });
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    }*/
-
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const processedEvents = eventsArray.map((event: any) => ({
+      // Map backend data to local CalendarEvent structure
+      const processedEvents = events.map((event: any) => ({
         title: event.title,
         description: event.description,
         location: event.location,
@@ -93,6 +74,7 @@ class EventsCalendar extends Component<
         start: dayjs(event.startTimestamp).toDate(),
         end: dayjs(event.endTimestamp).toDate(),
       }));
+
       console.log("Processed Events:", processedEvents);
       this.setState({ events: processedEvents });
     } catch (error) {
@@ -108,25 +90,30 @@ class EventsCalendar extends Component<
     this.setState({ selectedEvent: null });
   };
 
-  /*handleRSVP = () => {
-    if (this.state.selectedEvent) {
-      alert(`RSVP confirmed for: ${this.state.selectedEvent.title}`);
-    }
-  };*/
-
   render() {
     return (
-      <>
-        <div className="App">
+      <Box
+        sx={{
+          // Add top margin so the global NavBar won't cover the calendar
+          mt: "80px", 
+          // optionally add horizontal padding if you want
+          mx: "auto",
+          // limiting maxWidth can keep it centered on wide screens
+          maxWidth: 1200,
+        }}
+      >
+        {/* The Calendar itself */}
+        <div style={{ height: "85vh" }}>
           <Calendar
             localizer={localizer}
             defaultDate={new Date()}
             defaultView="month"
             events={this.state.events}
-            style={{ height: "85vh" }}
+            style={{ height: "100%", width: "100%" }}
             onSelectEvent={this.handleSelectEvent}
           />
         </div>
+
         {/* Event Details Dialog */}
         <Dialog
           open={!!this.state.selectedEvent}
@@ -141,19 +128,25 @@ class EventsCalendar extends Component<
           {this.state.selectedEvent && (
             <>
               <DialogTitle style={{ fontWeight: "bold", color: "darkblue" }}>
-  {this.state.selectedEvent.title} —{" "}
-  {dayjs(this.state.selectedEvent.start).format("MMMM D") ===
-  dayjs(this.state.selectedEvent.end).format("MMMM D")
-    ? `${dayjs(this.state.selectedEvent.start).format("MMMM D, h:mm A")} - ${dayjs(
-        this.state.selectedEvent.end
-      ).format("h:mm A")}`
-    : `${dayjs(this.state.selectedEvent.start).format("MMMM D, h:mm A")} - ${dayjs(
-        this.state.selectedEvent.end
-      ).format("MMMM D, h:mm A")}`}
-</DialogTitle>
+                {this.state.selectedEvent.title} —{" "}
+                {dayjs(this.state.selectedEvent.start).format("MMMM D") ===
+                dayjs(this.state.selectedEvent.end).format("MMMM D")
+                  ? `${dayjs(this.state.selectedEvent.start).format(
+                      "MMMM D, h:mm A"
+                    )} - ${dayjs(this.state.selectedEvent.end).format(
+                      "h:mm A"
+                    )}`
+                  : `${dayjs(this.state.selectedEvent.start).format(
+                      "MMMM D, h:mm A"
+                    )} - ${dayjs(this.state.selectedEvent.end).format(
+                      "MMMM D, h:mm A"
+                    )}`}
+              </DialogTitle>
               <DialogContent>
-                <p> <strong>Location:</strong> {this.state.selectedEvent.location}</p>
-
+                <p>
+                  <strong>Location:</strong>{" "}
+                  {this.state.selectedEvent.location}
+                </p>
                 <p>{this.state.selectedEvent.description}</p>
                 {this.state.selectedEvent.isPrivate && (
                   <p
@@ -167,37 +160,42 @@ class EventsCalendar extends Component<
                 )}
               </DialogContent>
               <DialogActions
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-    width: "100%",
-    mt: "auto", // push it to the bottom if wrapped in a flex parent
-  }}
->
-  <Stack direction="row" justifyContent="space-between" sx={{ width: "100%", pr: 2 }}>
-    <Stack direction="column" spacing={0.5}>
-      <p style={{fontWeight: "bold", margin: 0 }}>Intended Age Group</p>
-      <p style={{ margin: 0 }}>
-        {this.state.selectedEvent.ageGroup}
-      </p>
-    </Stack>
-    <Stack direction="column" spacing={0.5}>
-      <p style={{ fontWeight: "bold", margin: 0 }}>Category</p>
-      <p style={{ margin: 0 }}>
-        {this.state.selectedEvent.categoryDescription}
-      </p>
-    </Stack>
-  </Stack>
-
-  <Button onClick={this.handleClose} color="secondary" variant="outlined">
-    Close
-  </Button>
-</DialogActions>
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-end",
+                  width: "100%",
+                  mt: "auto",
+                }}
+              >
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  sx={{ width: "100%", pr: 2 }}
+                >
+                  <Stack direction="column" spacing={0.5}>
+                    <p style={{ fontWeight: "bold", margin: 0 }}>
+                      Intended Age Group
+                    </p>
+                    <p style={{ margin: 0 }}>
+                      {this.state.selectedEvent.ageGroup}
+                    </p>
+                  </Stack>
+                  <Stack direction="column" spacing={0.5}>
+                    <p style={{ fontWeight: "bold", margin: 0 }}>Category</p>
+                    <p style={{ margin: 0 }}>
+                      {this.state.selectedEvent.categoryDescription}
+                    </p>
+                  </Stack>
+                </Stack>
+                <Button onClick={this.handleClose} color="secondary" variant="outlined">
+                  Close
+                </Button>
+              </DialogActions>
             </>
           )}
         </Dialog>
-      </>
+      </Box>
     );
   }
 }

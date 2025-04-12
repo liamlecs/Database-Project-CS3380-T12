@@ -3,7 +3,13 @@ import "./TermsAndConditionsPage.css";
 
 export default function TermsAndConditionsPage() {
   return (
-    <div className="terms-container">
+    <div
+      className="terms-container"
+      style={{
+        // Push the entire terms content down so the NavBar doesn't overlap
+        marginTop: "80px",
+      }}
+    >
       <h1 className="title">E-Library Code of Conduct</h1>
 
       <h2>General Expectations</h2>

@@ -151,7 +151,13 @@ const CheckoutPage: React.FC = () => {
   };
 
   return (
-    <div className="checkout-container">
+    <div className="checkout-container"
+    style={{
+      // Add top margin so it’s not hidden by the nav bar
+      marginTop: "80px",
+      // Optional padding if you want some white space around
+      padding: "1rem",
+    }}>
       <h1>Checkout Summary</h1>
       <p>
         User Type:{" "}
