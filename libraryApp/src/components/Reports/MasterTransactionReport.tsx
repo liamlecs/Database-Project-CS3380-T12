@@ -120,6 +120,7 @@ export default function MasterTransactionReport() {
       if (!response.ok) throw new Error("Fetch failed");
       const report = await response.json();
       setReportOutput([report]);
+      console.log(report);
 
       const inventoryRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item`);
       if (!inventoryRes.ok) throw new Error("Failed to fetch inventory");
@@ -196,7 +197,7 @@ export default function MasterTransactionReport() {
             </Typography>
           )}
           <Typography variant="subtitle1">Total Registered Users: {report.registeredUsers}</Typography>
-          <Typography variant="subtitle1">Outstanding Fines: ${report.outstandingFines}</Typography>
+          <Typography variant="subtitle1">Outstanding Fines: ${report.outstandingFines ?? 0}</Typography>
 
           <Divider sx={{ my: 3 }} />
           <Typography variant="h6" gutterBottom>
