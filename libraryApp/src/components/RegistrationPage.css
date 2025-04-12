@@ -11,7 +11,7 @@
 /* Left half with library background */
 .register-left {
   flex: 1;
-  background: url('/src/assets/library-bg.jpg') no-repeat center center;
+  background: url('/src/assets/registration-bg.jpg') no-repeat center center;
   background-size: cover;
   position: relative;
 }
