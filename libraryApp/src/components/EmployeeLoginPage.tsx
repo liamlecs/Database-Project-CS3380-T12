@@ -64,6 +64,8 @@ export default function EmployeeLoginPage() {
     <div
       className="login-bg"
       style={{
+        // Add top margin so it's below the NavBar
+        marginTop: "80px",
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
