@@ -448,7 +448,7 @@ const Employee: React.FC = () => {
         if (!response.ok) throw new Error('Failed to fetch employee data');
         const data = await response.json();
         setEmployeeData({
-          employeeId: data.employeeId,
+          employeeId: data.employeeID,
           firstName: data.firstName,
           lastName: data.lastName,
           birthDate: data.birthDate,

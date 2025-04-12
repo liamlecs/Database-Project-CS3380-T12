@@ -35,6 +35,7 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employeeData, onUpdat
   const theme = useTheme();
   const [editMode, setEditMode] = React.useState(false);
   const [formData, setFormData] = React.useState(employeeData);
+  console.log(employeeData);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
