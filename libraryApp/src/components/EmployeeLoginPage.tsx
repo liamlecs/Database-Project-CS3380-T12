@@ -108,7 +108,7 @@ export default function EmployeeLoginPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 justify-start mb-4">
+          <div className="d-flex align-items-center justify-content-center mb-4">
             <input
               type="checkbox"
               id="showPassword"
@@ -127,7 +127,7 @@ export default function EmployeeLoginPage() {
         </form>
 
         {message && (
-          <div className="mt-3 alert alert-info">
+          <div className="mt-3 alert alert-info text-center">
             {message}
           </div>
         )}

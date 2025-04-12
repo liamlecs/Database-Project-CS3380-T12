@@ -114,15 +114,16 @@ export default function LoginPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 justify-start mb-4">
+          {/* Show Password (Centered) */}
+          <div className="d-flex align-items-center justify-content-center mb-4">
             <input
               type="checkbox"
               id="showPassword"
               checked={showPassword}
               onChange={(e) => setShowPassword(e.target.checked)}
-              className="cursor-pointer"
+              style={{ marginRight: "0.5rem" }}
             />
-            <label htmlFor="showPassword" className="cursor-pointer text-sm">
+            <label htmlFor="showPassword" style={{ margin: 0 }}>
               Show Password
             </label>
           </div>
@@ -133,7 +134,7 @@ export default function LoginPage() {
         </form>
 
         {message && (
-          <div className="mt-3 alert alert-info">
+          <div className="mt-3 alert alert-info text-center">
             {message}
           </div>
         )}
