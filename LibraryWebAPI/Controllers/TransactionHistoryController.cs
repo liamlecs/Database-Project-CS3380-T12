@@ -184,7 +184,7 @@ namespace LibraryWebAPI.Controllers
             return Ok(fines);
         }
 
-        [HttpGet("masterTransactionReportConditional/{start:datetime}/{end:datetime}")]
+        [HttpGet("masterTransactionReportConditional/{start:datetime}/{end:datetime}")] //this works while the main function had to be heavily changed, maybe the change that solved it was in the
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional([FromRoute] DateOnly start, [FromRoute] DateOnly end)
         {
             _logger.LogInformation("Received master report request with start: {Start} and end: {End}", start, end);
@@ -239,39 +239,44 @@ namespace LibraryWebAPI.Controllers
         [HttpGet("masterTransactionReport")]
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReport()
         {
-            var entity = _context.MasterTransaction.FromSqlRaw("WITH InventoryReport AS (" +
-"    SELECT " +
-"        GETUTCDATE() AS Timestamp, " +
-"        -1 AS RegisteredUsersThatJoined, " +
+var entity = _context.Database
+    .SqlQuery<MasterTransactionReportDto>(
+        $@"WITH InventoryReport AS (
+                SELECT 
+                    GETUTCDATE() AS Timestamp, 
+                    -1 AS RegisteredUsersThatJoined,
 
-"        (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS BookTitleCount, " +
-"        (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS TotalBookCount, " +
-"        (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS AvailableBookCount, " +
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS BookTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS TotalBookCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS AvailableBookCount,
 
-"        (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS MovieTitleCount, " +
-"        (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS TotalMovieCount, " +
-"        (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS AvailableMovieCount, " +
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS MovieTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS TotalMovieCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Movie') AS AvailableMovieCount,
 
-"        (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS MusicTitleCount, " +
-"        (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS TotalMusicCount, " +
-"        (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS AvailableMusicCount, " +
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS MusicTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS TotalMusicCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Music') AS AvailableMusicCount,
 
-"        (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TechTitleCount, " +
-"        (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TotalTechCount, " +
-"        (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS AvailableTechCount, " +
+                    (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TechTitleCount,
+                    (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS TotalTechCount,
+                    (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Device') AS AvailableTechCount,
 
-"        (SELECT SUM(Fines.Amount) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines, " +
-"        (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers, " +
-"        (SELECT COUNT(*) FROM TRANSACTION_HISTORY) AS CheckoutInstances, " +
-"        (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY) AS UniqueCustomers " +
-") " +
+                    (SELECT SUM(Fines.Amount) FROM Fines WHERE Fines.PaymentStatus = 0) AS OutstandingFines,
+                    (SELECT COUNT(*) FROM Customer WHERE Customer.EmailConfirmed = 1) AS RegisteredUsers,
+                    (SELECT COUNT(*) FROM TRANSACTION_HISTORY) AS CheckoutInstances,
+                    (SELECT COUNT(DISTINCT CustomerID) FROM TRANSACTION_HISTORY) AS UniqueCustomers
+            )
 
-"SELECT *, " +
-"       (BookTitleCount + MovieTitleCount + MusicTitleCount + TechTitleCount) AS TotalTitleCount, " +
-"       (TotalBookCount + TotalMovieCount + TotalMusicCount + TotalTechCount) AS TotalCopiesCount, " +
-"       (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount " +
-"FROM InventoryReport;"
-).AsEnumerable().FirstOrDefault();
+            SELECT *,
+                   (BookTitleCount + MovieTitleCount + MusicTitleCount + TechTitleCount) AS TotalTitleCount,
+                   (TotalBookCount + TotalMovieCount + TotalMusicCount + TotalTechCount) AS TotalCopiesCount,
+                   (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount
+            FROM InventoryReport;"
+    )
+.AsNoTracking()
+    .AsEnumerable()
+    .FirstOrDefault();
 
             if (entity == null)
             {
