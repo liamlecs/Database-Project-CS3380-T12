@@ -107,9 +107,6 @@
               <li>
                 <Link to="/UserProfile">User Profile</Link>
               </li>
-              <li>
-                <Link to="/return">Return</Link>
-              </li>
             </>
           )}
 
