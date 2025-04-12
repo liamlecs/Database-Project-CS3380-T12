@@ -7,11 +7,36 @@ import {
   Paper,
   Stack,
   Typography,
+  Card,
+  CardContent,
+  Grid,
+  Divider,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import dayjs from "dayjs";
 import React from "react";
 import type { SelectChangeEvent } from "@mui/material";
+
+interface FineSummaryDto {
+  mostFinedCustomerEmail?: string;
+  numberOfFines?: number;
+  maxUnpaidFineAmount?: number;
+  associatedItemTitle?: string;
+  associatedItemType?: string;
+  maxFineCustomerEmail?: string;
+  avgDaysLate?: number;
+}
+
+export interface CustomerReportDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  type: string;
+  membershipStartDate: string;
+  membershipEndDate?: string;
+  borrowingLimit: number;
+  emailConfirmed: boolean;
+}
 
 const columns: GridColDef[] = [
   { field: "title", headerName: "Title", width: 150 },
@@ -35,6 +60,33 @@ export default function ItemFineReport() {
   const [reportData, setReportData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [isLaunched, setIsLaunched] = React.useState(false);
+  const [fineSummary, setFineSummary] = React.useState<FineSummaryDto | null>(null);
+  const [worstOffenderInfo, setWorstOffenderInfo] = React.useState<CustomerReportDto | null>(null);
+  const [maxOffenderInfo, setMaxOffenderInfo] = React.useState<CustomerReportDto | null>(null);
+
+  React.useEffect(() => {
+    const fetchCustomerDetails = async () => {
+      if (!fineSummary) return;
+
+      if (fineSummary.mostFinedCustomerEmail) {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/by-email/${fineSummary.mostFinedCustomerEmail}`);
+        if (res.ok) {
+          const data = await res.json();
+          setWorstOffenderInfo(data);
+        }
+      }
+
+      if (fineSummary.maxFineCustomerEmail) {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Customer/by-email/${fineSummary.maxFineCustomerEmail}`);
+        if (res.ok) {
+          const data = await res.json();
+          setMaxOffenderInfo(data);
+        }
+      }
+    };
+
+    fetchCustomerDetails();
+  }, [fineSummary]);
 
   const handlePaymentStatusChange = (event: SelectChangeEvent<string>) => {
     setPaymentStatusFilter(event.target.value);
@@ -74,58 +126,13 @@ export default function ItemFineReport() {
       }));
 
       setReportData(formattedData);
-      setIsLaunched(true);
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleConditionalCall = async () => {
-
-    setLoading(true);
-    setIsLaunched(false);
-
-    // biome-ignore lint/complexity/noUselessTernary: <for some reason true returns a false-like output and false returns a true-like output>
-    const selectedPaymentStatus = paymentStatusFilter === "0" ? false : true;
-    try {
-
-      console.log("Selected payment status:", selectedPaymentStatus);
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/withFineConditional?isPaid=${encodeURIComponent(selectedPaymentStatus)}`, //CHANGE THIS
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      
-      if (!response.ok) {
-        alert("No books have been checked out after this date.") //CHANGE THIS
-        //throw new Error(`Failed to fetch events: ${response.statusText}`);
+      const fineSummaryRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Fine/FineSummary`);
+      if (fineSummaryRes.ok) {
+        const summary = await fineSummaryRes.json();
+        setFineSummary(summary);
       }
 
-      const report = await response.json();
-      console.log("API Response:", report);
-
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      const formattedData = report.map((item: any, index: number) => ({ //CHANGE THIS
-        id: index + 1,
-        title: item.title,
-        email: item.email,
-        firstName: item.firstName,
-        lastName: item.lastName,
-        type: item.type,
-        dateBorrowed: item.dateBorrowed,
-        dueDate: item.dueDate,
-        daysOverdue: dayjs().diff(item.dueDate, "day"),
-        amount: item.amount,
-      }));
-
-      setReportData(formattedData);
       setIsLaunched(true);
     } catch (error) {
       console.error("Error fetching events:", error);
@@ -157,14 +164,83 @@ export default function ItemFineReport() {
       </Button>
 
       {isLaunched && (
-        <Paper sx={{ height: 400, width: "100%" }}>
+        <Paper sx={{ width: "100%", p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Fine Summary Overview
+          </Typography>
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Customer With Most Fines
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Email:</strong> {fineSummary?.mostFinedCustomerEmail ?? "N/A"}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Name:</strong> {worstOffenderInfo?.firstName ?? "N/A"} {worstOffenderInfo?.lastName ?? "N/A"}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Fines:</strong> {fineSummary?.numberOfFines ?? 0}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Most Expensive Unpaid Fine
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Amount:</strong> ${fineSummary?.maxUnpaidFineAmount?.toFixed(2) ?? "0.00"}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Item:</strong> {fineSummary?.associatedItemTitle ?? "N/A"}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Type:</strong> {fineSummary?.associatedItemType ?? "N/A"}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Email:</strong> {fineSummary?.maxFineCustomerEmail ?? "N/A"}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Name:</strong> {maxOffenderInfo?.firstName ?? "N/A"} {maxOffenderInfo?.lastName}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <Card sx={{ height: "100%" }}>
+                <CardContent>
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Average Days Overdue For Fined Items
+                  </Typography>
+                  <Typography variant="h5">
+                    {fineSummary?.avgDaysLate?.toFixed(1) ?? "0.0"} days
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          <Divider sx={{ my: 4 }} />
+
+          <Typography variant="h6" gutterBottom>
+            Detailed Fine Report
+          </Typography>
+
           <DataGrid
             rows={reportData}
             columns={columns}
             loading={loading}
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10, 20]}
-            sx={{ border: 0 }}
+            sx={{ border: 0, mt: 2 }}
           />
         </Paper>
       )}

@@ -32,6 +32,8 @@ public virtual DbSet<Book> Books { get; set; }
 
     public virtual DbSet<Fine> Fines { get; set; }
 
+    public virtual DbSet<FineSummaryDto> FineSummary {get; set;}
+
         public virtual DbSet<CustomerFineDto> CustomerFines { get; set; }
 
         public virtual DbSet<CustomerFineCheck> CheckFine { get; set; }
@@ -281,6 +283,8 @@ modelBuilder.Entity<CustomerFineCheck>().HasNoKey().ToView(null);
             entity.Property(e => e.FineId).HasColumnName("FineID");
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.TransactionId).HasColumnName("TransactionID");
+
+            modelBuilder.Entity<FineSummaryDto>().HasNoKey().ToView(null);
 
 modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
         });

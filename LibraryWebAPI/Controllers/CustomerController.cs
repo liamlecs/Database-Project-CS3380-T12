@@ -308,7 +308,7 @@ Thank you for registering!
 
 
         [HttpGet("by-email/{email}")]
-        public async Task<ActionResult<Customer>> GetCustomerByEmail(string email)
+        public async Task<ActionResult<CustomerReportDto>> GetCustomerByEmail(string email)
         {
             // ✅ Query the database to find the customer by email
             var customer = await _context.CustomerReports
