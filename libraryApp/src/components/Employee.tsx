@@ -591,32 +591,7 @@ const Employee: React.FC = () => {
     try {
       const wasZero = originalItem.availableCopies === 0;
       const nowPositive = editingItem.availableCopies > 0;
-      if (wasZero && nowPositive) {
-        // PATCH: update-copies
-        const changeInCopies =
-          editingItem.availableCopies - originalItem.availableCopies;
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
-          {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ItemId: editingItem.itemId,
-              ChangeInCopies: changeInCopies,
-            }),
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          setDialogMessage(errorData.message || 'Failed to update copies.');
-          setOpenDialog(true);
-        } else {
-          setRefreshData(true);
-          setOpenEditDialog(false);
-          setEditingItem(null);
-          setOriginalItem(null);
-        }
-      } else {
+    {
         // PUT: update item
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`,
