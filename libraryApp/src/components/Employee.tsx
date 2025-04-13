@@ -1116,7 +1116,6 @@ const Employee: React.FC = () => {
   // --- Render Inventory Management ---
   const renderInventoryManagement = () => (
 
-    
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       
       <Typography variant="h5" gutterBottom>
@@ -1153,6 +1152,8 @@ const Employee: React.FC = () => {
 
       </Box>
 
+      
+
       <Typography variant="h6" gutterBottom>
         Current Inventory
       </Typography>
@@ -1179,7 +1180,14 @@ const Employee: React.FC = () => {
                 <TableCell>{item.location || '-'}</TableCell>
                 <TableCell>
                   <IconButton
-                    onClick={() => handleEditClick(item)}
+                    onClick={() => {
+                      handleEditClick(item);
+                      setOpenEditDialog(true);
+                      // setStoredItemIdDeletion(item.itemId);
+                      // setOpenDeleteItemDialog(true);
+                    }
+                      
+                    }
                     color="primary"
                   >
                     <EditIcon />
@@ -1197,12 +1205,87 @@ const Employee: React.FC = () => {
               </TableRow>
             ))}
           </TableBody>
-
-          
         </Table>
       </TableContainer>
+
+          {/* Edit Item Dialog - Add this section */}
+    <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
+      <DialogTitle>Edit Item</DialogTitle>
+      <DialogContent>
+        {editingItem && (
+          <Box component="form" sx={{ mt: 1 }}>
+            <TextField
+              fullWidth
+              label="Title"
+              value={editingItem.title}
+              onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+              margin="normal"
+              required
+            />
+          
+
+            <TextField
+              fullWidth
+              type="number"
+              label="Total Copies"
+              value={editingItem.totalCopies}
+              onChange={(e) => {
+                const total = parseInt(e.target.value) || 0;
+                setEditingItem({
+                  ...editingItem,
+                  totalCopies: total,
+                  availableCopies: Math.min(editingItem.availableCopies, total)
+                });
+              }}
+              margin="normal"
+              inputProps={{ min: 1 }}
+            />
+
+            <TextField
+              fullWidth
+              type="number"
+              label="Available Copies"
+              value={editingItem.availableCopies}
+              onChange={(e) => {
+                const available = parseInt(e.target.value) || 0;
+                setEditingItem({
+                  ...editingItem,
+                  availableCopies: Math.min(available, editingItem.totalCopies)
+                });
+              }}
+              margin="normal"
+              inputProps={{ 
+                min: 0, 
+                max: editingItem.totalCopies 
+              }}
+            />
+
+            <TextField
+              fullWidth
+              label="Location"
+              value={editingItem.location || ''}
+              onChange={(e) => setEditingItem({ 
+                ...editingItem, 
+                location: e.target.value 
+              })}
+              margin="normal"
+            />
+          </Box>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+        <Button onClick={handleUpdateItem} color="primary">
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+            
+      
     </Paper>
   );
+
+  
 
   // --- Render Events ---
   const renderEventManagement = () => (
@@ -1360,6 +1443,9 @@ const Employee: React.FC = () => {
         >
           <ChevronRight fontSize="large" />
         </IconButton>
+
+
+        
 
         {/* Message Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>

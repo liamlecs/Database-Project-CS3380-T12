@@ -71,7 +71,6 @@ public async Task<IActionResult> PutItem(int id, Item item)
         .Where(i => i.ItemId == id)
         .ExecuteUpdateAsync(setters => setters
             .SetProperty(i => i.Title, item.Title)
-            .SetProperty(i => i.AvailabilityStatus, item.AvailabilityStatus)
             .SetProperty(i => i.TotalCopies, item.TotalCopies)
             .SetProperty(i => i.AvailableCopies, item.AvailableCopies)
             .SetProperty(i => i.Location, item.Location)
