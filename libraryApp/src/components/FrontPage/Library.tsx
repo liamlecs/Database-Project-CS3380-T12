@@ -223,6 +223,7 @@ const Library: React.FC = () => {
 
     const handleCardClick = (item: any, category: string) => {
         setSelectedItem({ ...item, _category: category });
+        console.log("Selected item:", item);
         setOpenInfoDialog(true);
     };
 
@@ -350,23 +351,74 @@ const Library: React.FC = () => {
             <Dialog open={openInfoDialog} onClose={() => setOpenInfoDialog(false)}>
                 <DialogTitle>{(selectedItem?.title || selectedItem?.songTitle) ?? "Item Details"}</DialogTitle>
                 <DialogContent>
-                    <img
-                        src={selectedItem?.coverImagePath ?? selectedItem?.imageUrl ?? defaultItemImage}
-                        alt={selectedItem?.title ?? "Item Cover"}
-                        style={{
-                            maxWidth: "120px",
-                            height: "auto",
-                            marginBottom: "1rem",
-                            borderRadius: "8px",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
-                        }}
-                    />
-                    <h3 style={{ marginBottom: "0.5rem" }}>{getDisplayTitle(selectedItem, selectedItem?._category)}</h3>
-                    <p><strong>Author/Director:</strong> {selectedItem?.author ?? selectedItem?.director ?? selectedItem?.artistName ?? selectedItem?.manufacturerName ?? "Unknown"}</p>
-                    <p><strong>Genre:</strong> {selectedItem?.genre ?? selectedItem?.genreDescription ?? "N/A"}</p>
-                    <p><strong>Available Copies:</strong> {selectedItem?.availableCopies ?? "Unknown"}</p>
-                    <p><strong>Item Location:</strong> {selectedItem?.itemLocation ?? "Unknown"}</p>
-                </DialogContent>
+  <img
+    src={selectedItem?.coverImagePath ?? selectedItem?.imageUrl ?? defaultItemImage}
+    alt={selectedItem?.title ?? "Item Cover"}
+    style={{
+      maxWidth: "120px",
+      height: "auto",
+      marginBottom: "1rem",
+      borderRadius: "8px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+    }}
+  />
+  <h3 style={{ marginBottom: "0.5rem" }}>{getDisplayTitle(selectedItem, selectedItem?._category)}</h3>
+  
+  {/* Conditionally show fields only if they exist */}
+  {(selectedItem?.author) && (
+    <p><strong>Author:</strong> {selectedItem?.author}</p>
+  )}
+  
+  {selectedItem?.isbn && (
+    <p><strong>ISBN:</strong> {selectedItem.isbn}</p>
+  )}
+
+    {selectedItem?.publisher && (
+        <p><strong>Publisher:</strong> {selectedItem.publisher}</p>
+    )}
+    
+    {(selectedItem?.director) && (
+        <p><strong>Director:</strong> {selectedItem?.director}</p>
+    )}
+    
+    {(selectedItem?.artistName) && (
+        <p><strong>Artist:</strong> {selectedItem?.artistName}</p>
+    )}
+
+    {(selectedItem?.format) && (
+            <p><strong>Format:</strong> {selectedItem?.format}</p>
+    )}
+    
+    {(selectedItem?.manufacturerName) && (
+        <p><strong>Manufacturer:</strong> {selectedItem?.manufacturerName}</p>
+    )}
+
+    {(selectedItem?.modelNumber) && (
+            <p><strong>Model Number:</strong> {selectedItem?.modelNumber}</p>
+    )}
+
+    {(selectedItem?.upc) && (
+            <p><strong>UPC:</strong> {selectedItem?.upc}</p>
+    )}
+
+    {(selectedItem?.deviceTypeName) && (
+            <p><strong>Device Type:</strong> {selectedItem?.deviceTypeName}</p>
+    )}
+
+
+  
+  {(selectedItem?.genre || selectedItem?.genreDescription) && (
+    <p><strong>Genre:</strong> {selectedItem?.genre ?? selectedItem?.genreDescription}</p>
+  )}
+  
+  {selectedItem?.availableCopies !== undefined && (
+    <p><strong>Available Copies:</strong> {selectedItem.availableCopies}</p>
+  )}
+  
+  {selectedItem?.itemLocation && (
+    <p><strong>Item Location:</strong> {selectedItem.itemLocation}</p>
+  )}
+</DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenInfoDialog(false)}>Close</Button>
                     <Button
