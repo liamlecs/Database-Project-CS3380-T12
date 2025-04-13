@@ -70,7 +70,7 @@ const Library: React.FC = () => {
 
         const customerIdStr = localStorage.getItem("userId");
         if (!customerIdStr) {
-          alert("No user ID found. Please log in again.");
+          alert("You need to be logged in with a customer account to use this feature. Please log in.");
           return;
         }
         const customerId = Number.parseInt(customerIdStr, 10);
