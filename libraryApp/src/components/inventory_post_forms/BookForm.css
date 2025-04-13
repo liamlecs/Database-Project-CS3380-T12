@@ -1,0 +1,28 @@
+/* BookForm.css */
+.book-form {
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.book-form h2 {
+    margin-bottom: 1rem;
+}
+
+.book-form .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.book-form input,
+.book-form select {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.book-form button {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
