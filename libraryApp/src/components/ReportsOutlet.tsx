@@ -6,7 +6,7 @@ export default function ReportsOutput() {
     <div>
       {/* Top Navigation Bar */}
       <AppBar position="static" sx={{ mt: "80px" }}>
-        <Toolbar sx={{ display: "flex", gap: "20px" }}>
+        <Toolbar sx={{ display: "flex", gap: "20px", justifyContent: "center", width: "100%" }}>
           <Button color="inherit" component={Link} to="customerlookupreport">
             Customer Lookup
           </Button>
