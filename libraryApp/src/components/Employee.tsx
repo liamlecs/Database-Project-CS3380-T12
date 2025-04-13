@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { SelectChangeEvent } from '@mui/material/Select';
+import type { SelectChangeEvent } from '@mui/material/Select';
 import dayjs from 'dayjs';
 import BookForm from './inventory_post_forms/BookForm';"./inventory_post_forms/BookForm"
 
@@ -57,7 +58,7 @@ import {
 } from '@mui/material';
 
 // MUI X DataGrid
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 
 // MUI X DatePicker
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
@@ -1534,6 +1535,10 @@ const Employee: React.FC = () => {
                   }
                 }}
                 color="primary"
+                disabled={
+                  !eventBeingEdited ||
+                  dayjs(eventBeingEdited.startTimestamp).isAfter(dayjs(eventBeingEdited.endTimestamp))
+                }
               >
                 SAVE
               </Button>
