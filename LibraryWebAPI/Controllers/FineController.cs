@@ -121,6 +121,8 @@ FROM
             AVG(CAST(DATEDIFF(DAY, th.DueDate, th.ReturnDate) AS FLOAT)) AS AvgDaysLate
         FROM TRANSACTION_HISTORY th
         WHERE th.ReturnDate > th.DueDate
+        AND th.ReturnDate IS NOT NULL  -- Exclude NULL return dates
+        AND th.ReturnDate != '0001-01-01'  -- Exclude placeholder return dates
     ) a;
 
 ")
