@@ -3,8 +3,7 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  useNavigate,
-  Navigate,
+  useLocation,
 } from "react-router-dom";
 import { useEffect } from "react";
 import FrontPage from "./components/FrontPage/Library.tsx";
@@ -38,58 +37,248 @@ import Return from "./components/Return.tsx";
 import RequestReactivation from "./components/RequestReactivation.tsx";
 import ReactivateAccount from "./components/ReactivateAccount.tsx";
 import Layout from "./components/Layout.tsx";
-import ContactPage from './components/ContactPage.tsx';
+import ContactPage from "./components/ContactPage.tsx";
+import AnimatedPage from "./components/AnimatedPage";
+import { AnimatePresence } from "framer-motion";
 
 function AppRoutes() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check localStorage to persist session
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const userId = localStorage.getItem("userId");
-
-    if (isLoggedIn === "true" && userId) {
-      console.log("User is logged in:", userId);
-    }
-  }, []);
+  const location = useLocation();
 
   return (
-    // All routes are nested inside the Layout so every page gets the NavBar and Footer.
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<FrontPage />} />
-        <Route path="eventscalendar" element={<EventsCalendar />} />
-        <Route path="createevent" element={<CreateEvent />} />
-        <Route path="customer-login" element={<CustomerLoginPage />} />
-        <Route path="employee-login" element={<EmployeeLoginPage />} />
-        <Route path="registrationpage" element={<RegistrationPage />} />
-        <Route path="donations" element={<Donations />} />
-        <Route path="employee" element={<Employee />} />
-        <Route path="userprofile" element={<UserProfile />}>
-          <Route path="changepassword" element={<ChangePassword />} />
+    // AnimatePresence waits until exiting components have finished animating out
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Layout />}>
+          <Route
+            index
+            element={
+              <AnimatedPage>
+                <FrontPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="eventscalendar"
+            element={
+              <AnimatedPage>
+                <EventsCalendar />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="createevent"
+            element={
+              <AnimatedPage>
+                <CreateEvent />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="customer-login"
+            element={
+              <AnimatedPage>
+                <CustomerLoginPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="employee-login"
+            element={
+              <AnimatedPage>
+                <EmployeeLoginPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="registrationpage"
+            element={
+              <AnimatedPage>
+                <RegistrationPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="donations"
+            element={
+              <AnimatedPage>
+                <Donations />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="employee"
+            element={
+              <AnimatedPage>
+                <Employee />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="userprofile"
+            element={
+              <AnimatedPage>
+                <UserProfile />
+              </AnimatedPage>
+            }
+          >
+            <Route
+              path="changepassword"
+              element={
+                <AnimatedPage>
+                  <ChangePassword />
+                </AnimatedPage>
+              }
+            />
+          </Route>
+          <Route
+            path="contact"
+            element={
+              <AnimatedPage>
+                <ContactPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="bookcheckout"
+            element={
+              <AnimatedPage>
+                <BookCheckOutPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="return"
+            element={
+              <AnimatedPage>
+                <Return />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="reactivateaccount"
+            element={
+              <AnimatedPage>
+                <ReactivateAccount />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="requestreactivation"
+            element={
+              <AnimatedPage>
+                <RequestReactivation />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="terms"
+            element={
+              <AnimatedPage>
+                <TermsAndConditionsPage />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="confirm"
+            element={
+              <AnimatedPage>
+                <ConfirmEmail />
+              </AnimatedPage>
+            }
+          />
+          <Route
+            path="reportsoutlet"
+            element={
+              <AnimatedPage>
+                <ReportsOutlet />
+              </AnimatedPage>
+            }
+          >
+            <Route
+              path="popularityreport"
+              element={
+                <AnimatedPage>
+                  <PopularityReport />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="itemfinereport"
+              element={
+                <AnimatedPage>
+                  <ItemFineReport />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="customerlookupreport"
+              element={
+                <AnimatedPage>
+                  <CustomerLookupReport />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="mastertransactionreport"
+              element={
+                <AnimatedPage>
+                  <MasterTransactionReport />
+                </AnimatedPage>
+              }
+            />
+          </Route>
+          <Route
+            path="libraryhistory"
+            element={
+              <AnimatedPage>
+                <LibraryHistory />
+              </AnimatedPage>
+            }
+          >
+            <Route
+              path="checkouthistory"
+              element={
+                <AnimatedPage>
+                  <CheckoutHistory />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="donationhistory"
+              element={
+                <AnimatedPage>
+                  <DonationHistory />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="finehistory"
+              element={
+                <AnimatedPage>
+                  <FineHistory />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="waitlisthistory"
+              element={
+                <AnimatedPage>
+                  <WaitlistHistory />
+                </AnimatedPage>
+              }
+            />
+            <Route
+              path="eventhistory"
+              element={
+                <AnimatedPage>
+                  <EventHistory />
+                </AnimatedPage>
+              }
+            />
+          </Route>
         </Route>
-        <Route path="contact" element={<ContactPage />} />
-        <Route path="bookcheckout" element={<BookCheckOutPage />} />
-        <Route path="return" element={<Return />} />
-        <Route path="reactivateaccount" element={<ReactivateAccount />} />
-        <Route path="requestreactivation" element={<RequestReactivation />} />
-        <Route path="terms" element={<TermsAndConditionsPage />} />
-        <Route path="confirm" element={<ConfirmEmail />} />
-        <Route path="reportsoutlet" element={<ReportsOutlet />}>
-          <Route path="popularityreport" element={<PopularityReport />} />
-          <Route path="itemfinereport" element={<ItemFineReport />} />
-          <Route path="customerlookupreport" element={<CustomerLookupReport />} />
-          <Route path="mastertransactionreport" element={<MasterTransactionReport />} />
-        </Route>
-        <Route path="libraryhistory" element={<LibraryHistory />}>
-          <Route path="checkouthistory" element={<CheckoutHistory />} />
-          <Route path="donationhistory" element={<DonationHistory />} />
-          <Route path="finehistory" element={<FineHistory />} />
-          <Route path="waitlisthistory" element={<WaitlistHistory />} />
-          <Route path="eventhistory" element={<EventHistory />} />
-        </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </AnimatePresence>
   );
 }
 
