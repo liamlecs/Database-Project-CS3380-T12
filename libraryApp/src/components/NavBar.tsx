@@ -84,6 +84,9 @@
             <Link to="/eventscalendar">Event Calendar</Link>
           </li>
 
+
+          
+
           {/* Only show these links if NOT customer or employee logged in */}
           {!isLoggedIn && !isEmployeeLoggedIn && (
             <>
@@ -135,6 +138,10 @@
             </li>
             </>
           )}
+
+          <li>
+            <Link to="/contact">Contact Us</Link>
+          </li>
           
         </ul>
 

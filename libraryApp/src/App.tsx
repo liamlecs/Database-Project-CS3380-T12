@@ -38,6 +38,7 @@ import Return from "./components/Return.tsx";
 import RequestReactivation from "./components/RequestReactivation.tsx";
 import ReactivateAccount from "./components/ReactivateAccount.tsx";
 import Layout from "./components/Layout.tsx";
+import ContactPage from './components/ContactPage.tsx';
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -67,6 +68,7 @@ function AppRoutes() {
         <Route path="userprofile" element={<UserProfile />}>
           <Route path="changepassword" element={<ChangePassword />} />
         </Route>
+        <Route path="contact" element={<ContactPage />} />
         <Route path="bookcheckout" element={<BookCheckOutPage />} />
         <Route path="return" element={<Return />} />
         <Route path="reactivateaccount" element={<ReactivateAccount />} />
