@@ -70,7 +70,29 @@ const CheckoutPage: React.FC = () => {
         (transaction: { returnDate: string | null }) => transaction.returnDate === null
       ).length;
   
-      const totalItemsAfterCheckout = activeItemCount + cart.length;
+      //calculate current waitlist entries
+      const customerEmail = localStorage.getItem("email");
+
+      const waitlistResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/CustomerWaitlists/${customerEmail}`
+      );
+
+      let activeWaitlists: any[] = [];
+
+      if (waitlistResponse.status === 404 || waitlistResponse.status === 204) {
+        activeWaitlists = [];
+      } else if (!waitlistResponse.ok) {
+        const errorText = await waitlistResponse.text();
+        throw new Error(`Failed to fetch waitlist history: ${errorText}`);
+      } else {
+        activeWaitlists = await waitlistResponse.json();
+      }
+
+      const activeWaitlistCount = activeWaitlists.filter(
+        (waitlist: { waitlistPosition: number | null }) => waitlist.waitlistPosition !== -1
+      ).length;
+
+      const totalItemsAfterCheckout = activeItemCount + cart.length + activeWaitlistCount;
   
       // Determine borrowing limit (Student = 5, Faculty = 10)
       const borrowingLimit = borrowerTypeId === "2" ? 10 : 5;
@@ -79,8 +101,8 @@ const CheckoutPage: React.FC = () => {
         const overBy = totalItemsAfterCheckout - borrowingLimit;
         setCheckoutError(
           `You cannot check out these ${cart.length} item(s) because that would exceed your limit of ${borrowingLimit}. ` +
-          `You currently have ${activeItemCount} checked out, and adding these ${cart.length} brings you to ${totalItemsAfterCheckout}. ` +
-          `Please remove at least ${overBy} item(s) from your cart or return some items first.`
+          `You currently have ${activeItemCount} item(s) checked out and ${activeWaitlistCount} item(s) waitlisted. Adding these ${cart.length} brings you to ${totalItemsAfterCheckout}. ` +
+          `Please remove at least ${overBy} item(s) from your cart, return some items, or exit from waitlists first.`
         );
         setSnackbarOpen(true);
         return;
