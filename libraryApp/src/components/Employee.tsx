@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { SelectChangeEvent } from '@mui/material/Select';
 import dayjs from 'dayjs';
+import BookForm from './inventory_post_forms/BookForm';"./inventory_post_forms/BookForm"
 
 // --- Material UI Imports ---
 import {
@@ -109,6 +111,8 @@ interface EditEmployeeDialogProps {
   onSave: (updatedData: EmployeeData) => void;
 }
 
+// -- state of selected imte 
+
 const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
   open,
   employee,
@@ -187,6 +191,9 @@ const eventCategories = [
   { id: 2, label: 'Social' },
   { id: 3, label: 'Cultural' },
 ];
+
+
+
 
 // --- AddEmployeeDialog Component ---
 interface AddEmployeeDialogProps {
@@ -533,6 +540,11 @@ const Employee: React.FC = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [selectedItemType, setSelectedItemType] = useState("Book");
+  const handleItemTypeChange = (event: SelectChangeEvent<string>) => {
+  setSelectedItemType(event.target.value);
+};
 
   // Extend currentView to include "employees"
   const [currentView, setCurrentView] = useState<
@@ -883,14 +895,18 @@ const Employee: React.FC = () => {
         Library History
       </Typography>
       <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
+        <Tab label="Checkout History" />
         <Tab label="Donation History" />
         <Tab label="Event History" />
+        <Tab label="Fine History" />
         <Tab label="Waitlist History" />
       </Tabs>
       <Box sx={{ marginTop: 2 }}>
-        {tabValue === 0 && <DonationHistory />}
-        {tabValue === 1 && <EventHistory />}
-        {tabValue === 2 && <WaitlistHistory />}
+        {tabValue === 0 && <CheckoutHistory />}
+        {tabValue === 1 && <DonationHistory />}
+        {tabValue === 2 && <EventHistory />}
+        {tabValue === 3 && <FineHistory />}
+        {tabValue === 4 && <WaitlistHistory />}
       </Box>
     </Paper>
   );
@@ -1098,87 +1114,42 @@ const Employee: React.FC = () => {
 
   // --- Render Inventory Management ---
   const renderInventoryManagement = () => (
+
+    
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+      
       <Typography variant="h5" gutterBottom>
         Inventory Management
       </Typography>
-      {/* Add Item Form */}
-      <Box component="form" sx={{ mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Add New Item
-        </Typography>
-        <TextField
-          fullWidth
-          label="Title"
-          value={itemForm.title}
-          onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-          margin="normal"
-          required
-        />
-        <FormControl fullWidth margin="normal">
-          <InputLabel>Status</InputLabel>
+
+        {/* Item Type Selection Dropdown */}
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="item-type-label">Item Type</InputLabel>
           <Select
-            value={itemForm.availabilityStatus}
-            onChange={(e) =>
-              setItemForm({
-                ...itemForm,
-                availabilityStatus: e.target.value as string,
-              })
-            }
-            label="Status"
+            labelId="item-type-label"
+            value={selectedItemType}
+            label="Item Type"
+            onChange={handleItemTypeChange}
           >
-            <MenuItem value="Available">Available</MenuItem>
-            <MenuItem value="Checked Out">Checked Out</MenuItem>
-            <MenuItem value="On Hold">On Hold</MenuItem>
-            <MenuItem value="Lost">Lost</MenuItem>
+            <MenuItem value="Book">Book</MenuItem>
+            <MenuItem value="Movie">Movie</MenuItem>
+            <MenuItem value="Music">Music</MenuItem>
+            <MenuItem value="Technology">Technology</MenuItem>
           </Select>
         </FormControl>
-        <TextField
-          fullWidth
-          label="Total Copies"
-          type="number"
-          value={itemForm.totalCopies}
-          onChange={(e) => {
-            const total = parseInt(e.target.value) || 0;
-            setItemForm({
-              ...itemForm,
-              totalCopies: total,
-              availableCopies: Math.min(itemForm.availableCopies, total),
-            });
-          }}
-          margin="normal"
-          inputProps={{ min: 1 }}
-        />
-        <TextField
-          fullWidth
-          label="Available Copies"
-          type="number"
-          value={itemForm.availableCopies}
-          onChange={(e) => {
-            const available = parseInt(e.target.value) || 0;
-            setItemForm({
-              ...itemForm,
-              availableCopies: Math.min(available, itemForm.totalCopies),
-            });
-          }}
-          margin="normal"
-          inputProps={{ min: 0, max: itemForm.totalCopies }}
-        />
-        <TextField
-          fullWidth
-          label="Location"
-          value={itemForm.location}
-          onChange={(e) => setItemForm({ ...itemForm, location: e.target.value })}
-          margin="normal"
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleAddItem}
-          sx={{ mt: 2 }}
-        >
-          Add Item
-        </Button>
+
+    {/* Dynamically Render Form */}
+    <Box sx={{ mb: 4 }}>
+      {selectedItemType === "Book" && <BookForm />}
+      {selectedItemType === "Movie" && <div>Movie form coming soon...</div>}
+      {selectedItemType === "Music" && <div>Music form coming soon...</div>}
+      {selectedItemType === "Technology" && <div>Technology form coming soon...</div>}
+    </Box>
+
+
+      {/* Add Item Form */}
+      <Box component="form" sx={{ mb: 3 }}>
+
       </Box>
 
       <Typography variant="h6" gutterBottom>
@@ -1186,6 +1157,7 @@ const Employee: React.FC = () => {
       </Typography>
       <TableContainer component={Paper}>
         <Table>
+          {/* Add table rows and cells here */}
           <TableHead>
             <TableRow>
               <TableCell>Title</TableCell>
@@ -1224,81 +1196,10 @@ const Employee: React.FC = () => {
               </TableRow>
             ))}
           </TableBody>
+
+          
         </Table>
       </TableContainer>
-
-      {/* Edit Item Dialog */}
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-        <DialogTitle>Edit Item</DialogTitle>
-        <DialogContent>
-          {editingItem && (
-            <Box component="form" sx={{ mt: 1 }}>
-              <TextField
-                fullWidth
-                label="Title"
-                value={editingItem.title}
-                onChange={(e) =>
-                  setEditingItem({ ...editingItem, title: e.target.value })
-                }
-                margin="normal"
-                required
-              />
-              <TextField
-                fullWidth
-                label="Total Copies"
-                type="number"
-                value={editingItem.totalCopies}
-                onChange={(e) => {
-                  const total = parseInt(e.target.value) || 0;
-                  setEditingItem({
-                    ...editingItem,
-                    totalCopies: total,
-                    availableCopies: Math.min(
-                      editingItem.availableCopies,
-                      total
-                    ),
-                  });
-                }}
-                margin="normal"
-                inputProps={{ min: 1 }}
-              />
-              <TextField
-                fullWidth
-                label="Available Copies"
-                type="number"
-                value={editingItem.availableCopies}
-                onChange={(e) => {
-                  const available = parseInt(e.target.value) || 0;
-                  setEditingItem({
-                    ...editingItem,
-                    availableCopies: Math.min(available, editingItem.totalCopies),
-                  });
-                }}
-                margin="normal"
-                inputProps={{
-                  min: 0,
-                  max: editingItem.totalCopies,
-                }}
-              />
-              <TextField
-                fullWidth
-                label="Location"
-                value={editingItem.location || ''}
-                onChange={(e) =>
-                  setEditingItem({ ...editingItem, location: e.target.value })
-                }
-                margin="normal"
-              />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateItem} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Paper>
   );
 
