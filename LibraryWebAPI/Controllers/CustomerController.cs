@@ -5,6 +5,7 @@ using LibraryWebAPI.Models;
 using LibraryWebAPI.Services; // <-- Important for IEmailService
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace LibraryWebAPI.Controllers
 {
@@ -13,13 +14,16 @@ namespace LibraryWebAPI.Controllers
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
+        private readonly ILogger<CustomerController> _logger;
+        
         private readonly LibraryContext _context;
         private readonly IEmailService _emailService; // Now we actually inject it
 
-        public CustomerController(LibraryContext context, IEmailService emailService)
+        public CustomerController(LibraryContext context, IEmailService emailService, ILogger<CustomerController> logger)
         {
             _context = context;
             _emailService = emailService;
+            _logger = logger;
         }
         public class ReactivationRequestDto
         {
@@ -72,6 +76,45 @@ namespace LibraryWebAPI.Controllers
             public required string  Email { get; set; }
             public required string ReactivationCode { get; set; }
         }
+
+        // In your CustomerController.cs
+[HttpPut("{id}/password")]
+public async Task<IActionResult> ChangePassword(int id, [FromBody] PasswordChangeRequest request)
+{
+    try
+    {
+        var customer = await _context.Customers.FindAsync(id);
+        if (customer == null)
+        {
+            return NotFound("User not found");
+        }
+
+        // Direct string comparison (INSECURE - for development only)
+        if (customer.AccountPassword != request.OldPassword)
+        {
+            return BadRequest("Old password is incorrect");
+        }
+
+        // Store new password directly (INSECURE)
+        customer.AccountPassword = request.NewPassword;
+        _context.Update(customer);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error changing password");
+        return StatusCode(500, "Internal server error");
+    }
+}
+
+// DTO remains the same
+public class PasswordChangeRequest
+{
+    public required string OldPassword { get; set; }
+    public required string NewPassword { get; set; }
+}
 
         [HttpPost("ReactivateAccount")]
         public async Task<IActionResult> ReactivateAccount([FromBody] ReactivationDto dto)

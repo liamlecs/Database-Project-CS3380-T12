@@ -12,7 +12,6 @@ import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import Button from "@mui/material/Button";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import Box from "@mui/material/Box";
 import { DataGrid, GridColDef } from "@mui/x-data-grid"; // Import DataGrid
@@ -25,6 +24,8 @@ import Slider from "@mui/material/Slider"; // Import Slider
 import Typography from "@mui/material/Typography"; // Import Typography
 import Checkbox from "@mui/material/Checkbox"; // Import Checkbox
 import InventoryTable from "./InventoryTable"; // Adjust the path if it's in a different folder
+import { Button, Snackbar, Alert, AlertTitle } from "@mui/material";
+
 
 interface Profile {
   customerID: number;
@@ -67,6 +68,13 @@ interface Profile {
 export default function UserProfile() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [editProfile, setEditProfile] = useState<Profile | null>(null);
@@ -92,6 +100,50 @@ export default function UserProfile() {
   const [selectedFines, setSelectedFines] = useState<number[]>([]); // For selected fines
   const [dialogFines, setDialogFines] = useState<Profile["fines"]>([]);
 
+    // Add this password change handler
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Add this password submit handler
+const handlePasswordSubmit = async () => {
+  try {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      alert("New passwords don't match!");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) throw new Error("User not logged in");
+
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/Customer/${userId}/password`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          oldPassword: passwordForm.oldPassword,
+          newPassword: passwordForm.newPassword
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Password update failed");
+    }
+
+    alert("Password updated successfully!");
+    setChangePasswordDialogOpen(false);
+    setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    
+  } catch (error) {
+    console.error("Password change error:", error);
+    alert(error instanceof Error ? error.message : "Password update failed");
+  }
+};
+
   //Dialog open/close handlers
   const handleDialogOpen = () => {
     const unpaidFines = profile?.fines.filter((fine) => !fine.paymentStatus) || [];
@@ -111,40 +163,44 @@ export default function UserProfile() {
   };
 
   const handleDeleteAccount = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
-      )
-    ) {
-      try {
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
-          alert("No user ID found.");
-          return;
-        }
-        // Call the soft-delete endpoint on your backend
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/Customer/soft/${userId}`,
-          { method: "DELETE" }
-        );
-  
-        if (!response.ok) {
-          throw new Error("Failed to deactivate the account.");
-        }
-  
-        // Clear local storage to sign out automatically
-        localStorage.clear();
-  
-        // Notify the user
-        alert("Your account has been deactivated successfully.");
-  
-        // Redirect to the customer-login page
-        navigate("/customer-login");
-      } catch (error) {
-        console.error("Error deleting account:", error);
-        alert("Failed to delete your account. Please try again later.");
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    // Close the snackbar immediately
+    setDeleteConfirmOpen(false);
+
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        console.error("No user ID found.");
+        return;
       }
+
+      // Call your soft-delete endpoint on the backend
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Customer/soft/${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to deactivate the account.");
+      }
+
+      // Clear local storage and redirect to login
+      localStorage.clear();
+      alert("Your account has been deactivated successfully.");
+      navigate("/customer-login");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("Failed to delete your account. Please try again later.");
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmOpen(false);
   };
     
   
@@ -500,8 +556,46 @@ export default function UserProfile() {
                 className="btn-delete"
                 onClick={handleDeleteAccount}
               >
-                Delete Account
+                Deactivate Account
               </button>
+              <Snackbar
+        open={deleteConfirmOpen}
+        onClose={handleCancelDelete}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{
+          top: "100% !important",
+          left: "50% !important",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Alert
+          severity="warning"
+          variant="filled"
+          onClose={handleCancelDelete}
+          action={
+            <>
+              <Button
+                color="inherit"
+                size="small"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </Button>
+              <Button
+                color="inherit"
+                size="small"
+                onClick={handleConfirmDelete}
+              >
+                Confirm
+              </Button>
+            </>
+          }
+          sx={{ width: "100%" }}
+        >
+          <AlertTitle>Confirm Account Deactivation</AlertTitle>
+          Are you sure you want to deactivate your account? This action cannot be undone.
+        </Alert>
+      </Snackbar>
             </div>
           </div>
         )}
@@ -1131,20 +1225,13 @@ export default function UserProfile() {
                   Save Changes
                 </Button>
 
-                {/* Only show the Change Password button if we're NOT on /userprofile/changepassword */}
-                {location.pathname !== "/userprofile/changepassword" && (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() =>
-                      navigate("/userprofile/changepassword", {
-                        state: { fromSettings: true },
-                      })
-                    }
-                  >
-                    Change Password
-                  </Button>
-                )}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setChangePasswordDialogOpen(true)}
+                >
+                  Change Password
+                </Button>
               </Box>
             </form>
 
@@ -1173,8 +1260,58 @@ export default function UserProfile() {
               </DialogActions>
             </Dialog>
 
-            {/* Only render ChangePassword route if user is on that exact path */}
-            {location.pathname === "/userprofile/changepassword" && <Outlet />}
+            {/* Change Password Dialog */}
+<Dialog 
+  open={changePasswordDialogOpen} 
+  onClose={() => setChangePasswordDialogOpen(false)}
+>
+  <DialogTitle>Change Password</DialogTitle>
+  <DialogContent sx={{ pt: '20px !important' }}>
+    <TextField
+      fullWidth
+      type="password"
+      label="Old Password"
+      name="oldPassword"
+      value={passwordForm.oldPassword}
+      onChange={handlePasswordChange}
+      margin="normal"
+    />
+    <TextField
+      fullWidth
+      type="password"
+      label="New Password"
+      name="newPassword"
+      value={passwordForm.newPassword}
+      onChange={handlePasswordChange}
+      margin="normal"
+    />
+    <TextField
+      fullWidth
+      type="password"
+      label="Confirm New Password"
+      name="confirmPassword"
+      value={passwordForm.confirmPassword}
+      onChange={handlePasswordChange}
+      margin="normal"
+      error={passwordForm.newPassword !== passwordForm.confirmPassword}
+      helperText={passwordForm.newPassword !== passwordForm.confirmPassword && "Passwords do not match"}
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setChangePasswordDialogOpen(false)}>Cancel</Button>
+    <Button 
+      onClick={handlePasswordSubmit}
+      color="primary"
+      disabled={
+        !passwordForm.oldPassword || 
+        !passwordForm.newPassword || 
+        passwordForm.newPassword !== passwordForm.confirmPassword
+      }
+    >
+      Save
+    </Button>
+  </DialogActions>
+</Dialog>
           </div>
         )}
       </div>

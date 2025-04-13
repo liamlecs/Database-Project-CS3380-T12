@@ -5,20 +5,19 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
-import { useEffect } from "react";
+import DonationHistory from "./components/LiHistSubcomponents/DonationHistory.tsx";
+import CheckoutHistory from "./components/LiHistSubcomponents/CheckoutHistory.tsx";
+import EventHistory from "./components/LiHistSubcomponents/EventHistory.tsx";
+import FineHistory from "./components/LiHistSubcomponents/FineHistory.tsx";
+import WaitlistHistory from "./components/LiHistSubcomponents/WaitlistHistory.tsx";
 import FrontPage from "./components/FrontPage/Library.tsx";
 import EventsCalendar from "./components/EventsCalendar.tsx";
 import LibraryHistory from "./components/LibraryHistory.tsx";
-import NavBar from "./components/NavBar.tsx";
-import CheckoutHistory from "./components/LiHistSubcomponents/CheckoutHistory.tsx";
-import DonationHistory from "./components/LiHistSubcomponents/DonationHistory.tsx";
-import FineHistory from "./components/LiHistSubcomponents/FineHistory.tsx";
-import WaitlistHistory from "./components/LiHistSubcomponents/WaitlistHistory.tsx";
-import EventHistory from "./components/LiHistSubcomponents/EventHistory.tsx";
 import CustomerLoginPage from "./components/CustomerLoginPage.tsx";
 import RegistrationPage from "./components/RegistrationPage.tsx";
 import CreateEvent from "./components/CreateEvent.tsx";
 import UserProfile from "./components/UserProfile.tsx";
+import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
 import BookCheckOutPage from "./components/CheckoutPage/Checkout.tsx";
 import Donations from "./components/Donations.tsx";
 import TermsAndConditionsPage from "./components/TermsAndConditionsPage.tsx";
@@ -32,7 +31,6 @@ import CustomerLookupReport from "./components/Reports/CustomerLookupReport.tsx"
 import ReportsOutlet from "./components/ReportsOutlet.tsx";
 import { CheckoutProvider } from "./contexts/CheckoutContext.tsx";
 import MasterTransactionReport from "./components/Reports/MasterTransactionReport.tsx";
-import ChangePassword from "./components/UserProfileSubPage/ChangePassword.tsx";
 import Return from "./components/Return.tsx";
 import RequestReactivation from "./components/RequestReactivation.tsx";
 import ReactivateAccount from "./components/ReactivateAccount.tsx";
@@ -45,7 +43,6 @@ function AppRoutes() {
   const location = useLocation();
 
   return (
-    // AnimatePresence waits until exiting components have finished animating out
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Layout />}>
@@ -119,17 +116,7 @@ function AppRoutes() {
               <AnimatedPage>
                 <UserProfile />
               </AnimatedPage>
-            }
-          >
-            <Route
-              path="changepassword"
-              element={
-                <AnimatedPage>
-                  <ChangePassword />
-                </AnimatedPage>
-              }
-            />
-          </Route>
+            }/>
           <Route
             path="contact"
             element={
@@ -195,13 +182,13 @@ function AppRoutes() {
             }
           >
             <Route
-    index
-    element={
-      <AnimatedPage>
-        <MasterTransactionReport />
-      </AnimatedPage>
-    }
-  />
+              index
+              element={
+                <AnimatedPage>
+                  <MasterTransactionReport />
+                </AnimatedPage>
+              }
+            />
             <Route
               path="popularityreport"
               element={
