@@ -6,11 +6,15 @@ const columns: GridColDef[] = [
   { field: 'id', headerName: 'Waitlist ID', width: 70 },
   { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
   { field: 'itemId', headerName: 'Item ID', type: 'number', width: 130 },
+  { field: 'firstName', headerName: 'First Name', width: 130 },
+  { field: 'lastName', headerName: 'Last Name', width: 130 },
+  { field: 'itemType', headerName: 'Item Type', width: 130 },
+  { field: 'title', headerName: 'Item Title', width: 150},
   {
     field: 'reservationDate',
     headerName: 'Reservation Date',
     type: 'date',
-    width: 90,
+    width: 150,
   },
   {
     field: 'isReceived',
@@ -30,9 +34,9 @@ export default function WaitlistHistory() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDonations = async () => {
+    const fetchWaitlist = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Waitlist`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}//api/Waitlist/detailed`);
         if (!response.ok) {
           throw new Error("Failed to fetch waitlist history data");
         }
@@ -44,11 +48,15 @@ console.log("raw data: ", data);
                   //console.log("amount: ", donation.amount);
                   return{
                   ...waitlist,
-          id: waitlist.waitlistId || index + 1, // Ensure unique ID
-          customerId: waitlist.customerId || "N/A",
-          itemId: waitlist.itemId || 0,
+          id: waitlist.waitlistId,
+          customerId: waitlist.customerId,
+          itemId: waitlist.itemId,
+          firstName: waitlist.firstName,
+          lastName: waitlist.lastName,
+          itemType: waitlist.itemType,
+          title: waitlist.title,
           reservationDate: waitlist.reservationDate ? new Date(waitlist.reservationDate): null,
-          isReceived: waitlist.isReceived || false,
+          isReceived: waitlist.isReceived,
         }});
         console.log("formatted data: ",formattedData);
         setRows(formattedData);
@@ -59,7 +67,7 @@ console.log("raw data: ", data);
       }
     };
 
-    fetchDonations();
+    fetchWaitlist();
   }, []);
 
   return (
@@ -69,7 +77,7 @@ console.log("raw data: ", data);
         columns={columns}
         loading={loading}
         initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[50, 100]}
+        pageSizeOptions={[5, 50, 100]}
         sx={{ border: 0 }}
       />
     </Paper>

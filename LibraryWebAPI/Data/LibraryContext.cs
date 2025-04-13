@@ -77,6 +77,7 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
 
         public virtual DbSet<CustomerTransactionDto> CustomerTransactions { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
+    public DbSet<WaitlistReport> WaitlistReports { get; set; }
 
     public virtual DbSet<CustomerWaitlistDto> CustomerWaitlists { get; set; }
 
@@ -89,6 +90,9 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<WaitlistReport>().HasNoKey().ToView(null);
+
         modelBuilder.Entity<Book>(entity =>
         {
             entity.HasKey(e => e.BookId).HasName("PK__Book__3DE0C227DE49FC03");

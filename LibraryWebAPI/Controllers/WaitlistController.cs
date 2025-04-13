@@ -48,7 +48,7 @@ namespace LibraryWebAPI.Controllers
             return Ok(waitlist);
         }
 
-[HttpGet("CustomerWaitlists/{email}")]
+        [HttpGet("CustomerWaitlists/{email}")]
         public async Task<ActionResult<List<CustomerWaitlistDto>>> GetCustomerWaitlists(string email)
         {
             // ✅ Query the database to find the customer by email
@@ -79,7 +79,30 @@ WHERE Customer.Email = {email}
 ")
                 .ToListAsync();
 
-return Ok(waitlists);
+            return Ok(waitlists);
+        }
+
+        [HttpGet("detailed")]
+        public async Task<ActionResult<IEnumerable<WaitlistReport>>> GetDetailedWaitlists()
+        {
+            var results = await _context.Set<WaitlistReport>().FromSqlRaw(@"
+        SELECT 
+            w.WaitlistId AS WaitlistId,
+            w.CustomerId AS CustomerId,
+            w.ItemId AS ItemId,
+            c.FirstName AS FirstName,
+            c.LastName AS LastName,
+            it.TypeName AS ItemType,
+            i.Title AS Title,
+            w.ReservationDate AS ReservationDate,
+            w.IsReceived AS IsReceived
+        FROM Waitlist w
+        JOIN Customer c ON w.CustomerId = c.CustomerID
+        JOIN Item i ON w.ItemId = i.ItemId
+        JOIN ItemType it ON i.ItemTypeID = it.ItemTypeID
+    ").ToListAsync();
+
+            return Ok(results);
         }
 
         // POST: api/Waitlist
@@ -89,7 +112,7 @@ return Ok(waitlists);
 
             if (ModelState.IsValid)
             {
-                
+
 
 
                 _context.Waitlists.Add(waitlist);
