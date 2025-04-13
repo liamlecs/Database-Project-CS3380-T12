@@ -123,7 +123,7 @@ const Donations: React.FC = () => {
 
   return (
     <Box sx={{ 
-      minHeight: '100vh',
+      minHeight: 'calc(100vh - 80px)',  // Changed from 100vh
       paddingTop: "80px",
       backgroundImage: `url(${donationBg})`,
       backgroundSize: 'cover',
@@ -144,11 +144,12 @@ const Donations: React.FC = () => {
         Using marginTop: "80px" to push the content down, 
         preventing the global NavBar from overlapping this section. 
       */}
-      <Container maxWidth="md" sx={{ my: 6,
+      <Container maxWidth="md" sx={{ my: 1,
                 position: 'relative', // Ensure content stays above overlay
-                zIndex: 1
+                zIndex: 1,
+                pb: 1
       }}>
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           <Grid item xs={12} md={7}>
             <Paper
               elevation={3}

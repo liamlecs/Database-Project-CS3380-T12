@@ -41,6 +41,7 @@ export default function ConfirmEmail({}: ConfirmEmailProps) {
     <Box sx={{
       pt: 8,
       minHeight: '100vh',
+      marginTop: "80px",
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
