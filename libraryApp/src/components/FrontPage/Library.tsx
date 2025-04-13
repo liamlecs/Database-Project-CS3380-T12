@@ -28,6 +28,7 @@ const Library: React.FC = () => {
     const [itemToCheckout, setItemToCheckout] = useState<any>(null);
     const [openInfoDialog, setOpenInfoDialog] = useState(false);
     const [openFineDialog, setOpenFineDialog] = useState(false);
+    const [openMaxCheckoutDialog, setOpenMaxCheckoutDialog] = useState(false);
     const [selectedItem, setSelectedItem] = useState<any>(null);
     const { addToCart, userType } = useCheckout();
 
@@ -119,9 +120,41 @@ const Library: React.FC = () => {
 
           const fineCheck = await response.json();
 
-        if(fineCheck.activeFineCount>0)
+
+          const transactionHistoryResponse = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/${customerId}`
+          );
+      
+          let activeTransactions: any[] = [];
+      
+          if (transactionHistoryResponse.status === 404 || transactionHistoryResponse.status === 204) {
+            activeTransactions = [];
+          } else if (!transactionHistoryResponse.ok) {
+            const errorText = await transactionHistoryResponse.text();
+            throw new Error(`Failed to fetch transaction history: ${errorText}`);
+          } else {
+            activeTransactions = await transactionHistoryResponse.json();
+          }
+      
+          // Count active transactions (items not returned)
+          const activeItemCount = activeTransactions.filter(
+            (transaction: { returnDate: string | null }) => transaction.returnDate === null
+          ).length;
+
+          //retirevie borrower type
+          const borrowerTypeId = localStorage.getItem("borrowerTypeId");
+
+          const borrowingLimit = borrowerTypeId === "2" ? 10 : 5;
+
+        if(fineCheck.activeFineCount>0 )
         setOpenFineDialog(true);
-    else{
+    else
+    if(activeItemCount>=borrowingLimit){
+
+setOpenMaxCheckoutDialog(true);
+
+    }
+      else{
 
           // 3. Determine the current ItemID (ensure you use the correct property from your item object).
           const currentItemId = item.itemId || item.id;
@@ -463,6 +496,20 @@ const Library: React.FC = () => {
   </DialogContent>
   <DialogActions>
     <Button onClick={() => setOpenFineDialog(false)} color="primary">
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
+
+<Dialog open={openMaxCheckoutDialog} onClose={() => setOpenMaxCheckoutDialog(false)}>
+  <DialogTitle>Maximum Borrowing Limit Reached</DialogTitle>
+  <DialogContent>
+    <Typography>
+      You currently have have reached your borrowing limit. Please return one of your current checkouts before joining a waitlist.
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenMaxCheckoutDialog(false)} color="primary">
       OK
     </Button>
   </DialogActions>
