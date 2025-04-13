@@ -3,13 +3,7 @@ import "./TermsAndConditionsPage.css";
 
 export default function TermsAndConditionsPage() {
   return (
-    <div
-      className="terms-container"
-      style={{
-        // Push the entire terms content down so the NavBar doesn't overlap
-        marginTop: "80px",
-      }}
-    >
+    <div className="terms-container" style={{ marginTop: "80px" }}>
       <h1 className="title">E-Library Code of Conduct</h1>
 
       <h2>General Expectations</h2>
@@ -31,14 +25,14 @@ export default function TermsAndConditionsPage() {
 
       <h2>Abuse of Library Resources</h2>
       <p>Users must respect library collections and facilities. Intentional damage may result in penalties.</p>
-      <p>
-        <strong>Prohibited behaviors include:</strong><br />
-        Writing in or damaging library materials<br />
-        Careless actions leading to damage<br />
-        Leaving items unattended<br />
-        Removing materials without proper checkout<br />
-        Misplacing materials to hinder access for others
-      </p>
+      <div className="bullet-points">
+        <p><strong>Prohibited behaviors include:</strong></p>
+        <p>Writing in or damaging library materials</p>
+        <p>Careless actions leading to damage</p>
+        <p>Leaving items unattended</p>
+        <p>Removing materials without proper checkout</p>
+        <p>Misplacing materials to hinder access for others</p>
+      </div>
 
       <h2>Use of Electronic/Digital Resources</h2>
       <p>Users must adhere to E-Library Terms of Use for electronic resources.</p>
