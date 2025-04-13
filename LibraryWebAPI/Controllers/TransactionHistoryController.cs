@@ -39,6 +39,7 @@ namespace LibraryWebAPI.Controllers
         {
             var counts = await _context.TransactionPopularity.FromSqlRaw("SELECT " +
 "    Item.Title, " +
+"    Item.ItemID AS ItemId, " +
 "    COUNT(*) AS count, " +
 "    ItemType.TypeName AS ItemType " +
 "FROM TRANSACTION_HISTORY " +
@@ -48,7 +49,7 @@ namespace LibraryWebAPI.Controllers
 "LEFT JOIN Music ON Item.ItemID = Music.SongID " +
 "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
 "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-"GROUP BY Item.Title, ItemType.TypeName;"
+"GROUP BY Item.Title, Item.ItemID, ItemType.TypeName;"
 ).ToListAsync();
 
             if (counts == null)
@@ -68,6 +69,7 @@ namespace LibraryWebAPI.Controllers
             var counts = await _context.TransactionPopularityConditional
                 .FromSqlRaw("SELECT " +
 "    Item.Title, " +
+"    Item.ItemID AS ItemId, " +
 "    COUNT(*) AS count, " +
 "    ItemType.TypeName AS ItemType " +
 "FROM TRANSACTION_HISTORY " +
@@ -77,8 +79,8 @@ namespace LibraryWebAPI.Controllers
 "LEFT JOIN Music ON Item.ItemID = Music.SongID " +
 "LEFT JOIN Book ON Item.ItemID = Book.BookID " +
 "LEFT JOIN Technology ON Item.ItemID = Technology.DeviceID " +
-"WHERE {0} < TRANSACTION_HISTORY.DateBorrowed  AND TRANSACTION_HISTORY.DateBorrowed < {1} " +
-"GROUP BY Item.Title, ItemType.TypeName;", start, end)
+"WHERE {0} <= TRANSACTION_HISTORY.DateBorrowed  AND TRANSACTION_HISTORY.DateBorrowed <= {1} " +
+"GROUP BY Item.Title, Item.ItemID, ItemType.TypeName;", start, end)
                 .ToListAsync();
 
             if (counts == null || counts.Count == 0)
@@ -229,8 +231,8 @@ namespace LibraryWebAPI.Controllers
                 return NotFound("Failed to fetch report data.");
             }
 
-            entity.TransactionPopularity = await GetTransactionPopularityDataConditionalAsync(start, end);
-            entity.TransactionFine = await GetTransactionFinesDataConditionalAsync(start, end);
+            entity.TransactionPopularity = null;//await GetTransactionPopularityDataConditionalAsync(start, end);
+            entity.TransactionFine = null;//await GetTransactionFinesDataConditionalAsync(start, end);
 
             return Ok(entity);
         }
@@ -283,8 +285,8 @@ var entity = _context.Database
                 return NotFound($"failed to display fines.");
             }
 
-            entity.TransactionPopularity = await GetTransactionPopularityDataAsync();
-            entity.TransactionFine = await GetTransactionFinesDataAsync();
+            entity.TransactionPopularity = null;//await GetTransactionPopularityDataAsync();
+            entity.TransactionFine = null;//await GetTransactionFinesDataAsync();
 
             return Ok(entity);
         }
@@ -358,7 +360,7 @@ return Ok(transactions);
         }
 
         [HttpGet("TransactionGeneralReport")]
-        public async Task<ActionResult<List<TransactionGeneralReportDto>>> TransactionGeneralReport()
+        public async Task<ActionResult<List<TransactionGeneralReportDto>>> TransactionGeneralReport() //GROUP BY MAY BE TOXIC FOR GENERAL REPORT!!!!!!
         {
             // ✅ Query the database to find the customer by email
             var transactions = await _context.TransactionGeneralReport
@@ -370,7 +372,6 @@ return Ok(transactions);
         LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID
         JOIN Customer C ON TH.CustomerID = C.CustomerID
         JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
-        GROUP BY I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, IT.TypeName
 ")
                 .ToListAsync();
 
@@ -378,7 +379,7 @@ return Ok(transactions);
         }
 
         [HttpGet("TransactionGeneralReportConditional/{start:datetime}/{end:datetime}")]
-        public async Task<ActionResult<List<TransactionGeneralReportDto>>> TransactionGeneralReportConditional(DateTime start, DateTime end)
+        public async Task<ActionResult<List<TransactionGeneralReportDto>>> TransactionGeneralReportConditional(DateTime start, DateTime end) //GROUP BY MAY BE TOXIC FOR GENERAL REPORT!!!!!!
         {
             // ✅ Query the database to find the customer by email
             var transactions = await _context.TransactionGeneralReport
@@ -391,13 +392,64 @@ return Ok(transactions);
         JOIN Customer C ON TH.CustomerID = C.CustomerID
         JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
         WHERE {start} <= TH.DateBorrowed AND TH.DateBorrowed <= {end}
-        GROUP BY I.Title, C.Email, C.FirstName, C.LastName, BT.Type, TH.DateBorrowed, TH.DueDate, IT.TypeName
 ")
                 .ToListAsync();
 
 return Ok(transactions);
         }
 
+[HttpGet("PopularityContext/{itemId:int}")]
+        public async Task<ActionResult<List<TransactionGeneralReportDto>>> PopularityContext(int itemId)
+        {
+            // ✅ Query the database to find the customer by email
+            var transactions = await _context.TransactionGeneralReport
+        .FromSqlInterpolated($@"
+            SELECT 
+                I.Title, 
+                C.Email, 
+                C.FirstName, 
+                C.LastName, 
+                BT.Type, 
+                TH.DateBorrowed, 
+                TH.DueDate, 
+                IT.TypeName AS ItemType
+            FROM TRANSACTION_HISTORY TH
+            LEFT JOIN Item I ON TH.ItemID = I.ItemID
+            LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID
+            LEFT JOIN Customer C ON TH.CustomerID = C.CustomerID
+            LEFT JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
+            WHERE I.ItemID = {itemId}")
+        .ToListAsync();
+
+return Ok(transactions);
+        }
+
+        [HttpGet("PopularityContext/{itemId:int}/{start:datetime}/{end:datetime}")]
+        public async Task<ActionResult<List<TransactionGeneralReportDto>>> PopularityContextConditional(int itemId, DateTime start, DateTime end)
+        {
+            // ✅ Query the database to find the customer by email
+            var transactions = await _context.TransactionGeneralReport
+        .FromSqlInterpolated($@"
+            SELECT 
+                I.Title, 
+                C.Email, 
+                C.FirstName, 
+                C.LastName, 
+                BT.Type, 
+                TH.DateBorrowed, 
+                TH.DueDate, 
+                IT.TypeName AS ItemType
+            FROM TRANSACTION_HISTORY TH
+            LEFT JOIN Item I ON TH.ItemID = I.ItemID
+            LEFT JOIN ItemType IT ON I.ItemTypeID = IT.ItemTypeID
+            LEFT JOIN Customer C ON TH.CustomerID = C.CustomerID
+            LEFT JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID
+            WHERE I.ItemID = {itemId} 
+              AND {start} <= TH.DateBorrowed 
+              AND TH.DateBorrowed <= {end}")
+        .ToListAsync();
+return Ok(transactions);
+        }
 
         // POST: api/TransactionHistory
         [HttpPost]
