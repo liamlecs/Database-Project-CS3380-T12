@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Box, TextField, Button, Typography, Paper } from "@mui/material";
+import bgImage from "../assets/library-bg.png";
 
 interface ConfirmEmailProps {
   // optional props if needed
@@ -38,18 +39,33 @@ export default function ConfirmEmail({}: ConfirmEmailProps) {
 
   return (
     <Box sx={{
-      pt: 8, // Add padding for navbar
+      pt: 8,
       minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      bgcolor: 'background.default'
+      backgroundImage: `url(${bgImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)', // White overlay with 90% opacity
+      }
     }}>
       <Paper elevation={3} sx={{
         p: 4,
         width: '100%',
         maxWidth: 400,
-        mx: 2
+        mx: 2,
+        position: 'relative', // Ensure paper stays above overlay
+        backgroundColor: 'rgba(255, 255, 255, 0.95)', // Slightly more opaque background
       }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Confirm Your Email

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Box, TextField, Button, Typography, Paper } from "@mui/material";
+import bgImage from "../assets/library-bg.png";
 
 export default function ReactivateAccount() {
   const [email, setEmail] = useState("");
@@ -30,104 +32,83 @@ export default function ReactivateAccount() {
       setMessage("An error occurred while reactivating your account.");
     }
   };
-
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "2rem auto",
-        textAlign: "center",
-        paddingTop: "80px", // Adjust for fixed navbar, if needed
-      }}
-    >
-      <h2 style={{ marginBottom: "1.5rem" }}>Reactivate Account</h2>
-
-      <form onSubmit={handleSubmit} style={{ textAlign: "left" }}>
-        {/* Email Field */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          <label
-            htmlFor="email"
-            style={{
-              display: "block",
-              fontWeight: "bold",
-              marginBottom: "0.25rem",
-            }}
-          >
-            Email:
-          </label>
-          <input
-            id="email"
+    <Box sx={{
+      pt: 8,
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundImage: `url(${bgImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)', // White overlay with 90% opacity
+      }
+    }}>
+      <Paper elevation={3} sx={{
+        p: 4,
+        width: '100%',
+        maxWidth: 400,
+        mx: 2,
+        position: 'relative', // Ensure paper stays above overlay
+        backgroundColor: 'rgba(255, 255, 255, 0.95)', // Slightly more opaque background
+      }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Reactivate Account
+        </Typography>
+        
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Email"
+            variant="outlined"
+            margin="normal"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "0.5rem",
-              boxSizing: "border-box",
-            }}
           />
-        </div>
-
-        {/* Reactivation Code Field */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          <label
-            htmlFor="reactivationCode"
-            style={{
-              display: "block",
-              fontWeight: "bold",
-              marginBottom: "0.25rem",
-            }}
-          >
-            Reactivation Code:
-          </label>
-          <input
-            id="reactivationCode"
-            type="text"
+          
+          <TextField
+            fullWidth
+            label="Reactivation Code"
+            variant="outlined"
+            margin="normal"
             value={reactivationCode}
             onChange={(e) => setReactivationCode(e.target.value)}
             required
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "0.5rem",
-              boxSizing: "border-box",
-            }}
           />
-        </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            backgroundColor: "#007bff",
-            color: "#fff",
-            border: "none",
-            padding: "0.75rem",
-            fontSize: "1rem",
-            cursor: "pointer",
-            borderRadius: "4px",
-          }}
-        >
-          Reactivate Account
-        </button>
-      </form>
+          <Button
+            fullWidth
+            variant="contained"
+            type="submit"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Reactivate Account
+          </Button>
+        </form>
 
-      {/* Message */}
-      {message && (
-        <div
-          style={{
-            marginTop: "1rem",
-            fontWeight: "bold",
-            textAlign: "center",
-            whiteSpace: "pre-wrap", // preserves line breaks if any
-          }}
-        >
-          {message}
-        </div>
-      )}
-    </div>
+        {message && (
+          <Typography 
+            sx={{ 
+              mt: 2,
+              color: message.startsWith('Error') ? 'error.main' : 'success.main'
+            }}
+          >
+            {message}
+          </Typography>
+        )}
+      </Paper>
+    </Box>
   );
 }
