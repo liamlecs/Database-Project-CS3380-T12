@@ -14,6 +14,7 @@ import {
   useTheme,
   Box
 } from "@mui/material";
+import donationBg from "../assets/donation-bg.jpg";
 
 const Donations: React.FC = () => {
   const theme = useTheme();
@@ -121,12 +122,32 @@ const Donations: React.FC = () => {
   };
 
   return (
-    <Box sx={{ marginTop: "80px" }}>
+    <Box sx={{ 
+      minHeight: '100vh',
+      paddingTop: "80px",
+      backgroundImage: `url(${donationBg})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      position: 'relative',
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      }
+    }}>
       {/* 
         Using marginTop: "80px" to push the content down, 
         preventing the global NavBar from overlapping this section. 
       */}
-      <Container maxWidth="md" sx={{ my: 6 }}>
+      <Container maxWidth="md" sx={{ my: 6,
+                position: 'relative', // Ensure content stays above overlay
+                zIndex: 1
+      }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={7}>
             <Paper
@@ -134,7 +155,7 @@ const Donations: React.FC = () => {
               sx={{
                 padding: 4,
                 borderRadius: 3,
-                background: theme.palette.background.paper,
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
               }}
             >
               <Typography
@@ -273,7 +294,7 @@ const Donations: React.FC = () => {
           </Grid>
 
           <Grid item xs={12} md={5}>
-            <Card sx={{ height: "100%", borderRadius: 3 }}>
+            <Card sx={{ height: "100%", borderRadius: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
               <CardContent sx={{ p: 4 }}>
                 <Typography
                   variant="h5"
