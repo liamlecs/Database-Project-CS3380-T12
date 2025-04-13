@@ -247,7 +247,13 @@ const Library: React.FC = () => {
 
         return (
             <div className="carousel-row" key={title} style={{ padding: "1rem", border: "1px solid #ddd", marginBottom: "1rem" }}>
-                <div className="carousel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="carousel-header" style={{ 
+    display: "flex", 
+    justifyContent: "center",  // Changed from space-between to center
+    alignItems: "center",
+    width: "100%",
+    padding: "0 1rem"  // Optional: Add some side padding
+}}>
                     <h3>{title}</h3>
                     {/* <a href="#" style={{ fontSize: "0.9rem" }}>View All</a> */}
                 </div>
