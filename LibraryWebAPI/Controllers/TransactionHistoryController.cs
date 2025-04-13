@@ -195,8 +195,8 @@ namespace LibraryWebAPI.Controllers
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
 
-            var entity = await _context.MasterTransaction
-                .FromSqlInterpolated($@"
+            var entity = (await _context.Database
+    .SqlQuery<MasterTransactionReportDto>($@"
             WITH InventoryReport AS (
                 SELECT 
                     GETUTCDATE() AS Timestamp,
@@ -224,7 +224,9 @@ namespace LibraryWebAPI.Controllers
                    (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount
             FROM InventoryReport;
         ")
-        .FirstOrDefaultAsync();
+.AsNoTracking()
+            .ToListAsync())
+            .FirstOrDefault();
 
             if (entity == null)
             {
@@ -241,7 +243,9 @@ namespace LibraryWebAPI.Controllers
         [HttpGet("masterTransactionReport")]
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReport()
         {
-var entity = await _context.Database
+            try
+    {
+var entity = (await _context.Database
     .SqlQuery<MasterTransactionReportDto>(
         $@"WITH InventoryReport AS (
                 SELECT 
@@ -277,7 +281,8 @@ var entity = await _context.Database
             FROM InventoryReport;"
     )
 .AsNoTracking()
-.FirstOrDefaultAsync();
+            .ToListAsync())
+            .FirstOrDefault();
 
             if (entity == null)
             {
@@ -287,8 +292,21 @@ var entity = await _context.Database
             entity.TransactionPopularity = null;//await GetTransactionPopularityDataAsync();
             entity.TransactionFine = null;//await GetTransactionFinesDataAsync();
 
+
             return Ok(entity);
+            
         }
+    catch (Exception ex)
+    {
+        return StatusCode(500, new
+        {
+            message = "Internal server error",
+            error = ex.Message,
+            stack = ex.StackTrace
+        });
+    }
+}
+        
 
 
         // GET: api/TransactionHistory/5
