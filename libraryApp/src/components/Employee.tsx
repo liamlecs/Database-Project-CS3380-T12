@@ -883,18 +883,14 @@ const Employee: React.FC = () => {
         Library History
       </Typography>
       <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
-        <Tab label="Checkout History" />
         <Tab label="Donation History" />
         <Tab label="Event History" />
-        <Tab label="Fine History" />
         <Tab label="Waitlist History" />
       </Tabs>
       <Box sx={{ marginTop: 2 }}>
-        {tabValue === 0 && <CheckoutHistory />}
-        {tabValue === 1 && <DonationHistory />}
-        {tabValue === 2 && <EventHistory />}
-        {tabValue === 3 && <FineHistory />}
-        {tabValue === 4 && <WaitlistHistory />}
+        {tabValue === 0 && <DonationHistory />}
+        {tabValue === 1 && <EventHistory />}
+        {tabValue === 2 && <WaitlistHistory />}
       </Box>
     </Paper>
   );
