@@ -11,6 +11,8 @@ namespace LibraryWebAPI.Models
     public required string Title { get; set; }
     public int Count { get; set; }
 
+    public int ItemId { get; set; }
+
     public required string ItemType { get; set; }
     }
 }
