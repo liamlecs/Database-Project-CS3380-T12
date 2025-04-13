@@ -94,6 +94,9 @@
               <li>
                 <Link to="/employee-login">Employee Login</Link>
               </li>
+              <li>
+              <Link to="/requestreactivation">Request Reactivation</Link>
+              </li>
             </>
           )}
 
@@ -127,9 +130,6 @@
             <>
             <li>
               <Link to="/donations">Donate</Link>
-            </li>
-            <li>
-              <Link to="/requestreactivation">Request Reactivation</Link>
             </li>
             </>
           )}
