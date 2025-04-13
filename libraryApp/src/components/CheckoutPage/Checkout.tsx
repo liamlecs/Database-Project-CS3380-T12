@@ -8,7 +8,7 @@ const CheckoutPage: React.FC = () => {
   // Retrieve borrowerTypeId from localStorage.
   // borrowerTypeId = "1" for Student, "2" for Faculty.
   const borrowerTypeId = localStorage.getItem("borrowerTypeId");
-  console.log("borrowerTypeId from localStorage:", borrowerTypeId);
+  // console.log("borrowerTypeId from localStorage:", borrowerTypeId);
 
   // Set loan period based on borrowerTypeId:
   // Faculty (2) = 14 days, Student (1) = 7 days.
@@ -29,76 +29,61 @@ const CheckoutPage: React.FC = () => {
       alert("Your cart is empty.");
       return;
     }
-
+  
     const customerId = localStorage.getItem("userId");
     if (!customerId) {
       alert("Error: User is not logged in.");
       return;
     }
-
+  
     try {
-      // Fetch the user's transaction history to check for items with ReturnDate = NULL
+      // Fetch the user's transaction history
       const transactionHistoryResponse = await fetch(
-        `${
-          import.meta.env.VITE_API_BASE_URL
-        }/api/TransactionHistory/${customerId}`
+        `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory/${customerId}`
       );
-      if (!transactionHistoryResponse.ok) {
+  
+      let activeTransactions: any[] = [];
+  
+      // Check if response indicates no transactions (e.g., 404 Not Found or 204 No Content)
+      if (transactionHistoryResponse.status === 404 || transactionHistoryResponse.status === 204) {
+        activeTransactions = [];
+      } else if (!transactionHistoryResponse.ok) {
         const errorText = await transactionHistoryResponse.text();
         throw new Error(`Failed to fetch transaction history: ${errorText}`);
+      } else {
+        activeTransactions = await transactionHistoryResponse.json();
       }
-
-      const activeTransactions = await transactionHistoryResponse.json();
-      //console.log("Active transactions:", activeTransactions);
-
-      //Filter for how many transactions have a null return date
+  
+      // Filter for how many transactions have a null return date
       const activeItemCount = activeTransactions.filter(
-        (transaction: { returnDate: string | null }) =>
-          transaction.returnDate === null
+        (transaction: { returnDate: string | null }) => transaction.returnDate === null
       ).length;
-
+  
       // Calculate the total number of items after this transaction
       const totalItemsAfterCheckout = activeItemCount + cart.length;
-
-      //console.log("Total items after checkout:", totalItemsAfterCheckout);
-      //Check how many active items the user has checked out
-      //console.log("Active transactions:", activeItemCount);
-
-      // Determine the borrowing limit based on the user type
+  
+      // Determine borrower type and borrowing limits
       const borrowingLimit = borrowerTypeId === "2" ? 10 : 5;
-
-
+  
       if (borrowerTypeId === "2") {
-        // Faculty can have 10 active items
-        if (totalItemsAfterCheckout == 11) {
+        if (totalItemsAfterCheckout > 10) {
           alert(
             "You have reached your borrowing limit. You already have 10 or more items checked out that have not been returned."
           );
           return;
         }
       } else if (borrowerTypeId === "1") {
-        // Students can have 5 active items
-        if (totalItemsAfterCheckout == 6) {
+        if (totalItemsAfterCheckout > 5) {
           alert(
             "You have reached your borrowing limit. You already have 5 or more items checked out that have not been returned."
           );
           return;
         }
       }
-
-      // Check if the total exceeds the borrowing limit
-      if (totalItemsAfterCheckout > borrowingLimit) {
-        const itemsToRemove = totalItemsAfterCheckout - borrowingLimit;
-        alert(
-          `You cannot check out these items. You currently have ${activeItemCount} active items, and adding ${cart.length} item(s) would exceed your limit of ${borrowingLimit}. Please remove at least ${itemsToRemove} item(s) from your cart to proceed.`
-        );
-        return;
-      }
-
-
-
+  
+      // Proceed to process each item in the cart
       for (const item of cart) {
-        // 1. Update the available copies (subtract one).
+        // 1. Update the available copies (subtract one)
         const updateResponse = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
           {
@@ -114,8 +99,8 @@ const CheckoutPage: React.FC = () => {
           const errorText = await updateResponse.text();
           throw new Error(`Failed to update Item ${item.ItemID}: ${errorText}`);
         }
-
-        // 2. Create a transaction record using the computed checkout and due dates.
+  
+        // 2. Create a transaction record
         const transactionRecord = {
           CustomerId: parseInt(customerId, 10),
           ItemId: item.ItemID,
@@ -123,7 +108,7 @@ const CheckoutPage: React.FC = () => {
           DueDate: dueDateStr,
           ReturnDate: null,
         };
-
+  
         const transactionResponse = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/TransactionHistory`,
           {
@@ -139,7 +124,7 @@ const CheckoutPage: React.FC = () => {
           );
         }
       }
-
+  
       clearCart();
       alert(
         "Thank you for your checkout! Your items have been processed and recorded in your transaction history."
