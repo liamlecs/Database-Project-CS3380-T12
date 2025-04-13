@@ -295,7 +295,7 @@ const Donations: React.FC = () => {
           </Grid>
 
           <Grid item xs={12} md={5}>
-            <Card sx={{ height: "100%", borderRadius: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+            <Card sx={{ height: "auto", borderRadius: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
               <CardContent sx={{ p: 4 }}>
                 <Typography
                   variant="h5"
@@ -395,6 +395,12 @@ const Donations: React.FC = () => {
           autoHideDuration={6000}
           onClose={() => setDonationSuccess(false)}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          sx={{
+            // Override the default positioning to center the Snackbar.
+            top: "50% !important",
+            left: "50% !important",
+            transform: "translate(-50%, -50%)",
+          }}
         >
           <Alert
             onClose={() => setDonationSuccess(false)}
