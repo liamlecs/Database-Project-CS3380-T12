@@ -189,12 +189,13 @@ namespace LibraryWebAPI.Controllers
         [HttpGet("masterTransactionReportConditional/{start:datetime}/{end:datetime}")] //this works while the main function had to be heavily changed, maybe the change that solved it was in the
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReportConditional([FromRoute] DateOnly start, [FromRoute] DateOnly end)
         {
+            
             _logger.LogInformation("Received master report request with start: {Start} and end: {End}", start, end);
 
             var startDateTime = start.ToDateTime(TimeOnly.MinValue);
             var endDateTime = end.ToDateTime(TimeOnly.MaxValue);
 
-            var entity = _context.MasterTransaction
+            var entity = await _context.MasterTransaction
                 .FromSqlInterpolated($@"
             WITH InventoryReport AS (
                 SELECT 
@@ -223,8 +224,7 @@ namespace LibraryWebAPI.Controllers
                    (AvailableBookCount + AvailableMovieCount + AvailableMusicCount + AvailableTechCount) AS TotalAvailableCount
             FROM InventoryReport;
         ")
-                .AsEnumerable()
-                .FirstOrDefault();
+        .FirstOrDefaultAsync();
 
             if (entity == null)
             {
@@ -241,7 +241,7 @@ namespace LibraryWebAPI.Controllers
         [HttpGet("masterTransactionReport")]
         public async Task<ActionResult<MasterTransactionReportDto>> MasterTransactionReport()
         {
-var entity = _context.Database
+var entity = await _context.Database
     .SqlQuery<MasterTransactionReportDto>(
         $@"WITH InventoryReport AS (
                 SELECT 
@@ -277,8 +277,7 @@ var entity = _context.Database
             FROM InventoryReport;"
     )
 .AsNoTracking()
-    .AsEnumerable()
-    .FirstOrDefault();
+.FirstOrDefaultAsync();
 
             if (entity == null)
             {
