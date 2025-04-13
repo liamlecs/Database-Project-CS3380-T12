@@ -132,14 +132,14 @@ export default function PopularityReport() {
   ];
 
   const contextColumns: GridColDef[] = [
-    { field: "title", headerName: "Title", width: 200 },
+    //{ field: "title", headerName: "Title", width: 200 },
     { field: "email", headerName: "Email", width: 180 },
     { field: "firstName", headerName: "First Name", width: 120 },
     { field: "lastName", headerName: "Last Name", width: 120 },
     { field: "type", headerName: "Type", width: 100 },
     { field: "dateBorrowed", headerName: "Date Borrowed", width: 130 },
     { field: "dueDate", headerName: "Due Date", width: 130 },
-    { field: "itemType", headerName: "Item Type", width: 120 },
+    //{ field: "itemType", headerName: "Item Type", width: 120 },
   ];
   
 
