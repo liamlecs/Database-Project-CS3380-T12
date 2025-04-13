@@ -24,7 +24,7 @@ interface FineSummaryDto {
   associatedItemTitle?: string;
   associatedItemType?: string;
   maxFineCustomerEmail?: string;
-  avgDaysLate?: number;
+  //avgDaysLate?: number;
 }
 
 export interface CustomerReportDto {
@@ -169,7 +169,7 @@ export default function ItemFineReport() {
             Fine Summary Overview
           </Typography>
 
-          <Grid container spacing={2}>
+          <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} md={4}>
               <Card sx={{ height: "100%" }}>
                 <CardContent>
@@ -214,7 +214,7 @@ export default function ItemFineReport() {
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            {/*<Grid item xs={12} md={4}>
               <Card sx={{ height: "100%" }}>
                 <CardContent>
                   <Typography variant="subtitle2" color="textSecondary" gutterBottom>
@@ -225,7 +225,7 @@ export default function ItemFineReport() {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Grid>*/}
           </Grid>
 
           <Divider sx={{ my: 4 }} />

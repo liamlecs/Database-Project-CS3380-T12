@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import React from "react";
 
-export default function TermsAndConditionsPage() {
+export default function CustomerLookupReport() {
   const [email, setEmail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [validInformation, setValidInformation] = React.useState("");
