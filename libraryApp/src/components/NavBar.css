@@ -13,11 +13,21 @@
 }
   
   .site-title {
-    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    color: #333;
     text-decoration: none;
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: bold;
   }
+
+  /* Logo image styling */
+.nav-logo {
+  height: 60px;  /* Adjust based on your logo size preferences */
+  width: auto;
+  border-radius: 4px;  /* Optional for rounded corners */
+}
   
   .nav ul {
     list-style: none;

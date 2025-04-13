@@ -10,7 +10,7 @@ export default function Footer() {
         marginTop: "2rem",
       }}
     >
-      &copy; E-Library 2025 - Team 12 COSC 3380 @ UH
+      &copy; Copyright E-Library 2025 - Team 12 COSC 3380 @ UH
     </div>
   );
 }   

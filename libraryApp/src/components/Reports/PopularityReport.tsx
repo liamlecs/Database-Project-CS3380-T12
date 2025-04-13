@@ -123,9 +123,7 @@ export default function PopularityReport() {
           variant="outlined"
           size="small"
           onClick={() => 
-            {console.log("Clicked itemId:", params.row.itemId);
-
-            handleGenerateContextTable(params.row.itemId)}}
+            {handleGenerateContextTable(params.row.itemId)}}
         >
           Expand
         </Button>

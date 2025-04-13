@@ -1,5 +1,6 @@
   import React, { useState, useEffect } from "react";
   import { Link, useNavigate } from "react-router-dom";
+  import logo from "../assets/library-logo.png"; // Adjust the path as necessary
   import "./NavBar.css";
   import { useCheckout } from "../contexts/CheckoutContext";
   
@@ -73,6 +74,7 @@
       <nav className="nav">
         {/* Left side: Site Title */}
         <Link to="/" className="site-title">
+        <img src={logo} className="nav-logo" alt="E-Library Logo" />
           E-Library @ UH
         </Link>
 

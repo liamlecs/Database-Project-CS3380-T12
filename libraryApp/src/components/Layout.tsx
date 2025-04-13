@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import NavBar from "./NavBar"; // adjust path if needed
 import Footer from "./Footer"; // adjust path if needed
 import { Box } from "@mui/material";
+import BackToTopButton from "./BackToTopButton.tsx";
 
 export default function Layout() {
   return (
@@ -12,6 +13,7 @@ export default function Layout() {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh", // Ensures the layout takes up full viewport height
+        position: "relative", // Add this for proper positioning context
       }}
     >
       {/* Global Navigation Bar */}
@@ -21,6 +23,10 @@ export default function Layout() {
       <Box sx={{ flexGrow: 1 }}>
         <Outlet />
       </Box>
+
+      {/* Back to Top Button - positioned outside main content flow */}
+      <BackToTopButton />
+
 
       {/* Footer stays at the bottom */}
       <Footer />
