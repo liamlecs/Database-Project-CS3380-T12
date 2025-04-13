@@ -1,38 +1,50 @@
-import React from "react";
+import React, { useState } from "react";
 import { useCheckout } from "../../contexts/CheckoutContext";
 import "./Checkout.css";
+import { Snackbar, Alert, AlertTitle } from "@mui/material";
+import { SnackbarCloseReason } from "@mui/material/Snackbar";
+
 
 const CheckoutPage: React.FC = () => {
   const { cart, userType, removeFromCart, clearCart } = useCheckout();
 
-  // Retrieve borrowerTypeId from localStorage.
-  // borrowerTypeId = "1" for Student, "2" for Faculty.
+  // Retrieve borrowerTypeId from localStorage (Student = "1", Faculty = "2")
   const borrowerTypeId = localStorage.getItem("borrowerTypeId");
-  // console.log("borrowerTypeId from localStorage:", borrowerTypeId);
 
   // Set loan period based on borrowerTypeId:
-  // Faculty (2) = 14 days, Student (1) = 7 days.
-  let loanPeriod = 7; // default to student
-  if (borrowerTypeId === "2") {
-    loanPeriod = 14;
-  }
+  let loanPeriod = borrowerTypeId === "2" ? 14 : 7; // Faculty gets 14 days, Student gets 7 days
 
-  // Compute checkout date and due date (format "yyyy-MM-dd").
+  // Compute checkout date and due date (format "yyyy-MM-dd")
   const now = new Date();
   const checkoutDate = now.toISOString().split("T")[0];
   const dueDateObj = new Date(now);
   dueDateObj.setDate(now.getDate() + loanPeriod);
   const dueDateStr = dueDateObj.toISOString().split("T")[0];
 
+  // For nicer error messaging via Snackbar
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent<Element, Event> | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+    setCheckoutError(null);
+  };
+
   const handleCheckout = async () => {
     if (cart.length === 0) {
-      alert("Your cart is empty.");
+      setCheckoutError("Your cart is empty.");
+      setSnackbarOpen(true);
       return;
     }
   
     const customerId = localStorage.getItem("userId");
     if (!customerId) {
-      alert("Error: User is not logged in.");
+      setCheckoutError("Error: User is not logged in.");
+      setSnackbarOpen(true);
       return;
     }
   
@@ -44,7 +56,6 @@ const CheckoutPage: React.FC = () => {
   
       let activeTransactions: any[] = [];
   
-      // Check if response indicates no transactions (e.g., 404 Not Found or 204 No Content)
       if (transactionHistoryResponse.status === 404 || transactionHistoryResponse.status === 204) {
         activeTransactions = [];
       } else if (!transactionHistoryResponse.ok) {
@@ -54,36 +65,30 @@ const CheckoutPage: React.FC = () => {
         activeTransactions = await transactionHistoryResponse.json();
       }
   
-      // Filter for how many transactions have a null return date
+      // Count active transactions (items not returned)
       const activeItemCount = activeTransactions.filter(
         (transaction: { returnDate: string | null }) => transaction.returnDate === null
       ).length;
   
-      // Calculate the total number of items after this transaction
       const totalItemsAfterCheckout = activeItemCount + cart.length;
   
-      // Determine borrower type and borrowing limits
+      // Determine borrowing limit (Student = 5, Faculty = 10)
       const borrowingLimit = borrowerTypeId === "2" ? 10 : 5;
   
-      if (borrowerTypeId === "2") {
-        if (totalItemsAfterCheckout > 10) {
-          alert(
-            "You have reached your borrowing limit. You already have 10 or more items checked out that have not been returned."
-          );
-          return;
-        }
-      } else if (borrowerTypeId === "1") {
-        if (totalItemsAfterCheckout > 5) {
-          alert(
-            "You have reached your borrowing limit. You already have 5 or more items checked out that have not been returned."
-          );
-          return;
-        }
+      if (totalItemsAfterCheckout > borrowingLimit) {
+        const overBy = totalItemsAfterCheckout - borrowingLimit;
+        setCheckoutError(
+          `You cannot check out these ${cart.length} item(s) because that would exceed your limit of ${borrowingLimit}. ` +
+          `You currently have ${activeItemCount} checked out, and adding these ${cart.length} brings you to ${totalItemsAfterCheckout}. ` +
+          `Please remove at least ${overBy} item(s) from your cart or return some items first.`
+        );
+        setSnackbarOpen(true);
+        return;
       }
   
-      // Proceed to process each item in the cart
+      // Process each item in the cart
       for (const item of cart) {
-        // 1. Update the available copies (subtract one)
+        // 1. Update available copies (subtract one)
         const updateResponse = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`,
           {
@@ -119,39 +124,31 @@ const CheckoutPage: React.FC = () => {
         );
         if (!transactionResponse.ok) {
           const errorText = await transactionResponse.text();
-          throw new Error(
-            `Failed to create transaction for Item ${item.ItemID}: ${errorText}`
-          );
+          throw new Error(`Failed to create transaction for Item ${item.ItemID}: ${errorText}`);
         }
       }
   
       clearCart();
-      alert(
-        "Thank you for your checkout! Your items have been processed and recorded in your transaction history."
-      );
+      alert("Thank you for your checkout! Your items have been processed and recorded in your transaction history.");
     } catch (error) {
       console.error("Checkout error:", error);
-      alert("An error occurred during checkout. Please try again.");
+      setCheckoutError("An error occurred during checkout. Please try again.");
+      setSnackbarOpen(true);
     }
   };
-
+  
   return (
     <div className="checkout-container"
-    style={{
-      // Add top margin so it’s not hidden by the nav bar
-      marginTop: "80px",
-      // Optional padding if you want some white space around
-      padding: "1rem",
-    }}>
+      style={{
+        marginTop: "80px", // Prevent overlap with nav bar
+        padding: "1rem",
+      }}
+    >
       <h1>Checkout Summary</h1>
       <p>
         User Type:{" "}
         <strong>
-          {borrowerTypeId === "1"
-            ? "Student"
-            : borrowerTypeId === "2"
-            ? "Faculty"
-            : "Unknown"}
+          {borrowerTypeId === "1" ? "Student" : borrowerTypeId === "2" ? "Faculty" : "Unknown"}
         </strong>
       </p>
       {cart.length === 0 ? (
@@ -185,13 +182,29 @@ const CheckoutPage: React.FC = () => {
             </tbody>
           </table>
           <div style={{ textAlign: "center", marginTop: "1rem" }}>
-  <button className="checkout-button" onClick={handleCheckout}>
-    Finalize Checkout
-  </button>
-</div>
-
+            <button className="checkout-button" onClick={handleCheckout}>
+              Finalize Checkout
+            </button>
+          </div>
         </>
       )}
+  
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          <AlertTitle>Error</AlertTitle>
+          {checkoutError}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
