@@ -7,10 +7,10 @@ export default function Footer() {
         textAlign: "center",
         padding: "1rem",
         backgroundColor: "#f4f4f4",
-        marginTop: "2rem",
+        marginTop: "1rem",
       }}
     >
-      &copy; Copyright E-Library 2025 - Team 12 COSC 3380 @ UH
+      &copy; 2025 E-Library @ UH. All rights reserved.
     </div>
   );
 }   
