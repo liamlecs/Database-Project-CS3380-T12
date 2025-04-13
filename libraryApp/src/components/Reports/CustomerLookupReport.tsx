@@ -86,6 +86,7 @@ export default function CustomerLookupReport() {
 
   const handleCall = async () => {
     setLoading(true);
+
     try {
       const response1 = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Customer/by-email/${encodeURIComponent(email)}`
@@ -101,7 +102,9 @@ export default function CustomerLookupReport() {
       );
 
       if (!response1.ok || !response2.ok || !response3.ok || !response4.ok) {
+        alert("Invalid email, please confirm your email is associated with a customer account and try again.");
         throw new Error("One or more requests failed");
+       
       }
 
       const generalReport = await response1.json();
@@ -126,6 +129,7 @@ export default function CustomerLookupReport() {
 
   return (
     <Stack spacing={2} direction="column" alignItems="center" sx={{ marginTop: "20px" }}>
+       <Typography variant="h5" >Customer Lookup</Typography>
       <Stack spacing={2} direction="row" alignItems="center" sx={{ width: "80%", marginTop: "20px" }}>
         <FormControl sx={{ flex: 1 }}>
           <TextField
