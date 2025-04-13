@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, TextField, Button, Typography, Paper, Link } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/library-bg.png"; // Use your background image
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
 
 const EMAILJS_USER_ID = import.meta.env.VITE_EMAILJS_USER_ID;
 const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
