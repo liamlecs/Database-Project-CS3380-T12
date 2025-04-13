@@ -1,176 +1,145 @@
-  import React, { useState, useEffect } from "react";
-  import { Link, useNavigate } from "react-router-dom";
-  import logo from "../assets/library-logo.png"; // Adjust the path as necessary
-  import "./NavBar.css";
-  import { useCheckout } from "../contexts/CheckoutContext";
-  
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/library-logo.png";
+import "./NavBar.css";
+import { useCheckout } from "../contexts/CheckoutContext";
 
-  export default function Navbar() {
-    const navigate = useNavigate();
-    const { cart } = useCheckout(); // Get cart from checkout context
+const NavBar: React.FC = React.memo(function NavBar() {
+  const navigate = useNavigate();
+  const { cart } = useCheckout();
 
-    // Local state for login info and dropdown toggle
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [isEmployeeLoggedIn, setIsEmployeeLoggedIn] = useState(false);
-    const [employeeFirstName, setEmployeeFirstName] = useState("");
-    const [employeeLastName, setEmployeeLastName] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [showMenu, setShowMenu] = useState(false);
+  // Initialize state directly from localStorage
+  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem("isLoggedIn") === "true");
+  const [isEmployeeLoggedIn, setIsEmployeeLoggedIn] = useState(() => localStorage.getItem("isEmployeeLoggedIn") === "true");
+  const [employeeFirstName, setEmployeeFirstName] = useState(() => localStorage.getItem("employeeFirstName") || "");
+  const [employeeLastName, setEmployeeLastName] = useState(() => localStorage.getItem("employeeLastName") || "");
+  const [firstName, setFirstName] = useState(() => localStorage.getItem("firstName") || "");
+  const [lastName, setLastName] = useState(() => localStorage.getItem("lastName") || "");
+  const [email, setEmail] = useState(() => localStorage.getItem("email") || "");
+  const [showMenu, setShowMenu] = useState(false);
 
-    // On component mount, read login info from localStorage
-    useEffect(() => {
-      // Check if the employee is logged in
-      const employeeLoggedIn = localStorage.getItem("isEmployeeLoggedIn") === "true";
-      setIsEmployeeLoggedIn(employeeLoggedIn);
-      if (employeeLoggedIn) {
-        setEmployeeFirstName(localStorage.getItem("employeeFirstName") || "");
-        setEmployeeLastName(localStorage.getItem("employeeLastName") || "");
-      }
+  // Optionally, keep the effect to update state if localStorage can change during the app lifecycle
+  useEffect(() => {
+    const employeeLoggedIn = localStorage.getItem("isEmployeeLoggedIn") === "true";
+    setIsEmployeeLoggedIn(employeeLoggedIn);
+    if (employeeLoggedIn) {
+      setEmployeeFirstName(localStorage.getItem("employeeFirstName") || "");
+      setEmployeeLastName(localStorage.getItem("employeeLastName") || "");
+    }
 
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    setIsLoggedIn(loggedIn);
+    if (loggedIn) {
+      setFirstName(localStorage.getItem("firstName") || "");
+      setLastName(localStorage.getItem("lastName") || "");
+      setEmail(localStorage.getItem("email") || "");
+    }
+  }, []);
 
-      // Check if the user is logged in
-      const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-      setIsLoggedIn(loggedIn);
-      if (loggedIn) {
-        setFirstName(localStorage.getItem("firstName") || "");
-        setLastName(localStorage.getItem("lastName") || "");
-        setEmail(localStorage.getItem("email") || "");
-      }
-    }, []);
+  const toggleMenu = () => {
+    if (isLoggedIn || isEmployeeLoggedIn) {
+      setShowMenu((prev) => !prev);
+    } else {
+      navigate("/customer-login");
+    }
+  };
 
-    // Toggle the dropdown menu when avatar is clicked
-    const toggleMenu = () => {
-      // Check if the user is logged in before toggling the menu
-      if (isLoggedIn || isEmployeeLoggedIn) {
-        setShowMenu((prev) => !prev);
-      } else {
-        navigate("/customer-login");
-      }
-    };
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("isEmployeeLoggedIn");
+    localStorage.removeItem("employeeFirstName");
+    localStorage.removeItem("employeeLastName");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("lastName");
+    localStorage.removeItem("email");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("employeeId");
+    localStorage.removeItem("userType");
+    setIsLoggedIn(false);
+    setShowMenu(false);
+    setIsEmployeeLoggedIn(false);
+    window.location.href = "/customer-login";
+    alert("Logged out successfully.");
+  };
 
-    // Handle log out by clearing localStorage and navigating to login
-    const handleLogout = () => {
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("isEmployeeLoggedIn");
-      localStorage.removeItem("employeeFirstName");
-      localStorage.removeItem("employeeLastName");
-      localStorage.removeItem("firstName");
-      localStorage.removeItem("lastName");
-      localStorage.removeItem("email");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("employeeId");
-      localStorage.removeItem("userType");
-      setIsLoggedIn(false);
-      setShowMenu(false);
-      setIsEmployeeLoggedIn(false);
-      // Force a full reload to ensure all components update their state
-      window.location.href = "/customer-login";
-      alert("Logged out successfully.");
-    };
-
-    return (
-      <nav className="nav">
-        {/* Left side: Site Title */}
-        <Link to="/" className="site-title">
+  return (
+    <nav className="nav">
+      <Link to="/" className="site-title">
         <img src={logo} className="nav-logo" alt="E-Library Logo" />
-          E-Library @ UH
-        </Link>
-
-        {/* Middle: Navigation Links */}
-        <ul>
-          <li>
-            <Link to="/eventscalendar">Event Calendar</Link>
-          </li>
-
-
-          
-
-          {/* Only show these links if NOT customer or employee logged in */}
-          {!isLoggedIn && !isEmployeeLoggedIn && (
-            <>
-              <li>
-                <Link to="/registrationpage">Registration</Link>
-              </li>
-              <li>
-                <Link to="/customer-login">Customer Login</Link>
-              </li>
-              <li>
-                <Link to="/employee-login">Employee Login</Link>
-              </li>
-              <li>
-              <Link to="/requestreactivation">Request Reactivation</Link>
-              </li>
-            </>
-          )}
-
-
-          {/* Only show these links if customer logged in */}
-          {isLoggedIn && (
-            <>
-              <li>
-                <Link to="/bookcheckout">Cart ({cart.length})</Link>
-              </li>
-              <li>
-                <Link to="/UserProfile">User Profile</Link>
-              </li>
-            </>
-          )}
-
-          {/* Only show these links if employee logged in */}
-          {isEmployeeLoggedIn && !isLoggedIn && (
-            <>
-              <li>
-                <Link to="/reportsoutlet">Reports Outlet</Link>
-              </li>
-              <li>
-                <Link to="/Employee">Employee Dashboard</Link>
-              </li>
-            </>
-          )}
-
-          {/* Always show these links unless employee logged in*/}
-          {!isEmployeeLoggedIn && ( 
-            <>
+        E-Library @ UH
+      </Link>
+      <ul>
+        <li>
+          <Link to="/eventscalendar">Event Calendar</Link>
+        </li>
+        {!isLoggedIn && !isEmployeeLoggedIn && (
+          <>
             <li>
-              <Link to="/donations">Donate</Link>
+              <Link to="/registrationpage">Registration</Link>
             </li>
-            </>
-          )}
-
+            <li>
+              <Link to="/customer-login">Customer Login</Link>
+            </li>
+            <li>
+              <Link to="/employee-login">Employee Login</Link>
+            </li>
+            <li>
+              <Link to="/requestreactivation">Request Reactivation</Link>
+            </li>
+          </>
+        )}
+        {isLoggedIn && (
+          <>
+            <li>
+              <Link to="/bookcheckout">Cart ({cart.length})</Link>
+            </li>
+            <li>
+              <Link to="/UserProfile">User Profile</Link>
+            </li>
+          </>
+        )}
+        {isEmployeeLoggedIn && !isLoggedIn && (
+          <>
+            <li>
+              <Link to="/reportsoutlet">Reports Outlet</Link>
+            </li>
+            <li>
+              <Link to="/Employee">Employee Dashboard</Link>
+            </li>
+          </>
+        )}
+        {!isEmployeeLoggedIn && (
           <li>
-            <Link to="/contact">Contact Us</Link>
+            <Link to="/donations">Donate</Link>
           </li>
-          
-        </ul>
-
-        {/* Right side: User Avatar */}
-        <div className="avatar-container" onClick={toggleMenu}>
-          <div className="avatar-circle">
-            {localStorage.getItem("isEmployeeLoggedIn") === "true" && localStorage.getItem("employeeFirstName")
-              ? localStorage.getItem("employeeFirstName")?.charAt(0).toUpperCase()
-              : localStorage.getItem("isLoggedIn") === "true" && localStorage.getItem("firstName")
-                ? localStorage.getItem("firstName")?.charAt(0).toUpperCase()
-                : "?"
-            }
+        )}
+        <li>
+          <Link to="/contact">Contact Us</Link>
+        </li>
+      </ul>
+      <div className="avatar-container" onClick={toggleMenu}>
+        <div className="avatar-circle">
+          {isEmployeeLoggedIn && employeeFirstName
+            ? employeeFirstName.charAt(0).toUpperCase()
+            : isLoggedIn && firstName
+            ? firstName.charAt(0).toUpperCase()
+            : "?"}
+        </div>
+        {showMenu && (
+          <div className="avatar-dropdown">
+            <p className="avatar-name">
+              {isEmployeeLoggedIn
+                ? `${employeeFirstName} ${employeeLastName}`
+                : `${firstName} ${lastName}`}
+            </p>
+            {!isEmployeeLoggedIn && <p className="avatar-email">{email}</p>}
+            <hr />
+            <button onClick={handleLogout}>Sign Out</button>
           </div>
-          {showMenu && (
-            <div className="avatar-dropdown">
-              <p className="avatar-name">
-                {localStorage.getItem("isEmployeeLoggedIn") === "true"
-                  ? `${localStorage.getItem("employeeFirstName") || ''} ${localStorage.getItem("employeeLastName") || ''}`
-                  : `${localStorage.getItem("firstName") || ''} ${localStorage.getItem("lastName") || ''}`
-                }
-              </p>
-              {localStorage.getItem("isEmployeeLoggedIn") !== "true" && 
-                <p className="avatar-email">{localStorage.getItem("email") || ''}</p>
-              }
-              <hr />
-              <button onClick={handleLogout}>Sign Out</button>
-            </div>
-          )}
+        )}
       </div>
-      </nav>
-    );
-  }
+    </nav>
+  );
+});
+
+export default NavBar;
