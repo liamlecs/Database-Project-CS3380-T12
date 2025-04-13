@@ -133,6 +133,10 @@ export default function MasterTransactionReport() {
     setLoading(true);
     try {
 
+if(!!selectedStartDate && !!selectedEndDate && selectedStartDate>selectedEndDate){
+  alert("Start date cannot be after end date. Please input a valid date combination.");
+return;
+}
       // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
       let response;
       // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
@@ -218,6 +222,7 @@ export default function MasterTransactionReport() {
 
   return (
     <Stack spacing={4} alignItems="center" sx={{ mt: 4 }}>
+       <Typography variant="h5" >Master Library Report</Typography>
       <Stack direction="row" spacing={2} alignItems="center">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker label="Start Date (Optional)" value={selectedStartDate} onChange={setSelectedStartDate} disableFuture />

@@ -199,7 +199,7 @@ namespace LibraryWebAPI.Controllers
             WITH InventoryReport AS (
                 SELECT 
                     GETUTCDATE() AS Timestamp,
-                    (SELECT COUNT(*) FROM Customer WHERE {startDateTime} < MembershipStartDate AND MembershipStartDate < {endDateTime} AND EmailConfirmed = 1) AS RegisteredUsersThatJoined,
+                    (SELECT COUNT(*) FROM Customer WHERE {startDateTime} <= MembershipStartDate AND MembershipStartDate <= {endDateTime} AND EmailConfirmed = 1) AS RegisteredUsersThatJoined,
                     (SELECT COUNT(*) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS BookTitleCount,
                     (SELECT SUM(Item.TotalCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS TotalBookCount,
                     (SELECT SUM(Item.AvailableCopies) FROM Item JOIN ItemType ON Item.ItemTypeID = ItemType.ItemTypeID WHERE ItemType.TypeName = 'Book') AS AvailableBookCount,

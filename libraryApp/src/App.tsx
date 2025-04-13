@@ -195,6 +195,14 @@ function AppRoutes() {
             }
           >
             <Route
+    index
+    element={
+      <AnimatedPage>
+        <MasterTransactionReport />
+      </AnimatedPage>
+    }
+  />
+            <Route
               path="popularityreport"
               element={
                 <AnimatedPage>
