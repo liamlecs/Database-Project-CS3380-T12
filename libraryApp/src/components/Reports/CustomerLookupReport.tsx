@@ -77,6 +77,13 @@ export default function CustomerLookupReport() {
     return data;
   };
 
+  const filterWaitlist = (data: typeof waitlistReportOutput) => {
+    if (validInformation === "1") return data.filter(item => item.waitlistPosition !== -1);
+    if (validInformation === "0") return data.filter(item => item.waitlistPosition === -1);
+    return data;
+  };
+  
+
   const handleCall = async () => {
     setLoading(true);
     try {
@@ -104,7 +111,8 @@ export default function CustomerLookupReport() {
 
       setReportOutput([generalReport]);
       setTransactionReportOutput(transactionReport);
-      setWaitlistReportOutput(waitlistReport);
+      setWaitlistReportOutput(filterWaitlist(waitlistReport));
+
       setFineReportOutput(fineReport);
 
       setDisplayedTransactions(filterTransactions(transactionReport));
