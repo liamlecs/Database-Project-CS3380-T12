@@ -45,8 +45,9 @@ const CreateEvent: React.FC = () => {
     const payload = {
       title,
       location,
-      startTimestamp: startTime?.toISOString(),
-      endTimestamp: endTime?.toISOString(),
+      startTimestamp: startTime?.format("YYYY-MM-DDTHH:mm"),
+endTimestamp: endTime?.format("YYYY-MM-DDTHH:mm"),
+
       ageGroup,
       categoryId: category,
       isPrivate,
