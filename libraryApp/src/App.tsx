@@ -5,6 +5,7 @@ import {
   Routes,
   useLocation,
 } from "react-router-dom";
+import ResetPasswordPage from "./components/ResetPasswordPage";
 import DonationHistory from "./components/LiHistSubcomponents/DonationHistory.tsx";
 import CheckoutHistory from "./components/LiHistSubcomponents/CheckoutHistory.tsx";
 import EventHistory from "./components/LiHistSubcomponents/EventHistory.tsx";
@@ -54,6 +55,7 @@ function AppRoutes() {
               </AnimatedPage>
             }
           />
+          
           <Route
             path="eventscalendar"
             element={
@@ -86,6 +88,11 @@ function AppRoutes() {
               </AnimatedPage>
             }
           />
+          <Route path="/ResetPassword" element={
+              <AnimatedPage>
+              <ResetPasswordPage />
+              </AnimatedPage>
+          } />
           <Route
             path="registrationpage"
             element={

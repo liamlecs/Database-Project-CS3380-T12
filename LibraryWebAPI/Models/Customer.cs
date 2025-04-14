@@ -17,6 +17,9 @@ namespace LibraryWebAPI.Models
         // You can use this field to store the code that is sent out for reactivation.
         public string? ReactivationCode { get; set; }
 
+        public string? ResetPasswordToken { get; set; }
+        public DateTime? ResetPasswordTokenExpiration { get; set; }
+
         public string FirstName { get; set; } = null!;
 
         public string LastName { get; set; } = null!;
