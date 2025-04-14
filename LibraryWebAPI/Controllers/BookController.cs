@@ -160,9 +160,9 @@ public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
             {
                 await dto.Cover.CopyToAsync(stream);
             }
-
-            var fileUrl = $"{Request.Scheme}://{Request.Host}/uploads/book_covers/{fileName}";
-            return Ok(new { url = fileUrl });
+            
+            var relativeUrl = $"/uploads/book_covers/{fileName}";
+            return Ok(new { url = relativeUrl });
         }
 
 

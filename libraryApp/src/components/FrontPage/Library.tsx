@@ -5,6 +5,31 @@ import welcomeBg from "../../assets/welcome_background.jpg";
 import defaultItemImage from "../../assets/welcome_background.jpg";
 import { useCheckout } from "../../contexts/CheckoutContext";
 
+// Read the public asset base URL from an environment variable.
+// For example, in production, set VITE_PUBLIC_ASSET_BASE_URL=https://api.yourdomain.com in your environment.
+const publicAssetBaseUrl = import.meta.env.VITE_PUBLIC_ASSET_BASE_URL || "";
+
+/**
+ * Resolves the cover image URL.
+ * - If the URL contains "localhost:5217", replace that part with the public base URL.
+ * - Otherwise, return the URL as is.
+ */
+const resolveCoverImageUrl = (coverImagePath?: string, fallback?: string): string => {
+  if (!coverImagePath) {
+    return fallback || defaultItemImage;
+  }
+  
+  // If the URL contains the local host, replace it.
+  if (coverImagePath.includes("localhost:5217")) {
+    return coverImagePath.replace("http://localhost:5217", publicAssetBaseUrl);
+  }
+  
+  // Otherwise, if it is already an absolute URL, return as is.
+  // For relative URLs (like "/book_covers/Clean_Code.jpg") return as is.
+  return coverImagePath;
+};
+
+
 const tables = ["Book", "Movie", "Music", "Technology"];
 
 const fieldOptions: Record<string, string[]> = {
@@ -315,7 +340,7 @@ setOpenMaxCheckoutDialog(true);
                                 {item ? (
                                     <>
                                         <img
-                                            src={item.coverImagePath ?? item.imageUrl ?? defaultItemImage}
+                                            src={resolveCoverImageUrl(item.coverImagePath ?? item.imageUrl ?? defaultItemImage)}
                                             alt={getDisplayTitle(item, title)}
                                             style={{ width: "100%", height: "180px", objectFit: "cover", borderBottom: "1px solid #ccc" }}
                                         />
