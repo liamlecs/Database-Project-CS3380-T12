@@ -25,7 +25,7 @@ import Typography from "@mui/material/Typography"; // Import Typography
 import Checkbox from "@mui/material/Checkbox"; // Import Checkbox
 import InventoryTable from "./InventoryTable"; // Adjust the path if it's in a different folder
 import { Button, Snackbar, Alert, AlertTitle } from "@mui/material";
-
+import dayjs from 'dayjs';
 
 interface Profile {
   customerID: number;
@@ -543,12 +543,12 @@ const handlePasswordSubmit = async () => {
             </div>
             <div className="profile-item">
               <strong>Membership Start Date: </strong>
-              {new Date(profile.membershipStartDate).toLocaleDateString()}
+              {dayjs(profile.membershipStartDate).format("MM/DD/YYYY")}
             </div>
             {profile.membershipEndDate && (
               <div className="profile-item">
                 <strong>Membership End Date: </strong>
-                {new Date(profile.membershipEndDate).toLocaleDateString()}
+                {dayjs(profile.membershipEndDate).format("MM/DD/YYYY")}
               </div>
             )}
             <div className="account-actions">
