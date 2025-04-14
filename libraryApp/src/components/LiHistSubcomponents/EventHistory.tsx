@@ -20,8 +20,6 @@ const columns: GridColDef[] = [
   { field: "isPrivate", headerName: "IsPrivate", type: "boolean", width: 130 },
 ];
 
-const paginationModel = { page: 0, pageSize: 5 };
-
 export default function EventHistory() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -107,8 +105,8 @@ export default function EventHistory() {
         rows={rows}
         columns={columns}
         loading={loading}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[50, 100]}
+        hideFooterPagination
+        disableRowSelectionOnClick
         sx={{ border: 0 }}
       />
     </Paper>
