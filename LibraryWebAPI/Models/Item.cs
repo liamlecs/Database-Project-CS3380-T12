@@ -18,7 +18,7 @@ public partial class Item
 
     public int TotalCopies { get; set; }
 
-    public int AvailableCopies { get; set; }
+    public int AvailableCopies { get; set;}
 
     public string? Location { get; set; }
 

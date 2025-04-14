@@ -39,6 +39,7 @@ namespace LibraryWebAPI.Controllers
                     Genre = b.BookGenre.Description,         // from related Genre
                     Publisher = b.Publisher.PublisherName,  // from related Publisher
                     coverImagePath = b.CoverImagePath, // from related Image            })
+                    TotalCopies = b.Item.TotalCopies, // from related Item
                     availableCopies = b.Item.AvailableCopies, // from related Item
                     itemLocation = b.Item.Location, // from related Item
                 })
@@ -75,33 +76,45 @@ namespace LibraryWebAPI.Controllers
         [HttpPost("add-book")]
         public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
         {
-            var item = new Item {
-                Title = model.Title!,
-                AvailabilityStatus = "Available",
-                TotalCopies = model.TotalCopies,
-                AvailableCopies = model.TotalCopies,
-                Location = model.Location,
-                ItemTypeID = 1
-            };
+            try
+            {
+                // 1. Create the Item first
+                var item = new Item
+                {
+                    Title = model.Title!,
+                    AvailabilityStatus = "Available",
+                    TotalCopies = model.TotalCopies,
+                    AvailableCopies = model.AvailableCopies,
+                    Location = model.Location,
+                    ItemTypeID = model.ItemTypeID
+                };
 
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
+                _context.Items.Add(item);
+                await _context.SaveChangesAsync(); // Will generate ItemId
 
-            var book = new Book {
-                Isbn = model.ISBN,
-                PublisherId = model.PublisherID,
-                BookGenreId = model.BookGenreID,
-                BookAuthorId = model.BookAuthorID,
-                YearPublished = model.YearPublished,
-                CoverImagePath = model.CoverImagePath,
-                ItemID = item.ItemId
-            };
+                // 2. Create the Book with FK to Item
+                var book = new Book
+                {
+                    Isbn = model.ISBN,
+                    PublisherId = model.PublisherID,
+                    BookGenreId = model.BookGenreID,
+                    BookAuthorId = model.BookAuthorID,
+                    YearPublished = model.YearPublished,
+                    CoverImagePath = model.CoverImagePath,
+                    ItemID = item.ItemId,
+                };
 
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+                _context.Books.Add(book);
+                await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Book and Item added successfully", itemId = item.ItemId });
+                return Ok(new { message = "Book and Item added successfully", itemId = item.ItemId });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"❌ Internal Server Error: {ex.Message}");
+            }
         }
+
 
 
         // PUT: api/Book/5

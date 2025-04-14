@@ -75,7 +75,7 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
 
     public virtual DbSet<TransactionFineDto> TransactionFineConditional { get; set; }
 
-        public virtual DbSet<CustomerTransactionDto> CustomerTransactions { get; set; }
+    public virtual DbSet<CustomerTransactionDto> CustomerTransactions { get; set; }
     public virtual DbSet<Waitlist> Waitlists { get; set; }
     public DbSet<WaitlistReport> WaitlistReports { get; set; }
 
@@ -83,6 +83,8 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
 
     // registering MovieDirector entity 
     public virtual DbSet<MovieDirector> MovieDirector { get; set; }
+
+    
 
 //     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 // #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -293,22 +295,32 @@ modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
         });
 
         modelBuilder.Entity<Item>(entity =>
-        {
-            entity.HasKey(e => e.ItemId).HasName("PK__Item__727E83EBD4885DED");
+{
+    entity.HasKey(e => e.ItemId).HasName("PK__Item__727E83EBD4885DED");
 
-            entity.ToTable("Item");
+    entity.ToTable("Item");
 
-            entity.Property(e => e.ItemId).HasColumnName("ItemID");
-            entity.Property(e => e.AvailabilityStatus)
-                .HasMaxLength(15)
-                .IsUnicode(false);
-            entity.Property(e => e.Location)
-                .HasMaxLength(30)
-                .IsUnicode(false);
-            entity.Property(e => e.Title)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-        });
+    entity.Property(e => e.ItemId).HasColumnName("ItemID");
+
+    entity.Property(e => e.Title)
+        .HasMaxLength(100)
+        .IsUnicode(false);
+
+    entity.Property(e => e.TotalCopies).HasColumnName("TotalCopies"); // ✅ ADD THIS
+    entity.Property(e => e.AvailableCopies).HasColumnName("AvailableCopies"); // ✅ ADD THIS
+
+    entity.Property(e => e.AvailabilityStatus)
+        .HasMaxLength(15)
+        .IsUnicode(false);
+
+    entity.Property(e => e.Location)
+        .HasMaxLength(30)
+        .IsUnicode(false);
+
+    entity.Property(e => e.ItemTypeID).HasColumnName("ItemTypeID");
+});
+
+
 
         modelBuilder.Entity<Movie>(entity =>
         {

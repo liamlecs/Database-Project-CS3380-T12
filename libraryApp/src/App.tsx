@@ -38,6 +38,7 @@ import Layout from "./components/Layout.tsx";
 import ContactPage from "./components/ContactPage.tsx";
 import AnimatedPage from "./components/AnimatedPage";
 import { AnimatePresence } from "framer-motion";
+import { RefreshProvider } from "./contexts/RefreshContext";
 
 function AppRoutes() {
   const location = useLocation();
@@ -281,7 +282,9 @@ function App() {
   return (
     <Router>
       <CheckoutProvider>
-        <AppRoutes />
+        <RefreshProvider>
+          <AppRoutes />
+        </RefreshProvider>
       </CheckoutProvider>
     </Router>
   );

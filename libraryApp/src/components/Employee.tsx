@@ -2,6 +2,8 @@ import type React from 'react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import type { SelectChangeEvent } from '@mui/material/Select';
+// import { userRefresh } from '../contexts/RefreshContext';
+import { useRefresh } from '../contexts/RefreshContext';
 import dayjs from 'dayjs';
 import BookForm from './inventory_post_forms/BookForm';"./inventory_post_forms/BookForm"
 
@@ -554,6 +556,15 @@ const Employee: React.FC = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<Item[]>([]);
+  const { refreshInventory, setRefreshInventory } = useRefresh();
+  useEffect(() => {
+    if (refreshInventory) {
+      fetchInventory();
+      setRefreshInventory(false); // reset the trigger
+    }
+  }, [refreshInventory]);
+
+  
   const [events, setEvents] = useState<EventData[]>([]);
   const [refreshData, setRefreshData] = useState(false);
   const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);

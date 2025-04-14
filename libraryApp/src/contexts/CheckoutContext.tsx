@@ -1,5 +1,7 @@
 // to share the checkout state across the app
 import React, { createContext, useContext, useState, ReactNode } from "react";
+import { useRefresh } from "../contexts/RefreshContext";
+
 
 export type UserType = "student" | "faculty";
 
@@ -26,6 +28,8 @@ export const CheckoutProvider: React.FC<{ children: ReactNode }> = ({ children }
     const [cart, setCart] = useState<CheckoutItem[]>([]);
     const [userType, setUserType] = useState<UserType>("student");
 
+    const { setRefreshInventory } = useRefresh(); // refresh context
+
     const addToCart = (item: CheckoutItem) => setCart((prev) => [...prev, item]);
 
     const removeFromCart = (index: number) => {
@@ -34,6 +38,7 @@ export const CheckoutProvider: React.FC<{ children: ReactNode }> = ({ children }
 
     const clearCart = () => {
         setCart([]);
+        setRefreshInventory(true);// trigger refresh after clearing the cart
     };
 
     return (
