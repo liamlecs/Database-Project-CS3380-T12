@@ -23,7 +23,9 @@ namespace LibraryWebAPI.Controllers
         public async Task<IActionResult> GetMovies()
         {
             var movies = await _context.Movies
+                .Include(m => m.MovieDirector) // Include related MovieDirector
                 .Include(m => m.Item) // Optionally include the Item record to get the title.
+                .Include(m => m.MovieGenre) // Include related MovieGenre
                 .ToListAsync();
             return Ok(movies);
         }
@@ -34,6 +36,8 @@ namespace LibraryWebAPI.Controllers
         {
             var movie = await _context.Movies
                 .Include(m => m.Item)
+                .Include(m => m.MovieDirector) // Include related MovieDirector
+                .Include(m => m.MovieGenre) // Include related MovieGenre
                 .FirstOrDefaultAsync(m => m.MovieId == id);
 
             if (movie == null)

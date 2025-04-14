@@ -288,7 +288,17 @@ setOpenMaxCheckoutDialog(true);
     const getDisplayTitle = (item: any, category: string): string => {
         if (!item) return "Untitled";
         if (category === "Book") return `${item.title || "Untitled Book"}\n\nby ${item.author || "Unknown Author"}\n\n(${item.genre || "Unknown Genre"})`;
-        if (category === "Movie") return `${item.title || "Untitled Movie"}\n\nby ${item.director || "Unknown Director"}\n\n(${item.genre || "Unknown Genre"})`;
+        if (category === "Movie") {
+          const movieTitle = item.item?.title || "Untitled Movie";
+          const directorName = item.movieDirector
+            ? `${item.movieDirector.firstName} ${item.movieDirector.lastName}`
+            : "Unknown Director";
+          const genreName = item.movieGenre
+            ? item.movieGenre.description
+            : "Unknown Genre";
+        
+          return `${movieTitle}\n\nby ${directorName}\n\n(${genreName})`;
+        }
         if (category === "Music") return `${item.songTitle || "Untitled Song"}\n\nby ${item.artistName || "Unknown Artist"}\n\n(${item.genreDescription || "Unknown Genre"})`;
         if (category === "Technology") return `${item.title || "Untitled Device"}\n\n${item.manufacturerName || "Unknown Brand"}`;
         return item.title || "Untitled";
