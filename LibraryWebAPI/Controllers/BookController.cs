@@ -78,37 +78,62 @@ namespace LibraryWebAPI.Controllers
 
         //     return CreatedAtAction(nameof(GetBook), new { id = book.BookId }, book);
         // }
+[HttpPost("add-book")]
+public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
+{
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
 
-        [HttpPost("add-book")]
-        public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
+    // Begin a database transaction to ensure both insertions succeed together.
+    using var transaction = await _context.Database.BeginTransactionAsync();
+
+    try
+    {
+        // Create the Item first.
+        var item = new Item
         {
-            var item = new Item {
-                Title = model.Title!,
-                AvailabilityStatus = "Available",
-                TotalCopies = model.TotalCopies,
-                AvailableCopies = model.TotalCopies,
-                Location = model.Location,
-                ItemTypeID = 1
-            };
+            Title = model.Title!,
+            // Do not set computed fields such as AvailabilityStatus if the database calculates these.
+            TotalCopies = model.TotalCopies,
+            AvailableCopies = model.TotalCopies,
+            Location = model.Location,
+            ItemTypeID = 1 // Assuming 1 is the ID for books in your ItemType table.
+        };
 
-            _context.Items.Add(item);
-            await _context.SaveChangesAsync();
+        _context.Items.Add(item);
+        await _context.SaveChangesAsync(); // Saves to generate the ItemId.
 
-            var book = new Book {
-                Isbn = model.ISBN,
-                PublisherId = model.PublisherID,
-                BookGenreId = model.BookGenreID,
-                BookAuthorId = model.BookAuthorID,
-                YearPublished = model.YearPublished,
-                CoverImagePath = model.CoverImagePath,
-                ItemID = item.ItemId
-            };
+        // Create the Book record referencing the newly created item.
+        var book = new Book
+        {
+            Isbn = model.ISBN,
+            PublisherId = model.PublisherID,
+            BookGenreId = model.BookGenreID,
+            BookAuthorId = model.BookAuthorID,
+            YearPublished = model.YearPublished,
+            CoverImagePath = model.CoverImagePath,
+            ItemID = item.ItemId   // Foreign key reference to the created item.
+        };
 
-            _context.Books.Add(book);
-            await _context.SaveChangesAsync();
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Book and Item added successfully", itemId = item.ItemId });
-        }
+        // Commit the transaction.
+        await transaction.CommitAsync();
+
+        return Ok(new { message = "Book and Item added successfully", itemId = item.ItemId });
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        return StatusCode(StatusCodes.Status500InternalServerError, new { 
+            message = "Error while adding book", 
+            error = ex.Message 
+        });
+    }
+}
 
         
         [HttpPost("upload-cover")]

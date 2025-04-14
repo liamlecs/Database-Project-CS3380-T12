@@ -102,7 +102,7 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
             entity.HasIndex(e => e.Isbn, "UQ__Book__447D36EA19E8B3BA").IsUnique();
 
             entity.Property(e => e.BookId)
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .HasColumnName("BookID");
             entity.Property(e => e.BookAuthorId).HasColumnName("BookAuthorID");
             entity.Property(e => e.BookGenreId).HasColumnName("BookGenreID");
