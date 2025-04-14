@@ -288,7 +288,7 @@ return;
               <Card elevation={2}>
                 <CardContent>
                   <Typography variant="subtitle2" color="textSecondary" gutterBottom>
-                    Total Available Items
+                    Total Available Copies
                   </Typography>
                   <Typography variant="h5" fontWeight={600}>
                     {report.totalAvailableCount}
