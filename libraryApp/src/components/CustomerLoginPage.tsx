@@ -84,7 +84,7 @@ export default function LoginPage() {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/auth/forgot-password`,
-          {
+          { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email: forgotEmail }),
@@ -94,7 +94,7 @@ export default function LoginPage() {
         if (!response.ok) {
           setForgotMessage(`Error: ${result.message || "Request failed"}`);
         } else {
-          setForgotMessage("A reset link has been sent to your email.");
+          setForgotMessage("If you have an account with us, a reset link has been sent to your email.");
         }
       } catch (err: any) {
         setForgotMessage("An error occurred. Please try again later.");
@@ -229,4 +229,4 @@ export default function LoginPage() {
         </Dialog>
       </div>
     );
-  }
+  } 
