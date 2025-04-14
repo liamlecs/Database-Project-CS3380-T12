@@ -835,8 +835,8 @@ const Employee: React.FC = () => {
       }
       setEventBeingEdited({
         ...eventData,
-        startTimestamp: dayjs(eventData.startTimestamp).toISOString(),
-        endTimestamp: dayjs(eventData.endTimestamp).toISOString(),
+        startTimestamp: dayjs(eventData.startTimestamp).format("YYYY-MM-DDTHH:mm"),
+        endTimestamp: dayjs(eventData.endTimestamp).format("YYYY-MM-DDTHH:mm"),
       });
       setOpenEditEventDialog(true);
     } catch (error) {
@@ -1580,7 +1580,8 @@ const Employee: React.FC = () => {
                         setEventBeingEdited({
                           ...eventBeingEdited,
                           startTimestamp:
-                            newValue?.toISOString() || '',
+                            newValue?.format("YYYY-MM-DDTHH:mm") || '',
+
                         })
                       }
                       disablePast
@@ -1592,7 +1593,7 @@ const Employee: React.FC = () => {
                         setEventBeingEdited({
                           ...eventBeingEdited,
                           endTimestamp:
-                            newValue?.toISOString() || '',
+                            newValue?.format("YYYY-MM-DDTHH:mm") || '',
                         })
                       }
                       disablePast
