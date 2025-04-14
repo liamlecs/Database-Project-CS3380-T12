@@ -1,20 +1,17 @@
 namespace LibraryWebAPI.Models
 {
-    public class MovieDTO
-    {
-        public int MovieId { get; set; }
-        public string Title { get; set; } = string.Empty;
-        public string UPC { get; set; } = string.Empty;
-        public string Format { get; set; } = string.Empty;
-        public int YearReleased { get; set; }
-        public string Director { get; set; } = "Unknown Director";
-        public string Genre { get; set; } = "Unknown Genre";
-        public string CoverImagePath { get; set; } = string.Empty;
+public class MovieDTO
+{
+    public required string Title { get; set; }
+    public required string UPC { get; set; }                  // Unique Product Code
+    public int MovieDirectorID { get; set; }         // FK reference to a Movie Director table
+    public int MovieGenreID { get; set; }            // FK reference to a Movie Genre table
+    public int YearReleased { get; set; }
+    public required string Format { get; set; }               // E.g. DVD, Blu-ray, Digital
+    public required string CoverImagePath { get; set; }
+    public int TotalCopies { get; set; }
+    public required string Location { get; set; }
+    public int ItemTypeID { get; set; } = 2;          // Assuming 2 represents Movies
+}
 
-        public int availableCopies { get; set; }
-
-        public string itemLocation { get; set; } = string.Empty;
-        
-        public int ItemId { get; set; }
-    }
 }

@@ -1,122 +1,150 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryWebAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class MovieController : ControllerBase
     {
         private readonly LibraryContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public MovieController(LibraryContext context)
+        public MovieController(LibraryContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
-        // // GET: api/Movie
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
-        // {
-        //     // No .Include statements, fetching only Movie data
-        //     var movies = await _context.Movies.ToListAsync();
-
-        //     return Ok(movies);
-        // }
-
+        // GET: api/Movie
         [HttpGet]
-    public async Task<ActionResult<IEnumerable<MovieDTO>>> GetMovies()
-    {
-        var movies = await _context.Movies
-            .Include(m => m.MovieDirector)
-            .Include(m => m.MovieGenre)
-            .Include(m => m.Item) // Include the Item table to get available copies
-            .Select(m => new MovieDTO
-            {
-                MovieId = m.MovieId,
-                Title = m.Item.Title, // fk to referenced Item table
-                UPC = m.Upc ?? "N/A",
-                Format = m.Format ?? "N/A",
-                YearReleased = m.YearReleased,
-                Director = m.MovieDirector.FirstName + " " + m.MovieDirector.LastName,
-                Genre = m.MovieGenre.Description,
-                CoverImagePath = m.CoverImagePath!,
-                ItemId = m.ItemId,
-                availableCopies = m.Item.AvailableCopies, // fk to referenced Item table
-                itemLocation = m.Item.Location! // fk to referenced Item table
+        public async Task<IActionResult> GetMovies()
+        {
+            var movies = await _context.Movies
+                .Include(m => m.Item) // Optionally include the Item record to get the title.
+                .ToListAsync();
+            return Ok(movies);
+        }
 
-            })
-            .ToListAsync();
-
-        return Ok(movies);
-    }
-
-        // GET: api/Movie/5
+        // GET: api/Movie/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(int id)
+        public async Task<IActionResult> GetMovie(int id)
         {
             var movie = await _context.Movies
-                .FirstOrDefaultAsync(m => m.MovieId == id); // No .Include statements
+                .Include(m => m.Item)
+                .FirstOrDefaultAsync(m => m.MovieId == id);
 
             if (movie == null)
             {
                 return NotFound();
             }
-
             return Ok(movie);
         }
 
-        // POST: api/Movie
-        [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        // POST: api/Movie/add-movie
+        [HttpPost("add-movie")]
+        public async Task<IActionResult> AddMovie([FromBody] MovieDTO model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                return BadRequest(ModelState);
+            }
+
+            // Use a transaction to ensure both Item and Movie are added together.
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // 1. Create the Item record.
+                var item = new Item
+                {
+                    Title = model.Title,              // Title is stored in Item.
+                    TotalCopies = model.TotalCopies,
+                    AvailableCopies = model.TotalCopies,
+                    Location = model.Location,
+                    ItemTypeID = model.ItemTypeID       // For Movies, e.g. 2.
+                };
+
+                _context.Items.Add(item);
+                await _context.SaveChangesAsync(); // item.ItemId is generated.
+
+                // 2. Create the Movie record.
+                var movie = new Movie
+                {
+                    Upc = model.UPC,
+                    MovieDirectorId = model.MovieDirectorID,
+                    MovieGenreId = model.MovieGenreID,
+                    YearReleased = model.YearReleased,
+                    Format = model.Format,
+                    CoverImagePath = model.CoverImagePath,
+                    ItemId = item.ItemId              // Note: property is "ItemId" on Movie.
+                };
+
                 _context.Movies.Add(movie);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetMovie), new { id = movie.MovieId }, movie);
-            }
+                await transaction.CommitAsync();
 
-            return BadRequest(ModelState);
+                return Ok(new { message = "Movie added successfully", itemId = item.ItemId });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                                  new { message = "Error while adding movie", error = ex.Message });
+            }
         }
 
-        // PUT: api/Movie/5
+        // PUT: api/Movie/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMovie(int id, Movie movie)
+        public async Task<IActionResult> UpdateMovie(int id, [FromBody] MovieDTO model)
         {
-            if (id != movie.MovieId)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
-            _context.Entry(movie).State = EntityState.Modified;
+            // Retrieve the movie record.
+            var movie = await _context.Movies.FindAsync(id);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            // Update movie-specific properties.
+            movie.Upc = model.UPC;
+            movie.MovieDirectorId = model.MovieDirectorID;
+            movie.MovieGenreId = model.MovieGenreID;
+            movie.YearReleased = model.YearReleased;
+            movie.Format = model.Format;
+            movie.CoverImagePath = model.CoverImagePath;
+
+            // Also update the associated Item record for the Title, Copies, and Location.
+            var item = await _context.Items.FindAsync(movie.ItemId);
+            if (item != null)
+            {
+                item.Title = model.Title;
+                item.TotalCopies = model.TotalCopies;
+                item.AvailableCopies = model.TotalCopies;
+                item.Location = model.Location;
+                // ItemTypeID generally remains unchanged.
+            }
 
             try
             {
                 await _context.SaveChangesAsync();
+                return Ok(new { message = "Movie updated successfully" });
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!MovieExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                                  new { message = "Error updating movie", error = ex.Message });
             }
-
-            return NoContent();
         }
 
-        // DELETE: api/Movie/5
+        // DELETE: api/Movie/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
@@ -126,15 +154,28 @@ namespace LibraryWebAPI.Controllers
                 return NotFound();
             }
 
-            _context.Movies.Remove(movie);
-            await _context.SaveChangesAsync();
+            // Retrieve the associated Item record.
+            var item = await _context.Items.FindAsync(movie.ItemId);
 
-            return NoContent();
-        }
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Movies.Remove(movie);
+                if (item != null)
+                {
+                    _context.Items.Remove(item);
+                }
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-        private bool MovieExists(int id)
-        {
-            return _context.Movies.Any(e => e.MovieId == id);
+                return Ok(new { message = "Movie and associated item deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                                  new { message = "Error deleting movie", error = ex.Message });
+            }
         }
     }
 }

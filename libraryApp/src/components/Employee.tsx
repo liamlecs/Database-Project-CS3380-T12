@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { SelectChangeEvent } from '@mui/material/Select';
 import dayjs from 'dayjs';
 import BookForm from './inventory_post_forms/BookForm';"./inventory_post_forms/BookForm"
+import MovieForm from './inventory_post_forms/MovieForm';"./inventory_post_forms/MovieForm"
 
 // --- Material UI Imports ---
 import {
@@ -1143,7 +1144,7 @@ const Employee: React.FC = () => {
     {/* Dynamically Render Form */}
     <Box sx={{ mb: 4 }}>
       {selectedItemType === "Book" && <BookForm />}
-      {selectedItemType === "Movie" && <div>Movie form coming soon...</div>}
+      {selectedItemType === "Movie" && <MovieForm />}
       {selectedItemType === "Music" && <div>Music form coming soon...</div>}
       {selectedItemType === "Technology" && <div>Technology form coming soon...</div>}
     </Box>
