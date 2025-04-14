@@ -447,13 +447,14 @@ setOpenMaxCheckoutDialog(true);
     <p><strong>ISBN:</strong> {selectedItem.isbn}</p>
   )}
 
+  {selectedItem?.movieDirector && (
+    <p><strong>Director:</strong> {selectedItem.movieDirector.firstName} {selectedItem.movieDirector.lastName}</p>
+  )}
+
     {selectedItem?.publisher && (
         <p><strong>Publisher:</strong> {selectedItem.publisher}</p>
     )}
     
-    {(selectedItem?.director) && (
-        <p><strong>Director:</strong> {selectedItem?.director}</p>
-    )}
     
     {(selectedItem?.artistName) && (
         <p><strong>Artist:</strong> {selectedItem?.artistName}</p>
@@ -462,9 +463,29 @@ setOpenMaxCheckoutDialog(true);
     {(selectedItem?.format) && (
             <p><strong>Format:</strong> {selectedItem?.format}</p>
     )}
+
+    {(selectedItem?.movieGenre) && (
+        <p><strong>Movie Genre:</strong> {selectedItem?.movieGenre.description}</p> 
+    )}
+
+    {(selectedItem?.yearReleased) && (
+        <p><strong>Year Released:</strong> {selectedItem?.yearReleased}</p>
+    )}
     
     {(selectedItem?.manufacturerName) && (
         <p><strong>Manufacturer:</strong> {selectedItem?.manufacturerName}</p>
+    )}
+
+    {/* Display Available Copies from the nested item */}
+        {selectedItem.item && (
+      <p>
+        <strong>Available Copies:</strong> {selectedItem.item.availableCopies !== undefined ? selectedItem.item.availableCopies : "Unknown"}
+      </p>
+    )}
+
+    {/* Display Location from the nested item */}
+        {selectedItem.item && (
+      <p><strong>Location:</strong> {selectedItem.item.location || "Unknown Location"}</p>
     )}
 
     {(selectedItem?.modelNumber) && (
@@ -478,6 +499,7 @@ setOpenMaxCheckoutDialog(true);
     {(selectedItem?.deviceTypeName) && (
             <p><strong>Device Type:</strong> {selectedItem?.deviceTypeName}</p>
     )}
+
 
 
   
