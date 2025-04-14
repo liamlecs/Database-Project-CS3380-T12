@@ -414,7 +414,7 @@ setOpenMaxCheckoutDialog(true);
                             boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
                         }}
                     />
-                    Do you want to checkout: <strong>{itemToCheckout?.title || itemToCheckout?.songTitle }</strong>?
+                    Do you want to checkout: <strong>{itemToCheckout?.title || itemToCheckout?.songTitle || itemToCheckout?.item?.title}</strong>?
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
