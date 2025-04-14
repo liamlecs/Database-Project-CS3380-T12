@@ -3,8 +3,8 @@ import Paper from '@mui/material/Paper';
 import { useEffect, useState } from 'react';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'Donation ID', type: 'number', width: 70 },
-  { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
+  { field: 'id', headerName: 'Donation ID', type: 'number', width: 120 },
+  // { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
   {field: 'amount', headerName: 'Amount', type: 'number', width: 90 },
   { field: 'firstName', headerName: 'First Name', width: 120 },
   { field: 'lastName', headerName: 'Last Name', width: 120 },
@@ -35,7 +35,6 @@ console.log("raw data: ", data);
                   return{
                   ...donation,
           id: donation.donationId || index + 1, // Ensure unique ID
-          customerId: donation.customerId || "N/A",
           firstName: donation.firstName ?? 'N/A',
           lastName: donation.lastName ?? 'N/A',
           amount: donation.amount || 0,

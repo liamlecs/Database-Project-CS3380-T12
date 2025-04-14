@@ -3,9 +3,9 @@ import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
 
 const columns: GridColDef[] = [
-  { field: 'id', headerName: 'Waitlist ID', width: 70 },
-  { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
-  { field: 'itemId', headerName: 'Item ID', type: 'number', width: 130 },
+  { field: 'id', headerName: 'Waitlist ID', width: 120 },
+  // { field: 'customerId', headerName: 'Customer ID', type: 'number', width: 130 },
+  // { field: 'itemId', headerName: 'Item ID', type: 'number', width: 130 },
   { field: 'firstName', headerName: 'First Name', width: 130 },
   { field: 'lastName', headerName: 'Last Name', width: 130 },
   { field: 'itemType', headerName: 'Item Type', width: 130 },
@@ -36,7 +36,7 @@ export default function WaitlistHistory() {
   useEffect(() => {
     const fetchWaitlist = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}//api/Waitlist/detailed`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/detailed`);
         if (!response.ok) {
           throw new Error("Failed to fetch waitlist history data");
         }
@@ -49,8 +49,8 @@ console.log("raw data: ", data);
                   return{
                   ...waitlist,
           id: waitlist.waitlistId,
-          customerId: waitlist.customerId,
-          itemId: waitlist.itemId,
+          // customerId: waitlist.customerId,
+          // itemId: waitlist.itemId,
           firstName: waitlist.firstName,
           lastName: waitlist.lastName,
           itemType: waitlist.itemType,

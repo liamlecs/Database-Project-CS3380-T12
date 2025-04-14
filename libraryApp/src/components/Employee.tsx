@@ -892,22 +892,22 @@ const Employee: React.FC = () => {
   // --- Render Library History ---
   const renderLibraryHistory = () => (
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" align="center" gutterBottom>
         Library History
       </Typography>
       <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)}>
-        <Tab label="Checkout History" />
+        {/* <Tab label="Checkout History" /> */}
         <Tab label="Donation History" />
         <Tab label="Event History" />
-        <Tab label="Fine History" />
+        {/* <Tab label="Fine History" /> */}
         <Tab label="Waitlist History" />
       </Tabs>
       <Box sx={{ marginTop: 2 }}>
-        {tabValue === 0 && <CheckoutHistory />}
-        {tabValue === 1 && <DonationHistory />}
-        {tabValue === 2 && <EventHistory />}
-        {tabValue === 3 && <FineHistory />}
-        {tabValue === 4 && <WaitlistHistory />}
+        {/* {tabValue === 0 && <CheckoutHistory />} */}
+        {tabValue === 0 && <DonationHistory />}
+        {tabValue === 1 && <EventHistory />}
+        {/* {tabValue === 3 && <FineHistory />} */}
+        {tabValue === 2 && <WaitlistHistory />}
       </Box>
     </Paper>
   );
@@ -974,8 +974,10 @@ const Employee: React.FC = () => {
             mb: 3,
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: 2,
           }}
+          
         >
           Employee Dashboard
         </Typography>
@@ -1118,7 +1120,7 @@ const Employee: React.FC = () => {
 
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
       
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" align="center" gutterBottom>
         Inventory Management
       </Typography>
 

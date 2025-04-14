@@ -107,7 +107,7 @@ const BookForm = () => {
 
     return (
         <form className="book-form" onSubmit={handleSubmit}>
-            <h2>Add New Book</h2>
+            <h2 style={{ textAlign: "center", width: "100%" }}>Add New Book</h2> 
             <div className="form-grid">
                 <input name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} />
                 <input name="isbn" placeholder="ISBN" value={formData.isbn} onChange={handleInputChange} />
