@@ -1291,7 +1291,7 @@ const Employee: React.FC = () => {
   const renderEventManagement = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" align="center" gutterBottom > 
           Create New Event
         </Typography>
         <CreateEvent />

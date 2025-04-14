@@ -70,7 +70,6 @@ const CreateEvent: React.FC = () => {
 
   return (
     <Paper elevation={3} sx={{ padding: 4, borderRadius: 3 }}>
-      <Typography variant="h6" gutterBottom>Create a New Library Event</Typography>
 
       <Stack spacing={2}>
         <TextField
