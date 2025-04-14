@@ -62,6 +62,15 @@ const CreateEvent: React.FC = () => {
 
       if (!response.ok) throw new Error('Failed to create event');
       alert('Event created successfully!');
+          // Reset the form fields here:
+      setTitle("");
+      setLocation("");
+      setStartTime(dayjs());
+      setEndTime(dayjs().add(1, "hour"));
+      setAgeGroup(1);
+      setCategory(1);
+      setIsPrivate(false);
+      setDescription("");
     } catch (error) {
       console.error('Error creating event:', error);
       alert('Failed to create event. Please try again.');
