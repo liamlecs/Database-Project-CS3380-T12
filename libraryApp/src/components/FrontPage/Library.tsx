@@ -477,14 +477,14 @@ setOpenMaxCheckoutDialog(true);
     )}
 
     {/* Display Available Copies from the nested item */}
-        {selectedItem.item && (
+        {selectedItem?.item && (
       <p>
         <strong>Available Copies:</strong> {selectedItem.item.availableCopies !== undefined ? selectedItem.item.availableCopies : "Unknown"}
       </p>
     )}
 
     {/* Display Location from the nested item */}
-        {selectedItem.item && (
+        {selectedItem?.item && (
       <p><strong>Location:</strong> {selectedItem.item.location || "Unknown Location"}</p>
     )}
 
