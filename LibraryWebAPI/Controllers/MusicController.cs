@@ -26,22 +26,23 @@ namespace LibraryWebAPI.Controllers
 
         // GET: api/Music
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MusicDTO>>> GetMusic()
+        public async Task<ActionResult<IEnumerable<MusicDto>>> GetMusic()
         {
             var musics = await _context.Musics
                 .Include(m => m.MusicArtist)
                 .Include(m => m.MusicGenre)
                 .Include(m => m.Item) // Include the Item table to get available copies
-                .Select(static m => new MusicDTO
+                .Select(static m => new MusicDto
                 {
-                    SongId = m.SongId.ToString(),
-                    itemId = m.ItemId.ToString(),
-                    MusicArtistID = m.MusicArtist.MusicArtistId,
-                    CoverImagePath = m.CoverImagePath ?? string.Empty,
-                    Title = m.Item.Title,
-                    MusicGenreID = m.MusicGenre.MusicGenreId,
-                    ItemTypeID = m.Item.ItemTypeID,
-
+                    SongId = m.SongId,
+                     itemId = m.ItemId,
+                     Format = m.Format,
+                     CoverImagePath = m.CoverImagePath,
+                     ArtistName = m.MusicArtist.ArtistName,
+                     SongTitle = m.Item.Title,
+                     GenreDescription = m.MusicGenre.Description,
+                     availableCopies = m.Item.AvailableCopies,
+                     itemLocation = m.Item.Location,
                 })
                 .ToListAsync();
 
@@ -129,7 +130,7 @@ namespace LibraryWebAPI.Controllers
         }
 
         [HttpPost("add-music")]
-    public async Task<IActionResult> AddMusic([FromBody] MusicDTO model)
+    public async Task<IActionResult> AddMusic([FromBody] MusicDto model)
     {
         if (!ModelState.IsValid)
         {
@@ -146,10 +147,10 @@ namespace LibraryWebAPI.Controllers
             // Step 1: Create Item
             var item = new Item
             {
-                Title = model.Title ?? string.Empty,
-                TotalCopies = model.TotalCopies,
-                AvailableCopies = model.TotalCopies,
-                Location = model.Location,
+                Title = model.SongTitle ?? string.Empty,
+                TotalCopies = model.availableCopies,
+                AvailableCopies = model.availableCopies,
+                Location = model.itemLocation,
                 ItemTypeID = model.ItemTypeID
             };
 
@@ -159,8 +160,8 @@ namespace LibraryWebAPI.Controllers
             // Step 2: Create Music
             var music = new Music
             {
-                MusicArtistId = model.MusicArtistID,
-                MusicGenreId = model.MusicGenreID,
+                MusicArtistId = int.Parse(model.ArtistName),
+                MusicGenreId = int.Parse(model.GenreDescription),
                 Format = model.Format,
                 CoverImagePath = model.CoverImagePath,
                 ItemId = item.ItemId
