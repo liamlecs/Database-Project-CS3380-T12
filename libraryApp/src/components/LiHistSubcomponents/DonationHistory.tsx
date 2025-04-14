@@ -11,10 +11,6 @@ const columns: GridColDef[] = [
   { field: 'date', headerName: 'Date', type:'date', width: 130 },
 ];
 
-const paginationModel = { page: 0, pageSize: 5 };
-
-
-
 export default function DonationHistory() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,8 +56,8 @@ console.log("raw data: ", data);
         rows={rows}
         columns={columns}
         loading={loading}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[50, 100]}
+        hideFooterPagination
+        disableRowSelectionOnClick
         sx={{ border: 0 }}
       />
     </Paper>
