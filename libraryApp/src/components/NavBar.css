@@ -85,6 +85,8 @@
   .avatar-email {
     margin: 0 0 0.5rem 0;
     color: #666;
+    font-size: 0.68rem;         /* Smaller font size */
+    word-break: break-all;     /* Breaks the word if it is too long */
   }
   
   .avatar-dropdown button {
