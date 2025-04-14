@@ -17,7 +17,7 @@ export default function ReportsOutput() {
             Item Popularity
           </Button>
           <Button color="inherit" component={Link} to="mastertransactionreport">
-            Master Transaction Report
+            Master Library Report
           </Button>
         </Toolbar>
       </AppBar>
