@@ -5,6 +5,11 @@ using LibraryWebAPI.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LibraryWebAPI.Models.DTOs;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace LibraryWebAPI.Controllers
 {
@@ -13,10 +18,12 @@ namespace LibraryWebAPI.Controllers
     public class BookController : ControllerBase
     {
         private readonly LibraryContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public BookController(LibraryContext context)
+        public BookController(LibraryContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         [HttpGet]
@@ -101,6 +108,36 @@ namespace LibraryWebAPI.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Book and Item added successfully", itemId = item.ItemId });
+        }
+
+        
+        [HttpPost("upload-cover")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadCover([FromForm] CoverUploadDto dto)
+        {
+            if (dto?.Cover == null || dto.Cover.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+
+            // Define the folder where files will be stored
+            var uploadsFolder = Path.Combine(_env.ContentRootPath, "UploadedFiles", "BookCovers");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Generate a unique filename
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(dto.Cover.FileName);
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.Cover.CopyToAsync(stream);
+            }
+
+            var fileUrl = $"{Request.Scheme}://{Request.Host}/uploads/book_covers/{fileName}";
+            return Ok(new { url = fileUrl });
         }
 
 

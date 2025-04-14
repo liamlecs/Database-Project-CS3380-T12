@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,6 +94,24 @@ var app = builder.Build();
 
 // get the hosting environment
 var env = app.Services.GetRequiredService<IWebHostEnvironment>();
+
+// Define the folder for book covers
+var bookCoversFolder = Path.Combine(env.ContentRootPath, "UploadedFiles", "BookCovers");
+
+// Check if the folder exists; if not, create it.
+if (!Directory.Exists(bookCoversFolder))
+{
+    Directory.CreateDirectory(bookCoversFolder);
+}
+
+// Serve static files from the designated folder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(bookCoversFolder),
+    RequestPath = "/uploads/book_covers"
+});
+
+
 
 // set book data
 // SeedBooks.Initialize(app.Services, env);
