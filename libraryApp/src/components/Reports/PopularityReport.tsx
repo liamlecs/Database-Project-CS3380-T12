@@ -43,6 +43,8 @@ export default function PopularityReport() {
   const [selectedItemId, setSelectedItemId] = React.useState(-1);
   const [selectedContextTable, setSelectedContextTable] = React.useState(false);
   const [contextData, setContextData] = React.useState<TransactionGeneralReportDto[]>([]);
+  const [selectedTitle, setSelectedTitle] = React.useState("");
+
 
 
   const handleGenerateReport = async () => {
@@ -86,8 +88,9 @@ export default function PopularityReport() {
     }
   };
 
-  const handleGenerateContextTable = async (itemId: number) => {
+  const handleGenerateContextTable = async (itemId: number, title: string) => {
     setSelectedItemId(itemId);
+    setSelectedTitle(title);
     setOpenContextDialog(true);
   
     try {
@@ -123,7 +126,7 @@ export default function PopularityReport() {
           variant="outlined"
           size="small"
           onClick={() => 
-            {handleGenerateContextTable(params.row.itemId)}}
+            {handleGenerateContextTable(params.row.itemId, params.row.title)}}
         >
           Expand
         </Button>
@@ -207,7 +210,7 @@ export default function PopularityReport() {
   fullWidth
   maxWidth="lg"
 >
-  <DialogTitle>Transaction History for Selected Item</DialogTitle>
+  <DialogTitle>Transaction History for <strong>{selectedTitle}</strong></DialogTitle>
   <DialogContent>
     <div style={{ height: 400, width: "100%", marginTop: "10px" }}>
       <DataGrid
