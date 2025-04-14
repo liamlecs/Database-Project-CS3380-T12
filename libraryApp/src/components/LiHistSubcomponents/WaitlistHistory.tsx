@@ -24,10 +24,6 @@ const columns: GridColDef[] = [
   },
 ];
 
-
-
-const paginationModel = { page: 0, pageSize: 5 };
-
 export default function WaitlistHistory() {
 
  const [rows, setRows] = useState([]);
@@ -76,8 +72,8 @@ console.log("raw data: ", data);
         rows={rows}
         columns={columns}
         loading={loading}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 50, 100]}
+        hideFooterPagination
+        disableRowSelectionOnClick
         sx={{ border: 0 }}
       />
     </Paper>
