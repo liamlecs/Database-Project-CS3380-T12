@@ -61,7 +61,7 @@ namespace LibraryWebAPI.Controllers
         Reactivation Code: {reactivationCode}
 
         To reactivate your account, please visit:
-        https://database-project-cs-3380-t12.vercel.app/reactivateaccount
+        https://e-libraryuh.vercel.app/reactivateaccount
 
         Thank you!";
             
@@ -217,7 +217,7 @@ Hi {dto.FirstName},
 Your account has been successfully created.
 Your email confirmation code is: {confirmationCode}
 
-Please confirm your email by entering this code in our confirmation page: https://database-project-cs-3380-t12.vercel.app/confirm
+Please confirm your email by entering this code in our confirmation page: https:/e-libraryuh.vercel.app/confirm
 
 Borrower Type: {(borrowerTypeId == 1 ? "Student" : "Faculty")}
 Membership Start Date: {startDate}
@@ -257,7 +257,7 @@ Thank you for registering!
         Your E-Library account associated with {customer.Email} has been deactivated.
 
         If you believe this is a mistake or you wish to regain access, please visit our reactivation page:
-        https://database-project-cs-3380-t12.vercel.app/requestreactivation
+        https://e-libraryuh.vercel.app/requestreactivation
 
         Thank you for using E-Library.
 
