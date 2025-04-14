@@ -123,6 +123,7 @@ export default function ResetPasswordPage() {
             sx={{
               mt: 2,
               color: message.startsWith("Error") ? "error.main" : "success.main",
+              textAlign: "center", // Center the message text
             }}
           >
             {message}
