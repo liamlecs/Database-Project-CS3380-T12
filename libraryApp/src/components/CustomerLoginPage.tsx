@@ -131,6 +131,14 @@ export default function LoginPage() {
           <button type="submit" className="btn btn-primary w-100">
             Login
           </button>
+
+                  {/* Add this link somewhere below your password field */}
+        <div className="text-center mt-3">
+          <a href="/ForgotPassword" className="text-blue-600">
+            Forgot Your Password?
+          </a>
+        </div>
+
         </form>
 
         {message && (
