@@ -7,8 +7,12 @@ using Microsoft.EntityFrameworkCore;
 using LibraryWebAPI.Data;
 using LibraryWebAPI.Models;
 
+
+
 namespace LibraryWebAPI.Controllers
 {
+
+    
     [Route("api/[controller]")]
     [ApiController]
     public class MusicController : ControllerBase
@@ -22,23 +26,22 @@ namespace LibraryWebAPI.Controllers
 
         // GET: api/Music
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MusicDto>>> GetMusic()
+        public async Task<ActionResult<IEnumerable<MusicDTO>>> GetMusic()
         {
             var musics = await _context.Musics
                 .Include(m => m.MusicArtist)
                 .Include(m => m.MusicGenre)
                 .Include(m => m.Item) // Include the Item table to get available copies
-                .Select(static m => new MusicDto
+                .Select(static m => new MusicDTO
                 {
-                    SongId = m.SongId,
-                    itemId = m.ItemId,
-                    Format = m.Format,
-                    CoverImagePath = m.CoverImagePath,
-                    ArtistName = m.MusicArtist.ArtistName,
-                    SongTitle = m.Item.Title,
-                    GenreDescription = m.MusicGenre.Description,
-                    availableCopies = m.Item.AvailableCopies,
-                    itemLocation = m.Item.Location,
+                    SongId = m.SongId.ToString(),
+                    itemId = m.ItemId.ToString(),
+                    MusicArtistID = m.MusicArtist.MusicArtistId,
+                    CoverImagePath = m.CoverImagePath ?? string.Empty,
+                    Title = m.Item.Title,
+                    MusicGenreID = m.MusicGenre.MusicGenreId,
+                    ItemTypeID = m.Item.ItemTypeID,
+
                 })
                 .ToListAsync();
 
@@ -124,5 +127,62 @@ namespace LibraryWebAPI.Controllers
         {
             return _context.Musics.Any(e => e.SongId == id);
         }
+
+        [HttpPost("add-music")]
+    public async Task<IActionResult> AddMusic([FromBody] MusicDTO model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        // 👇 Debug log incoming data
+        Console.WriteLine($"Incoming Music: {System.Text.Json.JsonSerializer.Serialize(model)}");
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            // Step 1: Create Item
+            var item = new Item
+            {
+                Title = model.Title ?? string.Empty,
+                TotalCopies = model.TotalCopies,
+                AvailableCopies = model.TotalCopies,
+                Location = model.Location,
+                ItemTypeID = model.ItemTypeID
+            };
+
+            _context.Items.Add(item);
+            await _context.SaveChangesAsync();
+
+            // Step 2: Create Music
+            var music = new Music
+            {
+                MusicArtistId = model.MusicArtistID,
+                MusicGenreId = model.MusicGenreID,
+                Format = model.Format,
+                CoverImagePath = model.CoverImagePath,
+                ItemId = item.ItemId
+            };
+
+            _context.Musics.Add(music);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return Ok(new { message = "Music added successfully", itemId = item.ItemId });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            Console.WriteLine($"❌ Error adding music: {ex.Message}");
+            Console.WriteLine($"❗ Inner: {ex.InnerException?.Message}");
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                            new { message = "Error while adding music", error = ex.Message });
+        }
+    }
+
+
     }
 }

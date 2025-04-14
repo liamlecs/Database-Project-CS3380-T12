@@ -5,6 +5,7 @@ import type { SelectChangeEvent } from '@mui/material/Select';
 import dayjs from 'dayjs';
 import BookForm from './inventory_post_forms/BookForm';"./inventory_post_forms/BookForm"
 import MovieForm from './inventory_post_forms/MovieForm';"./inventory_post_forms/MovieForm"
+import MusicForm from './inventory_post_forms/MusicForm'; // Ensure this path is correct
 
 // --- Material UI Imports ---
 import {
@@ -1145,7 +1146,7 @@ const Employee: React.FC = () => {
     <Box sx={{ mb: 4 }}>
       {selectedItemType === "Book" && <BookForm />}
       {selectedItemType === "Movie" && <MovieForm />}
-      {selectedItemType === "Music" && <div>Music form coming soon...</div>}
+      {selectedItemType === "Music" && <MusicForm />}
       {selectedItemType === "Technology" && <div>Technology form coming soon...</div>}
     </Box>
 
