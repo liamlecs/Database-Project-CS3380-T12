@@ -57,7 +57,9 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
     </p>  
 
   - Waitlist system for items that are out of stock
-    ![image](https://github.com/user-attachments/assets/44d99526-1e2e-4b74-8e47-346b34161fe9)
+    <p align="center">
+    <img src="https://github.com/user-attachments/assets/44d99526-1e2e-4b74-8e47-346b34161fe9">
+    </p>  
     ![image](https://github.com/user-attachments/assets/10e9a800-df89-49cd-92e1-73bbbdae4722)
 
 - **Email Notifications**:
