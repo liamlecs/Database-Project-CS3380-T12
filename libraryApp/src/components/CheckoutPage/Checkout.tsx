@@ -25,6 +25,17 @@ const CheckoutPage: React.FC = () => {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
+  // New success state
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
+
+  const handleSuccessClose = (
+    event: React.SyntheticEvent<Element, Event> | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") return;
+    setCheckoutSuccess(false);
+  };
+
   const handleSnackbarClose = (
     event: React.SyntheticEvent<Element, Event> | Event,
     reason?: SnackbarCloseReason
@@ -151,7 +162,7 @@ const CheckoutPage: React.FC = () => {
       }
   
       clearCart();
-      alert("Thank you for your checkout! Your items have been processed and recorded in your transaction history.");
+      setCheckoutSuccess(true);
     } catch (error) {
       console.error("Checkout error:", error);
       setCheckoutError("An error occurred during checkout. Please try again.");
@@ -211,6 +222,7 @@ const CheckoutPage: React.FC = () => {
         </>
       )}
   
+      {/* Error Snackbar */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -225,6 +237,19 @@ const CheckoutPage: React.FC = () => {
         >
           <AlertTitle>Error</AlertTitle>
           {checkoutError}
+        </Alert>
+      </Snackbar>
+
+          {/* Success Snackbar */}
+            <Snackbar
+        open={checkoutSuccess}
+        autoHideDuration={6000}
+        onClose={handleSuccessClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleSuccessClose} severity="success" variant="filled" sx={{ width: "100%" }}>
+          <AlertTitle>Success</AlertTitle>
+          Thank you for your checkout! Your items have been processed successfully.
         </Alert>
       </Snackbar>
     </div>
