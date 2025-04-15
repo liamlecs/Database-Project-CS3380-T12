@@ -99,7 +99,7 @@ const TechnologyForm: React.FC = () => {
           throw new Error("Failed to create device type");
         }
         const newTypeObj = await createTypeRes.json();
-        finalDeviceTypeId = newTypeObj.deviceTypeId; 
+        finalDeviceTypeId = newTypeObj.deviceTypeID; 
       } else {
         finalDeviceTypeId = parseInt(formData.deviceTypeId, 10);
       }
@@ -116,7 +116,7 @@ const TechnologyForm: React.FC = () => {
           throw new Error("Failed to create manufacturer");
         }
         const newMfrObj = await createMfrRes.json();
-        finalManufacturerId = newMfrObj.manufacturerId;
+        finalManufacturerId = newMfrObj.manufacturerID;
       } else {
         finalManufacturerId = parseInt(formData.manufacturerId, 10);
       }
