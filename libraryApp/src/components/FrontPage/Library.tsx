@@ -15,19 +15,26 @@ const publicAssetBaseUrl = import.meta.env.VITE_PUBLIC_ASSET_BASE_URL || "";
  * - Otherwise, return the URL as is.
  */
 const resolveCoverImageUrl = (coverImagePath?: string, fallback?: string): string => {
+  // If there's no cover path, use the fallback or default image.
   if (!coverImagePath) {
     return fallback || defaultItemImage;
   }
-  
-  // If the URL contains the local host, replace it.
+
+  // If it's already a fully qualified URL (e.g., "https://team12cosc3380store.blob.core.windows.net/..."),
+  // just return it as is. We can check if it starts with "http".
+  if (coverImagePath.startsWith("http")) {
+    return coverImagePath;
+  }
+
+  // If it includes "localhost:5217", do the old replacement logic.
   if (coverImagePath.includes("localhost:5217")) {
     return coverImagePath.replace("http://localhost:5217", publicAssetBaseUrl);
   }
-  
-  // Otherwise, if it is already an absolute URL, return as is.
-  // For relative URLs (like "/book_covers/Clean_Code.jpg") return as is.
+
+  // Otherwise, return it unchanged. This can handle relative paths like "/uploads/..."
   return coverImagePath;
 };
+
 
 
 const tables = ["Book", "Movie", "Music", "Technology"];

@@ -82,7 +82,7 @@ const BookForm = () => {
   
         // Parse the response to retrieve the permanent URL
         const data = await res.json();
-        
+        console.log("DEBUG: coverImagePath=", data.url),
         // Update your form state with the permanent URL (data.url)
         setFormData((prev) => ({
           ...prev,

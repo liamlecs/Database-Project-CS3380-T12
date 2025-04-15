@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace LibraryWebAPI.Controllers
 {
@@ -20,10 +21,13 @@ namespace LibraryWebAPI.Controllers
         private readonly LibraryContext _context;
         private readonly IWebHostEnvironment _env;
 
-        public BookController(LibraryContext context, IWebHostEnvironment env)
+        private readonly IConfiguration _configuration; // Add this field
+
+        public BookController(LibraryContext context, IWebHostEnvironment env, IConfiguration configuration) // Add IConfiguration to the constructor
         {
             _context = context;
             _env = env;
+            _configuration = configuration;  // Set the field from DI
         }
 
         [HttpGet]
@@ -136,34 +140,29 @@ public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
 }
 
         
-        [HttpPost("upload-cover")]
-        [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadCover([FromForm] CoverUploadDto dto)
-        {
-            if (dto?.Cover == null || dto.Cover.Length == 0)
-            {
-                return BadRequest("No file uploaded.");
-            }
+[HttpPost("upload-cover")]
+[Consumes("multipart/form-data")]
+public async Task<IActionResult> UploadCover([FromForm] CoverUploadDto dto)
+{
+    if (dto?.Cover == null || dto.Cover.Length == 0)
+    {
+        return BadRequest("No file uploaded.");
+    }
 
-            // Define the folder where files will be stored
-            var uploadsFolder = Path.Combine(_env.ContentRootPath, "UploadedFiles", "BookCovers");
-            if (!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
+    try
+    {
+        // Instantiate BlobStorageService (ideally inject via dependency injection)
+        var blobService = new BlobStorageService(_configuration);
+        string fileUrl = await blobService.UploadFileAsync(dto.Cover);
+        return Ok(new { url = fileUrl });
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError, 
+                          new { message = "Image upload failed", error = ex.Message });
+    }
+}
 
-            // Generate a unique filename
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(dto.Cover.FileName);
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await dto.Cover.CopyToAsync(stream);
-            }
-            
-            var relativeUrl = $"/uploads/book_covers/{fileName}";
-            return Ok(new { url = relativeUrl });
-        }
 
 
         // PUT: api/Book/5
