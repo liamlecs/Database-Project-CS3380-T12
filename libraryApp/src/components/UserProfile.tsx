@@ -209,8 +209,8 @@ export default function UserProfile() {
       alert("Your account has been deactivated successfully.");
       navigate("/customer-login");
     } catch (error) {
-      console.error("Error deleting account:", error);
-      alert("Failed to delete your account. Please try again later.");
+      console.error("Error deactivating account:", error);
+      alert("Failed to deactivating your account. Please try again later.");
     }
   };
 
