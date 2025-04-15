@@ -26,17 +26,9 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 
 **Key highlights**:
 - Manage library items (Books, Movies, Music, Technology) with an intuitive interface
-  ![image](https://github.com/user-attachments/assets/2eff3544-0bc4-491b-b212-45bd0f283cda)
 - Tracks availability, waitlists, and borrowing
-  ![image](https://github.com/user-attachments/assets/51fcdcbc-aed3-40be-8657-54427985118b)
 - Integrates with Azure Blob Storage for cover image uploads
-
-  <p align="center">
-  <img src="https://github.com/user-attachments/assets/8dc4e63f-6faa-4f50-87f5-ee562d206871">
-  </p>
-
 - Offers email-based authentication and role-based authorization
-  ![image](https://github.com/user-attachments/assets/c2c4ba17-df65-4f0f-97ff-7b439db3f959)
 - Deployed on **Azure App Service** (API) and **Vercel** (front end): https://e-libraryuh.vercel.app
 
 ---
@@ -45,15 +37,33 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 
 - **Inventory Management**: 
   - Add, edit, and delete items (books, movies, music, technology)
+    ![image](https://github.com/user-attachments/assets/ba75a211-85f3-4894-a31a-cfd46918bf7a)
+
   - Upload cover images to Azure Blob Storage
+    <p align="center">
+    <img src="https://github.com/user-attachments/assets/8dc4e63f-6faa-4f50-87f5-ee562d206871">
+    </p>  
 - **User Roles**:
   - Email Authentication for Faculty versus Student Customer Account
+    ![image](https://github.com/user-attachments/assets/a69fb783-d6d2-4dae-bf6d-2f8805f8c972)
   - Employee vs. Customer roles
+    ![image](https://github.com/user-attachments/assets/5b0852b1-a7f0-4c28-a9eb-62640d0b3be6)
+    ![image](https://github.com/user-attachments/assets/35eb8e99-437b-4d9f-983a-74cb9eb158c5)
+
 - **Search & Waitlists**:
   - Full-text search on titles
+    <p align="center">
+    <img src="https://github.com/user-attachments/assets/7c54918d-f60e-45d2-a47d-79179b89e69d">
+    </p>  
+
   - Waitlist system for items that are out of stock
+    ![image](https://github.com/user-attachments/assets/44d99526-1e2e-4b74-8e47-346b34161fe9)
+    ![image](https://github.com/user-attachments/assets/10e9a800-df89-49cd-92e1-73bbbdae4722)
+
 - **Email Notifications**:
   - SMTP integration for certain events (e.g., waitlist availability)
+    ![image](https://github.com/user-attachments/assets/b7ad60ef-cfa2-4611-9344-5722bf4710b3)
+    
 - **Security**:
   - HTTPS, HSTS (in production)
   - Environment variable–based secrets
