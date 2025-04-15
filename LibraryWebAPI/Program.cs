@@ -121,6 +121,10 @@ app.UseStaticFiles(new StaticFileOptions
 app.UseSwagger();
 app.UseSwaggerUI();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
