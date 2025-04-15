@@ -97,7 +97,7 @@ const MusicForm: React.FC = () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              name: newArtistName, // Use single name field
+              ArtistName: newArtistName, // Use single name field
             }),
           }
         );
