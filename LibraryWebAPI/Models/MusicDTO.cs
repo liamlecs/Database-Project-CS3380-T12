@@ -34,7 +34,7 @@ namespace LibraryWebAPI.Models
         public int availableCopies { get; set; }
         
         // The physical location of the item.
-        public string? itemLocation { get; set; }
+        public string? Location { get; set; }
         
         // For Music, we assume ItemTypeID is 3.
         public int ItemTypeID { get; set; } = 3;

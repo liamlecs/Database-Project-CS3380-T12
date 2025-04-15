@@ -43,7 +43,7 @@ namespace LibraryWebAPI.Controllers
                     Format = m.Format,
                     CoverImagePath = m.CoverImagePath,
                     availableCopies = m.Item.AvailableCopies,
-                    itemLocation = m.Item.Location,
+                    Location = m.Item.Location,
                     ItemTypeID = m.Item.ItemTypeID  // Get this value from the related Item
                 })
                 .ToListAsync();
@@ -149,8 +149,8 @@ namespace LibraryWebAPI.Controllers
                 {
                     Title = model.Title, // Use Title from model (which we are now using instead of SongTitle)
                     TotalCopies = model.TotalCopies,
-                    AvailableCopies = model.availableCopies,
-                    Location = model.itemLocation,
+                    AvailableCopies = model.TotalCopies,
+                    Location = model.Location,
                     ItemTypeID = model.ItemTypeID
                 };
 

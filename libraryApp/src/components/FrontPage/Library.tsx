@@ -518,8 +518,8 @@ setOpenMaxCheckoutDialog(true);
     <p><strong>Available Copies:</strong> {selectedItem.availableCopies}</p>
   )}
   
-  {selectedItem?.itemLocation && (
-    <p><strong>Item Location:</strong> {selectedItem.itemLocation}</p>
+  {(selectedItem?.location || selectedItem?.itemLocation )&& (
+    <p><strong>Location:</strong> {selectedItem.location ?? selectedItem.itemLocation}</p>
   )}
 </DialogContent>
                 <DialogActions>
