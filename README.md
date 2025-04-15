@@ -94,7 +94,7 @@ Database-Project-CS3380-T12/
 
 1. **Clone the Repository**:
    ```bash
-   git clone [https://github.com/<your-org>/Database-Project-CS3380-T12.git](https://github.com/liamlecs/Database-Project-CS3380-T12.git)
+   git clone https://github.com/liamlecs/Database-Project-CS3380-T12.git
    cd Database-Project-CS3380-T12
    ```
 
