@@ -249,7 +249,7 @@ const CheckoutPage: React.FC = () => {
       >
         <Alert onClose={handleSuccessClose} severity="success" variant="filled" sx={{ width: "100%" }}>
           <AlertTitle>Success</AlertTitle>
-          Thank you for your checkout! Your items have been processed successfully.
+          Thank you for your checkout! Your item(s) have been processed successfully.
         </Alert>
       </Snackbar>
     </div>
