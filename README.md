@@ -3,6 +3,18 @@
 Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 
 ![image](https://github.com/user-attachments/assets/f9a43e32-c835-4a28-85c1-5c105420aa29)
+![image](https://github.com/user-attachments/assets/cc2db11d-7a59-40cf-a702-7a93874ad52e)
+![image](https://github.com/user-attachments/assets/fe11aae6-ba3b-4eab-9501-902603194bd4)
+![image](https://github.com/user-attachments/assets/9d573400-66eb-4f17-9e4c-3e87d76c0bc0)
+![image](https://github.com/user-attachments/assets/e7f7fded-d7a4-4f3b-b73d-bf87b385d928)
+![image](https://github.com/user-attachments/assets/5633a057-3ed7-4a27-a8fb-c9b4cd1e25a3)
+![image](https://github.com/user-attachments/assets/c5301766-eb47-4e48-860e-df7418ded9d4)
+![image](https://github.com/user-attachments/assets/ceb058ab-e236-43fe-805d-ae5fc7c51adf)
+
+<p align="center">
+<img src="https://github.com/user-attachments/assets/6e0e8624-cd57-45c1-9d8d-f3c01f0dffec">
+</p>  
+
 
 
 ## Table of Contents
@@ -46,6 +58,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 - **User Roles**:
   - Email Authentication for Faculty versus Student Customer Account
     ![image](https://github.com/user-attachments/assets/a69fb783-d6d2-4dae-bf6d-2f8805f8c972)
+    ![image](https://github.com/user-attachments/assets/bbbfcf01-70d0-4869-84ef-58e999f25fa6)
   - Employee vs. Customer roles
     ![image](https://github.com/user-attachments/assets/5b0852b1-a7f0-4c28-a9eb-62640d0b3be6)
     ![image](https://github.com/user-attachments/assets/35eb8e99-437b-4d9f-983a-74cb9eb158c5)
