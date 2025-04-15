@@ -189,7 +189,7 @@ setOpenMaxCheckoutDialog(true);
       else{
 
           // 3. Determine the current ItemID (ensure you use the correct property from your item object).
-          const currentItemId = item.itemId || item.id;
+          const currentItemId = item.itemId || item.id || item.itemID;
           if (!currentItemId) {
             alert("No item id available for this item.");
             return;
@@ -275,7 +275,7 @@ setOpenMaxCheckoutDialog(true);
             dueDate.setDate(now.getDate() + (storedUserType === "faculty" ? 14 : 7));
 
             addToCart({
-                ItemID: itemToCheckout.itemId || itemToCheckout.id || 0,
+                ItemID: itemToCheckout.itemID || itemToCheckout.itemId || itemToCheckout.id || 0,
                 ItemType: itemToCheckout._category,
                 Title: getDisplayTitle(itemToCheckout, itemToCheckout._category),
                 CheckoutDate: now.toISOString().split("T")[0],
