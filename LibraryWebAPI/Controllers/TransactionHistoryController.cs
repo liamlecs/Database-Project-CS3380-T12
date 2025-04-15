@@ -115,19 +115,7 @@ namespace LibraryWebAPI.Controllers
 "LEFT JOIN Technology T ON I.ItemID = T.DeviceID " +
 "JOIN Fines F ON TH.TransactionID = F.TransactionID " +
 "JOIN Customer C ON F.CustomerID = C.CustomerID " +
-"JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
-"GROUP BY " +
-"    I.Title, " +
-"    C.Email, " +
-"    C.FirstName, " +
-"    C.LastName, " +
-"    BT.Type, " +
-"    TH.DateBorrowed, " +
-"    TH.DueDate, " +
-"    F.IssueDate, " +
-"    F.Amount, " +
-"    F.PaymentStatus, " +
-"    IT.TypeName;"
+"JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID "
 ).ToListAsync();
 
             if (fines == null)
@@ -163,19 +151,7 @@ namespace LibraryWebAPI.Controllers
 "JOIN Fines F ON TH.TransactionID = F.TransactionID " +
 "JOIN Customer C ON F.CustomerID = C.CustomerID " +
 "JOIN BorrowerType BT ON C.BorrowerTypeID = BT.BorrowerTypeID " +
-"WHERE F.PaymentStatus = {0} " +
-"GROUP BY " +
-"    I.Title, " +
-"    C.Email, " +
-"    C.FirstName, " +
-"    C.LastName, " +
-"    BT.Type, " +
-"    TH.DateBorrowed, " +
-"    TH.DueDate, " +
-"    F.IssueDate, " +
-"    F.Amount, " +
-"    F.PaymentStatus, " +
-"    IT.TypeName;"
+"WHERE F.PaymentStatus = {0} "
 , isPaid).ToListAsync();
 
             if (fines == null)
