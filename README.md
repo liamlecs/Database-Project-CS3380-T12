@@ -249,7 +249,7 @@ This project is proprietary and is owned by Team 12, COSC 3380 @ UH. No part of 
 
 **Team 12 – E-Library @ UH**  
 **Email:** [uhelibrary5@gmail.com](mailto:uhelibrary5@gmail.com)  
-**Slack/Team Chat:** Internal UH Slack or Teams channel.
+**Team Leader:** Liam Le - https://github.com/liamlecs
 
 For any questions, issues, or suggestions, feel free to open an issue on GitHub or contact us via the email above.
 
