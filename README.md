@@ -157,7 +157,7 @@ Database-Project-CS3380-T12/
    - Visual Studio’s “Publish” wizard
    - Azure CLI
    - GitHub Actions (CI/CD pipeline)
-3. **Set Environment Variables** in Azure Portal under *Configuration > Application Settings*:
+3. **Set Environment Variables** in Azure Portal under *Settings > Environment variables*:
    - `ConnectionStrings:DefaultConnection`
    - `AzureBlobStorage:ConnectionString`
    - etc.
