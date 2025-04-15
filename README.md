@@ -82,7 +82,6 @@ Database-Project-CS3380-T12/
 │  └─ ...
 ├─ .gitignore
 ├─ README.md               # Project documentation (you are here!)
-├─ LICENSE (optional)
 └─ ...
 ```
 
@@ -202,7 +201,7 @@ We welcome bug reports, feature requests, and pull requests that align with the 
 
 ## License
 
-*(Optional)* If you have a license, specify which one here (e.g., MIT, Apache, etc.). Otherwise, note that it is proprietary or belongs to the team.
+This project is proprietary and is owned by Team 12, COSC 3380 @ UH. No part of this project may be reproduced or distributed without explicit written permission.
 
 ---
 
