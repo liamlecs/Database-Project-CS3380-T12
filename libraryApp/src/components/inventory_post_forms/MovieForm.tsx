@@ -82,6 +82,7 @@ const MovieForm: React.FC = () => {
         }
 
         const data = await res.json();
+        console.log("DEBUG: coverImagePath=", data.url);
         setFormData((prev) => ({
           ...prev,
           coverImagePath: data.url,
@@ -134,6 +135,9 @@ const MovieForm: React.FC = () => {
         Location: formData.location,
         ItemTypeID: formData.itemTypeID
       };
+
+      console.log("Final payload:", payload);
+
 
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Movie/add-movie`,
