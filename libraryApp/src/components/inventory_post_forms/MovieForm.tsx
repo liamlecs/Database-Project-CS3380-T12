@@ -149,8 +149,9 @@ const MovieForm: React.FC = () => {
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
+        const errorData = await response.json();
+        alert(errorData.message || "Something went wrong. Please try again.");
+        return;
       }
 
       alert("Movie added successfully!");

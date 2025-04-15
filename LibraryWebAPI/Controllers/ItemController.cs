@@ -84,26 +84,62 @@ public async Task<IActionResult> PutItem(int id, Item item)
     return NoContent(); // 204 No Content is standard for successful PUT
 }
 
-        // DELETE: api/Item/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteItem(int id)
-        {
-            var item = await _context.Items.FindAsync(id);
-            if (item == null)
-            {
-                return NotFound();
-            }
+// DELETE: api/Item/5
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteItem(int id)
+{
+    // Retrieve the item.
+    var item = await _context.Items.FindAsync(id);
+    if (item == null)
+    {
+        return NotFound();
+    }
 
-            _context.Items.Remove(item);
-            await _context.SaveChangesAsync();
+    // Begin a transaction.
+    using var transaction = await _context.Database.BeginTransactionAsync();
 
-            return NoContent();
-        }
+    try
+    {
+        // Delete associated Book records.
+        var booksToDelete = _context.Books.Where(b => b.ItemID == item.ItemId);
+        _context.Books.RemoveRange(booksToDelete);
 
-        private bool ItemExists(int id)
-        {
-            return _context.Items.Any(e => e.ItemId == id);
-        }
+        // Delete associated Movie records.
+        var moviesToDelete = _context.Movies.Where(m => m.ItemId == item.ItemId);
+        _context.Movies.RemoveRange(moviesToDelete);
+
+        // Delete associated Music records.
+        var musicToDelete = _context.Musics.Where(m => m.ItemId == item.ItemId);
+        _context.Musics.RemoveRange(musicToDelete);
+
+        // Delete associated Technology records.
+        var techToDelete = _context.Technologies.Where(t => t.ItemID == item.ItemId);
+        _context.Technologies.RemoveRange(techToDelete);
+
+        // Now delete the Item itself.
+        _context.Items.Remove(item);
+
+        // Save all changes.
+        await _context.SaveChangesAsync();
+
+        // Commit the transaction.
+        await transaction.CommitAsync();
+
+        return NoContent();
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        return StatusCode(StatusCodes.Status500InternalServerError, 
+                          new { message = "Error deleting item", error = ex.Message });
+    }
+}
+
+private bool ItemExists(int id)
+{
+    return _context.Items.Any(e => e.ItemId == id);
+}
+
 
 [HttpPatch("update-copies")]
 public async Task<IActionResult> UpdateAvailableCopies([FromBody] UpdateAvailableCopiesDto dto)

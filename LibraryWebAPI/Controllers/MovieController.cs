@@ -93,6 +93,22 @@ namespace LibraryWebAPI.Controllers
 
                 return Ok(new { message = "Movie added successfully", itemId = item.ItemId });
             }
+                catch (DbUpdateException dbEx)
+            {
+                await transaction.RollbackAsync();
+
+                // Check if the inner exception is a SQL exception and if it indicates a unique constraint violation (error number 2627)
+                if (dbEx.InnerException is Microsoft.Data.SqlClient.SqlException sqlEx && sqlEx.Number == 2627)
+                {
+                    return Conflict(new 
+                    { 
+                        message = "A movie with this UPC already exists. Please use a unique UPC.", 
+                        error = sqlEx.Message 
+                    });
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                                new { message = "Error while adding movie", error = dbEx.Message });
+            }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
