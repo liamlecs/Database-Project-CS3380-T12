@@ -25,7 +25,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 - Manage library items (Books, Movies, Music, Technology) with an intuitive interface
 - Tracks availability, waitlists, and borrowing
 - Integrates with Azure Blob Storage for cover image uploads
-- Offers JWT-based authentication and role-based authorization
+- Offers email-based authentication and role-based authorization
 - Deployed on **Azure App Service** (API) and **Vercel** (front end)
 
 ---
@@ -117,7 +117,6 @@ Database-Project-CS3380-T12/
 2. **Set environment variables or use dotnet-user-secrets**:
    ```bash
    dotnet user-secrets init
-   dotnet user-secrets set "Jwt:Key" "<your_jwt_secret>"
    dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<local_connection_string>"
    dotnet user-secrets set "AzureBlobStorage:ConnectionString" "<blob_storage_connection>"
    # etc...
@@ -161,7 +160,6 @@ Database-Project-CS3380-T12/
    - GitHub Actions (CI/CD pipeline)
 3. **Set Environment Variables** in Azure Portal under *Configuration > Application Settings*:
    - `ConnectionStrings:DefaultConnection`
-   - `Jwt:Key`
    - `AzureBlobStorage:ConnectionString`
    - etc.
 
@@ -181,7 +179,6 @@ Database-Project-CS3380-T12/
 
 **Common Variables**:
 - **`ConnectionStrings:DefaultConnection`** – Database connection string  
-- **`Jwt:Key`** – Secret key for JWT tokens  
 - **`AzureBlobStorage:ConnectionString`** – Blob storage connection  
 - **`Smtp:Password`** – Password for SMTP
 
