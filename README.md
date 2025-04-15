@@ -73,7 +73,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
     <p align="center">
     <img src="https://github.com/user-attachments/assets/44d99526-1e2e-4b74-8e47-346b34161fe9">
     </p>  
-    ![image](https://github.com/user-attachments/assets/10e9a800-df89-49cd-92e1-73bbbdae4722)
+  ![image](https://github.com/user-attachments/assets/4d5155d6-1f57-4e50-a5ed-4992f7a30549)
 
 - **Email Notifications**:
   - SMTP integration for certain events (e.g., waitlist availability)
