@@ -36,7 +36,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
   - Add, edit, and delete items (books, movies, music, technology)
   - Upload cover images to Azure Blob Storage
 - **User Roles**:
-  - JWT authentication
+  - Email Authentication for Faculty versus Student Customer Account
   - Employee vs. Customer roles
 - **Search & Waitlists**:
   - Full-text search on titles
@@ -59,7 +59,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
    - **Front End**: Vercel  
    - **Database**: Azure SQL  
    - **Blob Storage**: Azure Blob Storage
-4. **Authentication**: JWT Bearer tokens  
+4. **Authentication**: Email Authentication for Faculty versus Student Customer Account
 5. **Email**: SMTP (Gmail)
 
 ---
@@ -126,7 +126,7 @@ Database-Project-CS3380-T12/
    ```bash
    dotnet run
    ```
-   By default, it listens on `https://localhost:7217` (or a similar port).
+   By default, it listens on `https://localhost:5217` (or a similar port).
 
 ### Front End (React)
 
@@ -137,7 +137,7 @@ Database-Project-CS3380-T12/
    ```
 3. **Configure environment** (e.g., `.env.local`):
    ```env
-   VITE_API_BASE_URL=https://localhost:7217
+   VITE_API_BASE_URL=https://localhost:5217
    ```
 4. **Start the dev server**:
    ```bash
