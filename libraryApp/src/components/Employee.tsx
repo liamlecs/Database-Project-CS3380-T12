@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import type { SelectChangeEvent } from '@mui/material/Select';
 import dayjs from 'dayjs';
-import BookForm from './inventory_post_forms/BookForm';"./inventory_post_forms/BookForm"
-import MovieForm from './inventory_post_forms/MovieForm';"./inventory_post_forms/MovieForm"
+import BookForm from './inventory_post_forms/BookForm'; "./inventory_post_forms/BookForm"
+import MovieForm from './inventory_post_forms/MovieForm'; "./inventory_post_forms/MovieForm"
 import MusicForm from './inventory_post_forms/MusicForm'; // Ensure this path is correct
 
 // --- Material UI Imports ---
@@ -149,20 +149,20 @@ const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
           <TextField
             label="First Name"
             value={formData.firstName}
-            onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             fullWidth
           />
           <TextField
             label="Last Name"
             value={formData.lastName}
-            onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
             fullWidth
           />
           <TextField
             label="Birth Date"
             type="date"
             value={formData.birthDate}
-            onChange={(e) => setFormData({...formData, birthDate: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
             InputLabelProps={{ shrink: true }}
             fullWidth
           />
@@ -222,7 +222,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     setPassword(generated);
   };
 
-  
+
   const handleSubmit = async () => {
     const newEmployee = {
       firstName,
@@ -361,10 +361,10 @@ const EmployeesList: React.FC = () => {
           body: JSON.stringify(updatedData),
         }
       );
-  
+
       if (response.ok) {
         // Refresh employee list
-        const updatedEmployees = employees.map(e => 
+        const updatedEmployees = employees.map(e =>
           e.employeeId === updatedData.employeeId ? updatedData : e
         );
         setEmployees(updatedEmployees);
@@ -414,7 +414,7 @@ const EmployeesList: React.FC = () => {
     if (!employeeToDelete) return;
     console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeId}`);
 
-    try{
+    try {
 
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Employee/${employeeToDelete.employeeId}`,
@@ -423,16 +423,16 @@ const EmployeesList: React.FC = () => {
         }
       );
 
-    
 
-    setOpenConfirmDialog(false);
-    setEmployeeToDelete(null);
-    window.location.href = "/employee";
+
+      setOpenConfirmDialog(false);
+      setEmployeeToDelete(null);
+      window.location.href = "/employee";
     }
-  catch(err){
-    console.error("Fetch error", err);
-  }
-};
+    catch (err) {
+      console.error("Fetch error", err);
+    }
+  };
 
   const columns: GridColDef[] = [
     { field: 'employeeId', headerName: 'Employee ID', width: 150 },
@@ -442,7 +442,7 @@ const EmployeesList: React.FC = () => {
       field: 'birthDate',
       headerName: 'Birth Date',
       width: 150,
-      renderCell: (params) => new Date(params.value).toLocaleDateString(),
+      renderCell: (params) => dayjs(params.value).format("MM/DD/YYYY"),
     },
     { field: 'username', headerName: 'Username', width: 150 },
     {
@@ -452,22 +452,22 @@ const EmployeesList: React.FC = () => {
       renderCell: (params) => {
         const row = params.row as EmployeeData;
         const isAdmin = currentUsername === 'admin';
-        
+
         return (
-          <Stack direction="row" spacing={1} 
-          sx={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          <Stack direction="row" spacing={1}
+            sx={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
             {isAdmin && row.username !== 'admin' && (
               <Button
                 variant="contained"
                 color="primary"
                 onClick={() => handleOpenEditDialog(row)}
-                sx={{ 
+                sx={{
                   minWidth: 80,
                   py: 0.5,
                   fontSize: '0.75rem'
@@ -481,7 +481,7 @@ const EmployeesList: React.FC = () => {
                 variant="contained"
                 color="error"
                 onClick={() => handleOpenConfirmDialog(row)}
-                sx={{ 
+                sx={{
                   minWidth: 80,
                   py: 0.5,
                   fontSize: '0.75rem'
@@ -502,7 +502,7 @@ const EmployeesList: React.FC = () => {
         Employees List
       </Typography>
       <div style={{ height: 500, width: '100%' }}>
-        <DataGrid 
+        <DataGrid
           rows={employees}
           getRowId={(row) => row.employeeId}
           columns={columns}
@@ -527,11 +527,11 @@ const EmployeesList: React.FC = () => {
         </DialogActions>
       </Dialog>
       <EditEmployeeDialog
-      open={openEditDialog}
-      employee={employeeToEdit}
-      onClose={handleCloseEditDialog}
-      onSave={handleUpdateEmployee}
-    />
+        open={openEditDialog}
+        employee={employeeToEdit}
+        onClose={handleCloseEditDialog}
+        onSave={handleUpdateEmployee}
+      />
     </Paper>
   );
 };
@@ -546,8 +546,8 @@ const Employee: React.FC = () => {
 
   const [selectedItemType, setSelectedItemType] = useState("Book");
   const handleItemTypeChange = (event: SelectChangeEvent<string>) => {
-  setSelectedItemType(event.target.value);
-};
+    setSelectedItemType(event.target.value);
+  };
 
   // Extend currentView to include "employees"
   const [currentView, setCurrentView] = useState<
@@ -747,7 +747,7 @@ const Employee: React.FC = () => {
     try {
       const wasZero = originalItem.availableCopies === 0;
       const nowPositive = editingItem.availableCopies > 0;
-    {
+      {
         // PUT: update item
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`,
@@ -857,13 +857,13 @@ const Employee: React.FC = () => {
     | 'profile'
     | 'employees'
   )[] = [
-    'dashboard',
-    'inventory',
-    'events',
-    'libraryHistory',
-    'profile',
-    'employees',
-  ];
+      'dashboard',
+      'inventory',
+      'events',
+      'libraryHistory',
+      'profile',
+      'employees',
+    ];
 
   const handleNextView = () => {
     const currentIndex = views.indexOf(currentView);
@@ -979,7 +979,7 @@ const Employee: React.FC = () => {
             justifyContent: 'center',
             gap: 2,
           }}
-          
+
         >
           Employee Dashboard
         </Typography>
@@ -1044,10 +1044,10 @@ const Employee: React.FC = () => {
                     {item.title === 'Inventory'
                       ? 'Items in stock'
                       : item.title === 'Events'
-                      ? 'Upcoming events'
-                      : item.title === 'My Profile'
-                      ? 'View profile'
-                      : 'View details'}
+                        ? 'Upcoming events'
+                        : item.title === 'My Profile'
+                          ? 'View profile'
+                          : 'View details'}
                   </Typography>
                 </CardContent>
               </Card>
@@ -1121,34 +1121,34 @@ const Employee: React.FC = () => {
   const renderInventoryManagement = () => (
 
     <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-      
+
       <Typography variant="h5" align="center" gutterBottom>
         Inventory Management
       </Typography>
 
-        {/* Item Type Selection Dropdown */}
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel id="item-type-label">Item Type</InputLabel>
-          <Select
-            labelId="item-type-label"
-            value={selectedItemType}
-            label="Item Type"
-            onChange={handleItemTypeChange}
-          >
-            <MenuItem value="Book">Book</MenuItem>
-            <MenuItem value="Movie">Movie</MenuItem>
-            <MenuItem value="Music">Music</MenuItem>
-            <MenuItem value="Technology">Technology</MenuItem>
-          </Select>
-        </FormControl>
+      {/* Item Type Selection Dropdown */}
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel id="item-type-label">Item Type</InputLabel>
+        <Select
+          labelId="item-type-label"
+          value={selectedItemType}
+          label="Item Type"
+          onChange={handleItemTypeChange}
+        >
+          <MenuItem value="Book">Book</MenuItem>
+          <MenuItem value="Movie">Movie</MenuItem>
+          <MenuItem value="Music">Music</MenuItem>
+          <MenuItem value="Technology">Technology</MenuItem>
+        </Select>
+      </FormControl>
 
-    {/* Dynamically Render Form */}
-    <Box sx={{ mb: 4 }}>
-      {selectedItemType === "Book" && <BookForm />}
-      {selectedItemType === "Movie" && <MovieForm />}
-      {selectedItemType === "Music" && <MusicForm />}
-      {selectedItemType === "Technology" && <div>Technology form coming soon...</div>}
-    </Box>
+      {/* Dynamically Render Form */}
+      <Box sx={{ mb: 4 }}>
+        {selectedItemType === "Book" && <BookForm />}
+        {selectedItemType === "Movie" && <MovieForm />}
+        {selectedItemType === "Music" && <MusicForm />}
+        {selectedItemType === "Technology" && <div>Technology form coming soon...</div>}
+      </Box>
 
 
       {/* Add Item Form */}
@@ -1156,7 +1156,7 @@ const Employee: React.FC = () => {
 
       </Box>
 
-      
+
 
       <Typography variant="h6" gutterBottom>
         Current Inventory
@@ -1190,7 +1190,7 @@ const Employee: React.FC = () => {
                       // setStoredItemIdDeletion(item.itemId);
                       // setOpenDeleteItemDialog(true);
                     }
-                      
+
                     }
                     color="primary"
                   >
@@ -1212,90 +1212,90 @@ const Employee: React.FC = () => {
         </Table>
       </TableContainer>
 
-          {/* Edit Item Dialog - Add this section */}
-    <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
-      <DialogTitle>Edit Item</DialogTitle>
-      <DialogContent>
-        {editingItem && (
-          <Box component="form" sx={{ mt: 1 }}>
-            <TextField
-              fullWidth
-              label="Title"
-              value={editingItem.title}
-              onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-              margin="normal"
-              required
-            />
-          
+      {/* Edit Item Dialog - Add this section */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
+        <DialogTitle>Edit Item</DialogTitle>
+        <DialogContent>
+          {editingItem && (
+            <Box component="form" sx={{ mt: 1 }}>
+              <TextField
+                fullWidth
+                label="Title"
+                value={editingItem.title}
+                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                margin="normal"
+                required
+              />
 
-            <TextField
-              fullWidth
-              type="number"
-              label="Total Copies"
-              value={editingItem.totalCopies}
-              onChange={(e) => {
-                const total = parseInt(e.target.value) || 0;
-                setEditingItem({
+
+              <TextField
+                fullWidth
+                type="number"
+                label="Total Copies"
+                value={editingItem.totalCopies}
+                onChange={(e) => {
+                  const total = parseInt(e.target.value) || 0;
+                  setEditingItem({
+                    ...editingItem,
+                    totalCopies: total,
+                    availableCopies: Math.min(editingItem.availableCopies, total)
+                  });
+                }}
+                margin="normal"
+                inputProps={{ min: 1 }}
+              />
+
+              <TextField
+                fullWidth
+                type="number"
+                label="Available Copies"
+                value={editingItem.availableCopies}
+                onChange={(e) => {
+                  const available = parseInt(e.target.value) || 0;
+                  setEditingItem({
+                    ...editingItem,
+                    availableCopies: Math.min(available, editingItem.totalCopies)
+                  });
+                }}
+                margin="normal"
+                inputProps={{
+                  min: 0,
+                  max: editingItem.totalCopies
+                }}
+              />
+
+              <TextField
+                fullWidth
+                label="Location"
+                value={editingItem.location || ''}
+                onChange={(e) => setEditingItem({
                   ...editingItem,
-                  totalCopies: total,
-                  availableCopies: Math.min(editingItem.availableCopies, total)
-                });
-              }}
-              margin="normal"
-              inputProps={{ min: 1 }}
-            />
+                  location: e.target.value
+                })}
+                margin="normal"
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateItem} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            <TextField
-              fullWidth
-              type="number"
-              label="Available Copies"
-              value={editingItem.availableCopies}
-              onChange={(e) => {
-                const available = parseInt(e.target.value) || 0;
-                setEditingItem({
-                  ...editingItem,
-                  availableCopies: Math.min(available, editingItem.totalCopies)
-                });
-              }}
-              margin="normal"
-              inputProps={{ 
-                min: 0, 
-                max: editingItem.totalCopies 
-              }}
-            />
 
-            <TextField
-              fullWidth
-              label="Location"
-              value={editingItem.location || ''}
-              onChange={(e) => setEditingItem({ 
-                ...editingItem, 
-                location: e.target.value 
-              })}
-              margin="normal"
-            />
-          </Box>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-        <Button onClick={handleUpdateItem} color="primary">
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
-            
-      
     </Paper>
   );
 
-  
+
 
   // --- Render Events ---
   const renderEventManagement = () => (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Paper elevation={3} sx={{ padding: 3 }}>
-        <Typography variant="h5" align="center" gutterBottom > 
+        <Typography variant="h5" align="center" gutterBottom >
           Create New Event
         </Typography>
         <CreateEvent />
@@ -1327,10 +1327,10 @@ const Employee: React.FC = () => {
                 <TableRow key={event.eventId}>
                   <TableCell>{event.title}</TableCell>
                   <TableCell>
-                    {new Date(event.startTimestamp).toLocaleString()}
+                    {dayjs(event.startTimestamp).format("MM/DD/YYYY hh:mm A")}
                   </TableCell>
                   <TableCell>
-                    {new Date(event.endTimestamp).toLocaleString()}
+                    {dayjs(event.endTimestamp).format("MM/DD/YYYY hh:mm A")}
                   </TableCell>
                   <TableCell>{event.location}</TableCell>
                   <TableCell>
@@ -1373,7 +1373,7 @@ const Employee: React.FC = () => {
   );
 
   return (
-    <Box sx={{ mt: "80px" }}> 
+    <Box sx={{ mt: "80px" }}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -1449,7 +1449,7 @@ const Employee: React.FC = () => {
         </IconButton>
 
 
-        
+
 
         {/* Message Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -1657,47 +1657,47 @@ const Employee: React.FC = () => {
         </Dialog>
 
         <Dialog open={openDeleteEventDialog} onClose={() => setOpenDeleteEventDialog(false)}>
-  <DialogTitle>Delete Event</DialogTitle>
-  <DialogContent>
-    <Typography>
-      Are you sure you want to delete this event? <br />
-      <strong>This action is permanent and cannot be undone.</strong>
-    </Typography>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setOpenDeleteEventDialog(false)} color="primary">
-      Cancel
-    </Button>
-    <Button onClick={() => {
-      handleDeleteEvent(storedEventIdDeletion);
-      setOpenDeleteEventDialog(false)
-      console.log("Delete logic goes here");
-    }} color="error" variant="contained">
-      Delete
-    </Button>
-  </DialogActions>
-</Dialog>
+          <DialogTitle>Delete Event</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete this event? <br />
+              <strong>This action is permanent and cannot be undone.</strong>
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDeleteEventDialog(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              handleDeleteEvent(storedEventIdDeletion);
+              setOpenDeleteEventDialog(false)
+              console.log("Delete logic goes here");
+            }} color="error" variant="contained">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-<Dialog open={openDeleteItemDialog} onClose={() => setOpenDeleteItemDialog(false)}>
-  <DialogTitle>Delete Item</DialogTitle>
-  <DialogContent>
-    <Typography>
-      Are you sure you want to delete this item? <br />
-      <strong>This action is permanent and cannot be undone.</strong>
-    </Typography>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setOpenDeleteItemDialog(false)} color="primary">
-      Cancel
-    </Button>
-    <Button onClick={() => {
-      handleDeleteItem(storedItemIdDeletion);
-      setOpenDeleteItemDialog(false);
-    }} color="error" variant="contained">
-      Delete
-    </Button>
-  </DialogActions>
-</Dialog>
+        <Dialog open={openDeleteItemDialog} onClose={() => setOpenDeleteItemDialog(false)}>
+          <DialogTitle>Delete Item</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Are you sure you want to delete this item? <br />
+              <strong>This action is permanent and cannot be undone.</strong>
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDeleteItemDialog(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              handleDeleteItem(storedItemIdDeletion);
+              setOpenDeleteItemDialog(false);
+            }} color="error" variant="contained">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
 
 
         {/* Render the current view */}

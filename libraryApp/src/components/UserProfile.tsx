@@ -100,49 +100,49 @@ export default function UserProfile() {
   const [selectedFines, setSelectedFines] = useState<number[]>([]); // For selected fines
   const [dialogFines, setDialogFines] = useState<Profile["fines"]>([]);
 
-    // Add this password change handler
+  // Add this password change handler
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordForm(prev => ({ ...prev, [name]: value }));
   };
 
   // Add this password submit handler
-const handlePasswordSubmit = async () => {
-  try {
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert("New passwords don't match!");
-      return;
-    }
-
-    const userId = localStorage.getItem("userId");
-    if (!userId) throw new Error("User not logged in");
-
-    const response = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/Customer/${userId}/password`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          oldPassword: passwordForm.oldPassword,
-          newPassword: passwordForm.newPassword
-        })
+  const handlePasswordSubmit = async () => {
+    try {
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+        alert("New passwords don't match!");
+        return;
       }
-    );
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Password update failed");
+      const userId = localStorage.getItem("userId");
+      if (!userId) throw new Error("User not logged in");
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Customer/${userId}/password`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            oldPassword: passwordForm.oldPassword,
+            newPassword: passwordForm.newPassword
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Password update failed");
+      }
+
+      alert("Password updated successfully!");
+      setChangePasswordDialogOpen(false);
+      setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+
+    } catch (error) {
+      console.error("Password change error:", error);
+      alert(error instanceof Error ? error.message : "Password update failed");
     }
-
-    alert("Password updated successfully!");
-    setChangePasswordDialogOpen(false);
-    setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    
-  } catch (error) {
-    console.error("Password change error:", error);
-    alert(error instanceof Error ? error.message : "Password update failed");
-  }
-};
+  };
 
   //Dialog open/close handlers
   const handleDialogOpen = () => {
@@ -202,8 +202,8 @@ const handlePasswordSubmit = async () => {
   const handleCancelDelete = () => {
     setDeleteConfirmOpen(false);
   };
-    
-  
+
+
 
   // Check if user is logged in when the component mounts
   useEffect(() => {
@@ -239,8 +239,7 @@ const handlePasswordSubmit = async () => {
         const userType = "customer";
 
         const response = await fetch(
-          `${
-            import.meta.env.VITE_API_BASE_URL
+          `${import.meta.env.VITE_API_BASE_URL
           }/api/UserProfile/${userType}/${userIdNum}`,
           {
             method: "GET",
@@ -257,8 +256,7 @@ const handlePasswordSubmit = async () => {
 
         // e) call your GET /TransactionHistory/{userIdNum}
         const transHistoryResponse = await fetch(
-          `${
-            import.meta.env.VITE_API_BASE_URL
+          `${import.meta.env.VITE_API_BASE_URL
           }/api/TransactionHistory/${userIdNum}`,
           {
             method: "GET",
@@ -316,9 +314,9 @@ const handlePasswordSubmit = async () => {
     setEditProfile((prev) =>
       prev
         ? {
-            ...prev,
-            [e.target.name]: e.target.value,
-          }
+          ...prev,
+          [e.target.name]: e.target.value,
+        }
         : null
     );
   };
@@ -328,8 +326,7 @@ const handlePasswordSubmit = async () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/UserProfile/customer/${
-          editProfile.customerID
+        `${import.meta.env.VITE_API_BASE_URL}/api/UserProfile/customer/${editProfile.customerID
         }`,
         {
           method: "PUT",
@@ -559,43 +556,43 @@ const handlePasswordSubmit = async () => {
                 Deactivate Account
               </button>
               <Snackbar
-        open={deleteConfirmOpen}
-        onClose={handleCancelDelete}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{
-          top: "100% !important",
-          left: "50% !important",
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <Alert
-          severity="warning"
-          variant="filled"
-          onClose={handleCancelDelete}
-          action={
-            <>
-              <Button
-                color="inherit"
-                size="small"
-                onClick={handleCancelDelete}
+                open={deleteConfirmOpen}
+                onClose={handleCancelDelete}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
+                sx={{
+                  top: "100% !important",
+                  left: "50% !important",
+                  transform: "translate(-50%, -50%)",
+                }}
               >
-                Cancel
-              </Button>
-              <Button
-                color="inherit"
-                size="small"
-                onClick={handleConfirmDelete}
-              >
-                Confirm
-              </Button>
-            </>
-          }
-          sx={{ width: "100%" }}
-        >
-          <AlertTitle>Confirm Account Deactivation</AlertTitle>
-          Are you sure you want to deactivate your account? This action cannot be undone.
-        </Alert>
-      </Snackbar>
+                <Alert
+                  severity="warning"
+                  variant="filled"
+                  onClose={handleCancelDelete}
+                  action={
+                    <>
+                      <Button
+                        color="inherit"
+                        size="small"
+                        onClick={handleCancelDelete}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        color="inherit"
+                        size="small"
+                        onClick={handleConfirmDelete}
+                      >
+                        Confirm
+                      </Button>
+                    </>
+                  }
+                  sx={{ width: "100%" }}
+                >
+                  <AlertTitle>Confirm Account Deactivation</AlertTitle>
+                  Are you sure you want to deactivate your account? This action cannot be undone.
+                </Alert>
+              </Snackbar>
             </div>
           </div>
         )}
@@ -604,7 +601,7 @@ const handlePasswordSubmit = async () => {
           <div className="profile-section">
             <h3>My Checked-Out Items</h3>
             {profile.transactionHistory.filter((t) => !t.returnDate).length >
-            0 ? (
+              0 ? (
               <div style={{ height: 500, width: "100%" }}>
                 <DataGrid
                   rows={profile.transactionHistory
@@ -612,12 +609,8 @@ const handlePasswordSubmit = async () => {
                     .map((transaction) => ({
                       id: transaction.transactionId, // DataGrid requires a unique 'id'
                       title: transaction.title || "Untitled",
-                      dateBorrowed: new Date(
-                        transaction.dateBorrowed
-                      ).toLocaleDateString(),
-                      dueDate: new Date(
-                        transaction.dueDate
-                      ).toLocaleDateString(),
+                      dateBorrowed: dayjs(transaction.dateBorrowed).format("MM/DD/YYYY"),
+                      dueDate: dayjs(transaction.dueDate).format("MM/DD/YYYY"),
                       transactionId: transaction.transactionId, // Pass along for action handling
                     }))}
                   columns={[
@@ -664,12 +657,10 @@ const handlePasswordSubmit = async () => {
                   rows={profile.transactionHistory.map((transaction) => ({
                     id: transaction.transactionId, // DataGrid requires a unique `id` field
                     title: transaction.title || "N/A",
-                    dateBorrowed: new Date(
-                      transaction.dateBorrowed
-                    ).toLocaleDateString(),
-                    dueDate: new Date(transaction.dueDate).toLocaleDateString(),
+                    dateBorrowed: dayjs(transaction.dateBorrowed).format("MM/DD/YYYY"),
+                    dueDate: dayjs(transaction.dueDate).format("MM/DD/YYYY"),
                     returnDate: transaction.returnDate
-                      ? new Date(transaction.returnDate).toLocaleDateString()
+                      ? dayjs(transaction.returnDate).format("MM/DD/YYYY")
                       : "Not Returned",
                   }))}
                   columns={[
@@ -687,9 +678,9 @@ const handlePasswordSubmit = async () => {
                       width: 200,
                     },
                   ]}
-                  //pageSize={10}
-                  //rowsPerPageOptions={[5, 10, 20]}
-                  //disableSelectionOnClick
+                //pageSize={10}
+                //rowsPerPageOptions={[5, 10, 20]}
+                //disableSelectionOnClick
                 />
               </div>
             ) : (
@@ -755,9 +746,7 @@ const handlePasswordSubmit = async () => {
                   rows={filteredWaitlists.map((item) => ({
                     id: item.waitlistId, // DataGrid requires a unique `id` field
                     title: item.title,
-                    reservationDate: new Date(
-                      item.reservationDate
-                    ).toLocaleDateString(),
+                    reservationDate: dayjs(item.reservationDate).format("MM/DD/YYYY"),
                     isReceived: item.isReceived ? "Yes" : "No",
                   }))}
                   columns={[
@@ -837,9 +826,9 @@ const handlePasswordSubmit = async () => {
                       },
                     },
                   ]}
-                  //pageSize={10}
-                  //rowsPerPageOptions={[5, 10, 20]}
-                  //disableSelectionOnClick
+                //pageSize={10}
+                //rowsPerPageOptions={[5, 10, 20]}
+                //disableSelectionOnClick
                 />
               </div>
             ) : (
@@ -935,10 +924,10 @@ const handlePasswordSubmit = async () => {
                       title: transaction?.title || "N/A", // Use the title from the transaction
                       amount: `$${fine.amount.toFixed(2)}`,
                       dueDate: fine.dueDate
-                        ? new Date(fine.dueDate).toLocaleDateString()
+                        ? dayjs(fine.dueDate).format("MM/DD/YYYY")
                         : "N/A",
                       issueDate: fine.issueDate
-                        ? new Date(fine.issueDate).toLocaleDateString()
+                        ? dayjs(fine.issueDate).format("MM/DD/YYYY")
                         : "N/A",
                       status: fine.paymentStatus ? "Paid" : "Unpaid",
                     };
@@ -963,9 +952,9 @@ const handlePasswordSubmit = async () => {
                     },
                     { field: "status", headerName: "Status", width: 150 },
                   ]}
-                  //pageSize={10}
-                  //rowsPerPageOptions={[5, 10, 20]}
-                  //disableSelectionOnClick
+                //pageSize={10}
+                //rowsPerPageOptions={[5, 10, 20]}
+                //disableSelectionOnClick
                 />
               </div>
             ) : (
@@ -1121,69 +1110,69 @@ const handlePasswordSubmit = async () => {
                 <Button onClick={handleDialogClose} color="secondary">
                   Cancel
                 </Button>
-                              <Button
-                onClick={async () => {
-                  if (selectedFines.length === 0) {
-                    alert("Please select at least one fine to pay.");
-                    return;
-                  }
-
-                  try {
-                    // 1. Update backend
-                    await Promise.all(
-                      selectedFines.map(async (fineId) => {
-                        const fineToUpdate = dialogFines.find(f => f.fineId === fineId);
-                        if (!fineToUpdate) return;
-
-                        const updatedFine = { ...fineToUpdate, paymentStatus: true };
-                        await fetch(
-                          `${import.meta.env.VITE_API_BASE_URL}/api/Fine/${fineId}`,
-                          {
-                            method: "PUT",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(updatedFine),
-                          }
-                        );
-                      })
-                    );
-
-                    // 2. Update frontend state
-                    if (profile) {
-                      const updatedProfile = {
-                        ...profile,
-                        fines: profile.fines.map(fine => 
-                          selectedFines.includes(fine.fineId)
-                            ? { ...fine, paymentStatus: true }
-                            : fine
-                        )
-                      };
-                      setProfile(updatedProfile);
-                      
-                      // 3. Recalculate filtered fines based on current filters
-                      const newFiltered = updatedProfile.fines.filter(fine => {
-                        const matchesStatus = filterStatus === "all" || 
-                          (filterStatus === "paid" && fine.paymentStatus) || 
-                          (filterStatus === "unpaid" && !fine.paymentStatus);
-                        const matchesAmount = fine.amount >= filterAmount[0] && 
-                          fine.amount <= filterAmount[1];
-                        return matchesStatus && matchesAmount;
-                      });
-                      setFilteredFines(newFiltered);
+                <Button
+                  onClick={async () => {
+                    if (selectedFines.length === 0) {
+                      alert("Please select at least one fine to pay.");
+                      return;
                     }
 
-                    alert("Payment successful!");
-                    setSelectedFines([]);
-                    handleDialogClose();
-                  } catch (error) {
-                    console.error("Payment failed:", error);
-                    alert("Payment failed. Please try again.");
-                  }
-                }}
-                color="primary"
-                autoFocus
-              >
-                Pay Fines
-              </Button>
+                    try {
+                      // 1. Update backend
+                      await Promise.all(
+                        selectedFines.map(async (fineId) => {
+                          const fineToUpdate = dialogFines.find(f => f.fineId === fineId);
+                          if (!fineToUpdate) return;
+
+                          const updatedFine = { ...fineToUpdate, paymentStatus: true };
+                          await fetch(
+                            `${import.meta.env.VITE_API_BASE_URL}/api/Fine/${fineId}`,
+                            {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(updatedFine),
+                            }
+                          );
+                        })
+                      );
+
+                      // 2. Update frontend state
+                      if (profile) {
+                        const updatedProfile = {
+                          ...profile,
+                          fines: profile.fines.map(fine =>
+                            selectedFines.includes(fine.fineId)
+                              ? { ...fine, paymentStatus: true }
+                              : fine
+                          )
+                        };
+                        setProfile(updatedProfile);
+
+                        // 3. Recalculate filtered fines based on current filters
+                        const newFiltered = updatedProfile.fines.filter(fine => {
+                          const matchesStatus = filterStatus === "all" ||
+                            (filterStatus === "paid" && fine.paymentStatus) ||
+                            (filterStatus === "unpaid" && !fine.paymentStatus);
+                          const matchesAmount = fine.amount >= filterAmount[0] &&
+                            fine.amount <= filterAmount[1];
+                          return matchesStatus && matchesAmount;
+                        });
+                        setFilteredFines(newFiltered);
+                      }
+
+                      alert("Payment successful!");
+                      setSelectedFines([]);
+                      handleDialogClose();
+                    } catch (error) {
+                      console.error("Payment failed:", error);
+                      alert("Payment failed. Please try again.");
+                    }
+                  }}
+                  color="primary"
+                  autoFocus
+                >
+                  Pay Fines
+                </Button>
               </DialogActions>
             </Dialog>
           </div>
@@ -1261,57 +1250,57 @@ const handlePasswordSubmit = async () => {
             </Dialog>
 
             {/* Change Password Dialog */}
-<Dialog 
-  open={changePasswordDialogOpen} 
-  onClose={() => setChangePasswordDialogOpen(false)}
->
-  <DialogTitle>Change Password</DialogTitle>
-  <DialogContent sx={{ pt: '20px !important' }}>
-    <TextField
-      fullWidth
-      type="password"
-      label="Old Password"
-      name="oldPassword"
-      value={passwordForm.oldPassword}
-      onChange={handlePasswordChange}
-      margin="normal"
-    />
-    <TextField
-      fullWidth
-      type="password"
-      label="New Password"
-      name="newPassword"
-      value={passwordForm.newPassword}
-      onChange={handlePasswordChange}
-      margin="normal"
-    />
-    <TextField
-      fullWidth
-      type="password"
-      label="Confirm New Password"
-      name="confirmPassword"
-      value={passwordForm.confirmPassword}
-      onChange={handlePasswordChange}
-      margin="normal"
-      error={passwordForm.newPassword !== passwordForm.confirmPassword}
-      helperText={passwordForm.newPassword !== passwordForm.confirmPassword && "Passwords do not match"}
-    />
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setChangePasswordDialogOpen(false)}>Cancel</Button>
-    <Button 
-      onClick={handlePasswordSubmit}
-      color="primary"
-      disabled={
-        !passwordForm.oldPassword || 
-        !passwordForm.newPassword || 
-        passwordForm.newPassword !== passwordForm.confirmPassword
-      }
-    >
-      Save
-    </Button>
-  </DialogActions>
-</Dialog>
+            <Dialog
+              open={changePasswordDialogOpen}
+              onClose={() => setChangePasswordDialogOpen(false)}
+            >
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogContent sx={{ pt: '20px !important' }}>
+                <TextField
+                  fullWidth
+                  type="password"
+                  label="Old Password"
+                  name="oldPassword"
+                  value={passwordForm.oldPassword}
+                  onChange={handlePasswordChange}
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  type="password"
+                  label="New Password"
+                  name="newPassword"
+                  value={passwordForm.newPassword}
+                  onChange={handlePasswordChange}
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  type="password"
+                  label="Confirm New Password"
+                  name="confirmPassword"
+                  value={passwordForm.confirmPassword}
+                  onChange={handlePasswordChange}
+                  margin="normal"
+                  error={passwordForm.newPassword !== passwordForm.confirmPassword}
+                  helperText={passwordForm.newPassword !== passwordForm.confirmPassword && "Passwords do not match"}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setChangePasswordDialogOpen(false)}>Cancel</Button>
+                <Button
+                  onClick={handlePasswordSubmit}
+                  color="primary"
+                  disabled={
+                    !passwordForm.oldPassword ||
+                    !passwordForm.newPassword ||
+                    passwordForm.newPassword !== passwordForm.confirmPassword
+                  }
+                >
+                  Save
+                </Button>
+              </DialogActions>
+            </Dialog>
           </div>
         )}
       </div>
