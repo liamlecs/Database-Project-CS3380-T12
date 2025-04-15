@@ -74,6 +74,7 @@ const MusicForm: React.FC = () => {
         }
 
         const data = await res.json();
+        console.log("DEBUG: coverImagePath=", data.url);
         setFormData((prev) => ({
           ...prev,
           coverImagePath: data.url,
@@ -123,6 +124,8 @@ const MusicForm: React.FC = () => {
         ItemTypeID: formData.itemTypeID,
       };
 
+      console.log("Final payload:", payload);
+
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Music/add-music`,
         {
@@ -133,8 +136,9 @@ const MusicForm: React.FC = () => {
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText);
+        const errorData = await response.json();
+        alert(errorData.message || "Something went wrong. Please try again.");
+        return;
       }
 
       alert("Music added successfully!");

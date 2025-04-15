@@ -306,7 +306,7 @@ setOpenMaxCheckoutDialog(true);
         
           return `${movieTitle}\n\nby ${directorName}\n\n(${genreName})`;
         }
-        if (category === "Music") return `${item.songTitle || "Untitled Song"}\n\nby ${item.artistName || "Unknown Artist"}\n\n(${item.genreDescription || "Unknown Genre"})`;
+        if (category === "Music") return `${item.title || "Untitled Song"}\n\nby ${item.artistName || "Unknown Artist"}\n\n(${item.genreDescription || "Unknown Genre"})`;
         if (category === "Technology") return `${item.title || "Untitled Device"}\n\n${item.manufacturerName || "Unknown Brand"}`;
         return item.title || "Untitled";
     };
