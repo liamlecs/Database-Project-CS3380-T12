@@ -100,6 +100,9 @@ export default function UserProfile() {
   const [selectedFines, setSelectedFines] = useState<number[]>([]); // For selected fines
   const [dialogFines, setDialogFines] = useState<Profile["fines"]>([]);
 
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+
   // Add this password change handler
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -154,6 +157,7 @@ export default function UserProfile() {
   const handleDialogClose = () => {
     setIsDialogOpen(false);
     setSelectedFines([]); // Reset selections
+    setPaymentError(""); // <-- Reset the error here
   };
 
   //Handle save confirmation
@@ -1105,6 +1109,19 @@ export default function UserProfile() {
                     required
                   />
                 </Box>
+                            {/* If there is an error, show the Snackbar/Alert right here */}
+            {paymentError && (
+              <Box sx={{ mt: 2, position: "relative" }}>
+                <Alert
+                  severity="error"
+                  variant="filled"
+                  onClose={() => setPaymentError("")}
+                  sx={{ position: "absolute", width: "100%", zIndex: 2000 }}
+                >
+                  {paymentError}
+                </Alert>
+              </Box>
+            )}
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleDialogClose} color="secondary">
@@ -1112,8 +1129,9 @@ export default function UserProfile() {
                 </Button>
                 <Button
                   onClick={async () => {
-                    if (selectedFines.length === 0) {
-                      alert("Please select at least one fine to pay.");
+                    if (selectedFines.length === 0 || dialogFines.length === 0) {
+                      setPaymentError("Please select at least one fine to pay.");
+                      setPaymentSuccess(false); // Just in case
                       return;
                     }
 
@@ -1160,12 +1178,13 @@ export default function UserProfile() {
                         setFilteredFines(newFiltered);
                       }
 
-                      alert("Payment successful!");
+                      setPaymentError("");          // Clear any previous error
+                      setPaymentSuccess(true);      // Trigger success snackbar
                       setSelectedFines([]);
                       handleDialogClose();
                     } catch (error) {
-                      console.error("Payment failed:", error);
-                      alert("Payment failed. Please try again.");
+                      setPaymentError("Payment failed. Please try again.");
+                      setPaymentSuccess(false);
                     }
                   }}
                   color="primary"
@@ -1175,6 +1194,32 @@ export default function UserProfile() {
                 </Button>
               </DialogActions>
             </Dialog>
+
+
+          {/* Payment Success Snackbar */}
+          <Snackbar
+            open={paymentSuccess}
+            autoHideDuration={6000}
+            onClose={() => setPaymentSuccess(false)}
+            // anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            sx={{
+              top: "50% !important",
+              left: "50% !important",
+              transform: "translate(-50%, -50%) !important",
+              position: "fixed !important",
+              zIndex: 1500,
+            }}
+          >
+            <Alert
+              severity="success"
+              variant="filled"
+              onClose={() => setPaymentSuccess(false)}
+              sx={{ width: "100%" }}
+            >
+              <AlertTitle>Payment Successful</AlertTitle>
+              Your fines have been paid successfully!
+            </Alert>
+          </Snackbar>
           </div>
         )}
 
