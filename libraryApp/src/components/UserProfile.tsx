@@ -103,6 +103,10 @@ export default function UserProfile() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState("");
 
+  const [settingsSuccess, setSettingsSuccess] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+
   // Add this password change handler
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -113,7 +117,7 @@ export default function UserProfile() {
   const handlePasswordSubmit = async () => {
     try {
       if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-        alert("New passwords don't match!");
+        setPasswordError("New passwords don't match!");
         return;
       }
 
@@ -133,17 +137,18 @@ export default function UserProfile() {
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Password update failed");
+        const errorText = await response.text();
+        throw new Error("Password update failed: " + errorText + "!");
       }
 
-      alert("Password updated successfully!");
+          // Instead of alerting, trigger the Snackbar for success.
+      setPasswordSuccess(true);
       setChangePasswordDialogOpen(false);
       setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Password change error:", error);
-      alert(error instanceof Error ? error.message : "Password update failed");
+      setPasswordError(error.message ?? "Password update failed");
     }
   };
 
@@ -169,6 +174,12 @@ export default function UserProfile() {
   const handleDeleteAccount = async () => {
     setDeleteConfirmOpen(true);
   };
+
+  const handleChangePasswordDialogClose = () => {
+    setChangePasswordDialogOpen(false);
+    setPasswordError(""); // Clear error message when dialog closes
+  };
+  
 
   const handleConfirmDelete = async () => {
     // Close the snackbar immediately
@@ -348,7 +359,8 @@ export default function UserProfile() {
       localStorage.setItem("firstName", editProfile.firstName);
       localStorage.setItem("lastName", editProfile.lastName);
       setEditingField(null);
-      alert("Settings Changed Successfully");
+      // INSTEAD OF alert("Settings Changed Successfully"):
+      setSettingsSuccess(true);  // Trigger the success snackbar
     } catch (error: any) {
       console.error("Error updating profile:", error);
       setErrorMsg(error.message || "An error occurred while updating profile.");
@@ -1297,10 +1309,35 @@ export default function UserProfile() {
             {/* Change Password Dialog */}
             <Dialog
               open={changePasswordDialogOpen}
-              onClose={() => setChangePasswordDialogOpen(false)}
+              onClose={handleChangePasswordDialogClose}
             >
               <DialogTitle>Change Password</DialogTitle>
-              <DialogContent sx={{ pt: '20px !important' }}>
+              <DialogContent sx={{ position: "relative" }}>
+                    {/* If there's an error, show the Snackbar right here */}
+                    <Snackbar
+                      open={Boolean(passwordError)}
+                      // If you want it to stay until user closes it, remove autoHideDuration
+                      autoHideDuration={6000}
+                      onClose={() => setPasswordError("")}
+                      // We won't use anchorOrigin to avoid putting it outside the container
+                      // Instead we'll position it absolutely via sx styling.
+                      sx={{
+                        position: "absolute !important",
+                        top: "8px !important",
+                        left: "50% !important",
+                        transform: "translateX(-50%) !important",
+                        width: "auto !important",
+                        zIndex: 2000
+                      }}
+                    >
+                      <Alert
+                        severity="error"
+                        variant="filled"
+                        onClose={() => setPasswordError("")}
+                      >
+                        {passwordError}
+                      </Alert>
+                    </Snackbar>
                 <TextField
                   fullWidth
                   type="password"
@@ -1346,6 +1383,48 @@ export default function UserProfile() {
                 </Button>
               </DialogActions>
             </Dialog>
+                  <Snackbar
+              open={settingsSuccess}
+              autoHideDuration={6000}
+              onClose={() => setSettingsSuccess(false)}
+              // Optionally anchor it:
+              anchorOrigin={{ vertical: "top", horizontal: "center" }}
+              sx={{
+                zIndex: 1500, // ensure it's on top
+              }}
+            >
+              <Alert
+                severity="success"
+                variant="filled"
+                sx={{ width: "100%" }}
+                onClose={() => setSettingsSuccess(false)}
+              >
+                <AlertTitle>Success</AlertTitle>
+                Settings Changed Successfully!
+              </Alert>
+            </Snackbar>
+
+        
+        <Snackbar
+        open={passwordSuccess}
+        autoHideDuration={6000}
+        onClose={() => setPasswordSuccess(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        sx={{
+          // You can override positioning styles here if desired.
+          zIndex: 1500,
+        }}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          onClose={() => setPasswordSuccess(false)}
+          sx={{ width: "100%" }}
+        >
+          <AlertTitle>Success</AlertTitle>
+          Your password has been updated successfully!
+        </Alert>
+      </Snackbar>
           </div>
         )}
       </div>
