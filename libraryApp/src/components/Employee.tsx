@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import BookForm from './inventory_post_forms/BookForm'; "./inventory_post_forms/BookForm"
 import MovieForm from './inventory_post_forms/MovieForm'; "./inventory_post_forms/MovieForm"
 import MusicForm from './inventory_post_forms/MusicForm'; // Ensure this path is correct
+import TechnologyForm from './inventory_post_forms/TechnologyForm'; // Ensure this path is correct
 
 // --- Material UI Imports ---
 import {
@@ -1147,7 +1148,7 @@ const Employee: React.FC = () => {
         {selectedItemType === "Book" && <BookForm />}
         {selectedItemType === "Movie" && <MovieForm />}
         {selectedItemType === "Music" && <MusicForm />}
-        {selectedItemType === "Technology" && <div>Technology form coming soon...</div>}
+        {selectedItemType === "Technology" && <TechnologyForm />}
       </Box>
 
 

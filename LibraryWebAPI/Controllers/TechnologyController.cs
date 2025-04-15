@@ -22,23 +22,26 @@ namespace LibraryWebAPI.Controllers
         // GET: api/Technology
         [HttpGet]
         
-        public async Task<ActionResult<IEnumerable<TechnologyDTO>>> GetTechnologies()
+        public async Task<ActionResult<IEnumerable<TechnologyDto>>> GetTechnologies()
         {
             var technologies = await _context.Technologies
                 .Include(t => t.DeviceType)
                 .Include(t => t.Manufacturer)
                 .Include(t => t.Item)
-                .Select(t => new TechnologyDTO
+                .Select(t => new TechnologyDto
                 {
                     DeviceId = t.DeviceId,
+                    DeviceTypeID = t.DeviceType!.DeviceTypeID,
                     DeviceTypeName = t.DeviceType!.TypeName,
+                    ManufacturerID = t.Manufacturer!.ManufacturerID,
+                    TotalCopies = t.Item!.TotalCopies,
                     ManufacturerName = t.Manufacturer!.Name,
                     Title = t.Item!.Title,
                     ModelNumber = t.ModelNumber,
                     CoverImagePath = t.CoverImagePath!,
-                    itemId = t.ItemID,
+                    ItemID = t.ItemID,
                     availableCopies = t.Item.AvailableCopies,
-                    itemLocation = t.Item.Location!,
+                    Location = t.Item.Location!,
                 })
                 .ToListAsync();
 
@@ -59,6 +62,56 @@ namespace LibraryWebAPI.Controllers
             }
 
             return Ok(technology);
+        }
+
+        [HttpPost("add-technology")]
+        public async Task<IActionResult> AddTechnology([FromBody] TechnologyDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Optional debug log
+            Console.WriteLine($"Incoming Technology: {System.Text.Json.JsonSerializer.Serialize(dto)}");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Create Item
+                var item = new Item
+                {
+                    Title = dto.Title,
+                    TotalCopies = dto.TotalCopies,
+                    AvailableCopies = dto.availableCopies, // Or do = dto.TotalCopies if you want them always to match
+                    Location = dto.Location,
+                    ItemTypeID = dto.ItemTypeID // e.g. 4 for Technology
+                };
+                _context.Items.Add(item);
+                await _context.SaveChangesAsync();
+
+                // Create Technology
+                var technology = new Technology
+                {
+                    DeviceTypeID = dto.DeviceTypeID,
+                    ManufacturerID = dto.ManufacturerID,
+                    ModelNumber = dto.ModelNumber,
+                    CoverImagePath = dto.CoverImagePath,
+                    ItemID = item.ItemId
+                };
+                _context.Technologies.Add(technology);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                return Ok(new { message = "Technology added successfully", itemId = item.ItemId });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"Error adding technology: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    new { message = "Error while adding technology", error = ex.Message });
+            }
         }
 
         // POST: api/Technology

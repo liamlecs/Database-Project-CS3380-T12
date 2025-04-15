@@ -487,7 +487,7 @@ modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
                 .HasConstraintName("FK_Technology_Manufacturer");
 
             // Foreign Key: Item
-            entity.HasOne<Item>()
+            entity.HasOne<Item>(e => e.Item)
                 .WithMany()
                 .HasForeignKey(e => e.ItemID)
                 .OnDelete(DeleteBehavior.Cascade)

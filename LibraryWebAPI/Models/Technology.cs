@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace LibraryWebAPI.Models;
@@ -20,6 +21,9 @@ public partial class Technology
     public virtual TechnologyManufacturer? Manufacturer { get; set; }
 
     // fk for Item table
+    // Foreign key for Item table
+    [ForeignKey("Item")]
+    [Column("ItemID")]
     public int ItemID { get; set; }
 
     public virtual Item? Item { get; set; }
