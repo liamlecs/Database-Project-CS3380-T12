@@ -32,7 +32,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 - Integrates with Azure Blob Storage for cover image uploads
 
   <p align="center">
-  <img width="460" height="300" src="https://github.com/user-attachments/assets/8dc4e63f-6faa-4f50-87f5-ee562d206871">
+  <img src="https://github.com/user-attachments/assets/8dc4e63f-6faa-4f50-87f5-ee562d206871">
   </p>
 
 - Offers email-based authentication and role-based authorization
