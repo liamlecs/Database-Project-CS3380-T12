@@ -2,6 +2,9 @@
 
 Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 
+![image](https://github.com/user-attachments/assets/f9a43e32-c835-4a28-85c1-5c105420aa29)
+
+
 ## Table of Contents
 1. [Project Overview](#project-overview)
 2. [Features](#features)
@@ -23,9 +26,13 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 
 **Key highlights**:
 - Manage library items (Books, Movies, Music, Technology) with an intuitive interface
+  ![image](https://github.com/user-attachments/assets/2eff3544-0bc4-491b-b212-45bd0f283cda)
 - Tracks availability, waitlists, and borrowing
+  ![image](https://github.com/user-attachments/assets/51fcdcbc-aed3-40be-8657-54427985118b)
 - Integrates with Azure Blob Storage for cover image uploads
+  ![image](https://github.com/user-attachments/assets/8dc4e63f-6faa-4f50-87f5-ee562d206871)
 - Offers email-based authentication and role-based authorization
+  ![image](https://github.com/user-attachments/assets/c2c4ba17-df65-4f0f-97ff-7b439db3f959)
 - Deployed on **Azure App Service** (API) and **Vercel** (front end): https://e-libraryuh.vercel.app
 
 ---
