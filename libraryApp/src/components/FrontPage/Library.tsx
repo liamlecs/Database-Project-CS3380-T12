@@ -529,14 +529,14 @@ setOpenMaxCheckoutDialog(true);
                             handleCheckout(selectedItem, selectedItem._category);
                             setOpenInfoDialog(false);
                         }}
-                        disabled={selectedItem?.availableCopies === 0}
+                        disabled={(selectedItem?.availableCopies === 0 || selectedItem?.item?.availableCopies === 0)}
                         variant="contained"
                         color="primary"
                     >
                         Checkout
                     </Button>
                 {/* If no copies are available, show "Join Waitlist" */}
-                {selectedItem?.availableCopies === 0 && (
+                {(selectedItem?.availableCopies === 0 || selectedItem?.item?.availableCopies === 0) && (
                     <Button
                     onClick={() => {
                         handleJoinWaitlist(selectedItem); // Implement this function to handle waitlist logic
