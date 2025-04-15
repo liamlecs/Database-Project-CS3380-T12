@@ -26,7 +26,7 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 - Tracks availability, waitlists, and borrowing
 - Integrates with Azure Blob Storage for cover image uploads
 - Offers email-based authentication and role-based authorization
-- Deployed on **Azure App Service** (API) and **Vercel** (front end)
+- Deployed on **Azure App Service** (API) and **Vercel** (front end): https://e-libraryuh.vercel.app
 
 ---
 
