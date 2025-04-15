@@ -182,9 +182,13 @@ Database-Project-CS3380-T12/
 - **`Smtp:Password`** – Password for SMTP
 
 **Front End**:
-- **`VITE_API_BASE_URL`** – The base URL for API calls (e.g. your Azure App Service URL)
+- **`VITE_API_BASE_URL`** – The base URL for API calls
+- **`VITE_PUBLIC_ASSET_BASE_URL`** – The public base URL for serving static assets
+- **`VITE_EMAILJS_USER_ID`** – EmailJS User ID
+- **`VITE_EMAILJS_SERVICE_ID`** – EmailJS Sevice ID
+- **`VITE_EMAILJS_TEMPLATE_ID`** – EmailJS Template ID
 
-Use environment variables instead of hardcoding secrets.
+Use environment variables instead of hardcoding secrets for security.
 
 ---
 
