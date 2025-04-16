@@ -50,7 +50,16 @@ const Return: React.FC = () => {
       }),
     });
 
-    alert("Item returned successfully.");
+       // Check if overdue
+       const dueDate = new Date(transaction.dueDate);
+       const isOverdue = new Date() > dueDate;
+   
+       // Create alert message
+       const message = isOverdue 
+         ? `"${transaction.title}" returned successfully. However, you have been assigned a fine.`
+         : `"${transaction.title}" returned successfully.`;
+   
+       alert(message);
 
     // Remove returned item from the state
     setTransactions((prev) =>
