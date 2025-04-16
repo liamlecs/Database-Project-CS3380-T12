@@ -624,7 +624,7 @@ const Employee: React.FC = () => {
     const storedEmployeeId = localStorage.getItem('employeeId');
 
     if (!isEmployeeLoggedIn || !storedEmployeeId) {
-      navigate('/employee-login');
+      navigate('/login');
       return;
     }
 
@@ -673,7 +673,7 @@ const Employee: React.FC = () => {
     localStorage.removeItem('isEmployeeLoggedIn');
     localStorage.removeItem('employeeFirstName');
     localStorage.removeItem('employeeLastName');
-    navigate('/employee-login');
+    navigate('/login');
   };
 
   // --- Update Employee (Profile) ---
