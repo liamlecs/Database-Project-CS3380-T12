@@ -67,7 +67,7 @@ export default function RegistrationPage() {
         <div className="form-box">
           <h2>Create An Account</h2>
           <p>
-            Already have an account? <a href="/customer-login">Log in</a>
+            Already have an account? <a href="/login">Log in</a>
           </p>
 
           <form onSubmit={handleSubmit}>

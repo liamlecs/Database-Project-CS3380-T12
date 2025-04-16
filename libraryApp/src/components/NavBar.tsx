@@ -40,7 +40,7 @@ const NavBar: React.FC = React.memo(function NavBar() {
     if (isLoggedIn || isEmployeeLoggedIn) {
       setShowMenu((prev) => !prev);
     } else {
-      navigate("/customer-login");
+      navigate("/login");
     }
   };
 
