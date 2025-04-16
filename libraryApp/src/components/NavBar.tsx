@@ -58,7 +58,7 @@ const NavBar: React.FC = React.memo(function NavBar() {
     setIsLoggedIn(false);
     setShowMenu(false);
     setIsEmployeeLoggedIn(false);
-    window.location.href = "/customer-login";
+    window.location.href = "/login";
     alert("Logged out successfully.");
   };
 
