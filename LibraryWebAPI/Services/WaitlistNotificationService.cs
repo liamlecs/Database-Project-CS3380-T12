@@ -15,9 +15,7 @@ public class WaitlistNotification
     public int WaitlistId { get; set; }
     public int CustomerId { get; set; }
     public int ItemId { get; set; }
-
-    // public DateTime? DueDate { get; set; } 
-    // Removed the DueDate property since it's no longer needed.
+    public DateTime? DueDate { get; set; }
     public bool EmailSent { get; set; }
     public DateTime? ProcessedDate { get; set; }
 }
@@ -52,27 +50,29 @@ public class WaitlistNotificationService : BackgroundService
                 {
                     var customer = await context.Customers
                         .FirstOrDefaultAsync(c => c.CustomerId == notification.CustomerId, stoppingToken);
+
+
+                            // Fetch the item details using the item ID from the notification.
                     var item = await context.Items
                         .FirstOrDefaultAsync(i => i.ItemId == notification.ItemId, stoppingToken);
 
-                    if (customer != null && item != null)
-                    {
-                        var subject = $"Item '{item.Title}' is Now Available!";
-                        var body = $@"Good news!
+if (customer != null && item != null)
+{
+    var subject = $"Item '{item.Title}' Now Available!";
+    var body = $@"Good news! A copy of '{item.Title}' has been assigned to you.
+It is due on {notification.DueDate:MM/dd/yyyy}. Enjoy!
 
-A copy of '{item.Title}' is now available for pick up at the library.
-Please visit the front desk at your earliest convenience to claim your item.
-
-Thank you for using E‑Library.
+Thank you for using E-Library.
 Best regards,
-The E‑Library Team";
+The E-Library Team";
 
-                        await _emailService.SendEmailAsync(customer.Email, subject, body);
+    await _emailService.SendEmailAsync(customer.Email, subject, body);
 
-                        notification.EmailSent = true;
-                        notification.ProcessedDate = DateTime.UtcNow;
-                        context.Update(notification);
-                    }
+    notification.EmailSent = true;
+    context.Update(notification);
+}
+
+
                 }
                 catch (Exception ex)
                 {
@@ -85,4 +85,3 @@ The E‑Library Team";
         }
     }
 }
-
