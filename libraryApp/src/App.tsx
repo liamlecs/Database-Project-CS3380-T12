@@ -39,6 +39,7 @@ import Layout from "./components/Layout.tsx";
 import ContactPage from "./components/ContactPage.tsx";
 import AnimatedPage from "./components/AnimatedPage";
 import { AnimatePresence } from "framer-motion";
+import SingleLoginPage from "./components/LoginPage.tsx";
 
 function AppRoutes() {
   const location = useLocation();
@@ -77,6 +78,15 @@ function AppRoutes() {
             element={
               <AnimatedPage>
                 <CustomerLoginPage />
+              </AnimatedPage>
+            }
+          />
+
+          <Route
+            path="login"
+            element={
+              <AnimatedPage>
+                <SingleLoginPage />
               </AnimatedPage>
             }
           />
