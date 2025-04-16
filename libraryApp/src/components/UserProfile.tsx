@@ -207,7 +207,7 @@ export default function UserProfile() {
       // Clear local storage and redirect to login
       localStorage.clear();
       alert("Your account has been deactivated successfully.");
-      navigate("/customer-login");
+      navigate("/login");
     } catch (error) {
       console.error("Error deactivating account:", error);
       alert("Failed to deactivating your account. Please try again later.");
@@ -224,7 +224,7 @@ export default function UserProfile() {
   useEffect(() => {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
     if (!isLoggedIn) {
-      navigate("/customer-login");
+      navigate("/login");
     }
   }, [navigate]);
 
@@ -242,12 +242,12 @@ export default function UserProfile() {
       try {
         const userIdStr = localStorage.getItem("userId");
         if (!userIdStr) {
-          navigate("/customer-login");
+          navigate("/login");
           return;
         }
         const userIdNum = parseInt(userIdStr, 10);
         if (isNaN(userIdNum)) {
-          navigate("/customer-login");
+          navigate("/login");
           return;
         }
 

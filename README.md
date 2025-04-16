@@ -2,12 +2,12 @@
 
 Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
 
-![image](https://github.com/user-attachments/assets/f9a43e32-c835-4a28-85c1-5c105420aa29)
+![image](https://github.com/user-attachments/assets/ddb60e32-4ce2-469c-bc20-aad60ef9077f)
 ![image](https://github.com/user-attachments/assets/cc2db11d-7a59-40cf-a702-7a93874ad52e)
 ![image](https://github.com/user-attachments/assets/fe11aae6-ba3b-4eab-9501-902603194bd4)
-![image](https://github.com/user-attachments/assets/9d573400-66eb-4f17-9e4c-3e87d76c0bc0)
-![image](https://github.com/user-attachments/assets/e7f7fded-d7a4-4f3b-b73d-bf87b385d928)
-![image](https://github.com/user-attachments/assets/5633a057-3ed7-4a27-a8fb-c9b4cd1e25a3)
+![image](https://github.com/user-attachments/assets/cfa1b138-946b-42de-96c6-654cb93bd22e)
+![image](https://github.com/user-attachments/assets/d4034d3c-48c0-4585-84b6-90ee389d5833)
+![image](https://github.com/user-attachments/assets/818a135d-168d-43cf-8479-12b502cbe1d1)
 ![image](https://github.com/user-attachments/assets/c5301766-eb47-4e48-860e-df7418ded9d4)
 ![image](https://github.com/user-attachments/assets/ceb058ab-e236-43fe-805d-ae5fc7c51adf)
 
@@ -57,16 +57,16 @@ Welcome to the **E‑Library Database Project** for **Team 12 COSC 3380**!
     </p>  
 - **User Roles**:
   - Email Authentication for Faculty versus Student Customer Account
-    ![image](https://github.com/user-attachments/assets/a69fb783-d6d2-4dae-bf6d-2f8805f8c972)
-    ![image](https://github.com/user-attachments/assets/bbbfcf01-70d0-4869-84ef-58e999f25fa6)
+    ![image](https://github.com/user-attachments/assets/1e72fcd0-619b-45d2-a0c9-91204648b86c)
+    ![image](https://github.com/user-attachments/assets/aeaa2fe4-7a78-4191-89dd-c2356781ecd5)
   - Employee vs. Customer roles
-    ![image](https://github.com/user-attachments/assets/5b0852b1-a7f0-4c28-a9eb-62640d0b3be6)
-    ![image](https://github.com/user-attachments/assets/35eb8e99-437b-4d9f-983a-74cb9eb158c5)
+    ![image](https://github.com/user-attachments/assets/19e64d3e-a79d-4aa9-9a2d-ff61eb57b16f)
+    ![image](https://github.com/user-attachments/assets/f81d14ba-eb48-46c5-abb4-55eae624bddd)
 
 - **Search & Waitlists**:
   - Full-text search on titles
     <p align="center">
-    <img src="https://github.com/user-attachments/assets/7c54918d-f60e-45d2-a47d-79179b89e69d">
+    <img src="https://github.com/user-attachments/assets/09690d8c-97e0-4c03-a2d5-5de01b7c7bcf">
     </p>  
 
   - Waitlist system for items that are out of stock

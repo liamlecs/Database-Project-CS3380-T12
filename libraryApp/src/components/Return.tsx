@@ -8,8 +8,6 @@ interface Transaction {
   itemId: number;
   dateBorrowed: string;
   returnDate: string | null;
-  Amount?: number; // Add Amount property to the interface
-  fineAmount?: number; // Ensure fineAmount is also optional
 }
 
 const Return: React.FC = () => {
@@ -30,11 +28,7 @@ const Return: React.FC = () => {
   }, []);
 
   const handleReturn = async (transaction: Transaction) => {
-    const today = new Date();
-    const todayStr = today.toISOString().split("T")[0]; // 'YYYY-MM-DD'
-    const dueDate = new Date(transaction.dueDate);
-    const isOverdue = today > dueDate;
-
+    const todayStr = new Date().toISOString().split("T")[0]; // 'YYYY-MM-DD'
     
     // Call Return API
     await fetch(
@@ -46,24 +40,27 @@ const Return: React.FC = () => {
       }
     );
 
-// increase AvailableCopies in inventory after return
-await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
-  method: "PATCH",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    itemId: transaction.itemId,
-    changeInCopies: 1,
-  }),
-});
-    // Notify user based on overdue status
-    if (isOverdue) {
-      alert(
-        `Item "${transaction.title}" Returned successfully \n. However, this item was overdue and you have been assigned a fine.`
-      );
-    } else {
-      alert(`Item "${transaction.title}" returned successfully.`);
-    }
-  
+    // increase AvailableCopies in inventory after return
+    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itemId: transaction.itemId,
+        changeInCopies: 1,
+      }),
+    });
+
+       // Check if overdue
+       const dueDate = new Date(transaction.dueDate);
+       const isOverdue = new Date() > dueDate;
+   
+       // Create alert message
+       const message = isOverdue 
+         ? `"${transaction.title}" returned successfully. However, you have been assigned a fine.`
+         : `"${transaction.title}" returned successfully.`;
+   
+       alert(message);
+
     // Remove returned item from the state
     setTransactions((prev) =>
       prev.filter((t) => t.transactionId !== transaction.transactionId)
@@ -78,7 +75,7 @@ await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Item/update-copies`, {
         mt: "80px",
         // Some horizontal padding
         px: 2,
-        // Center everything horizontally 
+        // Center everything horizontally
         display: "flex",
         justifyContent: "center",
       }}

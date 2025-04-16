@@ -40,7 +40,7 @@ const NavBar: React.FC = React.memo(function NavBar() {
     if (isLoggedIn || isEmployeeLoggedIn) {
       setShowMenu((prev) => !prev);
     } else {
-      navigate("/customer-login");
+      navigate("/login");
     }
   };
 
@@ -58,7 +58,7 @@ const NavBar: React.FC = React.memo(function NavBar() {
     setIsLoggedIn(false);
     setShowMenu(false);
     setIsEmployeeLoggedIn(false);
-    window.location.href = "/customer-login";
+    window.location.href = "/login";
     alert("Logged out successfully.");
   };
 
@@ -78,10 +78,7 @@ const NavBar: React.FC = React.memo(function NavBar() {
               <Link to="/registrationpage">Registration</Link>
             </li>
             <li>
-              <Link to="/customer-login">Customer Login</Link>
-            </li>
-            <li>
-              <Link to="/employee-login">Employee Login</Link>
+              <Link to="/login">Login Page</Link>
             </li>
             <li>
               <Link to="/requestreactivation">Request Reactivation</Link>
