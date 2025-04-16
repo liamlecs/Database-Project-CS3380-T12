@@ -74,27 +74,10 @@ function AppRoutes() {
             }
           />
           <Route
-            path="customer-login"
-            element={
-              <AnimatedPage>
-                <CustomerLoginPage />
-              </AnimatedPage>
-            }
-          />
-
-          <Route
             path="login"
             element={
               <AnimatedPage>
                 <SingleLoginPage />
-              </AnimatedPage>
-            }
-          />
-          <Route
-            path="employee-login"
-            element={
-              <AnimatedPage>
-                <EmployeeLoginPage />
               </AnimatedPage>
             }
           />
