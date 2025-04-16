@@ -78,10 +78,7 @@ const NavBar: React.FC = React.memo(function NavBar() {
               <Link to="/registrationpage">Registration</Link>
             </li>
             <li>
-              <Link to="/customer-login">Customer Login</Link>
-            </li>
-            <li>
-              <Link to="/employee-login">Employee Login</Link>
+              <Link to="/login">Login Page</Link>
             </li>
             <li>
               <Link to="/requestreactivation">Request Reactivation</Link>
