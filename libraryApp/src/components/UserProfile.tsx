@@ -192,7 +192,7 @@ export default function UserProfile() {
         return;
       }
 
-      // Call your soft-delete endpoint on the backend
+      // Call soft-delete endpoint on the backend
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Customer/soft/${userId}`,
         {
@@ -269,7 +269,7 @@ export default function UserProfile() {
 
         //console.log(data);
 
-        // e) call your GET /TransactionHistory/{userIdNum}
+        // e) call GET /TransactionHistory/{userIdNum}
         const transHistoryResponse = await fetch(
           `${import.meta.env.VITE_API_BASE_URL
           }/api/TransactionHistory/${userIdNum}`,
@@ -293,7 +293,7 @@ export default function UserProfile() {
         //console.log("FULL RESPONSE", data);
         //console.log(transHistoryData);
 
-        // Map API fields to your Profile interface if needed
+        // Map API fields to Profile interface if needed
         //Mapping Customer Fields to the fetch request
         const mappedProfile: Profile = {
           customerID: userIdNum,

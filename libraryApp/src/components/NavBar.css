@@ -9,7 +9,7 @@
   justify-content: space-between;
   background-color: #333;
   padding: 0.5rem 1rem;
-  height: 60px;            /* Example fixed height for your navbar */
+  height: 60px;            /* Example fixed height for navbar */
 }
   
   .site-title {
@@ -24,7 +24,7 @@
 
   /* Logo image styling */
 .nav-logo {
-  height: 60px;  /* Adjust based on your logo size preferences */
+  height: 60px;  /* Adjust based on logo size preferences */
   width: auto;
   border-radius: 4px;  /* Optional for rounded corners */
 }

@@ -63,7 +63,7 @@ const TechnologyForm: React.FC = () => {
       const uploadData = new FormData();
       uploadData.append("Cover", file);
       try {
-        // Reuse your existing Book/upload-cover or create a new one for Technology
+        // Reuse existing Book/upload-cover or create a new one for Technology
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`, {
           method: "POST",
           body: uploadData

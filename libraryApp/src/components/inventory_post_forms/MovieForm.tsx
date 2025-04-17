@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./MovieForm.css"; // Using the same styles as the BookForm
 
 const MovieForm: React.FC = () => {
-  // Form state: keys align with your MovieDTO properties.
+  // Form state: keys align with MovieDTO properties.
   const [formData, setFormData] = useState({
     title: "",
     upc: "",

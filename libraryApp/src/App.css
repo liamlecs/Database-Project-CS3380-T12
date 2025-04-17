@@ -156,7 +156,7 @@ background-color: #777;
 }
 
 .login-bg {
-  /* Use your actual path to the image. If it's in public/assets, then: */
+  /* Use actual path to the image. If it's in public/assets, then: */
   background: url('../assets/library-bg.jpg') no-repeat center center;
   background-size: cover;
   min-height: 100vh; /* full viewport height */

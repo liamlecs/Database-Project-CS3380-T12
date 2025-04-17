@@ -67,7 +67,7 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-// --- Custom Imports (your own components) ---
+// --- Custom Imports ---
 import CreateEvent from './CreateEvent';
 import CheckoutHistory from './LiHistSubcomponents/CheckoutHistory';
 import DonationHistory from './LiHistSubcomponents/DonationHistory';
@@ -234,7 +234,7 @@ const AddEmployeeDialog: React.FC<AddEmployeeDialogProps> = ({
     };
 
     try {
-      // Replace with your actual API endpoint
+      // API Endpoint
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/api/Employee`,
         {

@@ -6,7 +6,6 @@ import defaultItemImage from "../../assets/welcome_background.jpg";
 import { useCheckout } from "../../contexts/CheckoutContext";
 
 // Read the public asset base URL from an environment variable.
-// For example, in production, set VITE_PUBLIC_ASSET_BASE_URL=https://api.yourdomain.com in your environment.
 const publicAssetBaseUrl = import.meta.env.VITE_PUBLIC_ASSET_BASE_URL || "";
 
 /**
@@ -188,7 +187,7 @@ setOpenMaxCheckoutDialog(true);
     }
       else{
 
-          // 3. Determine the current ItemID (ensure you use the correct property from your item object).
+          // 3. Determine the current ItemID (ensure you use the correct property from item object).
           const currentItemId = item.itemId || item.id || item.itemID;
           if (!currentItemId) {
             alert("No item id available for this item.");
@@ -508,8 +507,6 @@ setOpenMaxCheckoutDialog(true);
     )}
 
 
-
-  
   {(selectedItem?.genre || selectedItem?.genreDescription) && (
     <p><strong>Genre:</strong> {selectedItem?.genre ?? selectedItem?.genreDescription}</p>
   )}

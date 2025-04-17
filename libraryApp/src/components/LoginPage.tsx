@@ -56,7 +56,7 @@ export default function SingleLoginPage() {
         body.username = username;
       }
 
-      // 3) Fire your request
+      // 3) Fire request
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

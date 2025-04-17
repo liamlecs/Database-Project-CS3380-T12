@@ -70,7 +70,7 @@ const BookForm = () => {
       formDataToUpload.append("Cover", file);
   
       try {
-        // Send the file to your upload-cover API endpoint
+        // Send the file to upload-cover API endpoint
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`, {
           method: "POST",
           body: formDataToUpload,
@@ -83,7 +83,7 @@ const BookForm = () => {
         // Parse the response to retrieve the permanent URL
         const data = await res.json();
         console.log("DEBUG: coverImagePath=", data.url),
-        // Update your form state with the permanent URL (data.url)
+        // Update form state with the permanent URL (data.url)
         setFormData((prev) => ({
           ...prev,
           coverImagePath: data.url,
