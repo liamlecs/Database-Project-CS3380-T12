@@ -77,7 +77,7 @@ namespace LibraryWebAPI.Controllers
             public required string ReactivationCode { get; set; }
         }
 
-        // In your CustomerController.cs
+        // In CustomerController.cs
 [HttpPut("{id}/password")]
 public async Task<IActionResult> ChangePassword(int id, [FromBody] PasswordChangeRequest request)
 {

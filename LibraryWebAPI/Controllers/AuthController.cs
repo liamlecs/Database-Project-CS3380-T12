@@ -114,7 +114,7 @@ public async Task<IActionResult> ForgotPassword(
     customer.ResetPasswordTokenExpiration = DateTime.UtcNow.AddHours(1);
     await _context.SaveChangesAsync();
 
-    // Build a password reset link (adjust the URL as needed for your frontend)
+    // Build a password reset link
     var resetLink = $"https://e-libraryuh.vercel.app/ResetPassword?token={token}";
 
     // Prepare email contents
@@ -123,7 +123,7 @@ public async Task<IActionResult> ForgotPassword(
                   $"{resetLink}\n\n" +
                   "This link is valid for 1 hour. If you did not request a password reset, please ignore this email.";
 
-    // Send email using your EmailService
+    // Send email using EmailService
     await emailService.SendEmailAsync(dto.Email, subject, body);
 
     return Ok(new { message = "If an account with that email exists, you will receive password reset instructions." });

@@ -23,7 +23,7 @@ jobs:
       - name: Set Up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # adjust based on your stack
+          node-version: '18'  # adjust based on stack
 
       - name: Install FE Dependencies
         run: |
@@ -45,7 +45,7 @@ jobs:
       - name: 🔨 Set Up .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'  # adjust based on your .NET version
+          dotnet-version: '8.0.x'  # adjust based on .NET version
 
       - name: Install BE Dependencies
         run: |
@@ -65,7 +65,7 @@ jobs:
       - name: Deploy ASP.NET to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "your-azure-api-name"  # Replace with your Azure API App Service name
+          app-name: "your-azure-api-name"  # Replace with Azure API App Service name
           package: backend/publish
 
       # / Deploy Frontend to Azure Static Web Apps

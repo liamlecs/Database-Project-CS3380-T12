@@ -94,10 +94,32 @@ const BookForm = () => {
       }
     }
   };
+
+    // Validation: all base fields + “Other” fields if needed
+    const isFormValid =
+    formData.title.trim() &&
+    formData.isbn.trim() &&
+    formData.publisherID &&
+    formData.bookGenreID &&
+    formData.bookAuthorID &&
+    formData.yearPublished &&
+    formData.totalCopies &&
+    formData.location.trim() &&
+    formData.coverImagePath &&
+    !(formData.publisherID === "other" && !newPublisherName.trim()) &&
+    !(
+      formData.bookAuthorID === "other" &&
+      (!newAuthorFirstName.trim() || !newAuthorLastName.trim())
+    );
   
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(isFormValid);
+    if (!isFormValid) {
+      alert("Please fill out all required fields before adding the book.");
+      return;
+    }
 
     try {
       // Handle "Other" for Publisher if needed.
@@ -190,11 +212,11 @@ const BookForm = () => {
     <form className="book-form" onSubmit={handleSubmit}>
       <h2 style={{ textAlign: "center", width: "100%" }}>Add New Book</h2>
       <div className="form-grid">
-        <input name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} />
-        <input name="isbn" placeholder="ISBN" value={formData.isbn} onChange={handleInputChange} />
+        <input name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} required />
+        <input name="isbn" placeholder="ISBN" value={formData.isbn} onChange={handleInputChange} required />
 
         {/* Publisher Dropdown */}
-        <select name="publisherID" value={formData.publisherID} onChange={handleInputChange}>
+        <select name="publisherID" value={formData.publisherID} onChange={handleInputChange} required>
         <option key="defaultPublisher" value="">Select Publisher</option>
         {publishers.map((publisher) => (
             <option key={publisher.publisherId} value={publisher.publisherId}>
@@ -211,11 +233,12 @@ const BookForm = () => {
             placeholder="New Publisher Name"
             value={newPublisherName}
             onChange={(e) => setNewPublisherName(e.target.value)}
+            required
           />
         )}
 
         {/* Genre Dropdown */}
-        <select name="bookGenreID" value={formData.bookGenreID} onChange={handleInputChange}>
+        <select name="bookGenreID" value={formData.bookGenreID} onChange={handleInputChange} required>
           <option value="">Select Genre</option>
           {genres.map((genre) => (
             <option key={genre.bookGenreId} value={genre.bookGenreId}>
@@ -225,7 +248,7 @@ const BookForm = () => {
         </select>
 
         {/* Author Dropdown */}
-        <select name="bookAuthorID" value={formData.bookAuthorID} onChange={handleInputChange}>
+        <select name="bookAuthorID" value={formData.bookAuthorID} onChange={handleInputChange} required>
   <option key="defaultAuthor" value="">Select Author</option>
   {authors.map((author) => (
     <option key={author.bookAuthorId} value={author.bookAuthorId}>
@@ -243,12 +266,14 @@ const BookForm = () => {
               placeholder="Author's First Name"
               value={newAuthorFirstName}
               onChange={(e) => setNewAuthorFirstName(e.target.value)}
+              required
             />
             <input
               type="text"
               placeholder="Author's Last Name"
               value={newAuthorLastName}
               onChange={(e) => setNewAuthorLastName(e.target.value)}
+              required
             />
           </>
         )}
@@ -259,6 +284,7 @@ const BookForm = () => {
           type="number"
           value={formData.yearPublished}
           onChange={handleInputChange}
+          required
         />
         <input
           name="totalCopies"
@@ -266,6 +292,7 @@ const BookForm = () => {
           type="number"
           value={formData.totalCopies}
           onChange={handleInputChange}
+          required
         />
         {/* Cover image file input */}
         <input type="file" accept="image/*" onChange={handleImageUpload} />
@@ -274,6 +301,7 @@ const BookForm = () => {
           placeholder="Location"
           value={formData.location}
           onChange={handleInputChange}
+          required
         />
       </div>
       <button type="submit">Add Book</button>

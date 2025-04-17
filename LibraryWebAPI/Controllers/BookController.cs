@@ -103,7 +103,7 @@ public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
             TotalCopies = model.TotalCopies,
             AvailableCopies = model.TotalCopies,
             Location = model.Location,
-            ItemTypeID = 1 // Assuming 1 is the ID for books in your ItemType table.
+            ItemTypeID = 1 // Assuming 1 is the ID for books in ItemType table.
         };
 
         _context.Items.Add(item);

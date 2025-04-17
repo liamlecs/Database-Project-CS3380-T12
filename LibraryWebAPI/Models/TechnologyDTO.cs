@@ -5,12 +5,11 @@ namespace LibraryWebAPI.Models
         // Fields for the Item record:
         public string Title { get; set; } = string.Empty;
 
-        
         public int ItemID { get; set; } 
 
         public int DeviceId { get; set; }
         public int TotalCopies { get; set; }
-        public int availableCopies { get; set; } // You can choose to auto-set this on insert or allow manual input.
+        public int availableCopies { get; set; } // Can choose to auto-set this on insert or allow manual input.
         public string? Location { get; set; }  // e.g., "Shelf T1"
 
         // Fields for the Technology record:
@@ -23,7 +22,7 @@ namespace LibraryWebAPI.Models
         public string ModelNumber { get; set; } = string.Empty;
         public string? CoverImagePath { get; set; }  // Should store the URL from Azure Blob Storage.
         
-        // Item type for Technology; you can default it to 4 if that’s your convention.
+        // Item type for Technology;
         public int ItemTypeID { get; set; } = 4;
     }
 }
