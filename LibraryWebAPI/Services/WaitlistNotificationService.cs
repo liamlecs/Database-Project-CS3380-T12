@@ -15,8 +15,9 @@ public class WaitlistNotification
     public int WaitlistId { get; set; }
     public int CustomerId { get; set; }
     public int ItemId { get; set; }
-    public DateTime? DueDate { get; set; }
     public bool EmailSent { get; set; }
+    public bool UserResponded { get; set; }
+        public bool UserAccepted { get; set; }
     public DateTime? ProcessedDate { get; set; }
 }
 
@@ -58,9 +59,12 @@ public class WaitlistNotificationService : BackgroundService
 
 if (customer != null && item != null)
 {
+
+var expirationDate = notification.ProcessedDate?.AddDays(2).ToString("MM/dd/yyyy") ?? "unknown";
+
     var subject = $"Item '{item.Title}' Now Available!";
-    var body = $@"Good news! A copy of '{item.Title}' has been assigned to you.
-It is due on {notification.DueDate:MM/dd/yyyy}. Enjoy!
+    var body = $@"Good news! A copy of '{item.Title}' is waiting for you in your user profile!
+You have until {expirationDate} to claim it before it is assigned to the next customer. Enjoy!
 
 Thank you for using E-Library.
 Best regards,

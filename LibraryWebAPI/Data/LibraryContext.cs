@@ -52,7 +52,7 @@ public virtual DbSet<Book> Books { get; set; }
 
 public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlist email service
 
-
+public DbSet<WaitlistNotificationDto> WaitlistNotificationsDto { get; set; } //waitlist email service
     public virtual DbSet<MusicGenre> MusicGenres { get; set; }
 
     public virtual DbSet<Publisher> Publishers { get; set; }
@@ -561,6 +561,8 @@ modelBuilder.Entity<TransactionGeneralReportDto>().HasNoKey().ToView(null);
                 .HasForeignKey(w => w.ItemId);
         
 modelBuilder.Entity<CustomerWaitlistDto>().HasNoKey().ToView(null);
+
+modelBuilder.Entity<WaitlistNotificationDto>().HasNoKey().ToView(null);
 
         });
 
