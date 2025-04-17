@@ -32,16 +32,31 @@ export default function SingleLoginPage() {
     e.preventDefault();
 
     try {
-      const endpoint =
-        loginMode === "customer"
-          ? `${import.meta.env.VITE_API_BASE_URL}/api/auth/customer-login`
-          : `${import.meta.env.VITE_API_BASE_URL}/api/auth/employee-login`;
+      // const endpoint =
+      //   loginMode === "customer"
+      //     ? `${import.meta.env.VITE_API_BASE_URL}/api/auth/customer-login`
+      //     : `${import.meta.env.VITE_API_BASE_URL}/api/auth/employee-login`;
 
-      const body =
-        loginMode === "customer"
-          ? { email: email, password: password }
-          : { username: username, password: password };
+      // 1) Always hit the single /login endpoint
+      const endpoint = `${import.meta.env.VITE_API_BASE_URL}/api/auth/login`;
 
+      // const body =
+      //   loginMode === "customer"
+      //     ? { email: email, password: password }
+      //     : { username: username, password: password };
+
+      // 2) Build a unified body
+      const body: any = {
+        mode: loginMode,          // "customer" or "employee"
+        password: password
+      };
+      if (loginMode === "customer") {
+        body.email = email;
+      } else {
+        body.username = username;
+      }
+
+      // 3) Fire your request
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

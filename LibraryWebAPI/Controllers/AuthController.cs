@@ -18,6 +18,52 @@ namespace LibraryWebAPI.Controllers
             _context = context;
         }
 
+        [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+    {
+        if (dto.Mode == "employee")
+        {
+            // 1) Employee flow
+            var emp = await _context.Employees
+                                    .FirstOrDefaultAsync(e => e.Username == dto.Username);
+            if (emp == null || emp.AccountPassword != dto.Password)
+                return Unauthorized(new { message = "Invalid employee credentials." });
+
+            return Ok(new {
+                message       = "Employee login successful!",
+                isEmployee    = true,
+                username      = emp.Username,
+                EmployeeID    = emp.EmployeeId,
+                firstName     = emp.FirstName,
+                lastName      = emp.LastName,
+                birthDate     = emp.BirthDate?.ToString("yyyy-MM-dd")
+            });
+        }
+        else if (dto.Mode == "customer")
+        {
+            // 2) Customer flow
+            var cust = await _context.Customers
+                                     .FirstOrDefaultAsync(c => c.Email == dto.Email && c.IsActive);
+            if (cust == null || cust.AccountPassword != dto.Password)
+                return Unauthorized(new { message = "Invalid customer credentials or account deactivated" });
+
+            if (!cust.EmailConfirmed)
+                return StatusCode(403, new { message = "Please confirm your email before logging in." });
+
+            return Ok(new {
+                message      = "Customer login successful!",
+                isEmployee   = false,
+                userId       = cust.CustomerId,
+                firstName    = cust.FirstName,
+                lastName     = cust.LastName,
+                email        = cust.Email,
+                borrowerTypeId = cust.BorrowerTypeId
+            });
+        }
+
+        return BadRequest(new { message = "Login mode must be either 'customer' or 'employee'" });
+    }
+
         // 1) Employee Login Endpoint
         [HttpPost("employee-login")]
         public async Task<IActionResult> EmployeeLogin([FromBody] EmployeeLoginDto dto)
@@ -140,5 +186,6 @@ public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
                 borrowerTypeId = customer.BorrowerTypeId
             });
         }
+        
     }
 }
