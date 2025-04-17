@@ -64,32 +64,32 @@ namespace LibraryWebAPI.Controllers
         return BadRequest(new { message = "Login mode must be either 'customer' or 'employee'" });
     }
 
-        // 1) Employee Login Endpoint
-        [HttpPost("employee-login")]
-        public async Task<IActionResult> EmployeeLogin([FromBody] EmployeeLoginDto dto)
-        {
-            // Look up employee by Username
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(e => e.Username == dto.Username);
+        // // 1) Employee Login Endpoint
+        // [HttpPost("employee-login")]
+        // public async Task<IActionResult> EmployeeLogin([FromBody] EmployeeLoginDto dto)
+        // {
+        //     // Look up employee by Username
+        //     var employee = await _context.Employees
+        //         .FirstOrDefaultAsync(e => e.Username == dto.Username);
 
-            // Validate password
-            if (employee == null || employee.AccountPassword != dto.Password)
-            {
-                return Unauthorized(new { message = "Invalid employee credentials." });
-            }
+        //     // Validate password
+        //     if (employee == null || employee.AccountPassword != dto.Password)
+        //     {
+        //         return Unauthorized(new { message = "Invalid employee credentials." });
+        //     }
 
-            // Return success
-            return Ok(new {
-                message = "Employee login successful!",
-                isEmployee = true,
-                username = employee.Username,
-                debugTime = DateTime.Now.ToString(), // something obviously new
-                EmployeeID = employee.EmployeeId,
-                firstName = employee.FirstName,
-                lastName = employee.LastName,
-                birthDate = employee.BirthDate?.ToString("yyyy-MM-dd")
-            });
-        }
+        //     // Return success
+        //     return Ok(new {
+        //         message = "Employee login successful!",
+        //         isEmployee = true,
+        //         username = employee.Username,
+        //         debugTime = DateTime.Now.ToString(), // something obviously new
+        //         EmployeeID = employee.EmployeeId,
+        //         firstName = employee.FirstName,
+        //         lastName = employee.LastName,
+        //         birthDate = employee.BirthDate?.ToString("yyyy-MM-dd")
+        //     });
+        // }
 
         [HttpPost("forgot-password")]
 public async Task<IActionResult> ForgotPassword(
@@ -156,36 +156,36 @@ public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
 }
 
 
-        // 2) Customer Login Endpoint
-        [HttpPost("customer-login")]
-        public async Task<IActionResult> CustomerLogin([FromBody] CustomerLoginDto dto)
-        {
-            // Look up customer by Email
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(c => c.Email == dto.Email && c.IsActive);
+        // // 2) Customer Login Endpoint
+        // [HttpPost("customer-login")]
+        // public async Task<IActionResult> CustomerLogin([FromBody] CustomerLoginDto dto)
+        // {
+        //     // Look up customer by Email
+        //     var customer = await _context.Customers
+        //         .FirstOrDefaultAsync(c => c.Email == dto.Email && c.IsActive);
 
-            // Validate password
-            if (customer == null || customer.AccountPassword != dto.Password)
-            {
-                return Unauthorized(new { message = "Invalid customer credentials or account deactivated" });
-            }
+        //     // Validate password
+        //     if (customer == null || customer.AccountPassword != dto.Password)
+        //     {
+        //         return Unauthorized(new { message = "Invalid customer credentials or account deactivated" });
+        //     }
 
-            if (!customer.EmailConfirmed)
-            {
-                return StatusCode(403, new { message = "Please confirm your email before logging in." });
-            }
+        //     if (!customer.EmailConfirmed)
+        //     {
+        //         return StatusCode(403, new { message = "Please confirm your email before logging in." });
+        //     }
 
-            // Return success
-            return Ok(new {
-                message = "Customer login successful!",
-                isEmployee = false,
-                userId = customer.CustomerId,
-                firstName = customer.FirstName,
-                lastName = customer.LastName,
-                email = customer.Email,
-                borrowerTypeId = customer.BorrowerTypeId
-            });
-        }
+        //     // Return success
+        //     return Ok(new {
+        //         message = "Customer login successful!",
+        //         isEmployee = false,
+        //         userId = customer.CustomerId,
+        //         firstName = customer.FirstName,
+        //         lastName = customer.LastName,
+        //         email = customer.Email,
+        //         borrowerTypeId = customer.BorrowerTypeId
+        //     });
+        // }
         
     }
 }
