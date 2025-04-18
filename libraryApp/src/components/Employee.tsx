@@ -123,7 +123,7 @@ interface MovieDto {
   genre: string;
   totalCopies: number;
   availableCopies: number;
-  location: string;
+  itemLocation: string;
 }
 
 interface MusicDto {
@@ -797,7 +797,7 @@ const Employee: React.FC = () => {
       yearReleased: m.yearReleased,
       totalCopies: m.totalCopies,
       availableCopies: m.availableCopies,
-      location: m.location,
+      itemLocation: m.itemLocation,
       coverImagePath: m.coverImagePath,
     });
     setOpenEditMovieDialog(true);
@@ -854,7 +854,7 @@ const Employee: React.FC = () => {
       coverImagePath: editMovieForm.coverImagePath || '',
       totalCopies: Number(editMovieForm.totalCopies),
       availableCopies: Number(editMovieForm.availableCopies),
-      location: editMovieForm.location || '',
+      location: editMovieForm.itemLocation || '',
       itemTypeID: 2, // movie item type id
     };
 
@@ -1637,7 +1637,7 @@ const Employee: React.FC = () => {
                 <TableCell>{m.format}</TableCell>
                 <TableCell>{m.totalCopies}</TableCell>
                 <TableCell>{m.availableCopies}</TableCell>
-                <TableCell>{m.location}</TableCell>
+                <TableCell>{m.itemLocation}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1}>
                     <IconButton size="small" onClick={() => openEditMovie(m)}>
@@ -2588,7 +2588,7 @@ const Employee: React.FC = () => {
               <TextField label="Year Released" type="number" fullWidth value={editMovieForm.yearReleased ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, yearReleased: Number(e.target.value) }))} />
               <TextField label="Total Copies" type="number" fullWidth value={editMovieForm.totalCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, totalCopies: Number(e.target.value) }))} />
               <TextField label="Available Copies" type="number" fullWidth value={editMovieForm.availableCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, availableCopies: Number(e.target.value) }))} />
-              <TextField label="Location" fullWidth value={editMovieForm.location || ""} onChange={e => setEditMovieForm(f => ({ ...f, location: e.target.value }))} />
+              <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, location: e.target.value }))} />
               <Box>
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   Cover Image
