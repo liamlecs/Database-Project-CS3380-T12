@@ -24,7 +24,7 @@ interface CurrentTechnologyProps {
 const CurrentTechnology: React.FC<CurrentTechnologyProps> = ({ technology, onEdit, onDelete }) => (
     <Paper elevation={3} sx={{ mb: 4, p: 2 }}>
               {/* --- Current Technology --- */}
-              <Typography variant="h6" sx={{ mt: 2 }}>Current Technology</Typography>
+              <Typography variant="h6" align="center" sx={{ mt: 2 }}>Current Technology</Typography>
               <TableContainer component={Paper}>
                 <Table size="small">
                   <TableHead>

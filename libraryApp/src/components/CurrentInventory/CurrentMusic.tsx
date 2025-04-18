@@ -24,7 +24,7 @@ interface CurrentMusicProps {
 const CurrentMusic: React.FC<CurrentMusicProps> = ({ music, onEdit, onDelete }) => (
     <Paper elevation={3} sx={{ mb: 4, p: 2 }}>
               {/* --- Current Music --- */}
-              <Typography variant="h6" sx={{ mt: 2 }}>Current Music</Typography>
+              <Typography variant="h6" align="center" sx={{ mt: 2 }}>Current Music</Typography>
               <TableContainer component={Paper} sx={{ mb: 4 }}>
                 <Table size="small">
                   <TableHead>

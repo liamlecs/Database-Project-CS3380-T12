@@ -24,7 +24,7 @@ interface CurrentMoviesProps {
 const CurrentMovies: React.FC<CurrentMoviesProps> = ({ movies, onEdit, onDelete }) => (
     <Paper elevation={3} sx={{ mb: 4, p: 2 }}>
               {/* --- Current Movies --- */}
-              <Typography variant="h6" sx={{ mt: 2 }}>Current Movies</Typography>
+              <Typography variant="h6" align="center" sx={{ mt: 2 }}>Current Movies</Typography>
               <TableContainer component={Paper} sx={{ mb: 4 }}>
                 <Table size="small">
                   <TableHead>
