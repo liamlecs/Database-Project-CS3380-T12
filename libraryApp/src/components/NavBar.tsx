@@ -106,13 +106,16 @@ const NavBar: React.FC = React.memo(function NavBar() {
           </>
         )}
         {!isEmployeeLoggedIn && (
+          <>
           <li>
             <Link to="/donations">Donate</Link>
           </li>
+          <li>
+            <Link to="/contact">Contact Us</Link>
+          </li>
+          </>
         )}
-        <li>
-          <Link to="/contact">Contact Us</Link>
-        </li>
+
       </ul>
       <div className="avatar-container" onClick={toggleMenu}>
         <div className="avatar-circle">
