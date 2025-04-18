@@ -13,6 +13,7 @@ import CurrentMusic from './CurrentInventory/CurrentMusic'; // Ensure this path 
 import CurrentTechnology from './CurrentInventory/CurrentTechnology'; // Ensure this path is correct
 import EditBookDialog from './EditDialog/EditBookDialog.tsx';
 import EditMovieDialog from './EditDialog/EditMovieDialog.tsx';
+import EditMusicDialog from './EditDialog/EditMusicDialog.tsx';
 
 // --- Material UI Imports ---
 import {
@@ -842,11 +843,142 @@ const Employee: React.FC = () => {
 
   // Music
   const [editingMusic, setEditingMusic] = useState<MusicDto | null>(null);
+  const [editMusicForm, setEditMusicForm] = useState<Partial<MusicDto>>({});
   const [openEditMusicDialog, setOpenEditMusicDialog] = useState(false);
   const openEditMusic = (m: MusicDto) => {
     setEditingMusic(m);
+    setEditMusicForm ({
+      title: m.title,
+      musicArtistId: artists.find((a) => a.artistName === m.artistName)?.musicArtistId,
+      musicGenreId: musicGenres.find((g) => g.description === m.genreDescription)?.musicGenreId,
+      artistName: artists.find((a) => a.artistName === m.artistName)?.musicArtistId || "",
+      genreDescription: musicGenres.find((g) => g.description === m.genreDescription)?.musicGenreId || "",
+      format: m.format,
+      availableCopies: m.availableCopies,
+      totalCopies: m.totalCopies,
+      coverImagePath: m.coverImagePath,
+      location: m.location,
+    })
     setOpenEditMusicDialog(true);
   };
+
+  const [artists, setArtists] = useState<any[]>([]);
+  const [musicGenres, setMusicGenres] = useState<any[]>([]);
+  
+  const [newArtistName, setNewArtistName] = useState(""); // Single field for artist name
+  
+    useEffect(() => {
+      const fetchDropdownData = async () => {
+        try {
+          const [artistRes, genreRes] = await Promise.all([
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MusicArtist`),
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MusicGenre`),
+          ]);
+  
+          if (!artistRes.ok || !genreRes.ok) {
+            throw new Error("Failed to fetch dropdown options");
+          }
+  
+          const artistData = await artistRes.json();
+          const genreData = await genreRes.json();
+  
+          //See what backend is returning
+          //console.log("Artist data:", artistData);
+          //console.log("Genre data:", genreData);
+  
+          setArtists(artistData);
+          setMusicGenres(genreData);
+        } catch (err) {
+          console.error("Dropdown fetch error:", err);
+        }
+      };
+  
+      fetchDropdownData();
+    }, []);
+
+    const handleSaveEditMusic = async () => {
+      if (!editingMusic) return;
+
+      console.log("Editing Music ID:", editingMusic?.songId);
+    
+      let finalArtistID: number;
+    
+      // 1. Determine the Artist ID
+      if (editMusicForm.artistName === "other") {
+        try {
+          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MusicArtist`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              artistName: newArtistName,
+            }),
+          });
+    
+          if (!resp.ok) {
+            console.error("Failed to create new artist:", await resp.text());
+            return;
+          }
+    
+          const created = await resp.json();
+          finalArtistID = created.musicArtistId;
+    
+          // Refresh the artists list
+          const updatedArtists = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MusicArtist`).then((res) => res.json());
+          setArtists(updatedArtists);
+    
+          // Update the state with the new artist's ID
+          setEditMusicForm((f) => ({
+            ...f,
+            artist: finalArtistID.toString(),
+            artistName: newArtistName,
+          }));
+        } catch (err) {
+          console.error("Error creating new artist:", err);
+          return;
+        }
+      } else {
+        finalArtistID = Number(editMusicForm.artistName);
+      }
+    
+      // 2. Prepare the Payload
+      const payload = {
+        title: editMusicForm.title,
+        musicArtistId: finalArtistID,
+        musicGenreId: Number(editMusicForm.musicGenreId!),
+        format: editMusicForm.format,
+        coverImagePath: editMusicForm.coverImagePath,
+        totalCopies: Number(editMusicForm.totalCopies!),
+        availableCopies: Number(editMusicForm.availableCopies!),
+        location: editMusicForm.location,
+        itemTypeID: 3, // Music
+      };
+    
+      console.log("Final payload:", payload);
+    
+      // 3. Send the Update Request
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Music/edit-music/${editingMusic.songId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+    
+        if (res.ok) {
+          // 4. Handle Success
+          setOpenEditMusicDialog(false);
+          setNewArtistName("");
+          setRefreshData(true); // Trigger a refresh of the music list
+        } else {
+          const err = await res.text();
+          console.error("Failed to save edits:", err);
+        }
+      } catch (err) {
+        console.error("Error saving music edits:", err);
+      }
+    };
 
   // Technology
   const [editingTech, setEditingTech] = useState<TechnologyDto | null>(null);
@@ -1481,7 +1613,8 @@ const Employee: React.FC = () => {
       books={bookInventory}
       onEdit={openEditBook}
       onDelete={b => {
-        /* your delete‐book handler */
+        
+        /* delete‐book handler */
       }}
     />
   )}
@@ -1490,7 +1623,7 @@ const Employee: React.FC = () => {
       movies={movieInventory}
       onEdit={openEditMovie}
       onDelete={m => {
-        /* your delete‐movie handler */
+        /* delete‐movie handler */
       }}
     />
   )}
@@ -1499,7 +1632,7 @@ const Employee: React.FC = () => {
       music={musicInventory}
       onEdit={openEditMusic}
       onDelete={m => {
-        /* your delete‐music handler */
+        /* delete‐music handler */
       }}
     />
   )}
@@ -1508,7 +1641,7 @@ const Employee: React.FC = () => {
       technology={technologyInventory}
       onEdit={openEditTech}
       onDelete={t => {
-        /* your delete‐technology handler */
+        /* delete‐technology handler */
       }}
     />
   )}
@@ -1929,6 +2062,18 @@ const Employee: React.FC = () => {
           setNewDirectorLastName={setNewDirectorLastName}
           handleSaveEditMovie={handleSaveEditMovie}
           onClose={() => setOpenEditMovieDialog(false)}
+        />
+        
+        <EditMusicDialog
+          open={openEditMusicDialog}
+          editMusicForm={editMusicForm}
+          artists={artists}
+          musicGenres={musicGenres}
+          newArtistName = {newArtistName}
+          setEditMusicForm={setEditMusicForm}
+          setNewArtistName={setNewArtistName}
+          handleSaveEditMusic={handleSaveEditMusic}
+          onClose={() => setOpenEditMusicDialog(false)}
         />
 
         {/* Render the current view */}

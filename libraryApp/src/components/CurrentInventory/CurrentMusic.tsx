@@ -42,7 +42,7 @@ const CurrentMusic: React.FC<CurrentMusicProps> = ({ music, onEdit, onDelete }) 
                   </TableHead>
                   <TableBody>
                     {music.map(m => (
-                      <TableRow key={m.musicId}>
+                      <TableRow key={m.songId}>
                         <TableCell>
                           <img src={m.coverImagePath} alt={m.title} style={{ width: 50, height: 50 }} />
                         </TableCell>

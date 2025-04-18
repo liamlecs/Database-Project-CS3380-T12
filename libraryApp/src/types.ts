@@ -41,7 +41,7 @@ export interface BookDto {
   }
   
   export interface MusicDto {
-    musicId: number;
+    songId: number;
     itemId: number;
     itemTypeId: number;
     title: string;
@@ -52,6 +52,8 @@ export interface BookDto {
     totalCopies: number;
     coverImagePath: string;
     location: string
+    musicArtistId: number;
+    musicGenreId: number;
   }
   
   export interface TechnologyDto {

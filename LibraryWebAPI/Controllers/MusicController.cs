@@ -107,6 +107,63 @@ namespace LibraryWebAPI.Controllers
             return NoContent();
         }
 
+
+        // PUT: api/Music/edit-music/{id}
+[HttpPut("edit-music/{id}")]
+public async Task<IActionResult> EditMusicWithItem(int id, [FromBody] MusicDto model)
+{
+    // 1️⃣ Validate
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    // 2️⃣ Begin transaction
+    await using var tx = await _context.Database.BeginTransactionAsync();
+    try
+    {
+        // 3️⃣ Load tracked Music + its Item
+        var music = await _context.Musics
+                                  .Include(m => m.Item)
+                                  .FirstOrDefaultAsync(m => m.SongId == id);
+        if (music == null)
+            return NotFound(new { message = "Music not found" });
+
+        // 4️⃣ Map MusicDto → Item
+        music.Item.Title           = model.Title!;
+        music.Item.TotalCopies     = model.TotalCopies;
+        music.Item.AvailableCopies = Math.Min(
+            model.TotalCopies,
+            model.availableCopies // Use the DTO’s value here
+        );
+        music.Item.Location        = model.Location;
+
+        // 5️⃣ Persist Item changes
+        await _context.SaveChangesAsync();
+
+        // 6️⃣ Map MusicDto → Music
+        music.MusicArtistId   = model.MusicArtistID;
+        music.MusicGenreId    = model.MusicGenreID;
+        music.Format          = model.Format;
+        music.CoverImagePath  = model.CoverImagePath;
+
+        // 7️⃣ Persist Music changes
+        await _context.SaveChangesAsync();
+
+        // 8️⃣ Commit
+        await tx.CommitAsync();
+
+        return NoContent();
+    }
+    catch (Exception ex)
+    {
+        // 9️⃣ Rollback + error response
+        await tx.RollbackAsync();
+        return StatusCode(StatusCodes.Status500InternalServerError, new {
+            message = "Error updating music",
+            error   = ex.Message
+        });
+    }
+}
+
         // DELETE: api/Music/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMusic(int id)
