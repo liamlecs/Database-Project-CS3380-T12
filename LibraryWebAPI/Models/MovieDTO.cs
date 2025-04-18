@@ -10,6 +10,7 @@ public class MovieDTO
     public required string Format { get; set; }               // E.g. DVD, Blu-ray, Digital
     public required string CoverImagePath { get; set; }
     public int TotalCopies { get; set; }
+    public int AvailableCopies { get; set; }
     public required string Location { get; set; }
     public int ItemTypeID { get; set; } = 2;          // Assuming 2 represents Movies
 }
