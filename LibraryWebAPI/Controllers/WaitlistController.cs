@@ -266,7 +266,57 @@ catch (Exception ex)
     }
     }
 
+[HttpPost("waitlist-globaltimeout")]
+public async Task<IActionResult> GlobalTimeoutExpiredWaitlists()
+{
+    var now = DateTime.UtcNow;
 
+    var expiredNotifications = await _context.WaitlistNotifications
+        .Where(n =>
+            n.ProcessedDate.HasValue &&
+            !n.UserResponded &&
+            n.EmailSent &&
+            n.ProcessedDate.Value.AddDays(2) <= now
+        )
+        .ToListAsync();
+
+    var itemIds = expiredNotifications.Select(n => n.ItemId).Distinct();
+
+    foreach (var itemId in itemIds)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "UPDATE Item SET AvailableCopies = AvailableCopies + 1 WHERE ItemID = {0}",
+            itemId
+        );
+    }
+
+    return Ok(new { FreedItems = itemIds.Count() });
+}
+
+[HttpPost("waitlist-timeout/{customerId}")]
+public async Task<IActionResult> UserTimeoutExpiredWaitlists(int customerId)
+{
+    var now = DateTime.UtcNow;
+
+    var expiredUserNotifications = await _context.WaitlistNotifications
+        .Where(n =>
+            n.CustomerId == customerId &&
+            n.ProcessedDate.HasValue &&
+            !n.UserResponded &&
+            n.EmailSent &&
+            n.ProcessedDate.Value.AddDays(2) <= now
+        )
+        .ToListAsync();
+
+    foreach (var notification in expiredUserNotifications)
+    {
+        notification.UserResponded = true;
+    }
+
+    await _context.SaveChangesAsync();
+
+    return Ok(new { MarkedExpired = expiredUserNotifications.Count });
+}
 
 
         private async Task<IActionResult> PostTransactionHistoryPrivate(TransactionHistory transactionHistory)

@@ -555,10 +555,59 @@ export default function UserProfile() {
     setFilteredInventory(filtered);
   }, [inventorySearchQuery, profile?.transactionHistory]);
 
+//reusable customer based expired item clearer (only on exit) 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+const handleTimeoutExpiredItems = async (invalidItems: any[]) => {
+
+  if (!invalidItems || invalidItems.length === 0) return;
+  const userIdStr = localStorage.getItem("userId");
+  if (!userIdStr) {
+    console.error("No user ID found in localStorage.");
+    return;
+  }
+
+  const customerId = Number.parseInt(userIdStr, 10);
+  // biome-ignore lint/suspicious/noGlobalIsNan: <explanation>
+  if (isNaN(customerId)) {
+    console.error("Invalid user ID.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-timeout/${customerId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Timeout API call failed with status ${response.status}`);
+    }
+
+    console.log("TimeoutUserExpiredWaitlists called successfully.");
+  } catch (error) {
+    console.error("Error calling TimeoutUserExpiredWaitlists:", error);
+  }
+};
+
   //check if any waitlist books are available
     
     const fetchWaitlistStatus = async () => {
       try{
+
+        //checks
+        const GlobalTimeoutResponse = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-globaltimeout`,
+          { method: "POST" }
+        );
+
+        if (!GlobalTimeoutResponse.ok) {
+          throw new Error(`Global Timeout API call failed with status ${GlobalTimeoutResponse.status}`);
+        }
 
         const userIdStr = localStorage.getItem("userId");
         if (!userIdStr) {
@@ -593,7 +642,7 @@ const invalidItems = data
       setWaitlistItems(validItems);
       setEvilListItems(invalidItems);
       
-      await Promise.all(
+      /*await Promise.all( //move this to onclose so that invaliditems persist
         invalidItems.map(async (item: WaitlistItem) => { //add increase of item
           try {
             const rejectResponse = await fetch(
@@ -614,7 +663,7 @@ const invalidItems = data
             );
           }
         })
-      );
+      );*/
 
       console.log("validItems: ",validItems );
       console.log("should open validItems dialog: ",validItems.length>0 );
@@ -1615,6 +1664,9 @@ const invalidItems = data
       </Snackbar>
           </div>
         )}
+
+
+
         {/*waitlist offer*/}
         <Dialog
   open={openWaitlistConfirmationDialog || openWaitlistTimerFailureDialog}
@@ -1622,8 +1674,10 @@ const invalidItems = data
     if (waitlistItems.length > 0) {
       setShowExitWarningDialog(true); // User has pending confirmations
     } else {
+      handleTimeoutExpiredItems(evilListItems);
       setOpenWaitlistConfirmationDialog(false);
       setOpenWaitlistTimerFailureDialog(false);
+      
       window.location.reload();
     }
   }}
@@ -1688,6 +1742,7 @@ const invalidItems = data
         if (waitlistItems.length > 0) {
           setShowExitWarningDialog(true); // User has pending confirmations
         } else {
+          handleTimeoutExpiredItems(evilListItems);
           setOpenWaitlistConfirmationDialog(false);
           setOpenWaitlistTimerFailureDialog(false);
           window.location.reload();
@@ -1734,6 +1789,7 @@ const invalidItems = data
         } catch (error) {
           console.error("Error auto-rejecting waitlist items:", error);
         } finally {
+          handleTimeoutExpiredItems(evilListItems);
           setShowExitWarningDialog(false);
           setOpenWaitlistConfirmationDialog(false);
           setOpenWaitlistTimerFailureDialog(false);
