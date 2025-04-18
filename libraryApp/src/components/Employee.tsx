@@ -78,8 +78,6 @@ import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 import EmployeeProfile from './EmployeeProfile';
 import ItemFineReport from './Reports/ItemFineReport';
 
-
-
 // --- Type Definitions ---
 interface Item {
   itemId: number;
@@ -131,7 +129,7 @@ interface MovieDto {
 interface MusicDto {
   musicId: number;
   itemId: number;
-  itemTypeId: number; 
+  itemTypeId: number;
   title: string;
   artistName: string;
   genreDescription: string;
@@ -185,10 +183,7 @@ interface EditEmployeeDialogProps {
   onSave: (updatedData: EmployeeData) => void;
 }
 
-
-
-// -- state of selected imte 
-
+// -- state of selected item type
 const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
   open,
   employee,
@@ -267,9 +262,6 @@ const eventCategories = [
   { id: 2, label: 'Social' },
   { id: 3, label: 'Cultural' },
 ];
-
-
-
 
 // --- AddEmployeeDialog Component ---
 interface AddEmployeeDialogProps {
@@ -496,8 +488,6 @@ const EmployeesList: React.FC = () => {
         }
       );
 
-
-
       setOpenConfirmDialog(false);
       setEmployeeToDelete(null);
       window.location.href = "/employee";
@@ -609,8 +599,6 @@ const EmployeesList: React.FC = () => {
   );
 };
 
-
-
 // --- Main Employee Component ---
 const Employee: React.FC = () => {
   const [publishers, setPublishers] = useState<any[]>([]);
@@ -690,50 +678,50 @@ const Employee: React.FC = () => {
   });
 
   // Book
-const [editingBook, setEditingBook] = useState<BookDto | null>(null);
-const [editBookForm,   setEditBookForm]   = useState<Partial<BookDto>>({})
-const [openEditBookDialog, setOpenEditBookDialog] = useState(false);
-const openEditBook = (b: BookDto) => {
-  setEditingBook(b);
-  setEditBookForm({
-    title:          b.title,
-    isbn:           b.isbn,
-    bookAuthorId: authors.find((a) => a.firstName === b.authorFirstName && a.lastName === b.authorLastName)?.bookAuthorId,
-    publisherId: publishers.find((p) => p.publisherName === b.publisher)?.publisherId,
-    bookGenreId: genres.find((g) => g.description === b.genre)?.bookGenreId,
-    author: authors.find((a) => a.firstName === b.authorFirstName && a.lastName === b.authorLastName)?.bookAuthorId || "",
-    authorFirstName: authors.find((a) => a.firstName === b.authorFirstName)?.bookAuthorId || "",
-    authorLastName:  authors.find((a) => a.lastName === b.authorLastName)?.bookAuthorId || "",
-    publisher: publishers.find((p) => p.publisherName === b.publisher)?.publisherId || "",
-    genre:         genres.find((g) => g.description === b.genre)?.bookGenreId || "",
-    yearPublished: b.yearPublished,
-    totalCopies:    b.totalCopies,
-    availableCopies:b.availableCopies,
-    itemLocation:   b.itemLocation,
-    coverImagePath: b.coverImagePath
-  })
-  setOpenEditBookDialog(true);
-};
+  const [editingBook, setEditingBook] = useState<BookDto | null>(null);
+  const [editBookForm, setEditBookForm] = useState<Partial<BookDto>>({})
+  const [openEditBookDialog, setOpenEditBookDialog] = useState(false);
+  const openEditBook = (b: BookDto) => {
+    setEditingBook(b);
+    setEditBookForm({
+      title: b.title,
+      isbn: b.isbn,
+      bookAuthorId: authors.find((a) => a.firstName === b.authorFirstName && a.lastName === b.authorLastName)?.bookAuthorId,
+      publisherId: publishers.find((p) => p.publisherName === b.publisher)?.publisherId,
+      bookGenreId: genres.find((g) => g.description === b.genre)?.bookGenreId,
+      author: authors.find((a) => a.firstName === b.authorFirstName && a.lastName === b.authorLastName)?.bookAuthorId || "",
+      authorFirstName: authors.find((a) => a.firstName === b.authorFirstName)?.bookAuthorId || "",
+      authorLastName: authors.find((a) => a.lastName === b.authorLastName)?.bookAuthorId || "",
+      publisher: publishers.find((p) => p.publisherName === b.publisher)?.publisherId || "",
+      genre: genres.find((g) => g.description === b.genre)?.bookGenreId || "",
+      yearPublished: b.yearPublished,
+      totalCopies: b.totalCopies,
+      availableCopies: b.availableCopies,
+      itemLocation: b.itemLocation,
+      coverImagePath: b.coverImagePath
+    })
+    setOpenEditBookDialog(true);
+  };
 
-const handleSaveEditBook = async () => {
-  if (!editingBook) return;
+  const handleSaveEditBook = async () => {
+    if (!editingBook) return;
 
-  // 1. Figure out the author ID 
-  let finalAuthorID: number;
-  if (editBookForm.author === "other") {
-    const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookAuthor`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName: newAuthorFirstName,
-        lastName : newAuthorLastName
-      })
-    });
-    const created = await resp.json();
-    finalAuthorID = created.bookAuthorId;
-  } else {
-    finalAuthorID = Number(editBookForm.author);
-  }
+    // 1. Figure out the author ID 
+    let finalAuthorID: number;
+    if (editBookForm.author === "other") {
+      const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookAuthor`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: newAuthorFirstName,
+          lastName: newAuthorLastName
+        })
+      });
+      const created = await resp.json();
+      finalAuthorID = created.bookAuthorId;
+    } else {
+      finalAuthorID = Number(editBookForm.author);
+    }
 
     // 2. figure out the publisher ID
     let finalPublisherID: number;
@@ -749,72 +737,123 @@ const handleSaveEditBook = async () => {
       finalPublisherID = Number(editBookForm.publisher);
     }
 
-  const payload = {
-    title:          editBookForm.title,
-    isbn:           editBookForm.isbn,
-    publisherID:   finalPublisherID,
-    bookGenreID:   Number(editBookForm.genre!),
-    bookAuthorID:  finalAuthorID,
-    yearPublished: Number(editBookForm.yearPublished!),
-    coverImagePath: editBookForm.coverImagePath,  
-    totalCopies:    Number(editBookForm.totalCopies!),
-    availableCopies: Number(editBookForm.availableCopies!),
-    location:   editBookForm.itemLocation,
-    itemTypeID: 1 // default
+    const payload = {
+      title: editBookForm.title,
+      isbn: editBookForm.isbn,
+      publisherID: finalPublisherID,
+      bookGenreID: Number(editBookForm.genre!),
+      bookAuthorID: finalAuthorID,
+      yearPublished: Number(editBookForm.yearPublished!),
+      coverImagePath: editBookForm.coverImagePath,
+      totalCopies: Number(editBookForm.totalCopies!),
+      availableCopies: Number(editBookForm.availableCopies!),
+      location: editBookForm.itemLocation,
+      itemTypeID: 1 // default
+    };
+
+    console.log("Final payload:", payload);
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Book/edit-book/${editingBook.bookId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (res.ok) {
+        setOpenEditBookDialog(false);
+        setNewAuthorFirstName("");
+        setNewAuthorLastName("");
+        setNewPublisherName("");
+        setRefreshData(true); // re‑fetch your lists
+      } else {
+        console.error('Failed to save edits:', await res.text());
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  console.log("Final payload:", payload);
+  // Movie
+  const [editingMovie, setEditingMovie] = useState<MovieDto | null>(null);
+  const [openEditMovieDialog, setOpenEditMovieDialog] = useState(false);
+  const [editMovieForm, setEditMovieForm] = useState<Partial<MovieDto>>({});
+  const openEditMovie = (m: MovieDto) => {
+    console.log("Opening movie:", m); // remove later
+    setEditingMovie(m);
+    setEditMovieForm({
+      title: m.title,
+      upc: m.upc,
+      director: m.director,
+      directorFirstName: m.directorFirstName,
+      directorLastName: m.directorLastName,
+      genre: m.genre,
+      format: m.format,
+      yearReleased: m.yearReleased,
+      totalCopies: m.totalCopies,
+      availableCopies: m.availableCopies,
+      itemLocation: m.itemLocation,
+      coverImagePath: m.coverImagePath,
+    });
+    setOpenEditMovieDialog(true);
+  };
+  const handleSaveEditMovie = async () => {
+    if (!editingMovie) return;
 
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/api/Book/edit-book/${editingBook.bookId}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+    const payload = {
+      title: editMovieForm.title,
+      upc: editMovieForm.upc,
+      director: editMovieForm.director,
+      directorFirstName: editMovieForm.directorFirstName,
+      directorLastName: editMovieForm.directorLastName,
+      genre: editMovieForm.genre,
+      format: editMovieForm.format,
+      yearReleased: Number(editMovieForm.yearReleased),
+      totalCopies: Number(editMovieForm.totalCopies),
+      availableCopies: Number(editMovieForm.availableCopies),
+      itemLocation: editMovieForm.itemLocation,
+      coverImagePath: editMovieForm.coverImagePath,
+    };
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Movie/${editingMovie.movieId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (res.ok) {
+        setOpenEditMovieDialog(false);
+        setRefreshData(true);
+      } else {
+        console.error("Failed to save edits:", await res.text());
       }
-    );
-
-    if (res.ok) {
-      setOpenEditBookDialog(false);
-      setNewAuthorFirstName("");
-      setNewAuthorLastName("");
-      setNewPublisherName("");
-      setRefreshData(true); // re‑fetch your lists
-    } else {
-      console.error('Failed to save edits:', await res.text());
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
+  // Music
+  const [editingMusic, setEditingMusic] = useState<MusicDto | null>(null);
+  const [openEditMusicDialog, setOpenEditMusicDialog] = useState(false);
+  const openEditMusic = (m: MusicDto) => {
+    setEditingMusic(m);
+    setOpenEditMusicDialog(true);
+  };
 
-
-// Movie
-const [editingMovie, setEditingMovie] = useState<MovieDto | null>(null);
-const [openEditMovieDialog, setOpenEditMovieDialog] = useState(false);
-const openEditMovie = (m: MovieDto) => {
-  setEditingMovie(m);
-  setOpenEditMovieDialog(true);
-};
-
-// Music
-const [editingMusic, setEditingMusic] = useState<MusicDto | null>(null);
-const [openEditMusicDialog, setOpenEditMusicDialog] = useState(false);
-const openEditMusic = (m: MusicDto) => {
-  setEditingMusic(m);
-  setOpenEditMusicDialog(true);
-};
-
-// Technology
-const [editingTech, setEditingTech] = useState<TechnologyDto | null>(null);
-const [openEditTechDialog, setOpenEditTechDialog] = useState(false);
-const openEditTech = (t: TechnologyDto) => {
-  setEditingTech(t);
-  setOpenEditTechDialog(true);
-};
-
+  // Technology
+  const [editingTech, setEditingTech] = useState<TechnologyDto | null>(null);
+  const [openEditTechDialog, setOpenEditTechDialog] = useState(false);
+  const openEditTech = (t: TechnologyDto) => {
+    setEditingTech(t);
+    setOpenEditTechDialog(true);
+  };
 
   // Edit item states
   const [editingItem, setEditingItem] = useState<Item | null>(null);
@@ -962,10 +1001,6 @@ const openEditTech = (t: TechnologyDto) => {
     }
     // console.log('Technology Inventory:', technologyInventory);
   };
-  
-
-
-
 
   // --- fetchEvents ---
   const fetchEvents = async () => {
@@ -1433,13 +1468,13 @@ const openEditTech = (t: TechnologyDto) => {
   );
 
   const renderInventoryManagementTest = () => (
-    <Paper elevation={3} sx={{ p:3, mb:3 }}>
+    <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
       <Typography variant="h5" align="center" gutterBottom>
         Inventory Management
       </Typography>
 
-            {/* Item Type Selection Dropdown */}
-            <FormControl fullWidth sx={{ mb: 2 }}>
+      {/* Item Type Selection Dropdown */}
+      <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel id="item-type-label">Item Type</InputLabel>
         <Select
           labelId="item-type-label"
@@ -1467,10 +1502,10 @@ const openEditTech = (t: TechnologyDto) => {
       <Box component="form" sx={{ mb: 3 }}>
 
       </Box>
-  
+
       {/* --- Current Books --- */}
-      <Typography variant="h6" sx={{ mt:2 }}>Current Books</Typography>
-      <TableContainer component={Paper} sx={{ mb:4 }}>
+      <Typography variant="h6" sx={{ mt: 2 }}>Current Books</Typography>
+      <TableContainer component={Paper} sx={{ mb: 4 }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -1505,30 +1540,30 @@ const openEditTech = (t: TechnologyDto) => {
                 <TableCell>{b.availableCopies}</TableCell>
                 <TableCell>{b.itemLocation}</TableCell>
                 <TableCell>
-                <Stack direction="row" spacing={1}>
-                  <IconButton size="small" onClick={() => openEditBook(b)}>
-                    <EditIcon fontSize="inherit" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      /* your delete handler */
-                    }}
-                  >
-                    <DeleteIcon fontSize="inherit" />
-                  </IconButton>
-                </Stack>
-              </TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => openEditBook(b)}>
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        /* your delete handler */
+                      }}
+                    >
+                      <DeleteIcon fontSize="inherit" />
+                    </IconButton>
+                  </Stack>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-  
+
       {/* --- Current Movies --- */}
-      <Typography variant="h6" sx={{ mt:2 }}>Current Movies</Typography>
-      <TableContainer component={Paper} sx={{ mb:4 }}>
+      <Typography variant="h6" sx={{ mt: 2 }}>Current Movies</Typography>
+      <TableContainer component={Paper} sx={{ mb: 4 }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -1563,30 +1598,30 @@ const openEditTech = (t: TechnologyDto) => {
                 <TableCell>{m.availableCopies}</TableCell>
                 <TableCell>{m.itemLocation}</TableCell>
                 <TableCell>
-                <Stack direction="row" spacing={1}>
-                  <IconButton size="small" onClick={() => openEditMovie(m)}>
-                    <EditIcon fontSize="inherit" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      /* your delete handler */
-                    }}
-                  >
-                    <DeleteIcon fontSize="inherit" />
-                  </IconButton>
-                </Stack>
-              </TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => openEditMovie(m)}>
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        /* your delete handler */
+                      }}
+                    >
+                      <DeleteIcon fontSize="inherit" />
+                    </IconButton>
+                  </Stack>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-  
+
       {/* --- Current Music --- */}
-      <Typography variant="h6" sx={{ mt:2 }}>Current Music</Typography>
-      <TableContainer component={Paper} sx={{ mb:4 }}>
+      <Typography variant="h6" sx={{ mt: 2 }}>Current Music</Typography>
+      <TableContainer component={Paper} sx={{ mb: 4 }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -1615,29 +1650,29 @@ const openEditTech = (t: TechnologyDto) => {
                 <TableCell>{m.availableCopies}</TableCell>
                 <TableCell>{m.location}</TableCell>
                 <TableCell>
-                <Stack direction="row" spacing={1}>
-                  <IconButton size="small" onClick={() => openEditMusic(m)}>
-                    <EditIcon fontSize="inherit" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      /* your delete handler */
-                    }}
-                  >
-                    <DeleteIcon fontSize="inherit" />
-                  </IconButton>
-                </Stack>
-              </TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => openEditMusic(m)}>
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        /* your delete handler */
+                      }}
+                    >
+                      <DeleteIcon fontSize="inherit" />
+                    </IconButton>
+                  </Stack>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-  
+
       {/* --- Current Technology --- */}
-      <Typography variant="h6" sx={{ mt:2 }}>Current Technology</Typography>
+      <Typography variant="h6" sx={{ mt: 2 }}>Current Technology</Typography>
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
@@ -1667,21 +1702,21 @@ const openEditTech = (t: TechnologyDto) => {
                 <TableCell>{t.availableCopies}</TableCell>
                 <TableCell>{t.location}</TableCell>
                 <TableCell>
-                <Stack direction="row" spacing={1}>
-                  <IconButton size="small" onClick={() => openEditTech(t)}>
-                    <EditIcon fontSize="inherit" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => {
-                      /* your delete handler */
-                    }}
-                  >
-                    <DeleteIcon fontSize="inherit" />
-                  </IconButton>
-                </Stack>
-              </TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => openEditTech(t)}>
+                      <EditIcon fontSize="inherit" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => {
+                        /* your delete handler */
+                      }}
+                    >
+                      <DeleteIcon fontSize="inherit" />
+                    </IconButton>
+                  </Stack>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -1689,7 +1724,7 @@ const openEditTech = (t: TechnologyDto) => {
       </TableContainer>
     </Paper>
   );
-  
+
   // --- Render Inventory Management ---
   const renderInventoryManagement = () => (
 
@@ -1858,13 +1893,8 @@ const openEditTech = (t: TechnologyDto) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-          
-
     </Paper>
   );
-
-
 
   // --- Render Events ---
   const renderEventManagement = () => (
@@ -2022,9 +2052,6 @@ const openEditTech = (t: TechnologyDto) => {
         >
           <ChevronRight fontSize="large" />
         </IconButton>
-
-
-
 
         {/* Message Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -2275,237 +2302,303 @@ const openEditTech = (t: TechnologyDto) => {
         </Dialog>
 
         <Dialog
-  open={openEditBookDialog}
-  onClose={() => setOpenEditBookDialog(false)}
-  fullWidth
-  maxWidth="md"
->
-  <DialogTitle>Edit Book</DialogTitle>
-  <DialogContent>
-    {editingBook && (
-      <Stack spacing={2} sx={{ mt: 1 }}>
-        <TextField
-          label="Title"
+          open={openEditBookDialog}
+          onClose={() => setOpenEditBookDialog(false)}
           fullWidth
-          value={editBookForm.title || ''}
-          onChange={e =>
-            setEditBookForm(f => ({ ...f, title: e.target.value }))
-          }
-        />
-        <TextField
-          label="ISBN"
-          fullWidth
-          value={editBookForm.isbn || ''}
-          onChange={e =>
-            setEditBookForm(f => ({ ...f, isbn: e.target.value }))
-          }
-        />
-        {/* — Author Select with ‘Other’ — */}
-<FormControl fullWidth>
-  <InputLabel>Author</InputLabel>
-  <Select
-    value={
-      editBookForm.author || "other"
-    }
-    label="Author"
-    onChange={e => {
-      const v = e.target.value as string;
-      console.log("Selected Value:", v); // Log the selected value
-      if (v === "other") {
-        setEditBookForm(f => ({
-          ...f,
-          author: "other",
-          authorFirstName: "",
-          authorLastName: ""
-        }));
-      } else {
-        const selectedAuthor = authors.find((a) => a.bookAuthorId === Number(v));
-        if (selectedAuthor) {
-          setEditBookForm((f) => ({
-            ...f,
-            author: selectedAuthor.bookAuthorId.toString(), // Set the `author` to the `bookAuthorId`
-            authorFirstName: selectedAuthor.firstName,
-            authorLastName: selectedAuthor.lastName,
-          }));
-        }
-      }
-    }}
-  >
-    {authors.map(a => (
-      <MenuItem key={a.bookAuthorId} value={a.bookAuthorId}>
-        {a.firstName} {a.lastName}
-      </MenuItem>
-    ))}
-    <MenuItem value="other">Other…</MenuItem>
-  </Select>
-</FormControl>
-{!editBookForm.authorFirstName && !editBookForm.authorLastName && (
-  <Stack direction="row" spacing={2}>
-    <TextField
-      label="New Author First Name"
-      value={newAuthorFirstName}
-      onChange={e => setNewAuthorFirstName(e.target.value)}
-      fullWidth
-    />
-    <TextField
-      label="New Author Last Name"
-      value={newAuthorLastName}
-      onChange={e => setNewAuthorLastName(e.target.value)}
-      fullWidth
-    />
-  </Stack>
-)}
+          maxWidth="md"
+        >
+          <DialogTitle>Edit Book</DialogTitle>
+          <DialogContent>
+            {editingBook && (
+              <Stack spacing={2} sx={{ mt: 1 }}>
+                <TextField
+                  label="Title"
+                  fullWidth
+                  value={editBookForm.title || ''}
+                  onChange={e =>
+                    setEditBookForm(f => ({ ...f, title: e.target.value }))
+                  }
+                />
+                <TextField
+                  label="ISBN"
+                  fullWidth
+                  value={editBookForm.isbn || ''}
+                  onChange={e =>
+                    setEditBookForm(f => ({ ...f, isbn: e.target.value }))
+                  }
+                />
+                {/* — Author Select with ‘Other’ — */}
+                <FormControl fullWidth>
+                  <InputLabel>Author</InputLabel>
+                  <Select
+                    value={
+                      editBookForm.author || "other"
+                    }
+                    label="Author"
+                    onChange={e => {
+                      const v = e.target.value as string;
+                      console.log("Selected Value:", v); // Log the selected value
+                      if (v === "other") {
+                        setEditBookForm(f => ({
+                          ...f,
+                          author: "other",
+                          authorFirstName: "",
+                          authorLastName: ""
+                        }));
+                      } else {
+                        const selectedAuthor = authors.find((a) => a.bookAuthorId === Number(v));
+                        if (selectedAuthor) {
+                          setEditBookForm((f) => ({
+                            ...f,
+                            author: selectedAuthor.bookAuthorId.toString(), // Set the `author` to the `bookAuthorId`
+                            authorFirstName: selectedAuthor.firstName,
+                            authorLastName: selectedAuthor.lastName,
+                          }));
+                        }
+                      }
+                    }}
+                  >
+                    {authors.map(a => (
+                      <MenuItem key={a.bookAuthorId} value={a.bookAuthorId}>
+                        {a.firstName} {a.lastName}
+                      </MenuItem>
+                    ))}
+                    <MenuItem value="other">Other…</MenuItem>
+                  </Select>
+                </FormControl>
+                {!editBookForm.authorFirstName && !editBookForm.authorLastName && (
+                  <Stack direction="row" spacing={2}>
+                    <TextField
+                      label="New Author First Name"
+                      value={newAuthorFirstName}
+                      onChange={e => setNewAuthorFirstName(e.target.value)}
+                      fullWidth
+                    />
+                    <TextField
+                      label="New Author Last Name"
+                      value={newAuthorLastName}
+                      onChange={e => setNewAuthorLastName(e.target.value)}
+                      fullWidth
+                    />
+                  </Stack>
+                )}
 
-{/* — Genre Select — */}
-<FormControl fullWidth>
-  <InputLabel>Genre</InputLabel>
-  <Select
-    value={editBookForm.genre || ""}
-    label="Genre"
-    onChange={e => {
-      const genreId = e.target.value as string; // Get the selected GenreID
-      console.log("Selected GenreID:", genreId); // Log the GenreID
-      setEditBookForm(f => ({ ...f, genre: genreId }));
-    }}
-  >
-    {genres.map(g => (
-      <MenuItem key={g.bookGenreId} value={g.bookGenreId}>
-        {g.description}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
+                {/* — Genre Select — */}
+                <FormControl fullWidth>
+                  <InputLabel>Genre</InputLabel>
+                  <Select
+                    value={editBookForm.genre || ""}
+                    label="Genre"
+                    onChange={e => {
+                      const genreId = e.target.value as string; // Get the selected GenreID
+                      console.log("Selected GenreID:", genreId); // Log the GenreID
+                      setEditBookForm(f => ({ ...f, genre: genreId }));
+                    }}
+                  >
+                    {genres.map(g => (
+                      <MenuItem key={g.bookGenreId} value={g.bookGenreId}>
+                        {g.description}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
 
-{/* — Publisher Select with ‘Other’ — */}
-<FormControl fullWidth>
-  <InputLabel>Publisher</InputLabel>
-  <Select
-    value={editBookForm.publisher || "other"}
-    label="Publisher"
-    onChange={e => {
-      const v = e.target.value as string;
-      console.log("Selected Value:", v); // Log the selected value
-      if (v === "other") {
-        setEditBookForm(f => ({ ...f, publisher: "other" }));
-      } else {
-        setEditBookForm(f => ({ ...f, publisher: v }));
-      }
-    }}
-  >
-    {publishers.map(p => (
-      <MenuItem key={p.publisherId} value={p.publisherId}>
-        {p.publisherName}
-      </MenuItem>
-    ))}
-    <MenuItem value="other">Other…</MenuItem>
-  </Select>
-</FormControl>
-{editBookForm.publisher === "other" && (
-  <TextField
-    label="New Publisher"
-    value={newPublisherName}
-    onChange={e => setNewPublisherName(e.target.value)}
-    fullWidth
-  />
-)}
-        <TextField
-          label="Year Published"
-          type="number"
-          fullWidth
-          value={editBookForm.yearPublished ?? ''}
-          onChange={e =>
-            setEditBookForm(f => ({
-              ...f,
-              yearPublished: Number(e.target.value),
-            }))
-          }
-        />
-        <TextField
-          label="Total Copies"
-          type="number"
-          fullWidth
-          value={editBookForm.totalCopies ?? ''}
-          onChange={e =>
-            setEditBookForm(f => ({
-              ...f,
-              totalCopies: Number(e.target.value),
-            }))
-          }
-        />
-        <TextField
-          label="Available Copies"
-          type="number"
-          fullWidth
-          value={editBookForm.availableCopies ?? ''}
-          onChange={e =>
-            setEditBookForm(f => ({
-              ...f,
-              availableCopies: Number(e.target.value),
-            }))
-          }
-        />
-        <TextField
-          label="Location"
-          fullWidth
-          value={editBookForm.itemLocation || ''}
-          onChange={e =>
-            setEditBookForm(f => ({ ...f, itemLocation: e.target.value }))
-          }
-        />
-        <Box>
-  <Typography variant="body2" sx={{ mb: 1 }}>
-    Cover Image
-  </Typography>
-  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-    {/* preview */}
-    {editBookForm.coverImagePath && (
-      <img
-        src={editBookForm.coverImagePath}
-        alt="cover preview"
-        style={{ width: 50, height: 75, objectFit: 'cover' }}
-      />
-    )}
-    {/* file picker */}
-    <Button
-      variant="outlined"
-      component="label"
-      size="small"
-    >
-      Choose Image
-      <input
-        type="file"
-        hidden
-        accept="image/*"
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const form = new FormData();
-          form.append('Cover', file);
-          try {
-            const resp = await fetch(
-              `${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`,
-              { method: 'POST', body: form }
-            );
-            const { url } = await resp.json();
-            setEditBookForm(f => ({ ...f, coverImagePath: url }));
-          } catch (err) {
-            console.error('Upload failed', err);
-          }
-        }}
-      />
-    </Button>
-  </Box>
-</Box>
-      </Stack>
-    )}
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setOpenEditBookDialog(false)}>Cancel</Button>
-    <Button variant="contained" color="primary" onClick={handleSaveEditBook}>
-      Save
-    </Button>
-  </DialogActions>
-</Dialog>
+                {/* — Publisher Select with ‘Other’ — */}
+                <FormControl fullWidth>
+                  <InputLabel>Publisher</InputLabel>
+                  <Select
+                    value={editBookForm.publisher || "other"}
+                    label="Publisher"
+                    onChange={e => {
+                      const v = e.target.value as string;
+                      console.log("Selected Value:", v); // Log the selected value
+                      if (v === "other") {
+                        setEditBookForm(f => ({ ...f, publisher: "other" }));
+                      } else {
+                        setEditBookForm(f => ({ ...f, publisher: v }));
+                      }
+                    }}
+                  >
+                    {publishers.map(p => (
+                      <MenuItem key={p.publisherId} value={p.publisherId}>
+                        {p.publisherName}
+                      </MenuItem>
+                    ))}
+                    <MenuItem value="other">Other…</MenuItem>
+                  </Select>
+                </FormControl>
+                {editBookForm.publisher === "other" && (
+                  <TextField
+                    label="New Publisher"
+                    value={newPublisherName}
+                    onChange={e => setNewPublisherName(e.target.value)}
+                    fullWidth
+                  />
+                )}
+                <TextField
+                  label="Year Published"
+                  type="number"
+                  fullWidth
+                  value={editBookForm.yearPublished ?? ''}
+                  onChange={e =>
+                    setEditBookForm(f => ({
+                      ...f,
+                      yearPublished: Number(e.target.value),
+                    }))
+                  }
+                />
+                <TextField
+                  label="Total Copies"
+                  type="number"
+                  fullWidth
+                  value={editBookForm.totalCopies ?? ''}
+                  onChange={e =>
+                    setEditBookForm(f => ({
+                      ...f,
+                      totalCopies: Number(e.target.value),
+                    }))
+                  }
+                />
+                <TextField
+                  label="Available Copies"
+                  type="number"
+                  fullWidth
+                  value={editBookForm.availableCopies ?? ''}
+                  onChange={e =>
+                    setEditBookForm(f => ({
+                      ...f,
+                      availableCopies: Number(e.target.value),
+                    }))
+                  }
+                />
+                <TextField
+                  label="Location"
+                  fullWidth
+                  value={editBookForm.itemLocation || ''}
+                  onChange={e =>
+                    setEditBookForm(f => ({ ...f, itemLocation: e.target.value }))
+                  }
+                />
+                <Box>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Cover Image
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {/* preview */}
+                    {editBookForm.coverImagePath && (
+                      <img
+                        src={editBookForm.coverImagePath}
+                        alt="cover preview"
+                        style={{ width: 50, height: 75, objectFit: 'cover' }}
+                      />
+                    )}
+                    {/* file picker */}
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      size="small"
+                    >
+                      Choose Image
+                      <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const form = new FormData();
+                          form.append('Cover', file);
+                          try {
+                            const resp = await fetch(
+                              `${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`,
+                              { method: 'POST', body: form }
+                            );
+                            const { url } = await resp.json();
+                            setEditBookForm(f => ({ ...f, coverImagePath: url }));
+                          } catch (err) {
+                            console.error('Upload failed', err);
+                          }
+                        }}
+                      />
+                    </Button>
+                  </Box>
+                </Box>
+              </Stack>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenEditBookDialog(false)}>Cancel</Button>
+            <Button variant="contained" color="primary" onClick={handleSaveEditBook}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog open={openEditMovieDialog} onClose={() => setOpenEditMovieDialog(false)} fullWidth maxWidth="md">
+          <DialogTitle>Edit Movie</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2}>
+              <TextField label="Title" fullWidth value={editMovieForm.title || ""} onChange={e => setEditMovieForm(f => ({ ...f, title: e.target.value }))} />
+              <TextField label="UPC" fullWidth value={editMovieForm.upc || ""} onChange={e => setEditMovieForm(f => ({ ...f, upc: e.target.value }))} />
+              <TextField label="Director First Name" fullWidth value={editMovieForm.directorFirstName || ""} onChange={e => setEditMovieForm(f => ({ ...f, directorFirstName: e.target.value }))} />
+              <TextField label="Director Last Name" fullWidth value={editMovieForm.directorLastName || ""} onChange={e => setEditMovieForm(f => ({ ...f, directorLastName: e.target.value }))} />
+              <TextField label="Genre" fullWidth value={editMovieForm.genre || ""} onChange={e => setEditMovieForm(f => ({ ...f, genre: e.target.value }))} />
+              <TextField label="Format" fullWidth value={editMovieForm.format || ""} onChange={e => setEditMovieForm(f => ({ ...f, format: e.target.value }))} />
+              <TextField label="Year Released" type="number" fullWidth value={editMovieForm.yearReleased ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, yearReleased: Number(e.target.value) }))} />
+              <TextField label="Total Copies" type="number" fullWidth value={editMovieForm.totalCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, totalCopies: Number(e.target.value) }))} />
+              <TextField label="Available Copies" type="number" fullWidth value={editMovieForm.availableCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, availableCopies: Number(e.target.value) }))} />
+              <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, itemLocation: e.target.value }))} />
+              <Box>
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Cover Image
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {/* preview */}
+                  {editMovieForm.coverImagePath && (
+                    <img
+                      src={editMovieForm.coverImagePath}
+                      alt="cover preview"
+                      style={{ width: 50, height: 75, objectFit: 'cover' }}
+                    />
+                  )}
+                  {/* file picker */}
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    size="small"
+                  >
+                    Choose Image
+                    <input
+                      type="file"
+                      hidden
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const form = new FormData();
+                        form.append('Cover', file);
+                        try {
+                          const resp = await fetch(
+                            `${import.meta.env.VITE_API_BASE_URL}/api/Movie/upload-cover`,
+                            { method: 'POST', body: form }
+                          );
+                          const { url } = await resp.json();
+                          setEditMovieForm(f => ({ ...f, coverImagePath: url }));
+                        } catch (err) {
+                          console.error('Upload failed', err);
+                        }
+                      }}
+                    />
+                  </Button>
+                </Box>
+              </Box>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenEditMovieDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveEditMovie} variant="contained" color="primary">Save</Button>
+          </DialogActions>
+        </Dialog>
 
 
         {/* Render the current view */}
