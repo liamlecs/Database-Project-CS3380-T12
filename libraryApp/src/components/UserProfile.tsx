@@ -1670,11 +1670,11 @@ const invalidItems = data
         {/*waitlist offer*/}
         <Dialog
   open={openWaitlistConfirmationDialog || openWaitlistTimerFailureDialog}
-  onClose={() => {
+  onClose={ async () => {
     if (waitlistItems.length > 0) {
       setShowExitWarningDialog(true); // User has pending confirmations
     } else {
-      handleTimeoutExpiredItems(evilListItems);
+      await handleTimeoutExpiredItems(evilListItems);
       setOpenWaitlistConfirmationDialog(false);
       setOpenWaitlistTimerFailureDialog(false);
       
@@ -1738,11 +1738,11 @@ const invalidItems = data
   </DialogContent>
   <DialogActions>
     <Button
-      onClick={() => {
+      onClick={ async () => {
         if (waitlistItems.length > 0) {
           setShowExitWarningDialog(true); // User has pending confirmations
         } else {
-          handleTimeoutExpiredItems(evilListItems);
+          await handleTimeoutExpiredItems(evilListItems);
           setOpenWaitlistConfirmationDialog(false);
           setOpenWaitlistTimerFailureDialog(false);
           window.location.reload();
@@ -1786,10 +1786,10 @@ const invalidItems = data
               }
             })
           );
+          await handleTimeoutExpiredItems(evilListItems);
         } catch (error) {
           console.error("Error auto-rejecting waitlist items:", error);
         } finally {
-          handleTimeoutExpiredItems(evilListItems);
           setShowExitWarningDialog(false);
           setOpenWaitlistConfirmationDialog(false);
           setOpenWaitlistTimerFailureDialog(false);
