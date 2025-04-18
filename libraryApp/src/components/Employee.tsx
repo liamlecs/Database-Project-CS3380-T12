@@ -14,7 +14,7 @@ import CurrentTechnology from './CurrentInventory/CurrentTechnology'; // Ensure 
 import EditBookDialog from './EditDialog/EditBookDialog.tsx';
 import EditMovieDialog from './EditDialog/EditMovieDialog.tsx';
 import EditMusicDialog from './EditDialog/EditMusicDialog.tsx';
-
+import EditTechnologyDialog from './EditDialog/EditTechnologyDialog.tsx';
 // --- Material UI Imports ---
 import {
   AppBar,
@@ -859,6 +859,8 @@ const Employee: React.FC = () => {
       coverImagePath: m.coverImagePath,
       location: m.location,
     })
+    // console.log("Opening music:", m); // for debugging
+    // console.log("Edit Music Form: ", editMusicForm); // for debugging
     setOpenEditMusicDialog(true);
   };
 
@@ -883,8 +885,8 @@ const Employee: React.FC = () => {
           const genreData = await genreRes.json();
   
           //See what backend is returning
-          //console.log("Artist data:", artistData);
-          //console.log("Genre data:", genreData);
+          // console.log("Artist data:", artistData);
+          // console.log("Genre data:", genreData);
   
           setArtists(artistData);
           setMusicGenres(genreData);
@@ -899,7 +901,7 @@ const Employee: React.FC = () => {
     const handleSaveEditMusic = async () => {
       if (!editingMusic) return;
 
-      console.log("Editing Music ID:", editingMusic?.songId);
+      // console.log("Editing Music ID:", editingMusic?.songId);
     
       let finalArtistID: number;
     
@@ -982,11 +984,178 @@ const Employee: React.FC = () => {
 
   // Technology
   const [editingTech, setEditingTech] = useState<TechnologyDto | null>(null);
+  const [editTechForm, setEditTechForm] = useState<Partial<TechnologyDto>>({});
   const [openEditTechDialog, setOpenEditTechDialog] = useState(false);
   const openEditTech = (t: TechnologyDto) => {
     setEditingTech(t);
+    setEditTechForm({
+      title: t.title,
+      deviceTypeId: deviceTypes.find((d) => d.typeName === t.deviceTypeName)?.deviceTypeID,
+      manufacturerId: manufacturers.find((m) => m.name === t.manufacturerName)?.manufacturerID,
+      deviceTypeName: deviceTypes.find((d) => d.typeName === t.deviceTypeName)?.deviceTypeID || "",
+      manufacturerName: manufacturers.find((m) => m.name === t.manufacturerName)?.manufacturerID || "",
+      modelNumber: t.modelNumber,
+      totalCopies: t.totalCopies,
+      availableCopies: t.availableCopies,
+      coverImagePath: t.coverImagePath,
+      location: t.location,
+    });
+    // console.log("Edit Tech Form: ", editTechForm);
+    console.log("Opening technology:", t); // for debugging
     setOpenEditTechDialog(true);
   };
+
+  // States to hold fetched dropdown data:
+    const [deviceTypes, setDeviceTypes] = useState<any[]>([]);
+    const [manufacturers, setManufacturers] = useState<any[]>([]);
+  
+    // "Other" logic if you allow dynamic creation:
+    const [newDeviceType, setNewDeviceType] = useState("");
+    const [newManufacturerName, setNewManufacturerName] = useState("");
+  
+    // 1. Fetch dropdown data on mount
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const [typeRes, mfrRes] = await Promise.all([
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/DeviceType`),
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TechnologyManufacturer`)
+          ]);
+          if (!typeRes.ok || !mfrRes.ok) {
+            throw new Error("Failed to fetch device types / manufacturers");
+          }
+          const typeData = await typeRes.json();
+          // console.log("Device types:", typeData); // Check the output
+          const mfrData = await mfrRes.json();
+          // console.log("Manufacturers:", mfrData); // Check the output
+  
+          setDeviceTypes(typeData);
+          setManufacturers(mfrData);
+        } catch (err) {
+          console.error("Error fetching dropdown data:", err);
+        }
+      };
+      fetchData();
+    }, []);
+
+    const handleSaveEditTechnology = async () => {
+      if (!editingTech) return;
+    
+      let finalDeviceTypeID: number;
+      let finalManufacturerID: number;
+    
+      // 1. Determine the Device Type ID
+      if (editTechForm.deviceTypeName === "other") {
+        try {
+          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/DeviceType`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              typeName: newDeviceType,
+            }),
+          });
+    
+          if (!resp.ok) {
+            console.error("Failed to create new device type:", await resp.text());
+            return;
+          }
+    
+          const created = await resp.json();
+          finalDeviceTypeID = created.deviceTypeID;
+    
+          // Refresh the device types list
+          const updatedDeviceTypes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/DeviceType`).then((res) => res.json());
+          setDeviceTypes(updatedDeviceTypes);
+    
+          // Update the state with the new device type's ID
+          setEditTechForm((f) => ({
+            ...f,
+            deviceType: finalDeviceTypeID.toString(),
+          }));
+        } catch (err) {
+          console.error("Error creating new device type:", err);
+          return;
+        }
+      } else {
+        finalDeviceTypeID = Number(editTechForm.deviceTypeName);
+      }
+    
+      // 2. Determine the Manufacturer ID
+      if (editTechForm.manufacturerName === "other") {
+        try {
+          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TechnologyManufacturer`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: newManufacturerName,
+            }),
+          });
+    
+          if (!resp.ok) {
+            console.error("Failed to create new manufacturer:", await resp.text());
+            return;
+          }
+    
+          const created = await resp.json();
+          finalManufacturerID = created.manufacturerID;
+    
+          // Refresh the manufacturers list
+          const updatedManufacturers = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/TechnologyManufacturer`).then((res) => res.json());
+          setManufacturers(updatedManufacturers);
+    
+          // Update the state with the new manufacturer's ID
+          setEditTechForm((f) => ({
+            ...f,
+            manufacturer: finalManufacturerID.toString(),
+          }));
+        } catch (err) {
+          console.error("Error creating new manufacturer:", err);
+          return;
+        }
+      } else {
+        finalManufacturerID = Number(editTechForm.manufacturerName);
+      }
+    
+      // 3. Prepare the Payload
+      const payload = {
+        title: editTechForm.title,
+        deviceTypeId: finalDeviceTypeID,
+        manufacturerId: finalManufacturerID,
+        modelNumber: editTechForm.modelNumber,
+        totalCopies: Number(editTechForm.totalCopies!),
+        availableCopies: Number(editTechForm.availableCopies!),
+        coverImagePath: editTechForm.coverImagePath,
+        location: editTechForm.location,
+        itemTypeID: 4, // Technology
+      };
+    
+      console.log("Final payload:", payload);
+    
+      // 4. Send the Update Request
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Technology/edit-technology/${editingTech.deviceId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          }
+        );
+    
+        if (res.ok) {
+          // 5. Handle Success
+          setOpenEditTechDialog(false);
+          setNewDeviceType("");
+          setNewManufacturerName("");
+          setRefreshData(true); // Trigger a refresh of the technology list
+        } else {
+          const err = await res.text();
+          console.error("Failed to save edits:", err);
+        }
+      } catch (err) {
+        console.error("Error saving technology edits:", err);
+      }
+    };    
 
   // Edit item states
   const [editingItem, setEditingItem] = useState<Item | null>(null);
@@ -2075,6 +2244,22 @@ const Employee: React.FC = () => {
           handleSaveEditMusic={handleSaveEditMusic}
           onClose={() => setOpenEditMusicDialog(false)}
         />
+
+        <EditTechnologyDialog
+          open={openEditTechDialog}
+          editTechnologyForm={editTechForm}
+          deviceTypes={deviceTypes}
+          manufacturers={manufacturers}
+          newDeviceType={newDeviceType}
+          newManufacturerName={newManufacturerName}
+          setEditTechnologyForm={setEditTechForm}
+          setNewDeviceType={setNewDeviceType}
+          setNewManufacturerName={setNewManufacturerName}
+          handleSaveEditTechnology={handleSaveEditTechnology}
+          onClose={() => setOpenEditTechDialog(false)}
+        />
+
+
 
         {/* Render the current view */}
         {currentView === 'dashboard' && renderDashboard()}

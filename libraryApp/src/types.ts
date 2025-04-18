@@ -70,6 +70,8 @@ export interface BookDto {
     totalCopies: number;
     coverImagePath: string;
     location: string;
+    deviceTypeId: number;
+    manufacturerId: number;
   }
 
   export interface Item {

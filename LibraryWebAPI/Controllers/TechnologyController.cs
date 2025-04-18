@@ -159,6 +159,67 @@ namespace LibraryWebAPI.Controllers
             return NoContent();
         }
 
+        // PUT: api/Technology/edit-technology/{id}
+[HttpPut("edit-technology/{id}")]
+public async Task<IActionResult> EditTechnologyWithItem(int id, [FromBody] TechnologyDto model)
+{
+    // 1️⃣ Validate
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    // 2️⃣ Begin transaction
+    await using var tx = await _context.Database.BeginTransactionAsync();
+    try
+    {
+        // 3️⃣ Load tracked Technology + its Item
+        var technology = await _context.Technologies
+                                       .Include(t => t.Item)
+                                       .FirstOrDefaultAsync(t => t.DeviceId == id);
+        if (technology == null)
+            return NotFound(new { message = "Technology not found" });
+
+        // 4️⃣ Map TechnologyDto → Item
+        if (technology.Item == null)
+        {
+            return BadRequest(new { message = "Associated Item not found for the Technology" });
+        }
+        
+        technology.Item.Title           = model.Title!;
+        technology.Item.TotalCopies     = model.TotalCopies;
+        technology.Item.AvailableCopies = Math.Min(
+            model.TotalCopies,
+            model.availableCopies // Use the DTO’s value here
+        );
+        technology.Item.Location        = model.Location;
+
+        // 5️⃣ Persist Item changes
+        await _context.SaveChangesAsync();
+
+        // 6️⃣ Map TechnologyDto → Technology
+        technology.DeviceTypeID     = model.DeviceTypeID;
+        technology.ManufacturerID            = model.ManufacturerID;
+        technology.CoverImagePath = model.CoverImagePath;
+        technology.ModelNumber    = model.ModelNumber;
+
+        // 7️⃣ Persist Technology changes
+        await _context.SaveChangesAsync();
+
+        // 8️⃣ Commit
+        await tx.CommitAsync();
+
+        return NoContent();
+    }
+    catch (Exception ex)
+    {
+        // 9️⃣ Rollback + error response
+        await tx.RollbackAsync();
+        return StatusCode(StatusCodes.Status500InternalServerError, new {
+            message = "Error updating technology",
+            error   = ex.Message
+        });
+    }
+}
+
         // DELETE: api/Technology/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTechnology(int id)

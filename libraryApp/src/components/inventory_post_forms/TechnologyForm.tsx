@@ -34,9 +34,9 @@ const TechnologyForm: React.FC = () => {
           throw new Error("Failed to fetch device types / manufacturers");
         }
         const typeData = await typeRes.json();
-        console.log("Device types:", typeData); // Check the output
+        // console.log("Device types:", typeData); // Check the output
         const mfrData = await mfrRes.json();
-        console.log("Manufacturers:", mfrData); // Check the output
+        // console.log("Manufacturers:", mfrData); // Check the output
 
         setDeviceTypes(typeData);
         setManufacturers(mfrData);
