@@ -295,13 +295,9 @@ setOpenMaxCheckoutDialog(true);
         if (!item) return "Untitled";
         if (category === "Book") return `${item.title || "Untitled Book"}\n\nby ${item.author || "Unknown Author"}\n\n(${item.genre || "Unknown Genre"})`;
         if (category === "Movie") {
-          const movieTitle = item.item?.title || "Untitled Movie";
-          const directorName = item.movieDirector
-            ? `${item.movieDirector.firstName} ${item.movieDirector.lastName}`
-            : "Unknown Director";
-          const genreName = item.movieGenre
-            ? item.movieGenre.description
-            : "Unknown Genre";
+          const movieTitle = item.title || "Untitled Movie";
+          const directorName = item.director || "Unknown Director";
+          const genreName = item.genre || "Unknown Genre";
         
           return `${movieTitle}\n\nby ${directorName}\n\n(${genreName})`;
         }
@@ -453,8 +449,8 @@ setOpenMaxCheckoutDialog(true);
     <p><strong>ISBN:</strong> {selectedItem.isbn}</p>
   )}
 
-  {selectedItem?.movieDirector && (
-    <p><strong>Director:</strong> {selectedItem.movieDirector.firstName} {selectedItem.movieDirector.lastName}</p>
+  {selectedItem?.director && (
+    <p><strong>Director:</strong> {selectedItem.director}</p>
   )}
 
     {selectedItem?.publisher && (

@@ -15,7 +15,6 @@ public class WaitlistNotification
     public int WaitlistId { get; set; }
     public int CustomerId { get; set; }
     public int ItemId { get; set; }
-    public DateTime? DueDate { get; set; }
     public bool EmailSent { get; set; }
     public DateTime? ProcessedDate { get; set; }
 }
@@ -60,7 +59,6 @@ if (customer != null && item != null)
 {
     var subject = $"Item '{item.Title}' Now Available!";
     var body = $@"Good news! A copy of '{item.Title}' has been assigned to you.
-It is due on {notification.DueDate:MM/dd/yyyy}. Enjoy!
 
 Thank you for using E-Library.
 Best regards,

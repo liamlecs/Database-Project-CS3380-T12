@@ -47,9 +47,12 @@ namespace LibraryWebAPI.Controllers
                     itemId = b.Item.ItemId,
                     Title = b.Item.Title,               // from related Item
                     Author = b.BookAuthor.FirstName + " " + b.BookAuthor.LastName,      // from related Author
+                    AuthorFirstName = b.BookAuthor.FirstName, // from related Author
+                    AuthorLastName = b.BookAuthor.LastName,   // from related Author
                     Genre = b.BookGenre.Description,         // from related Genre
                     Publisher = b.Publisher.PublisherName,  // from related Publisher
                     coverImagePath = b.CoverImagePath, // from related Image            })
+                    totalCopies = b.Item.TotalCopies, // from related Item
                     availableCopies = b.Item.AvailableCopies, // from related Item
                     itemLocation = b.Item.Location, // from related Item
                 })
@@ -58,20 +61,38 @@ namespace LibraryWebAPI.Controllers
             return Ok(books);
         } // stashed my changes loll
 
-
-        // GET: api/Book/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+public async Task<ActionResult<object>> GetBook(int id)
+{
+    var book = await _context.Books
+        .Include(b => b.Item)
+        .Include(b => b.BookAuthor)
+        .Include(b => b.BookGenre)
+        .Include(b => b.Publisher)
+        .Where(b => b.BookId == id)
+        .Select(b => new
         {
-            var book = await _context.Books.FindAsync(id);
+            b.BookId,
+            b.Isbn,
+            b.YearPublished,
+            itemId          = b.Item.ItemId,
+            Title           = b.Item.Title,
+            Author          = b.BookAuthor.FirstName + " " + b.BookAuthor.LastName,
+            AuthorFirstName = b.BookAuthor.FirstName, // from related Author
+            AuthorLastName = b.BookAuthor.LastName,   // from related Author
+            Genre           = b.BookGenre.Description,
+            Publisher       = b.Publisher.PublisherName,
+            coverImagePath  = b.CoverImagePath,
+            availableCopies = b.Item.AvailableCopies,
+            totalCopies = b.Item.TotalCopies,
+            itemLocation    = b.Item.Location,
+        })
+        .FirstOrDefaultAsync();
 
-            if (book == null)
-            {
-                return NotFound();
-            }
+    if (book == null) return NotFound();
+    return Ok(book);
+}
 
-            return Ok(book);
-        }
 
         // // POST: api/Book
         // [HttpPost]
@@ -138,6 +159,64 @@ public async Task<IActionResult> AddBookWithItem([FromBody] BookDTO model)
         });
     }
 }
+
+[HttpPut("edit-book/{id}")]
+public async Task<IActionResult> EditBookWithItem(int id, [FromBody] BookDTO model)
+{
+    // 1️⃣ Validate
+    if (!ModelState.IsValid)
+        return BadRequest(ModelState);
+
+    // 2️⃣ Begin transaction
+    await using var tx = await _context.Database.BeginTransactionAsync();
+    try
+    {
+        // 3️⃣ Load tracked Book + its Item
+        var book = await _context.Books
+                                 .Include(b => b.Item)
+                                 .FirstOrDefaultAsync(b => b.BookId == id);
+        if (book == null) 
+            return NotFound();
+
+        // 4️⃣ Map BookDTO → Item
+        book.Item.Title           = model.Title!;
+        book.Item.TotalCopies     = model.TotalCopies;
+        book.Item.AvailableCopies = Math.Min(
+            model.TotalCopies,
+            model.AvailableCopies    // ← use the DTO’s value here
+        );
+        book.Item.Location        = model.Location;
+
+        // 5️⃣ Persist Item changes
+        await _context.SaveChangesAsync();
+
+        // 6️⃣ Map BookDTO → Book
+        book.Isbn           = model.ISBN;
+        book.PublisherId    = model.PublisherID;
+        book.BookGenreId    = model.BookGenreID;
+        book.BookAuthorId   = model.BookAuthorID;
+        book.YearPublished  = model.YearPublished;
+        book.CoverImagePath = model.CoverImagePath;
+
+        // 7️⃣ Persist Book changes
+        await _context.SaveChangesAsync();
+
+        // 8️⃣ Commit
+        await tx.CommitAsync();
+
+        return NoContent();
+    }
+    catch (Exception ex)
+    {
+        // 9️⃣ Rollback + error response
+        await tx.RollbackAsync();
+        return StatusCode(StatusCodes.Status500InternalServerError, new {
+            message = "Error updating book",
+            error   = ex.Message
+        });
+    }
+}
+
 
         
 [HttpPost("upload-cover")]

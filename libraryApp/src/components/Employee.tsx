@@ -8,6 +8,7 @@ import MovieForm from './inventory_post_forms/MovieForm'; "./inventory_post_form
 import MusicForm from './inventory_post_forms/MusicForm'; // Ensure this path is correct
 import TechnologyForm from './inventory_post_forms/TechnologyForm'; // Ensure this path is correct
 
+
 // --- Material UI Imports ---
 import {
   AppBar,
@@ -75,6 +76,9 @@ import EventHistory from './LiHistSubcomponents/EventHistory';
 import FineHistory from './LiHistSubcomponents/FineHistory';
 import WaitlistHistory from './LiHistSubcomponents/WaitlistHistory';
 import EmployeeProfile from './EmployeeProfile';
+import ItemFineReport from './Reports/ItemFineReport';
+
+
 
 // --- Type Definitions ---
 interface Item {
@@ -84,6 +88,72 @@ interface Item {
   totalCopies: number;
   availableCopies: number;
   location?: string;
+}
+
+interface BookDto {
+  bookId: number;
+  itemId: number;
+  itemTypeId: number;
+  title: string;
+  isbn: string;
+  publisher: string;
+  genre: string;
+  author: string;
+  authorFirstName: string;
+  authorLastName: string;
+  yearPublished: number;
+  availableCopies: number;
+  totalCopies: number;
+  coverImagePath: string;
+  itemLocation: string;
+  publisherId: number;
+  bookGenreId: number;
+  bookAuthorId: number;
+}
+
+interface MovieDto {
+  movieId: number;
+  upc: string;
+  yearReleased: number;
+  format: string;
+  coverImagePath: string;
+  itemId: number;
+  title: string;
+  director: string;
+  directorFirstName: string;
+  directorLastName: string;
+  genre: string;
+  totalCopies: number;
+  availableCopies: number;
+  itemLocation: string;
+}
+
+interface MusicDto {
+  musicId: number;
+  itemId: number;
+  itemTypeId: number; 
+  title: string;
+  artistName: string;
+  genreDescription: string;
+  format: string;
+  availableCopies: number;
+  totalCopies: number;
+  coverImagePath: string;
+  location: string
+}
+
+interface TechnologyDto {
+  deviceId: number;
+  itemId: number;
+  itemTypeId: number;
+  title: string;
+  deviceTypeName: string;
+  manufacturerName: string;
+  modelNumber: string;
+  availableCopies: number;
+  totalCopies: number;
+  coverImagePath: string;
+  location: string;
 }
 
 interface EventData {
@@ -114,6 +184,8 @@ interface EditEmployeeDialogProps {
   onClose: () => void;
   onSave: (updatedData: EmployeeData) => void;
 }
+
+
 
 // -- state of selected imte 
 
@@ -341,7 +413,7 @@ const EmployeesList: React.FC = () => {
   const [employeeToEdit, setEmployeeToEdit] = useState<EmployeeData | null>(null);
   // Retrieve the logged-in username from localStorage
   const currentUsername = localStorage.getItem("username");
-  console.log('Current Username:', currentUsername);
+  // console.log('Current Username:', currentUsername);
   const handleOpenEditDialog = (employee: EmployeeData) => {
     setEmployeeToEdit(employee);
     setOpenEditDialog(true);
@@ -413,7 +485,7 @@ const EmployeesList: React.FC = () => {
   // For now, just log to the console. Implement actual delete call later.
   const handleConfirmDelete = async () => {
     if (!employeeToDelete) return;
-    console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeId}`);
+    // console.log(`DELETE EMPLOYEE with ID: ${employeeToDelete.employeeId}`);
 
     try {
 
@@ -541,6 +613,49 @@ const EmployeesList: React.FC = () => {
 
 // --- Main Employee Component ---
 const Employee: React.FC = () => {
+  const [publishers, setPublishers] = useState<any[]>([]);
+  const [genres, setGenres] = useState<any[]>([]);
+  const [authors, setAuthors] = useState<any[]>([]);
+
+  // State for new entries when "Other" is selected:
+  const [newPublisherName, setNewPublisherName] = useState("");
+  const [newAuthorFirstName, setNewAuthorFirstName] = useState("");
+  const [newAuthorLastName, setNewAuthorLastName] = useState("");
+
+  useEffect(() => {
+    const fetchDropdownData = async () => {
+      try {
+        const [genreRes, authorRes, publisherRes] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookGenre`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookAuthor`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Publisher`)
+        ]);
+
+        if (!genreRes.ok || !authorRes.ok || !publisherRes.ok) {
+          throw new Error("Failed to fetch dropdown options");
+        }
+
+        const [genreData, authorData, publisherData] = await Promise.all([
+          genreRes.json(),
+          authorRes.json(),
+          publisherRes.json()
+        ]);
+
+        // console.log("Publishers:", publisherData); // Check the output
+        // console.log("Genres:", genreData); // Check the output
+        // console.log("Authors:", authorData); // Check the output
+
+        setGenres(genreData);
+        setAuthors(authorData);
+        setPublishers(publisherData);
+      } catch (err) {
+        console.error("Dropdown fetch error:", err);
+      }
+    };
+
+    fetchDropdownData();
+  }, []);
+
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -557,6 +672,10 @@ const Employee: React.FC = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [inventory, setInventory] = useState<Item[]>([]);
+  const [bookInventory, setBookInventory] = useState<BookDto[]>([]);
+  const [movieInventory, setMovieInventory] = useState<MovieDto[]>([]);
+  const [musicInventory, setMusicInventory] = useState<MusicDto[]>([]);
+  const [technologyInventory, setTechnologyInventory] = useState<TechnologyDto[]>([]);
   const [events, setEvents] = useState<EventData[]>([]);
   const [refreshData, setRefreshData] = useState(false);
   const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
@@ -569,6 +688,133 @@ const Employee: React.FC = () => {
     availableCopies: 1,
     location: '',
   });
+
+  // Book
+const [editingBook, setEditingBook] = useState<BookDto | null>(null);
+const [editBookForm,   setEditBookForm]   = useState<Partial<BookDto>>({})
+const [openEditBookDialog, setOpenEditBookDialog] = useState(false);
+const openEditBook = (b: BookDto) => {
+  setEditingBook(b);
+  setEditBookForm({
+    title:          b.title,
+    isbn:           b.isbn,
+    bookAuthorId: authors.find((a) => a.firstName === b.authorFirstName && a.lastName === b.authorLastName)?.bookAuthorId,
+    publisherId: publishers.find((p) => p.publisherName === b.publisher)?.publisherId,
+    bookGenreId: genres.find((g) => g.description === b.genre)?.bookGenreId,
+    author: authors.find((a) => a.firstName === b.authorFirstName && a.lastName === b.authorLastName)?.bookAuthorId || "",
+    authorFirstName: authors.find((a) => a.firstName === b.authorFirstName)?.bookAuthorId || "",
+    authorLastName:  authors.find((a) => a.lastName === b.authorLastName)?.bookAuthorId || "",
+    publisher: publishers.find((p) => p.publisherName === b.publisher)?.publisherId || "",
+    genre:         genres.find((g) => g.description === b.genre)?.bookGenreId || "",
+    yearPublished: b.yearPublished,
+    totalCopies:    b.totalCopies,
+    availableCopies:b.availableCopies,
+    itemLocation:   b.itemLocation,
+    coverImagePath: b.coverImagePath
+  })
+  setOpenEditBookDialog(true);
+};
+
+const handleSaveEditBook = async () => {
+  if (!editingBook) return;
+
+  // 1. Figure out the author ID 
+  let finalAuthorID: number;
+  if (editBookForm.author === "other") {
+    const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookAuthor`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: newAuthorFirstName,
+        lastName : newAuthorLastName
+      })
+    });
+    const created = await resp.json();
+    finalAuthorID = created.bookAuthorId;
+  } else {
+    finalAuthorID = Number(editBookForm.author);
+  }
+
+    // 2. figure out the publisher ID
+    let finalPublisherID: number;
+    if (editBookForm.publisher === "other") {
+      const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Publisher`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ publisherName: newPublisherName })
+      });
+      const created = await resp.json();
+      finalPublisherID = created.publisherId;
+    } else {
+      finalPublisherID = Number(editBookForm.publisher);
+    }
+
+  const payload = {
+    title:          editBookForm.title,
+    isbn:           editBookForm.isbn,
+    publisherID:   finalPublisherID,
+    bookGenreID:   Number(editBookForm.genre!),
+    bookAuthorID:  finalAuthorID,
+    yearPublished: Number(editBookForm.yearPublished!),
+    coverImagePath: editBookForm.coverImagePath,  
+    totalCopies:    Number(editBookForm.totalCopies!),
+    availableCopies: Number(editBookForm.availableCopies!),
+    location:   editBookForm.itemLocation,
+    itemTypeID: 1 // default
+  };
+
+  console.log("Final payload:", payload);
+
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/api/Book/edit-book/${editingBook.bookId}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (res.ok) {
+      setOpenEditBookDialog(false);
+      setNewAuthorFirstName("");
+      setNewAuthorLastName("");
+      setNewPublisherName("");
+      setRefreshData(true); // re‑fetch your lists
+    } else {
+      console.error('Failed to save edits:', await res.text());
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+
+
+// Movie
+const [editingMovie, setEditingMovie] = useState<MovieDto | null>(null);
+const [openEditMovieDialog, setOpenEditMovieDialog] = useState(false);
+const openEditMovie = (m: MovieDto) => {
+  setEditingMovie(m);
+  setOpenEditMovieDialog(true);
+};
+
+// Music
+const [editingMusic, setEditingMusic] = useState<MusicDto | null>(null);
+const [openEditMusicDialog, setOpenEditMusicDialog] = useState(false);
+const openEditMusic = (m: MusicDto) => {
+  setEditingMusic(m);
+  setOpenEditMusicDialog(true);
+};
+
+// Technology
+const [editingTech, setEditingTech] = useState<TechnologyDto | null>(null);
+const [openEditTechDialog, setOpenEditTechDialog] = useState(false);
+const openEditTech = (t: TechnologyDto) => {
+  setEditingTech(t);
+  setOpenEditTechDialog(true);
+};
+
 
   // Edit item states
   const [editingItem, setEditingItem] = useState<Item | null>(null);
@@ -632,6 +878,10 @@ const Employee: React.FC = () => {
 
     if (currentView === 'inventory' || currentView === 'dashboard' || refreshData) {
       fetchInventory();
+      fetchBookInventory();
+      fetchMovieInventory();
+      fetchMusicInventory();
+      fetchTechnologyInventory();
     }
     if (currentView === 'events' || currentView === 'dashboard' || refreshData) {
       fetchEvents();
@@ -652,6 +902,70 @@ const Employee: React.FC = () => {
       setOpenDialog(true);
     }
   };
+
+  // -- fetchBookInventory --
+  const fetchBookInventory = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book`);
+      if (!response.ok) throw new Error('Failed to fetch book inventory');
+      const data = await response.json();
+      setBookInventory(data);
+    } catch (error) {
+      console.error('Error fetching book inventory:', error);
+      setDialogMessage('Failed to fetch book inventory. Please try again.');
+      setOpenDialog(true);
+    }
+    // console.log('Book Inventory:', bookInventory);
+  };
+
+  // -- fetchMovieInventory --
+  const fetchMovieInventory = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Movie`);
+      if (!response.ok) throw new Error('Failed to fetch movie inventory');
+      const data = await response.json();
+      setMovieInventory(data);
+    } catch (error) {
+      console.error('Error fetching movie inventory:', error);
+      setDialogMessage('Failed to fetch movie inventory. Please try again.');
+      setOpenDialog(true);
+    }
+    // console.log('Movie Inventory:', movieInventory);
+  };
+
+  // -- fetchMusicInventory --
+  const fetchMusicInventory = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Music`);
+      if (!response.ok) throw new Error('Failed to fetch music inventory');
+      const data = await response.json();
+      setMusicInventory(data);
+    } catch (error) {
+      console.error('Error fetching music inventory:', error);
+      setDialogMessage('Failed to fetch music inventory. Please try again.');
+      setOpenDialog(true);
+    }
+    // console.log('Music Inventory:', musicInventory);
+  };
+
+  // -- fetchTechnologyInventory --
+  const fetchTechnologyInventory = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Technology`);
+      if (!response.ok) throw new Error('Failed to fetch technology inventory');
+      const data = await response.json();
+      setTechnologyInventory(data);
+    } catch (error) {
+      console.error('Error fetching technology inventory:', error);
+      setDialogMessage('Failed to fetch technology inventory. Please try again.');
+      setOpenDialog(true);
+    }
+    // console.log('Technology Inventory:', technologyInventory);
+  };
+  
+
+
+
 
   // --- fetchEvents ---
   const fetchEvents = async () => {
@@ -1118,6 +1432,264 @@ const Employee: React.FC = () => {
     </Box>
   );
 
+  const renderInventoryManagementTest = () => (
+    <Paper elevation={3} sx={{ p:3, mb:3 }}>
+      <Typography variant="h5" align="center" gutterBottom>
+        Inventory Management
+      </Typography>
+
+            {/* Item Type Selection Dropdown */}
+            <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel id="item-type-label">Item Type</InputLabel>
+        <Select
+          labelId="item-type-label"
+          value={selectedItemType}
+          label="Item Type"
+          onChange={handleItemTypeChange}
+        >
+          <MenuItem value="Book">Book</MenuItem>
+          <MenuItem value="Movie">Movie</MenuItem>
+          <MenuItem value="Music">Music</MenuItem>
+          <MenuItem value="Technology">Technology</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* Dynamically Render Form */}
+      <Box sx={{ mb: 4 }}>
+        {selectedItemType === "Book" && <BookForm />}
+        {selectedItemType === "Movie" && <MovieForm />}
+        {selectedItemType === "Music" && <MusicForm />}
+        {selectedItemType === "Technology" && <TechnologyForm />}
+      </Box>
+
+
+      {/* Add Item Form */}
+      <Box component="form" sx={{ mb: 3 }}>
+
+      </Box>
+  
+      {/* --- Current Books --- */}
+      <Typography variant="h6" sx={{ mt:2 }}>Current Books</Typography>
+      <TableContainer component={Paper} sx={{ mb:4 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Cover</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>ISBN</TableCell>
+              <TableCell>Author First Name</TableCell>
+              <TableCell>Author Last Name</TableCell>
+              <TableCell>Publisher</TableCell>
+              <TableCell>Genre</TableCell>
+              <TableCell>Year Published</TableCell>
+              <TableCell>Total Copies</TableCell>
+              <TableCell>Available Copies</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {bookInventory.map(b => (
+              <TableRow key={b.bookId}>
+                <TableCell>
+                  <img src={b.coverImagePath} alt={b.title} style={{ width: 50, height: 75 }} />
+                </TableCell>
+                <TableCell>{b.title}</TableCell>
+                <TableCell>{b.isbn}</TableCell>
+                <TableCell>{b.authorFirstName}</TableCell>
+                <TableCell>{b.authorLastName}</TableCell>
+                <TableCell>{b.publisher}</TableCell>
+                <TableCell>{b.genre}</TableCell>
+                <TableCell>{b.yearPublished}</TableCell>
+                <TableCell>{b.totalCopies}</TableCell>
+                <TableCell>{b.availableCopies}</TableCell>
+                <TableCell>{b.itemLocation}</TableCell>
+                <TableCell>
+                <Stack direction="row" spacing={1}>
+                  <IconButton size="small" onClick={() => openEditBook(b)}>
+                    <EditIcon fontSize="inherit" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      /* your delete handler */
+                    }}
+                  >
+                    <DeleteIcon fontSize="inherit" />
+                  </IconButton>
+                </Stack>
+              </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+  
+      {/* --- Current Movies --- */}
+      <Typography variant="h6" sx={{ mt:2 }}>Current Movies</Typography>
+      <TableContainer component={Paper} sx={{ mb:4 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Cover</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>UPC</TableCell>
+              <TableCell>Director First Name</TableCell>
+              <TableCell>Director Last Name</TableCell>
+              <TableCell>Genre</TableCell>
+              <TableCell>Year</TableCell>
+              <TableCell>Format</TableCell>
+              <TableCell>Total Copies</TableCell>
+              <TableCell>Available Copies</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {movieInventory.map(m => (
+              <TableRow key={m.movieId}>
+                <TableCell>
+                  <img src={m.coverImagePath} alt={m.title} style={{ width: 50, height: 75 }} />
+                </TableCell>
+                <TableCell>{m.title}</TableCell>
+                <TableCell>{m.upc}</TableCell>
+                <TableCell>{m.directorFirstName}</TableCell>
+                <TableCell>{m.directorLastName}</TableCell>
+                <TableCell>{m.genre}</TableCell>
+                <TableCell>{m.yearReleased}</TableCell>
+                <TableCell>{m.format}</TableCell>
+                <TableCell>{m.totalCopies}</TableCell>
+                <TableCell>{m.availableCopies}</TableCell>
+                <TableCell>{m.itemLocation}</TableCell>
+                <TableCell>
+                <Stack direction="row" spacing={1}>
+                  <IconButton size="small" onClick={() => openEditMovie(m)}>
+                    <EditIcon fontSize="inherit" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      /* your delete handler */
+                    }}
+                  >
+                    <DeleteIcon fontSize="inherit" />
+                  </IconButton>
+                </Stack>
+              </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+  
+      {/* --- Current Music --- */}
+      <Typography variant="h6" sx={{ mt:2 }}>Current Music</Typography>
+      <TableContainer component={Paper} sx={{ mb:4 }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Cover</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>Artist</TableCell>
+              <TableCell>Genre</TableCell>
+              <TableCell>Format</TableCell>
+              <TableCell>Total Copies</TableCell>
+              <TableCell>Available Copies</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {musicInventory.map(m => (
+              <TableRow key={m.musicId}>
+                <TableCell>
+                  <img src={m.coverImagePath} alt={m.title} style={{ width: 50, height: 50 }} />
+                </TableCell>
+                <TableCell>{m.title}</TableCell>
+                <TableCell>{m.artistName}</TableCell>
+                <TableCell>{m.genreDescription}</TableCell>
+                <TableCell>{m.format}</TableCell>
+                <TableCell>{m.totalCopies}</TableCell>
+                <TableCell>{m.availableCopies}</TableCell>
+                <TableCell>{m.location}</TableCell>
+                <TableCell>
+                <Stack direction="row" spacing={1}>
+                  <IconButton size="small" onClick={() => openEditMusic(m)}>
+                    <EditIcon fontSize="inherit" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      /* your delete handler */
+                    }}
+                  >
+                    <DeleteIcon fontSize="inherit" />
+                  </IconButton>
+                </Stack>
+              </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+  
+      {/* --- Current Technology --- */}
+      <Typography variant="h6" sx={{ mt:2 }}>Current Technology</Typography>
+      <TableContainer component={Paper}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Cover</TableCell>
+              <TableCell>Title</TableCell>
+              <TableCell>Device Type</TableCell>
+              <TableCell>Manufacturer</TableCell>
+              <TableCell>Model Number</TableCell>
+              <TableCell>Total Copies</TableCell>
+              <TableCell>Available Copies</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {technologyInventory.map(t => (
+              <TableRow key={t.deviceId}>
+                <TableCell>
+                  <img src={t.coverImagePath} alt={t.title} style={{ width: 50, height: 50 }} />
+                </TableCell>
+                <TableCell>{t.title}</TableCell>
+                <TableCell>{t.deviceTypeName}</TableCell>
+                <TableCell>{t.manufacturerName}</TableCell>
+                <TableCell>{t.modelNumber}</TableCell>
+                <TableCell>{t.totalCopies}</TableCell>
+                <TableCell>{t.availableCopies}</TableCell>
+                <TableCell>{t.location}</TableCell>
+                <TableCell>
+                <Stack direction="row" spacing={1}>
+                  <IconButton size="small" onClick={() => openEditTech(t)}>
+                    <EditIcon fontSize="inherit" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => {
+                      /* your delete handler */
+                    }}
+                  >
+                    <DeleteIcon fontSize="inherit" />
+                  </IconButton>
+                </Stack>
+              </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
+  );
+  
   // --- Render Inventory Management ---
   const renderInventoryManagement = () => (
 
@@ -1186,6 +1758,7 @@ const Employee: React.FC = () => {
                 <TableCell>
                   <IconButton
                     onClick={() => {
+                      // console.log(item);
                       handleEditClick(item);
                       setOpenEditDialog(true);
                       // setStoredItemIdDeletion(item.itemId);
@@ -1286,6 +1859,7 @@ const Employee: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+          
 
     </Paper>
   );
@@ -1672,7 +2246,7 @@ const Employee: React.FC = () => {
             <Button onClick={() => {
               handleDeleteEvent(storedEventIdDeletion);
               setOpenDeleteEventDialog(false)
-              console.log("Delete logic goes here");
+              // console.log("Delete logic goes here");
             }} color="error" variant="contained">
               Delete
             </Button>
@@ -1700,10 +2274,243 @@ const Employee: React.FC = () => {
           </DialogActions>
         </Dialog>
 
+        <Dialog
+  open={openEditBookDialog}
+  onClose={() => setOpenEditBookDialog(false)}
+  fullWidth
+  maxWidth="md"
+>
+  <DialogTitle>Edit Book</DialogTitle>
+  <DialogContent>
+    {editingBook && (
+      <Stack spacing={2} sx={{ mt: 1 }}>
+        <TextField
+          label="Title"
+          fullWidth
+          value={editBookForm.title || ''}
+          onChange={e =>
+            setEditBookForm(f => ({ ...f, title: e.target.value }))
+          }
+        />
+        <TextField
+          label="ISBN"
+          fullWidth
+          value={editBookForm.isbn || ''}
+          onChange={e =>
+            setEditBookForm(f => ({ ...f, isbn: e.target.value }))
+          }
+        />
+        {/* — Author Select with ‘Other’ — */}
+<FormControl fullWidth>
+  <InputLabel>Author</InputLabel>
+  <Select
+    value={
+      editBookForm.author || "other"
+    }
+    label="Author"
+    onChange={e => {
+      const v = e.target.value as string;
+      console.log("Selected Value:", v); // Log the selected value
+      if (v === "other") {
+        setEditBookForm(f => ({
+          ...f,
+          author: "other",
+          authorFirstName: "",
+          authorLastName: ""
+        }));
+      } else {
+        const selectedAuthor = authors.find((a) => a.bookAuthorId === Number(v));
+        if (selectedAuthor) {
+          setEditBookForm((f) => ({
+            ...f,
+            author: selectedAuthor.bookAuthorId.toString(), // Set the `author` to the `bookAuthorId`
+            authorFirstName: selectedAuthor.firstName,
+            authorLastName: selectedAuthor.lastName,
+          }));
+        }
+      }
+    }}
+  >
+    {authors.map(a => (
+      <MenuItem key={a.bookAuthorId} value={a.bookAuthorId}>
+        {a.firstName} {a.lastName}
+      </MenuItem>
+    ))}
+    <MenuItem value="other">Other…</MenuItem>
+  </Select>
+</FormControl>
+{!editBookForm.authorFirstName && !editBookForm.authorLastName && (
+  <Stack direction="row" spacing={2}>
+    <TextField
+      label="New Author First Name"
+      value={newAuthorFirstName}
+      onChange={e => setNewAuthorFirstName(e.target.value)}
+      fullWidth
+    />
+    <TextField
+      label="New Author Last Name"
+      value={newAuthorLastName}
+      onChange={e => setNewAuthorLastName(e.target.value)}
+      fullWidth
+    />
+  </Stack>
+)}
+
+{/* — Genre Select — */}
+<FormControl fullWidth>
+  <InputLabel>Genre</InputLabel>
+  <Select
+    value={editBookForm.genre || ""}
+    label="Genre"
+    onChange={e => {
+      const genreId = e.target.value as string; // Get the selected GenreID
+      console.log("Selected GenreID:", genreId); // Log the GenreID
+      setEditBookForm(f => ({ ...f, genre: genreId }));
+    }}
+  >
+    {genres.map(g => (
+      <MenuItem key={g.bookGenreId} value={g.bookGenreId}>
+        {g.description}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
+
+{/* — Publisher Select with ‘Other’ — */}
+<FormControl fullWidth>
+  <InputLabel>Publisher</InputLabel>
+  <Select
+    value={editBookForm.publisher || "other"}
+    label="Publisher"
+    onChange={e => {
+      const v = e.target.value as string;
+      console.log("Selected Value:", v); // Log the selected value
+      if (v === "other") {
+        setEditBookForm(f => ({ ...f, publisher: "other" }));
+      } else {
+        setEditBookForm(f => ({ ...f, publisher: v }));
+      }
+    }}
+  >
+    {publishers.map(p => (
+      <MenuItem key={p.publisherId} value={p.publisherId}>
+        {p.publisherName}
+      </MenuItem>
+    ))}
+    <MenuItem value="other">Other…</MenuItem>
+  </Select>
+</FormControl>
+{editBookForm.publisher === "other" && (
+  <TextField
+    label="New Publisher"
+    value={newPublisherName}
+    onChange={e => setNewPublisherName(e.target.value)}
+    fullWidth
+  />
+)}
+        <TextField
+          label="Year Published"
+          type="number"
+          fullWidth
+          value={editBookForm.yearPublished ?? ''}
+          onChange={e =>
+            setEditBookForm(f => ({
+              ...f,
+              yearPublished: Number(e.target.value),
+            }))
+          }
+        />
+        <TextField
+          label="Total Copies"
+          type="number"
+          fullWidth
+          value={editBookForm.totalCopies ?? ''}
+          onChange={e =>
+            setEditBookForm(f => ({
+              ...f,
+              totalCopies: Number(e.target.value),
+            }))
+          }
+        />
+        <TextField
+          label="Available Copies"
+          type="number"
+          fullWidth
+          value={editBookForm.availableCopies ?? ''}
+          onChange={e =>
+            setEditBookForm(f => ({
+              ...f,
+              availableCopies: Number(e.target.value),
+            }))
+          }
+        />
+        <TextField
+          label="Location"
+          fullWidth
+          value={editBookForm.itemLocation || ''}
+          onChange={e =>
+            setEditBookForm(f => ({ ...f, itemLocation: e.target.value }))
+          }
+        />
+        <Box>
+  <Typography variant="body2" sx={{ mb: 1 }}>
+    Cover Image
+  </Typography>
+  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+    {/* preview */}
+    {editBookForm.coverImagePath && (
+      <img
+        src={editBookForm.coverImagePath}
+        alt="cover preview"
+        style={{ width: 50, height: 75, objectFit: 'cover' }}
+      />
+    )}
+    {/* file picker */}
+    <Button
+      variant="outlined"
+      component="label"
+      size="small"
+    >
+      Choose Image
+      <input
+        type="file"
+        hidden
+        accept="image/*"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const form = new FormData();
+          form.append('Cover', file);
+          try {
+            const resp = await fetch(
+              `${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`,
+              { method: 'POST', body: form }
+            );
+            const { url } = await resp.json();
+            setEditBookForm(f => ({ ...f, coverImagePath: url }));
+          } catch (err) {
+            console.error('Upload failed', err);
+          }
+        }}
+      />
+    </Button>
+  </Box>
+</Box>
+      </Stack>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenEditBookDialog(false)}>Cancel</Button>
+    <Button variant="contained" color="primary" onClick={handleSaveEditBook}>
+      Save
+    </Button>
+  </DialogActions>
+</Dialog>
+
 
         {/* Render the current view */}
         {currentView === 'dashboard' && renderDashboard()}
-        {currentView === 'inventory' && renderInventoryManagement()}
+        {currentView === 'inventory' && renderInventoryManagementTest()}
         {currentView === 'events' && renderEventManagement()}
         {currentView === 'libraryHistory' && renderLibraryHistory()}
         {currentView === 'profile' && renderProfile()}

@@ -43,7 +43,7 @@ const BookForm = () => {
           publisherRes.json()
         ]);
 
-        console.log("Publishers:", publisherData); // Check the output
+        // console.log("Publishers:", publisherData); // Check the output
 
         setGenres(genreData);
         setAuthors(authorData);

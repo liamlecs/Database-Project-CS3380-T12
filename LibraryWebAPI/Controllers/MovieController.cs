@@ -26,6 +26,22 @@ namespace LibraryWebAPI.Controllers
                 .Include(m => m.MovieDirector) // Include related MovieDirector
                 .Include(m => m.Item) // Optionally include the Item record to get the title.
                 .Include(m => m.MovieGenre) // Include related MovieGenre
+                .Select(m => new {
+            m.MovieId,
+            m.Upc,
+            m.YearReleased,
+            m.Format,
+            m.CoverImagePath,
+            ItemId = m.Item.ItemId, // From related Item
+            Title = m.Item.Title, // From related Item
+            Director = m.MovieDirector.FirstName + " " + m.MovieDirector.LastName, // From related MovieDirector
+            DirectorFirstName = m.MovieDirector.FirstName, // From related MovieDirector
+            DirectorLastName = m.MovieDirector.LastName, // From related MovieDirector
+            Genre = m.MovieGenre.Description, // From related MovieGenre
+            TotalCopies = m.Item.TotalCopies, // From related Item
+            AvailableCopies = m.Item.AvailableCopies, // From related Item
+            ItemLocation = m.Item.Location // From related Item
+                })
                 .ToListAsync();
             return Ok(movies);
         }

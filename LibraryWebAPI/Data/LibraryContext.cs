@@ -1,5 +1,6 @@
 using LibraryWebAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace LibraryWebAPI.Data
 {
@@ -95,6 +96,7 @@ public DbSet<WaitlistNotification> WaitlistNotifications { get; set; } //waitlis
 
         modelBuilder.Entity<Book>(entity =>
         {
+
             entity.HasKey(e => e.BookId).HasName("PK__Book__3DE0C227DE49FC03");
 
             entity.ToTable("Book");
@@ -294,14 +296,25 @@ modelBuilder.Entity<CustomerFineDto>().HasNoKey().ToView(null);
 
         modelBuilder.Entity<Item>(entity =>
         {
+            entity
+            .ToTable(
+                name: "Item",
+                tb => tb.HasTrigger("trg_ProcessWaitlist")    // ← tell EF “there’s a trigger here, don’t OUTPUT”
+            );
+            
             entity.HasKey(e => e.ItemId).HasName("PK__Item__727E83EBD4885DED");
 
             entity.ToTable("Item");
 
             entity.Property(e => e.ItemId).HasColumnName("ItemID");
-            entity.Property(e => e.AvailabilityStatus)
-                .HasMaxLength(15)
-                .IsUnicode(false);
+
+                    // 1) Tell EF this is a computed column…
+            var status = entity.Property(e => e.AvailabilityStatus)
+                .HasComputedColumnSql(
+                "(case when [AvailableCopies] > 0 then 'Available' else 'Ran Out' end)",
+                stored: true)
+                .ValueGeneratedOnAdd();
+                
             entity.Property(e => e.Location)
                 .HasMaxLength(30)
                 .IsUnicode(false);
