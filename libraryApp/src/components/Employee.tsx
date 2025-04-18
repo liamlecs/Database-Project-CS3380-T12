@@ -1310,7 +1310,7 @@ const Employee: React.FC = () => {
     const dashboardItems = [
       {
         title: 'Inventory',
-        count: inventory.length,
+        count: inventory.filter(item => item.availableCopies > 0).length, // Only count items with availableCopies > 0
         icon: <InventoryIcon fontSize="large" color="primary" />,
         action: () => setCurrentView('inventory'),
         color: theme.palette.primary.main,
