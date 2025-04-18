@@ -123,7 +123,7 @@ interface MovieDto {
   genre: string;
   totalCopies: number;
   availableCopies: number;
-  itemLocation: string;
+  location: string;
 }
 
 interface MusicDto {
@@ -781,8 +781,10 @@ const Employee: React.FC = () => {
   const [editingMovie, setEditingMovie] = useState<MovieDto | null>(null);
   const [openEditMovieDialog, setOpenEditMovieDialog] = useState(false);
   const [editMovieForm, setEditMovieForm] = useState<Partial<MovieDto>>({});
+  const [directors, setDirectors] = useState<any[]>([]);
+  const [movieGenres, setMovieGenres] = useState<any[]>([]);
   const openEditMovie = (m: MovieDto) => {
-    console.log("Opening movie:", m); // remove later
+    console.log("Opening movie:", m); // for debugging
     setEditingMovie(m);
     setEditMovieForm({
       title: m.title,
@@ -795,27 +797,65 @@ const Employee: React.FC = () => {
       yearReleased: m.yearReleased,
       totalCopies: m.totalCopies,
       availableCopies: m.availableCopies,
-      itemLocation: m.itemLocation,
+      location: m.location,
       coverImagePath: m.coverImagePath,
     });
     setOpenEditMovieDialog(true);
   };
+  useEffect(() => {
+    const fetchMovieDropdownData = async () => {
+      try {
+        const [directorRes, genreRes] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MovieDirector`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MovieGenre`),
+        ]);
+
+        if (!directorRes.ok || !genreRes.ok) throw new Error("Failed to fetch movie dropdowns");
+
+        const [directorData, genreData] = await Promise.all([
+          directorRes.json(),
+          genreRes.json(),
+        ]);
+
+        setDirectors(directorData);
+        setMovieGenres(genreData);
+      } catch (err) {
+        console.error("Dropdown fetch error (Movie):", err);
+      }
+    };
+
+    fetchMovieDropdownData();
+  }, []);
+
   const handleSaveEditMovie = async () => {
     if (!editingMovie) return;
+
+    const selectedDirector = directors.find(
+      (d) =>
+        d.firstName === editMovieForm.directorFirstName &&
+        d.lastName === editMovieForm.directorLastName
+    );
+
+    const movieDirectorID = selectedDirector?.movieDirectorId || 1;
+
+    const selectedGenre = movieGenres.find(
+      (g) => g.description === editMovieForm.genre
+    );
+
+    const movieGenreID = selectedGenre?.movieGenreId || 1;
 
     const payload = {
       title: editMovieForm.title,
       upc: editMovieForm.upc,
-      director: editMovieForm.director,
-      directorFirstName: editMovieForm.directorFirstName,
-      directorLastName: editMovieForm.directorLastName,
-      genre: editMovieForm.genre,
-      format: editMovieForm.format,
+      movieDirectorID,
+      movieGenreID,
       yearReleased: Number(editMovieForm.yearReleased),
+      format: editMovieForm.format,
+      coverImagePath: editMovieForm.coverImagePath || '',
       totalCopies: Number(editMovieForm.totalCopies),
       availableCopies: Number(editMovieForm.availableCopies),
-      itemLocation: editMovieForm.itemLocation,
-      coverImagePath: editMovieForm.coverImagePath,
+      location: editMovieForm.location || '',
+      itemTypeID: 2, // movie item type id
     };
 
     try {
@@ -832,7 +872,8 @@ const Employee: React.FC = () => {
         setOpenEditMovieDialog(false);
         setRefreshData(true);
       } else {
-        console.error("Failed to save edits:", await res.text());
+        const err = await res.text();
+        console.error("Failed to save edits:", err);
       }
     } catch (err) {
       console.error(err);
@@ -1596,7 +1637,7 @@ const Employee: React.FC = () => {
                 <TableCell>{m.format}</TableCell>
                 <TableCell>{m.totalCopies}</TableCell>
                 <TableCell>{m.availableCopies}</TableCell>
-                <TableCell>{m.itemLocation}</TableCell>
+                <TableCell>{m.location}</TableCell>
                 <TableCell>
                   <Stack direction="row" spacing={1}>
                     <IconButton size="small" onClick={() => openEditMovie(m)}>
@@ -2547,7 +2588,7 @@ const Employee: React.FC = () => {
               <TextField label="Year Released" type="number" fullWidth value={editMovieForm.yearReleased ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, yearReleased: Number(e.target.value) }))} />
               <TextField label="Total Copies" type="number" fullWidth value={editMovieForm.totalCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, totalCopies: Number(e.target.value) }))} />
               <TextField label="Available Copies" type="number" fullWidth value={editMovieForm.availableCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, availableCopies: Number(e.target.value) }))} />
-              <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, itemLocation: e.target.value }))} />
+              <TextField label="Location" fullWidth value={editMovieForm.location || ""} onChange={e => setEditMovieForm(f => ({ ...f, location: e.target.value }))} />
               <Box>
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   Cover Image
