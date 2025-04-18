@@ -1691,7 +1691,7 @@ const invalidItems = data
     {waitlistItems.length > 0 && (
       <>
         <Typography variant="h6" gutterBottom>
-          Books Available For Pickup
+          Items Available For Pickup
         </Typography>
         <DataGrid
           autoHeight
