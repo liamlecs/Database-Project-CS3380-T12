@@ -7,6 +7,10 @@ import BookForm from './inventory_post_forms/BookForm'; "./inventory_post_forms/
 import MovieForm from './inventory_post_forms/MovieForm'; "./inventory_post_forms/MovieForm"
 import MusicForm from './inventory_post_forms/MusicForm'; // Ensure this path is correct
 import TechnologyForm from './inventory_post_forms/TechnologyForm'; // Ensure this path is correct
+import CurrentBooks from './CurrentInventory/CurrentBook'; // Ensure this path is correct
+import CurrentMovies from './CurrentInventory/CurrentMovie'; // Ensure this path is correct
+import CurrentMusic from './CurrentInventory/CurrentMusic'; // Ensure this path is correct
+import CurrentTechnology from './CurrentInventory/CurrentTechnology'; // Ensure this path is correct
 
 
 // --- Material UI Imports ---
@@ -88,71 +92,10 @@ interface Item {
   location?: string;
 }
 
-interface BookDto {
-  bookId: number;
-  itemId: number;
-  itemTypeId: number;
-  title: string;
-  isbn: string;
-  publisher: string;
-  genre: string;
-  author: string;
-  authorFirstName: string;
-  authorLastName: string;
-  yearPublished: number;
-  availableCopies: number;
-  totalCopies: number;
-  coverImagePath: string;
-  itemLocation: string;
-  publisherId: number;
-  bookGenreId: number;
-  bookAuthorId: number;
-}
-
-interface MovieDto {
-  movieId: number;
-  upc: string;
-  yearReleased: number;
-  format: string;
-  coverImagePath: string;
-  itemId: number;
-  title: string;
-  director: string;
-  directorFirstName: string;
-  directorLastName: string;
-  genre: string;
-  totalCopies: number;
-  availableCopies: number;
-  itemLocation: string;
-}
-
-interface MusicDto {
-  musicId: number;
-  itemId: number;
-  itemTypeId: number;
-  title: string;
-  artistName: string;
-  genreDescription: string;
-  format: string;
-  availableCopies: number;
-  totalCopies: number;
-  coverImagePath: string;
-  location: string
-}
-
-interface TechnologyDto {
-  deviceId: number;
-  itemId: number;
-  itemTypeId: number;
-  title: string;
-  deviceTypeName: string;
-  manufacturerName: string;
-  modelNumber: string;
-  availableCopies: number;
-  totalCopies: number;
-  coverImagePath: string;
-  location: string;
-}
+import type { BookDto } from '../types.ts';
+import type { MovieDto } from '../types.ts';
+import type { MusicDto } from '../types.ts';
+import type { TechnologyDto } from '../types.ts';
 
 interface EventData {
   eventId: number;
@@ -1538,402 +1481,44 @@ const Employee: React.FC = () => {
         {selectedItemType === "Technology" && <TechnologyForm />}
       </Box>
 
-
-      {/* Add Item Form */}
-      <Box component="form" sx={{ mb: 3 }}>
-
-      </Box>
-
-      {/* --- Current Books --- */}
-      <Typography variant="h6" sx={{ mt: 2 }}>Current Books</Typography>
-      <TableContainer component={Paper} sx={{ mb: 4 }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Cover</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>ISBN</TableCell>
-              <TableCell>Author First Name</TableCell>
-              <TableCell>Author Last Name</TableCell>
-              <TableCell>Publisher</TableCell>
-              <TableCell>Genre</TableCell>
-              <TableCell>Year Published</TableCell>
-              <TableCell>Total Copies</TableCell>
-              <TableCell>Available Copies</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {bookInventory.map(b => (
-              <TableRow key={b.bookId}>
-                <TableCell>
-                  <img src={b.coverImagePath} alt={b.title} style={{ width: 50, height: 75 }} />
-                </TableCell>
-                <TableCell>{b.title}</TableCell>
-                <TableCell>{b.isbn}</TableCell>
-                <TableCell>{b.authorFirstName}</TableCell>
-                <TableCell>{b.authorLastName}</TableCell>
-                <TableCell>{b.publisher}</TableCell>
-                <TableCell>{b.genre}</TableCell>
-                <TableCell>{b.yearPublished}</TableCell>
-                <TableCell>{b.totalCopies}</TableCell>
-                <TableCell>{b.availableCopies}</TableCell>
-                <TableCell>{b.itemLocation}</TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton size="small" onClick={() => openEditBook(b)}>
-                      <EditIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => {
-                        /* your delete handler */
-                      }}
-                    >
-                      <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* --- Current Movies --- */}
-      <Typography variant="h6" sx={{ mt: 2 }}>Current Movies</Typography>
-      <TableContainer component={Paper} sx={{ mb: 4 }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Cover</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>UPC</TableCell>
-              <TableCell>Director First Name</TableCell>
-              <TableCell>Director Last Name</TableCell>
-              <TableCell>Genre</TableCell>
-              <TableCell>Year</TableCell>
-              <TableCell>Format</TableCell>
-              <TableCell>Total Copies</TableCell>
-              <TableCell>Available Copies</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {movieInventory.map(m => (
-              <TableRow key={m.movieId}>
-                <TableCell>
-                  <img src={m.coverImagePath} alt={m.title} style={{ width: 50, height: 75 }} />
-                </TableCell>
-                <TableCell>{m.title}</TableCell>
-                <TableCell>{m.upc}</TableCell>
-                <TableCell>{m.directorFirstName}</TableCell>
-                <TableCell>{m.directorLastName}</TableCell>
-                <TableCell>{m.genre}</TableCell>
-                <TableCell>{m.yearReleased}</TableCell>
-                <TableCell>{m.format}</TableCell>
-                <TableCell>{m.totalCopies}</TableCell>
-                <TableCell>{m.availableCopies}</TableCell>
-                <TableCell>{m.itemLocation}</TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton size="small" onClick={() => openEditMovie(m)}>
-                      <EditIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => {
-                        /* your delete handler */
-                      }}
-                    >
-                      <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* --- Current Music --- */}
-      <Typography variant="h6" sx={{ mt: 2 }}>Current Music</Typography>
-      <TableContainer component={Paper} sx={{ mb: 4 }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Cover</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Artist</TableCell>
-              <TableCell>Genre</TableCell>
-              <TableCell>Format</TableCell>
-              <TableCell>Total Copies</TableCell>
-              <TableCell>Available Copies</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {musicInventory.map(m => (
-              <TableRow key={m.musicId}>
-                <TableCell>
-                  <img src={m.coverImagePath} alt={m.title} style={{ width: 50, height: 50 }} />
-                </TableCell>
-                <TableCell>{m.title}</TableCell>
-                <TableCell>{m.artistName}</TableCell>
-                <TableCell>{m.genreDescription}</TableCell>
-                <TableCell>{m.format}</TableCell>
-                <TableCell>{m.totalCopies}</TableCell>
-                <TableCell>{m.availableCopies}</TableCell>
-                <TableCell>{m.location}</TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton size="small" onClick={() => openEditMusic(m)}>
-                      <EditIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => {
-                        /* your delete handler */
-                      }}
-                    >
-                      <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* --- Current Technology --- */}
-      <Typography variant="h6" sx={{ mt: 2 }}>Current Technology</Typography>
-      <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Cover</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Device Type</TableCell>
-              <TableCell>Manufacturer</TableCell>
-              <TableCell>Model Number</TableCell>
-              <TableCell>Total Copies</TableCell>
-              <TableCell>Available Copies</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {technologyInventory.map(t => (
-              <TableRow key={t.deviceId}>
-                <TableCell>
-                  <img src={t.coverImagePath} alt={t.title} style={{ width: 50, height: 50 }} />
-                </TableCell>
-                <TableCell>{t.title}</TableCell>
-                <TableCell>{t.deviceTypeName}</TableCell>
-                <TableCell>{t.manufacturerName}</TableCell>
-                <TableCell>{t.modelNumber}</TableCell>
-                <TableCell>{t.totalCopies}</TableCell>
-                <TableCell>{t.availableCopies}</TableCell>
-                <TableCell>{t.location}</TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton size="small" onClick={() => openEditTech(t)}>
-                      <EditIcon fontSize="inherit" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => {
-                        /* your delete handler */
-                      }}
-                    >
-                      <DeleteIcon fontSize="inherit" />
-                    </IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
-  );
-
-  // --- Render Inventory Management ---
-  const renderInventoryManagement = () => (
-
-    <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
-
-      <Typography variant="h5" align="center" gutterBottom>
-        Inventory Management
-      </Typography>
-
-      {/* Item Type Selection Dropdown */}
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel id="item-type-label">Item Type</InputLabel>
-        <Select
-          labelId="item-type-label"
-          value={selectedItemType}
-          label="Item Type"
-          onChange={handleItemTypeChange}
-        >
-          <MenuItem value="Book">Book</MenuItem>
-          <MenuItem value="Movie">Movie</MenuItem>
-          <MenuItem value="Music">Music</MenuItem>
-          <MenuItem value="Technology">Technology</MenuItem>
-        </Select>
-      </FormControl>
-
-      {/* Dynamically Render Form */}
       <Box sx={{ mb: 4 }}>
-        {selectedItemType === "Book" && <BookForm />}
-        {selectedItemType === "Movie" && <MovieForm />}
-        {selectedItemType === "Music" && <MusicForm />}
-        {selectedItemType === "Technology" && <TechnologyForm />}
-      </Box>
-
-
-      {/* Add Item Form */}
-      <Box component="form" sx={{ mb: 3 }}>
-
-      </Box>
-
-
-
-      <Typography variant="h6" gutterBottom>
-        Current Inventory
-      </Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          {/* Add table rows and cells here */}
-          <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Total Copies</TableCell>
-              <TableCell>Available Copies</TableCell>
-              <TableCell>Location</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {inventory.map((item) => (
-              <TableRow key={item.itemId}>
-                <TableCell>{item.title}</TableCell>
-                <TableCell>{item.availabilityStatus}</TableCell>
-                <TableCell>{item.totalCopies}</TableCell>
-                <TableCell>{item.availableCopies}</TableCell>
-                <TableCell>{item.location || '-'}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={() => {
-                      // console.log(item);
-                      handleEditClick(item);
-                      setOpenEditDialog(true);
-                      // setStoredItemIdDeletion(item.itemId);
-                      // setOpenDeleteItemDialog(true);
-                    }
-
-                    }
-                    color="primary"
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    onClick={() => {
-                      setStoredItemIdDeletion(item.itemId);
-                      setOpenDeleteItemDialog(true);
-                    }}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Edit Item Dialog - Add this section */}
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
-        <DialogTitle>Edit Item</DialogTitle>
-        <DialogContent>
-          {editingItem && (
-            <Box component="form" sx={{ mt: 1 }}>
-              <TextField
-                fullWidth
-                label="Title"
-                value={editingItem.title}
-                onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                margin="normal"
-                required
-              />
-
-
-              <TextField
-                fullWidth
-                type="number"
-                label="Total Copies"
-                value={editingItem.totalCopies}
-                onChange={(e) => {
-                  const total = parseInt(e.target.value) || 0;
-                  setEditingItem({
-                    ...editingItem,
-                    totalCopies: total,
-                    availableCopies: Math.min(editingItem.availableCopies, total)
-                  });
-                }}
-                margin="normal"
-                inputProps={{ min: 1 }}
-              />
-
-              <TextField
-                fullWidth
-                type="number"
-                label="Available Copies"
-                value={editingItem.availableCopies}
-                onChange={(e) => {
-                  const available = parseInt(e.target.value) || 0;
-                  setEditingItem({
-                    ...editingItem,
-                    availableCopies: Math.min(available, editingItem.totalCopies)
-                  });
-                }}
-                margin="normal"
-                inputProps={{
-                  min: 0,
-                  max: editingItem.totalCopies
-                }}
-              />
-
-              <TextField
-                fullWidth
-                label="Location"
-                value={editingItem.location || ''}
-                onChange={(e) => setEditingItem({
-                  ...editingItem,
-                  location: e.target.value
-                })}
-                margin="normal"
-              />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateItem} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+  {selectedItemType === "Book" && (
+    <CurrentBooks
+      books={bookInventory}
+      onEdit={openEditBook}
+      onDelete={b => {
+        /* your delete‐book handler */
+      }}
+    />
+  )}
+  {selectedItemType === "Movie" && (
+    <CurrentMovies
+      movies={movieInventory}
+      onEdit={openEditMovie}
+      onDelete={m => {
+        /* your delete‐movie handler */
+      }}
+    />
+  )}
+  {selectedItemType === "Music" && (
+    <CurrentMusic
+      music={musicInventory}
+      onEdit={openEditMusic}
+      onDelete={m => {
+        /* your delete‐music handler */
+      }}
+    />
+  )}
+  {selectedItemType === "Technology" && (
+    <CurrentTechnology
+      technology={technologyInventory}
+      onEdit={openEditTech}
+      onDelete={t => {
+        /* your delete‐technology handler */
+      }}
+    />
+  )}
+</Box>
     </Paper>
   );
 
