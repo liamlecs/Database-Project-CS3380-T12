@@ -40,8 +40,8 @@ const MovieForm: React.FC = () => {
         const directorData = await directorRes.json();
         const genreData = await genreRes.json();
 
-        console.log("Director data:", directorData);
-        console.log("Genre data:", genreData);
+        // console.log("Director data:", directorData);
+        // console.log("Genre data:", genreData);
 
         setDirectors(directorData);
         setGenres(genreData);

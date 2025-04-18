@@ -35,6 +35,9 @@ export interface BookDto {
     totalCopies: number;
     availableCopies: number;
     itemLocation: string;
+    itemTypeId: number;
+    movieGenreId: number;
+    movieDirectorId: number;
   }
   
   export interface MusicDto {

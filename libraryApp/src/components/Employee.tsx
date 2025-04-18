@@ -631,6 +631,16 @@ const Employee: React.FC = () => {
       });
       const created = await resp.json();
       finalAuthorID = created.bookAuthorId;
+      // Refresh the authors list
+      const updatedAuthors = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/BookAuthor`).then((res) => res.json());
+      setAuthors(updatedAuthors);
+      // Update the state with the new author's ID
+      setEditBookForm((f) => ({
+        ...f,
+        author: finalAuthorID.toString(),
+        authorFirstName: newAuthorFirstName,
+        authorLastName: newAuthorLastName,
+      }));
     } else {
       finalAuthorID = Number(editBookForm.author);
     }
@@ -645,6 +655,15 @@ const Employee: React.FC = () => {
       });
       const created = await resp.json();
       finalPublisherID = created.publisherId;
+      // Refresh the publishers list
+      const updatedPublishers = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Publisher`).then((res) => res.json());
+      setPublishers(updatedPublishers);
+      // Update the state with the new publisher's ID
+      setEditBookForm((f) => ({
+        ...f,
+        publisher: finalPublisherID.toString(),
+        publisherName: newPublisherName,
+      }));
     } else {
       finalPublisherID = Number(editBookForm.publisher);
     }
@@ -704,10 +723,12 @@ const Employee: React.FC = () => {
     setEditMovieForm({
       title: m.title,
       upc: m.upc,
-      director: m.director,
-      directorFirstName: m.directorFirstName,
-      directorLastName: m.directorLastName,
-      genre: m.genre,
+      movieDirectorId: directors.find((d) => d.firstName === m.directorFirstName && d.lastName === m.directorLastName)?.movieDirectorId,
+      movieGenreId: movieGenres.find((g) => g.description === m.genre)?.movieGenreId,
+      director: directors.find((d) => d.firstName === m.directorFirstName && d.lastName === m.directorLastName)?.movieDirectorId || "",
+      directorFirstName: directors.find((d) => d.firstName === m.directorFirstName)?.movieDirectorId || "",
+      directorLastName: directors.find((d) => d.lastName === m.directorLastName)?.movieDirectorId || "",
+      genre: movieGenres.find((g) => g.description === m.genre)?.movieGenreId || "",
       format: m.format,
       yearReleased: m.yearReleased,
       totalCopies: m.totalCopies,
@@ -758,13 +779,18 @@ const Employee: React.FC = () => {
       });
       const created = await resp.json();
       finalDirectorID = created.movieDirectorId;
+      // Refresh the directors list
+      const updatedDirectors = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MovieDirector`).then((res) => res.json());
+      setDirectors(updatedDirectors);
+      // Update the state with the new director's ID
+      setEditMovieForm((f) => ({
+        ...f,
+        director: finalDirectorID.toString(),
+        directorFirstName: newDirectorFirstName,
+        directorLastName: newDirectorLastName,
+      }));
     } else {
-      const selectedDirector = directors.find(
-        (d) =>
-          d.firstName === editMovieForm.directorFirstName &&
-          d.lastName === editMovieForm.directorLastName
-      );
-      finalDirectorID = selectedDirector?.movieDirectorId || 1;
+      finalDirectorID = Number(editMovieForm.director);
     }
 
     const selectedGenre = movieGenres.find(
@@ -777,15 +803,17 @@ const Employee: React.FC = () => {
       title: editMovieForm.title,
       upc: editMovieForm.upc,
       movieDirectorID: finalDirectorID,
-      movieGenreID,
-      yearReleased: Number(editMovieForm.yearReleased),
+      movieGenreID: Number(editMovieForm.genre!),
+      yearReleased: Number(editMovieForm.yearReleased!),
       format: editMovieForm.format,
-      coverImagePath: editMovieForm.coverImagePath || '',
-      totalCopies: Number(editMovieForm.totalCopies),
-      availableCopies: Number(editMovieForm.availableCopies),
-      location: editMovieForm.itemLocation || '',
+      coverImagePath: editMovieForm.coverImagePath,
+      totalCopies: Number(editMovieForm.totalCopies!),
+      availableCopies: Number(editMovieForm.availableCopies!),
+      location: editMovieForm.itemLocation,
       itemTypeID: 2, // Movie
     };
+
+    console.log("Final payload:", payload);
 
     try {
       const res = await fetch(
@@ -1895,71 +1923,86 @@ const Employee: React.FC = () => {
               <TextField label="Title" fullWidth value={editMovieForm.title || ""} onChange={e => setEditMovieForm(f => ({ ...f, title: e.target.value }))} />
               <TextField label="UPC" fullWidth value={editMovieForm.upc || ""} onChange={e => setEditMovieForm(f => ({ ...f, upc: e.target.value }))} />
 
-              {/* Director Dropdown */}
-              <FormControl fullWidth>
-                <InputLabel>Director</InputLabel>
-                <Select
-                  value={editMovieForm.director || "other"}
-                  label="Director"
-                  onChange={(e) => {
-                    const v = e.target.value as string;
-                    if (v === "other") {
-                      setEditMovieForm(f => ({ ...f, director: "other", directorFirstName: "", directorLastName: "" }));
-                    } else {
-                      const selected = directors.find(d => `${d.firstName} ${d.lastName}` === v);
-                      if (selected) {
-                        setEditMovieForm(f => ({
-                          ...f,
-                          director: v,
-                          directorFirstName: selected.firstName,
-                          directorLastName: selected.lastName
-                        }));
-                      }
-                    }
-                  }}
-                >
-                  {directors.map(d => (
-                    <MenuItem key={d.movieDirectorId} value={`${d.firstName} ${d.lastName}`}>
-                      {d.firstName} {d.lastName}
-                    </MenuItem>
-                  ))}
-                  <MenuItem value="other">Other…</MenuItem>
-                </Select>
-              </FormControl>
+                {/* Director Dropdown */}
+<FormControl fullWidth>
+  <InputLabel>Director</InputLabel>
+  <Select
+    value={editMovieForm.director || "other"}
+    label="Director"
+    onChange={(e) => {
+      const v = e.target.value as string;
+      console.log("DirectorId selected:", v);
+      if (v === "other") {
+        setEditMovieForm((f) => ({
+          ...f,
+          director: "other",
+          directorFirstName: "",
+          directorLastName: "",
+        }));
+      } else {
+        const selectedDirector = directors.find(
+          (d) => d.movieDirectorId === Number(v)
+        );
+        if (selectedDirector) {
+          setEditMovieForm((f) => ({
+            ...f,
+            director: selectedDirector.movieDirectorId.toString(),
+            directorFirstName: selectedDirector.firstName,
+            directorLastName: selectedDirector.lastName,
+          }));
+        }
+      }
+    }}
+  >
+    {directors.map((d) => (
+      <MenuItem key={d.movieDirectorId} value={d.movieDirectorId}>
+        {d.firstName} {d.lastName}
+      </MenuItem>
+    ))}
+    <MenuItem value="other">Other…</MenuItem>
+  </Select>
+</FormControl>
+{!editMovieForm.directorFirstName && !editMovieForm.directorLastName && (
+  <Stack direction="row" spacing={2}>
+    <TextField
+      label="New Director First Name"
+      value={newDirectorFirstName}
+      onChange={(e) => setNewDirectorFirstName(e.target.value)}
+      fullWidth
+    />
+    <TextField
+      label="New Director Last Name"
+      value={newDirectorLastName}
+      onChange={(e) => setNewDirectorLastName(e.target.value)}
+      fullWidth
+    />
+  </Stack>
+)}
 
-              {/* Show name inputs if "Other" is selected */}
-              {editMovieForm.director === "other" && (
-                <Stack direction="row" spacing={2}>
-                  <TextField
-                    label="New Director First Name"
-                    value={newDirectorFirstName}
-                    onChange={e => setNewDirectorFirstName(e.target.value)}
-                    fullWidth
-                  />
-                  <TextField
-                    label="New Director Last Name"
-                    value={newDirectorLastName}
-                    onChange={e => setNewDirectorLastName(e.target.value)}
-                    fullWidth
-                  />
-                </Stack>
-              )}
-
-              {/* Genre Dropdown */}
-              <FormControl fullWidth>
-                <InputLabel>Genre</InputLabel>
-                <Select
-                  value={editMovieForm.genre || ""}
-                  label="Genre"
-                  onChange={(e) => setEditMovieForm(f => ({ ...f, genre: e.target.value }))}
-                >
-                  {movieGenres.map(g => (
-                    <MenuItem key={g.movieGenreId} value={g.description}>
-                      {g.description}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+<FormControl fullWidth>
+  <InputLabel>Genre</InputLabel>
+  <Select
+    value={editMovieForm.genre || ""}
+    label="Genre"
+    onChange={(e) => {
+      const selectedGenreId = e.target.value as string;
+      console.log("Selected Genre ID:", selectedGenreId); // Log the selected genre ID
+      const selectedGenre = movieGenres.find(
+        (g) => g.movieGenreId === Number(selectedGenreId)
+      );
+      setEditMovieForm((f) => ({
+        ...f,
+        genre: selectedGenreId,
+      }));
+    }}
+  >
+    {movieGenres.map((g) => (
+      <MenuItem key={g.movieGenreId} value={g.movieGenreId}>
+        {g.description}
+      </MenuItem>
+    ))}
+  </Select>
+</FormControl>
 
               <TextField label="Format" fullWidth value={editMovieForm.format || ""} onChange={e => setEditMovieForm(f => ({ ...f, format: e.target.value }))} />
               <TextField label="Year Released" type="number" fullWidth value={editMovieForm.yearReleased ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, yearReleased: Number(e.target.value) }))} />
@@ -1976,19 +2019,18 @@ const Employee: React.FC = () => {
                   }));
                 }}
               />
-              <TextField
-                label="Available Copies"
-                type="number"
-                fullWidth
-                value={editMovieForm.availableCopies ?? ""}
-                onChange={e => {
-                  const newAvailable = Number(e.target.value);
-                  setEditMovieForm(f => ({
-                    ...f,
-                    availableCopies: newAvailable
-                  }));
-                }}
-              />
+          <TextField
+            label="Available Copies"
+            type="number"
+            fullWidth
+            value={editMovieForm.availableCopies ?? ""}
+            onChange={(e) =>
+              setEditMovieForm((f) => ({
+                ...f,
+                availableCopies: Number(e.target.value),
+              }))
+            }
+          />
               <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, itemLocation: e.target.value }))} />
 
               <Box>
@@ -2011,7 +2053,7 @@ const Employee: React.FC = () => {
                         const form = new FormData();
                         form.append('Cover', file);
                         try {
-                          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Movie/upload-cover`, { method: 'POST', body: form });
+                          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`, { method: 'POST', body: form });
                           const { url } = await resp.json();
                           setEditMovieForm(f => ({ ...f, coverImagePath: url }));
                         } catch (err) {
