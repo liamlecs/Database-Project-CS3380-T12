@@ -250,10 +250,6 @@ const TechnologyForm: React.FC = () => {
           onChange={handleInputChange}
           required
         />
-
-        {/* Cover image */}
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-
         <input
           name="location"
           placeholder="Location (e.g., Shelf T1)"
@@ -261,6 +257,10 @@ const TechnologyForm: React.FC = () => {
           onChange={handleInputChange}
           required
         />
+        {/* Cover image */}
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+
+
       </div>
       <button type="submit">Add Technology</button>
     </form>

@@ -272,16 +272,16 @@ const MovieForm: React.FC = () => {
           onChange={handleInputChange}
           required
         />
-
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-
-        <input
+       <input
           name="location"
           placeholder="Location"
           value={formData.location}
           onChange={handleInputChange}
           required
         />
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+
+ 
       </div>
       <button type="submit">Add Movie</button>
     </form>

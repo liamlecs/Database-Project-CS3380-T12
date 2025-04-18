@@ -294,15 +294,16 @@ const BookForm = () => {
           onChange={handleInputChange}
           required
         />
-        {/* Cover image file input */}
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-        <input
+          <input
           name="location"
           placeholder="Location"
           value={formData.location}
           onChange={handleInputChange}
           required
         />
+        {/* Cover image file input */}
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+
       </div>
       <button type="submit">Add Book</button>
     </form>

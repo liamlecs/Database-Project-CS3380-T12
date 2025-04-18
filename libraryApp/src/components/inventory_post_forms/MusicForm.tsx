@@ -228,9 +228,6 @@ const MusicForm: React.FC = () => {
           onChange={handleInputChange}
           required
         />
-
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-
         <input
           name="location"
           placeholder="Location"
@@ -238,6 +235,9 @@ const MusicForm: React.FC = () => {
           onChange={handleInputChange}
           required
         />
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+
+
       </div>
       <button type="submit">Add Music</button>
     </form>
