@@ -173,5 +173,114 @@ WHERE Customer.Email = {email}
         {
             return _context.Waitlists.Any(e => e.WaitlistId == id);
         }
+
+
+        [HttpGet("waitlist-status/{customerId}")]
+public async Task<IActionResult> GetWaitlistStatus(int customerId)
+{
+    var notifications = await _context.Set<WaitlistNotificationDto>().FromSqlRaw(@"
+        SELECT
+            wn.NotificationId,
+            i.Title,
+            it.TypeName,
+            DATEADD(DAY, 2, wn.ProcessedDate) AS ExpirationDate
+        FROM WaitlistNotifications wn
+        JOIN Item i ON wn.ItemId = i.ItemID
+        JOIN ItemType it ON i.ItemTypeID = it.ItemTypeID
+        WHERE wn.CustomerId = {0}
+          AND wn.UserResponded = 0
+          AND wn.EmailSent = 1
+    ", customerId).ToListAsync();
+
+    return Ok(notifications);
+}
+
+
+[HttpPost("waitlist-accept/{notificationId}")]
+public async Task<IActionResult> AcceptWaitlist(int notificationId)
+{
+    var notification = await _context.WaitlistNotifications
+        .FirstOrDefaultAsync(n => n.NotificationId == notificationId);
+
+    if (notification == null)
+        return NotFound();
+
+    notification.UserResponded = true;
+    notification.UserAccepted = true;
+
+    var customer = await _context.Customers
+        .Include(c => c.BorrowerType)
+        .FirstOrDefaultAsync(c => c.CustomerId == notification.CustomerId);
+
+    if (customer == null)
+        return NotFound("Customer not found");
+
+    int loanPeriod = customer.BorrowerType.LoanPeriod;
+
+var transaction = new TransactionHistory
+    {
+        CustomerId = notification.CustomerId,
+        ItemId = notification.ItemId,
+DateBorrowed = DateOnly.FromDateTime(DateTime.Today),
+DueDate = DateOnly.FromDateTime(DateTime.Today.AddDays(loanPeriod))
+
+    };
+
+    // Save notification + transaction together
+    await _context.SaveChangesAsync(); // update the notification first
+
+    // Call the private method
+    return await PostTransactionHistoryPrivate(transaction);
+}
+
+
+[HttpPost("waitlist-reject/{notificationId}")]
+public async Task<IActionResult> RejectWaitlist(int notificationId)
+{
+    try
+    {
+    var notification = await _context.WaitlistNotifications
+        .FirstOrDefaultAsync(n => n.NotificationId == notificationId);
+
+    if (notification == null)
+        return NotFound($"Notification with ID {notificationId} not found.");
+
+// Mark as responded
+notification.UserResponded = true;
+await _context.SaveChangesAsync();
+    // Do not set UserAccepted — it stays false by default
+
+// Find the associated item
+    await _context.Database.ExecuteSqlRawAsync(
+            "UPDATE Item SET AvailableCopies = AvailableCopies + 1 WHERE ItemID = {0}",
+            notification.ItemId
+        );
+
+    return Ok();
+}
+catch (Exception ex)
+    {
+        // Log error (use your actual logger if available)
+        Console.WriteLine($"Error in RejectWaitlist: {ex.Message}");
+        return StatusCode(500, "An error occurred while rejecting the waitlist notification.");
+    }
+    }
+
+
+
+
+        private async Task<IActionResult> PostTransactionHistoryPrivate(TransactionHistory transactionHistory)
+{
+    if (ModelState.IsValid)
+    {
+        _context.TransactionHistories.Add(transactionHistory);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    return BadRequest();
+}
+
+
     }
 }

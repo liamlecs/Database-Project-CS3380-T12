@@ -20,7 +20,7 @@ const columns: GridColDef[] = [
     field: 'isReceived',
     headerName: 'Was Received?',
     type: 'boolean',
-    width: 90,
+    width: 150,
   },
 ];
 

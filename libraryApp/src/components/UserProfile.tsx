@@ -14,7 +14,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import Box from "@mui/material/Box";
-import { DataGrid, GridColDef } from "@mui/x-data-grid"; // Import DataGrid
+import { DataGrid, type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid"; // Import DataGrid
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -24,7 +24,7 @@ import Slider from "@mui/material/Slider"; // Import Slider
 import Typography from "@mui/material/Typography"; // Import Typography
 import Checkbox from "@mui/material/Checkbox"; // Import Checkbox
 import InventoryTable from "./InventoryTable"; // Adjust the path if it's in a different folder
-import { Button, Snackbar, Alert, AlertTitle } from "@mui/material";
+import { Button, Snackbar, Alert, AlertTitle, Stack } from "@mui/material";
 import dayjs from 'dayjs';
 
 interface Profile {
@@ -106,6 +106,109 @@ export default function UserProfile() {
   const [settingsSuccess, setSettingsSuccess] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+
+  interface WaitlistItem { 
+    notificationId: number;
+    title: string;
+    typeName: string;
+    expirationDate: string;
+  }
+
+  const [openWaitlistConfirmationDialog, setOpenWaitlistConfirmationDialog] = useState(false);
+  const [openWaitlistTimerFailureDialog, setOpenWaitlistTimerFailureDialog] = useState(false);
+  const [showExitWarningDialog, setShowExitWarningDialog] = useState(false);
+  
+  const [waitlistItems, setWaitlistItems] = React.useState<WaitlistItem[]>([]);
+  const [evilListItems, setEvilListItems] = React.useState<WaitlistItem[]>([]);
+
+  const handleConfirmWaitlist = async (id: number) => { //
+    //setOpenWaitlistTimerFailureDialog(false);
+    try{
+
+      const acceptResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-accept/${id}`,
+        { method: "POST" }
+      );
+
+      if (!acceptResponse.ok) {
+        throw new Error(`Reject API call failed with status ${acceptResponse.status}`);
+      }
+  
+      await fetchWaitlistStatus();
+
+      // Optionally update your state or UI here
+    } catch (error) {
+      console.error("Error accepting waitlist item:", error);
+    }
+  };
+
+  const handleRemoveWaitlist = async (id: number) => { //run reject api call, then remove from waitlistItems, then increment item by 1
+    //setOpenWaitlistTimerFailureDialog(false);
+
+    try{
+
+      const rejectResponse = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-reject/${id}`,
+        { method: "POST" }
+      );
+
+
+      if (!rejectResponse.ok) {
+        throw new Error(`Reject API call failed with status ${rejectResponse.status}`);
+      }
+  
+      await fetchWaitlistStatus();
+
+      // Optionally update your state or UI here
+    } catch (error) {
+      console.error("Error rejecting waitlist item:", error);
+    }
+  };
+
+
+  const columns: GridColDef[] = [
+    { field: "notificationId", headerName: "ID", flex: 1 },
+    { field: "title", headerName: "Title", flex: 1 }, 
+    { field: "typeName", headerName: "Item Type", flex: 1 },
+    { field: "expirationDate", headerName: "Expiration Date", flex: 1 },
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      align: "center",
+      renderCell: (params: GridRenderCellParams) => (
+        <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "flex-start", // prevent centering vertically
+      gap: 1,
+      mt: 1, // 👈 this pushes everything down
+      width: "100%",
+    }}
+  >
+    <Button
+      size="small"
+      variant="contained"
+      color="primary"
+      onClick={() => handleConfirmWaitlist(params.row.notificationId)}
+    >
+      Confirm
+    </Button>
+    <Button
+      size="small"
+      variant="outlined"
+      color="error"
+      onClick={() => handleRemoveWaitlist(params.row.notificationId)}
+    >
+      Remove
+    </Button>
+  </Box>
+      )
+      ,
+    },
+  ];
+
 
   // Add this password change handler
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -451,6 +554,91 @@ export default function UserProfile() {
       ) || [];
     setFilteredInventory(filtered);
   }, [inventorySearchQuery, profile?.transactionHistory]);
+
+  //check if any waitlist books are available
+    
+    const fetchWaitlistStatus = async () => {
+      try{
+
+        const userIdStr = localStorage.getItem("userId");
+        if (!userIdStr) {
+          console.error("unexpected error finding account info, aborting");
+          return;
+        }
+        const customerId = Number.parseInt(userIdStr, 10);
+
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-status/${customerId
+          }`);
+      const data = await response.json();
+
+      console.log("data: ",data);
+
+      const now = new Date();
+      const validItems = data
+  .filter((item: WaitlistItem) => new Date(item.expirationDate) > now)
+  .map((item: WaitlistItem) => ({
+    ...item,
+    expirationDate: dayjs(item.expirationDate).format("YYYY-MM-DD HH:mm:ss"),
+  }));
+
+const invalidItems = data
+  .filter((item: WaitlistItem) => new Date(item.expirationDate) <= now)
+  .map((item: WaitlistItem) => ({
+    ...item,
+    expirationDate: dayjs(item.expirationDate).format("YYYY-MM-DD HH:mm:ss"),
+  }));
+
+
+      setWaitlistItems(validItems);
+      setEvilListItems(invalidItems);
+      
+      await Promise.all(
+        invalidItems.map(async (item: WaitlistItem) => { //add increase of item
+          try {
+            const rejectResponse = await fetch(
+              `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-reject/${item.notificationId}`,
+              { method: "POST" }
+            );
+
+            if (!rejectResponse.ok) {
+              console.warn(
+                `Failed to reject notification ${item.notificationId}`
+              );
+            }
+            
+          } catch (error) {
+            console.error(
+              `Error rejecting notification ${item.notificationId}:`,
+              error
+            );
+          }
+        })
+      );
+
+      console.log("validItems: ",validItems );
+      console.log("should open validItems dialog: ",validItems.length>0 );
+      console.log("invalidItems: ",invalidItems);
+
+      if (validItems.length > 0) {
+        setOpenWaitlistConfirmationDialog(true);
+      } 
+      
+      if(invalidItems.length > 0){
+        setOpenWaitlistTimerFailureDialog(true);
+      }
+      
+  
+    }catch (error) {
+        console.error("Error fetching waitlist status", error);
+      }
+    };
+  
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+      React.useEffect(() => {
+    fetchWaitlistStatus();
+  
+  }, []);
 
   useEffect(() => {
     const filtered =
@@ -1427,6 +1615,140 @@ export default function UserProfile() {
       </Snackbar>
           </div>
         )}
+        {/*waitlist offer*/}
+        <Dialog
+  open={openWaitlistConfirmationDialog || openWaitlistTimerFailureDialog}
+  onClose={() => {
+    if (waitlistItems.length > 0) {
+      setShowExitWarningDialog(true); // User has pending confirmations
+    } else {
+      setOpenWaitlistConfirmationDialog(false);
+      setOpenWaitlistTimerFailureDialog(false);
+      window.location.reload();
+    }
+  }}
+  maxWidth="md"
+  fullWidth
+>
+  <DialogTitle>Waitlist Notifications</DialogTitle>
+  <DialogContent dividers>
+
+    {/* Valid waitlist items (still available) */}
+    {waitlistItems.length > 0 && (
+      <>
+        <Typography variant="h6" gutterBottom>
+          Books Available For Pickup
+        </Typography>
+        <DataGrid
+          autoHeight
+          rows={waitlistItems.map((item, index) => ({
+            ...item,
+            id: `valid-${index}`,
+          }))}
+          columns={columns}
+          pageSizeOptions={[5]}
+          disableRowSelectionOnClick
+          sx={{ marginBottom: 4 }}
+        />
+      </>
+    )}
+
+    {/* Expired waitlist items */}
+    {evilListItems.length > 0 && (
+      <>
+        <Typography variant="h6" gutterBottom>
+          Expired Reservations
+        </Typography>
+        <DataGrid
+          autoHeight
+          rows={evilListItems.map((item, index) => ({
+            ...item,
+            id: `expired-${index}`,
+          }))}
+          columns={[
+            { field: "notificationId", headerName: "ID", flex: 1 },
+            { field: "title", headerName: "Title", flex: 1 },
+            { field: "typeName", headerName: "Item Type", flex: 1 },
+            { field: "expirationDate", headerName: "Expired On", flex: 1 },
+          ]}
+          pageSizeOptions={[5]}
+          disableRowSelectionOnClick
+        />
+      </>
+    )}
+
+    {/* No items fallback */}
+    {waitlistItems.length === 0 && evilListItems.length === 0 && (
+      <Typography>No waitlist notifications at this time.</Typography>
+    )}
+  </DialogContent>
+  <DialogActions>
+    <Button
+      onClick={() => {
+        if (waitlistItems.length > 0) {
+          setShowExitWarningDialog(true); // User has pending confirmations
+        } else {
+          setOpenWaitlistConfirmationDialog(false);
+          setOpenWaitlistTimerFailureDialog(false);
+          window.location.reload();
+        }
+      }}
+      color="primary"
+      variant="contained"
+    >
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
+{/*dialog showing a warning if they attempt to exit without closing correctly */}
+<Dialog
+  open={showExitWarningDialog}
+  onClose={() => setShowExitWarningDialog(false)}
+>
+  <DialogTitle>Are you sure you want to exit?</DialogTitle>
+  <DialogContent>
+    <DialogContentText>
+      You still have items available for pickup. Exiting without making a decision will forfeit your claim and pass the item to the next customer in line.
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setShowExitWarningDialog(false)} color="secondary">
+      Cancel
+    </Button>
+    <Button
+      onClick={async () => {
+        try {
+          await Promise.all(
+            waitlistItems.map(async (item) => {
+              const response = await fetch(
+                `${import.meta.env.VITE_API_BASE_URL}/api/Waitlist/waitlist-reject/${item.notificationId}`,
+                { method: "POST" }
+              );
+              if (!response.ok) {
+                console.warn(`Failed to reject waitlist item ${item.notificationId}`);
+              }
+            })
+          );
+        } catch (error) {
+          console.error("Error auto-rejecting waitlist items:", error);
+        } finally {
+          setShowExitWarningDialog(false);
+          setOpenWaitlistConfirmationDialog(false);
+          setOpenWaitlistTimerFailureDialog(false);
+          window.location.reload(); // or call fetchWaitlistStatus();
+        }
+      }}
+      color="primary"
+      autoFocus
+    >
+      Yes, Exit Anyway
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
       </div>
     </div>
   );
