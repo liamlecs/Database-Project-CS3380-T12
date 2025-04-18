@@ -64,3 +64,41 @@ export interface BookDto {
     coverImagePath: string;
     location: string;
   }
+
+  export interface Item {
+    itemId: number;
+    title: string;
+    availabilityStatus: string;
+    totalCopies: number;
+    availableCopies: number;
+    location?: string;
+  }
+
+  export interface EventData {
+    eventId: number;
+    title: string;
+    startTimestamp: string;
+    endTimestamp: string;
+    location: string;
+    ageGroup: number;
+    categoryId: number;
+    isPrivate: boolean;
+    description: string;
+  }
+  
+  export interface EmployeeData {
+    employeeId: number;
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    supervisorID?: number;
+    username: string;
+    password?: string;
+  }
+  
+  export interface EditEmployeeDialogProps {
+    open: boolean;
+    employee: EmployeeData | null;
+    onClose: () => void;
+    onSave: (updatedData: EmployeeData) => void;
+  }
