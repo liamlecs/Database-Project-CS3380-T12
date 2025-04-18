@@ -46,7 +46,7 @@ const EditMovieDialog: React.FC<EditMovieDialogProps> = ({
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle>Edit Movie</DialogTitle>
       <DialogContent>
-        <Stack spacing={2}>
+        <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
             label="Title"
             fullWidth
