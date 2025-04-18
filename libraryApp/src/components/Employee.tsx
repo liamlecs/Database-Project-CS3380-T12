@@ -12,6 +12,7 @@ import CurrentMovies from './CurrentInventory/CurrentMovie'; // Ensure this path
 import CurrentMusic from './CurrentInventory/CurrentMusic'; // Ensure this path is correct
 import CurrentTechnology from './CurrentInventory/CurrentTechnology'; // Ensure this path is correct
 import EditBookDialog from './EditDialog/EditBookDialog.tsx';
+import EditMovieDialog from './EditDialog/EditMovieDialog.tsx';
 
 // --- Material UI Imports ---
 import {
@@ -718,7 +719,7 @@ const Employee: React.FC = () => {
   const [newDirectorLastName, setNewDirectorLastName] = useState("");
 
   const openEditMovie = (m: MovieDto) => {
-    console.log("Opening movie:", m); // for debugging
+    // console.log("Opening movie:", m); // for debugging
     setEditingMovie(m);
     setEditMovieForm({
       title: m.title,
@@ -1916,162 +1917,19 @@ const Employee: React.FC = () => {
         onClose={() => setOpenEditBookDialog(false)}
       />
 
-        <Dialog open={openEditMovieDialog} onClose={() => setOpenEditMovieDialog(false)} fullWidth maxWidth="md">
-          <DialogTitle>Edit Movie</DialogTitle>
-          <DialogContent>
-            <Stack spacing={2}>
-              <TextField label="Title" fullWidth value={editMovieForm.title || ""} onChange={e => setEditMovieForm(f => ({ ...f, title: e.target.value }))} />
-              <TextField label="UPC" fullWidth value={editMovieForm.upc || ""} onChange={e => setEditMovieForm(f => ({ ...f, upc: e.target.value }))} />
-
-                {/* Director Dropdown */}
-<FormControl fullWidth>
-  <InputLabel>Director</InputLabel>
-  <Select
-    value={editMovieForm.director || "other"}
-    label="Director"
-    onChange={(e) => {
-      const v = e.target.value as string;
-      console.log("DirectorId selected:", v);
-      if (v === "other") {
-        setEditMovieForm((f) => ({
-          ...f,
-          director: "other",
-          directorFirstName: "",
-          directorLastName: "",
-        }));
-      } else {
-        const selectedDirector = directors.find(
-          (d) => d.movieDirectorId === Number(v)
-        );
-        if (selectedDirector) {
-          setEditMovieForm((f) => ({
-            ...f,
-            director: selectedDirector.movieDirectorId.toString(),
-            directorFirstName: selectedDirector.firstName,
-            directorLastName: selectedDirector.lastName,
-          }));
-        }
-      }
-    }}
-  >
-    {directors.map((d) => (
-      <MenuItem key={d.movieDirectorId} value={d.movieDirectorId}>
-        {d.firstName} {d.lastName}
-      </MenuItem>
-    ))}
-    <MenuItem value="other">Other…</MenuItem>
-  </Select>
-</FormControl>
-{!editMovieForm.directorFirstName && !editMovieForm.directorLastName && (
-  <Stack direction="row" spacing={2}>
-    <TextField
-      label="New Director First Name"
-      value={newDirectorFirstName}
-      onChange={(e) => setNewDirectorFirstName(e.target.value)}
-      fullWidth
-    />
-    <TextField
-      label="New Director Last Name"
-      value={newDirectorLastName}
-      onChange={(e) => setNewDirectorLastName(e.target.value)}
-      fullWidth
-    />
-  </Stack>
-)}
-
-<FormControl fullWidth>
-  <InputLabel>Genre</InputLabel>
-  <Select
-    value={editMovieForm.genre || ""}
-    label="Genre"
-    onChange={(e) => {
-      const selectedGenreId = e.target.value as string;
-      console.log("Selected Genre ID:", selectedGenreId); // Log the selected genre ID
-      const selectedGenre = movieGenres.find(
-        (g) => g.movieGenreId === Number(selectedGenreId)
-      );
-      setEditMovieForm((f) => ({
-        ...f,
-        genre: selectedGenreId,
-      }));
-    }}
-  >
-    {movieGenres.map((g) => (
-      <MenuItem key={g.movieGenreId} value={g.movieGenreId}>
-        {g.description}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
-              <TextField label="Format" fullWidth value={editMovieForm.format || ""} onChange={e => setEditMovieForm(f => ({ ...f, format: e.target.value }))} />
-              <TextField label="Year Released" type="number" fullWidth value={editMovieForm.yearReleased ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, yearReleased: Number(e.target.value) }))} />
-              <TextField
-                label="Total Copies"
-                type="number"
-                fullWidth
-                value={editMovieForm.totalCopies ?? ""}
-                onChange={e => {
-                  const newTotal = Number(e.target.value);
-                  setEditMovieForm(f => ({
-                    ...f,
-                    totalCopies: newTotal
-                  }));
-                }}
-              />
-          <TextField
-            label="Available Copies"
-            type="number"
-            fullWidth
-            value={editMovieForm.availableCopies ?? ""}
-            onChange={(e) =>
-              setEditMovieForm((f) => ({
-                ...f,
-                availableCopies: Number(e.target.value),
-              }))
-            }
-          />
-              <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, itemLocation: e.target.value }))} />
-
-              <Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Cover Image
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {editMovieForm.coverImagePath && (
-                    <img src={editMovieForm.coverImagePath} alt="cover preview" style={{ width: 50, height: 75, objectFit: 'cover' }} />
-                  )}
-                  <Button variant="outlined" component="label" size="small">
-                    Choose Image
-                    <input
-                      type="file"
-                      hidden
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const form = new FormData();
-                        form.append('Cover', file);
-                        try {
-                          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Book/upload-cover`, { method: 'POST', body: form });
-                          const { url } = await resp.json();
-                          setEditMovieForm(f => ({ ...f, coverImagePath: url }));
-                        } catch (err) {
-                          console.error('Upload failed', err);
-                        }
-                      }}
-                    />
-                  </Button>
-                </Box>
-              </Box>
-            </Stack>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenEditMovieDialog(false)}>Cancel</Button>
-            <Button onClick={handleSaveEditMovie} variant="contained" color="primary">Save</Button>
-          </DialogActions>
-        </Dialog>
-
+        <EditMovieDialog
+          open={openEditMovieDialog}
+          editMovieForm={editMovieForm}
+          directors={directors}
+          movieGenres={movieGenres}
+          newDirectorFirstName={newDirectorFirstName}
+          newDirectorLastName={newDirectorLastName}
+          setEditMovieForm={setEditMovieForm}
+          setNewDirectorFirstName={setNewDirectorFirstName}
+          setNewDirectorLastName={setNewDirectorLastName}
+          handleSaveEditMovie={handleSaveEditMovie}
+          onClose={() => setOpenEditMovieDialog(false)}
+        />
 
         {/* Render the current view */}
         {currentView === 'dashboard' && renderDashboard()}
