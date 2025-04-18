@@ -1,7 +1,7 @@
 
 export interface BookDto {
-    bookId: number;
     itemId: number;
+    bookId: number;
     itemTypeId: number;
     title: string;
     isbn: string;
@@ -21,12 +21,12 @@ export interface BookDto {
   }
 
   export interface MovieDto {
+    itemId: number;
     movieId: number;
     upc: string;
     yearReleased: number;
     format: string;
     coverImagePath: string;
-    itemId: number;
     title: string;
     director: string;
     directorFirstName: string;
@@ -41,8 +41,10 @@ export interface BookDto {
   }
   
   export interface MusicDto {
-    musicId: number;
     itemId: number;
+    songId: number;
+    musicArtistID: number;
+    musicGenreID: number;
     itemTypeId: number;
     title: string;
     artistName: string;

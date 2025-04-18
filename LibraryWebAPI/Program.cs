@@ -13,7 +13,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 
+
 var builder = WebApplication.CreateBuilder(args);
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
 
 // ✅ Read allowed origins from appsettings.json
 var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();

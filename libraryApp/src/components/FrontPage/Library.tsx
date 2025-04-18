@@ -332,7 +332,8 @@ setOpenMaxCheckoutDialog(true);
                     <div className="carousel-track" style={{ display: "flex", gap: "1rem", overflowX: "auto", flex: 1 }}>
                         {filledItems.map((item, index) => (
                             <div
-                                key={`${title}-${index}`}
+                                // key={`${title}-${index}`}
+                                key={item ? `${title}-${item.itemId}` : `${title}-empty-${index}`}
                                 style={{
                                     width: "160px",
                                     minHeight: "260px",
