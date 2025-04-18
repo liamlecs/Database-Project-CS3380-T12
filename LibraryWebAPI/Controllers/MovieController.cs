@@ -85,7 +85,7 @@ namespace LibraryWebAPI.Controllers
                 {
                     Title = model.Title,
                     TotalCopies = model.TotalCopies,
-                    AvailableCopies = model.TotalCopies,
+                    AvailableCopies = model.AvailableCopies,
                     Location = model.Location,
                     ItemTypeID = model.ItemTypeID
                 };
@@ -164,9 +164,10 @@ namespace LibraryWebAPI.Controllers
             {
                 item.Title = model.Title;
                 item.TotalCopies = model.TotalCopies;
-                item.AvailableCopies = model.TotalCopies;
+                item.AvailableCopies = model.AvailableCopies;
                 item.Location = model.Location;
             }
+
 
             try
             {

@@ -726,6 +726,9 @@ const Employee: React.FC = () => {
   const [editMovieForm, setEditMovieForm] = useState<Partial<MovieDto>>({});
   const [directors, setDirectors] = useState<any[]>([]);
   const [movieGenres, setMovieGenres] = useState<any[]>([]);
+  const [newDirectorFirstName, setNewDirectorFirstName] = useState("");
+  const [newDirectorLastName, setNewDirectorLastName] = useState("");
+
   const openEditMovie = (m: MovieDto) => {
     console.log("Opening movie:", m); // for debugging
     setEditingMovie(m);
@@ -745,6 +748,7 @@ const Employee: React.FC = () => {
     });
     setOpenEditMovieDialog(true);
   };
+
   useEffect(() => {
     const fetchMovieDropdownData = async () => {
       try {
@@ -773,13 +777,26 @@ const Employee: React.FC = () => {
   const handleSaveEditMovie = async () => {
     if (!editingMovie) return;
 
-    const selectedDirector = directors.find(
-      (d) =>
-        d.firstName === editMovieForm.directorFirstName &&
-        d.lastName === editMovieForm.directorLastName
-    );
-
-    const movieDirectorID = selectedDirector?.movieDirectorId || 1;
+    let finalDirectorID: number;
+    if (editMovieForm.director === "other") {
+      const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/MovieDirector`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: newDirectorFirstName,
+          lastName: newDirectorLastName
+        })
+      });
+      const created = await resp.json();
+      finalDirectorID = created.movieDirectorId;
+    } else {
+      const selectedDirector = directors.find(
+        (d) =>
+          d.firstName === editMovieForm.directorFirstName &&
+          d.lastName === editMovieForm.directorLastName
+      );
+      finalDirectorID = selectedDirector?.movieDirectorId || 1;
+    }
 
     const selectedGenre = movieGenres.find(
       (g) => g.description === editMovieForm.genre
@@ -790,7 +807,7 @@ const Employee: React.FC = () => {
     const payload = {
       title: editMovieForm.title,
       upc: editMovieForm.upc,
-      movieDirectorID,
+      movieDirectorID: finalDirectorID,
       movieGenreID,
       yearReleased: Number(editMovieForm.yearReleased),
       format: editMovieForm.format,
@@ -798,7 +815,7 @@ const Employee: React.FC = () => {
       totalCopies: Number(editMovieForm.totalCopies),
       availableCopies: Number(editMovieForm.availableCopies),
       location: editMovieForm.itemLocation || '',
-      itemTypeID: 2, // movie item type id
+      itemTypeID: 2, // Movie
     };
 
     try {
@@ -813,6 +830,8 @@ const Employee: React.FC = () => {
 
       if (res.ok) {
         setOpenEditMovieDialog(false);
+        setNewDirectorFirstName("");
+        setNewDirectorLastName("");
         setRefreshData(true);
       } else {
         const err = await res.text();
@@ -2166,33 +2185,112 @@ const Employee: React.FC = () => {
             <Stack spacing={2}>
               <TextField label="Title" fullWidth value={editMovieForm.title || ""} onChange={e => setEditMovieForm(f => ({ ...f, title: e.target.value }))} />
               <TextField label="UPC" fullWidth value={editMovieForm.upc || ""} onChange={e => setEditMovieForm(f => ({ ...f, upc: e.target.value }))} />
-              <TextField label="Director First Name" fullWidth value={editMovieForm.directorFirstName || ""} onChange={e => setEditMovieForm(f => ({ ...f, directorFirstName: e.target.value }))} />
-              <TextField label="Director Last Name" fullWidth value={editMovieForm.directorLastName || ""} onChange={e => setEditMovieForm(f => ({ ...f, directorLastName: e.target.value }))} />
-              <TextField label="Genre" fullWidth value={editMovieForm.genre || ""} onChange={e => setEditMovieForm(f => ({ ...f, genre: e.target.value }))} />
+
+              {/* Director Dropdown */}
+              <FormControl fullWidth>
+                <InputLabel>Director</InputLabel>
+                <Select
+                  value={editMovieForm.director || "other"}
+                  label="Director"
+                  onChange={(e) => {
+                    const v = e.target.value as string;
+                    if (v === "other") {
+                      setEditMovieForm(f => ({ ...f, director: "other", directorFirstName: "", directorLastName: "" }));
+                    } else {
+                      const selected = directors.find(d => `${d.firstName} ${d.lastName}` === v);
+                      if (selected) {
+                        setEditMovieForm(f => ({
+                          ...f,
+                          director: v,
+                          directorFirstName: selected.firstName,
+                          directorLastName: selected.lastName
+                        }));
+                      }
+                    }
+                  }}
+                >
+                  {directors.map(d => (
+                    <MenuItem key={d.movieDirectorId} value={`${d.firstName} ${d.lastName}`}>
+                      {d.firstName} {d.lastName}
+                    </MenuItem>
+                  ))}
+                  <MenuItem value="other">Other…</MenuItem>
+                </Select>
+              </FormControl>
+
+              {/* Show name inputs if "Other" is selected */}
+              {editMovieForm.director === "other" && (
+                <Stack direction="row" spacing={2}>
+                  <TextField
+                    label="New Director First Name"
+                    value={newDirectorFirstName}
+                    onChange={e => setNewDirectorFirstName(e.target.value)}
+                    fullWidth
+                  />
+                  <TextField
+                    label="New Director Last Name"
+                    value={newDirectorLastName}
+                    onChange={e => setNewDirectorLastName(e.target.value)}
+                    fullWidth
+                  />
+                </Stack>
+              )}
+
+              {/* Genre Dropdown */}
+              <FormControl fullWidth>
+                <InputLabel>Genre</InputLabel>
+                <Select
+                  value={editMovieForm.genre || ""}
+                  label="Genre"
+                  onChange={(e) => setEditMovieForm(f => ({ ...f, genre: e.target.value }))}
+                >
+                  {movieGenres.map(g => (
+                    <MenuItem key={g.movieGenreId} value={g.description}>
+                      {g.description}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
               <TextField label="Format" fullWidth value={editMovieForm.format || ""} onChange={e => setEditMovieForm(f => ({ ...f, format: e.target.value }))} />
               <TextField label="Year Released" type="number" fullWidth value={editMovieForm.yearReleased ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, yearReleased: Number(e.target.value) }))} />
-              <TextField label="Total Copies" type="number" fullWidth value={editMovieForm.totalCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, totalCopies: Number(e.target.value) }))} />
-              <TextField label="Available Copies" type="number" fullWidth value={editMovieForm.availableCopies ?? ""} onChange={e => setEditMovieForm(f => ({ ...f, availableCopies: Number(e.target.value) }))} />
-              <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, location: e.target.value }))} />
+              <TextField
+                label="Total Copies"
+                type="number"
+                fullWidth
+                value={editMovieForm.totalCopies ?? ""}
+                onChange={e => {
+                  const newTotal = Number(e.target.value);
+                  setEditMovieForm(f => ({
+                    ...f,
+                    totalCopies: newTotal
+                  }));
+                }}
+              />
+              <TextField
+                label="Available Copies"
+                type="number"
+                fullWidth
+                value={editMovieForm.availableCopies ?? ""}
+                onChange={e => {
+                  const newAvailable = Number(e.target.value);
+                  setEditMovieForm(f => ({
+                    ...f,
+                    availableCopies: newAvailable
+                  }));
+                }}
+              />
+              <TextField label="Location" fullWidth value={editMovieForm.itemLocation || ""} onChange={e => setEditMovieForm(f => ({ ...f, itemLocation: e.target.value }))} />
+
               <Box>
                 <Typography variant="body2" sx={{ mb: 1 }}>
                   Cover Image
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {/* preview */}
                   {editMovieForm.coverImagePath && (
-                    <img
-                      src={editMovieForm.coverImagePath}
-                      alt="cover preview"
-                      style={{ width: 50, height: 75, objectFit: 'cover' }}
-                    />
+                    <img src={editMovieForm.coverImagePath} alt="cover preview" style={{ width: 50, height: 75, objectFit: 'cover' }} />
                   )}
-                  {/* file picker */}
-                  <Button
-                    variant="outlined"
-                    component="label"
-                    size="small"
-                  >
+                  <Button variant="outlined" component="label" size="small">
                     Choose Image
                     <input
                       type="file"
@@ -2204,10 +2302,7 @@ const Employee: React.FC = () => {
                         const form = new FormData();
                         form.append('Cover', file);
                         try {
-                          const resp = await fetch(
-                            `${import.meta.env.VITE_API_BASE_URL}/api/Movie/upload-cover`,
-                            { method: 'POST', body: form }
-                          );
+                          const resp = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/Movie/upload-cover`, { method: 'POST', body: form });
                           const { url } = await resp.json();
                           setEditMovieForm(f => ({ ...f, coverImagePath: url }));
                         } catch (err) {
