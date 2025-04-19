@@ -209,8 +209,10 @@ cd Database-Project-CS3380-T12
 ```bash
 cd libraryWebAPI
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<your_connection_string>"
-dotnet user-secrets set "AzureBlobStorage:ConnectionString" "<azure_blob_storage_string>"
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "..."
+dotnet user-secrets set "AzureBlobStorage:ConnectionString" "..."
+dotnet user-secrets set "Smtp:Password" "..."
+dotnet build
 dotnet run
 ```
 
@@ -227,9 +229,9 @@ Create a `.env` file:
 ```env
 VITE_API_BASE_URL=http://localhost:5217
 VITE_PUBLIC_ASSET_BASE_URL=http://localhost:5217
-VITE_EMAILJS_USER_ID=...
-VITE_EMAILJS_SERVICE_ID=...
-VITE_EMAILJS_TEMPLATE_ID=...
+VITE_EMAILJS_USER_ID=your_id
+VITE_EMAILJS_SERVICE_ID=your_service
+VITE_EMAILJS_TEMPLATE_ID=your_template
 ```
 
 Then run the app:
