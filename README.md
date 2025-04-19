@@ -154,14 +154,14 @@ Handles HTTP endpoints for each entity and workflow:
 
 ### 🎨 `libraryApp/` – React + Vite Frontend citeturn10view0
 
-#### 1. **CI/CD Workflow** citeturn17view0  
+#### 1. **CI/CD Workflow**
 - **`.github/workflows/azure_deploy.yml`** – GitHub Actions pipeline to build and deploy API & frontend to Azure.
 
-#### 2. **Public Assets** citeturn16view0  
+#### 2. **Public Assets** 
 - **`public/book_covers/`**, **`device_covers/`**, **`movie_covers/`**, **`music_covers/`** – Sample images.  
 - **`vite.svg`** – Vite logo for default template.
 
-#### 3. **Config & Tooling** citeturn10view0  
+#### 3. **Config & Tooling** 
 - **`.gitignore`**, **`eslint.config.js`** – Lint rules.  
 - **`index.html`** – Main HTML template.  
 - **`package.json`**, **`package-lock.json`** – Dependencies & scripts.  
@@ -169,20 +169,20 @@ Handles HTTP endpoints for each entity and workflow:
 - **`vite.config.ts`** – Vite build configuration.  
 - **`vercel.json`** – Frontend deployment settings.
 
-#### 4. **`src/`** citeturn11view0
+#### 4. **`src/`** 
 
 - **`assets/`** – Static images imported by components.  
-- **`components/`** citeturn12view0  
+- **`components/`**
   - **`CheckoutPage/`**, **`Return.tsx`**, **`InventoryTable.tsx`**, **`SearchBar.tsx`**, **`ReportsOutlet.tsx`**, **`LibraryHistory.tsx`**, **`UserProfile.tsx`**, **`RegistrationPage.tsx`**, **`TermsAndConditionsPage.tsx`**, **`ContactPage.tsx`**, etc. — All UI components and pages for user flows.  
   - **Shared** utilities: `SharedCard.tsx`, `Loader.tsx`, `BackToTopButton.tsx`, `Layout.tsx`, `NavBar.tsx`, `PageTransition.tsx`, `AnimatedPage.tsx`.  
 
-- **`contexts/CheckoutContext.tsx`** citeturn13view0  
+- **`contexts/CheckoutContext.tsx`**
   Manages global checkout cart and user session state via React Context.
 
-- **`types/Book.ts`** citeturn14view0  
+- **`types/Book.ts`** 
   Defines TypeScript interfaces for API data shapes (e.g., `Book`, `Movie`, `User`).
 
-- **`utils/transformBookData.ts`** citeturn15view0  
+- **`utils/transformBookData.ts`**
   Utility to normalize API payloads into UI-friendly formats.
 
 - **Entry Points**  
