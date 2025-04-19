@@ -161,7 +161,7 @@ Database-Project-CS3380-T12/
    ```bash
    dotnet run
    ```
-   By default, it listens on `https://localhost:5217` (or a similar port).
+   By default, it listens on `http://localhost:5217` (or a similar port).
 
 ### Front End (React)
 
@@ -172,7 +172,7 @@ Database-Project-CS3380-T12/
    ```
 3. **Configure environment** (e.g., `.env.local`):
    ```env
-   VITE_API_BASE_URL=https://localhost:5217
+   VITE_API_BASE_URL=http://localhost:5217
    ```
 4. **Start the dev server**:
    ```bash
