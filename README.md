@@ -250,6 +250,7 @@ By default, the API runs at: `http://localhost:5217`
 When running the backend locally on `http://localhost:5217`, you can access the full Swagger UI for exploring and testing the API:
 
 👉 [Swagger UI](http://localhost:5217/swagger/index.html)
+
 ![image](https://github.com/user-attachments/assets/e0e23d0a-7c78-4b65-8b3a-32753bf067bd)
 
 
