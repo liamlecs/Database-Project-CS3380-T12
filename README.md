@@ -49,6 +49,10 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
   ![image](https://github.com/user-attachments/assets/5ca7f736-b7b2-4b98-8416-f30b68d0839f)
   ![image](https://github.com/user-attachments/assets/e6133c60-1cf1-405c-a912-1f31fcf5f2cf)
   ![image](https://github.com/user-attachments/assets/bbfbe8d1-dfc8-4dda-9c3c-3ac988b763ac)
+  ![image](https://github.com/user-attachments/assets/88e8b02d-44a4-4b95-b57e-9b2831927a98)
+  ![image](https://github.com/user-attachments/assets/660a5b92-980e-4a41-bf79-e1a3a60f34dc)
+
+
 
 
 - **Search & Waitlists**  
