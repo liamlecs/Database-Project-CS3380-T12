@@ -56,7 +56,8 @@ namespace LibraryWebAPI.Controllers
                     totalCopies = b.Item.TotalCopies, // from related Item
                     availableCopies = b.Item.AvailableCopies, // from related Item
                     itemLocation = b.Item.Location, // from related Item
-                    b.IsDeactivated
+                    b.IsDeactivated,
+                    itemTypeId = b.Item.ItemTypeID // Get this value from the related Item
                 })
                 .ToListAsync();
 

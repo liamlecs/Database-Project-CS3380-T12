@@ -62,7 +62,9 @@ const CurrentTechnology: React.FC<CurrentTechnologyProps> = ({ technology, onEdi
                               size="small"
                               color="error"
                               onClick={() => {
-                                /* your delete handler */
+                                if (onDelete) {
+                                  onDelete(t); // Call the onDelete function with the current book
+                                }
                               }}
                             >
                               <DeleteIcon fontSize="inherit" />

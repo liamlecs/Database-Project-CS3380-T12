@@ -28,6 +28,7 @@ namespace LibraryWebAPI.Controllers
                 .Include(t => t.DeviceType)
                 .Include(t => t.Manufacturer)
                 .Include(t => t.Item)
+                .Where(t => t.IsDeactivated == false) // Exclude deactivated technologies
                 .Select(t => new TechnologyDto
                 {
                     DeviceId = t.DeviceId,
@@ -42,6 +43,8 @@ namespace LibraryWebAPI.Controllers
                     ItemId = t.ItemID,
                     availableCopies = t.Item.AvailableCopies,
                     Location = t.Item.Location!,
+                    IsDeactivated = t.IsDeactivated,
+                    ItemTypeID = t.Item.ItemTypeID // Get this value from the related Item
                 })
                 .ToListAsync();
 
@@ -53,7 +56,8 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Technology>> GetTechnology(int id)
         {
             var technology = await _context.Technologies
-                
+
+                .Where(t => t.IsDeactivated == false) // Exclude deactivated technologies    
                 .FirstOrDefaultAsync(m => m.DeviceId == id);
 
             if (technology == null)
@@ -220,21 +224,25 @@ public async Task<IActionResult> EditTechnologyWithItem(int id, [FromBody] Techn
     }
 }
 
-        // DELETE: api/Technology/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTechnology(int id)
-        {
-            var technology = await _context.Technologies.FindAsync(id);
-            if (technology == null)
-            {
-                return NotFound();
-            }
+// DELETE: api/Technology/{id}
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteTechnology(int id)
+{
+    // Find the technology by ID
+    var technology = await _context.Technologies
+        .FirstOrDefaultAsync(t => t.DeviceId == id);
 
-            _context.Technologies.Remove(technology);
-            await _context.SaveChangesAsync();
+    if (technology == null)
+    {
+        return NotFound();
+    }
 
-            return NoContent();
-        }
+    // Mark the technology as deactivated
+    technology.IsDeactivated = true; // Set the IsDeactivated field to true
+    await _context.SaveChangesAsync();
+
+    return NoContent();
+}
 
         private bool TechnologyExists(int id)
         {

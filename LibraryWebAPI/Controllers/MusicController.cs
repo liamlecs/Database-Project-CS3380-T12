@@ -28,6 +28,7 @@ namespace LibraryWebAPI.Controllers
                 .Include(m => m.MusicArtist)  // if needed for additional details
                 .Include(m => m.MusicGenre)   // if needed for additional details
                 .Include(m => m.Item)         // to get the item details such as Title, availableCopies, Location, TotalCopies
+                .Where(m => m.IsDeactivated == false) // Exclude deactivated music
                 .Select(m => new MusicDto
                 {
                     SongId = m.SongId,
@@ -44,7 +45,8 @@ namespace LibraryWebAPI.Controllers
                     CoverImagePath = m.CoverImagePath,
                     availableCopies = m.Item.AvailableCopies,
                     Location = m.Item.Location,
-                    ItemTypeID = m.Item.ItemTypeID  // Get this value from the related Item
+                    ItemTypeID = m.Item.ItemTypeID,  // Get this value from the related Item
+                    IsDeactivated = m.IsDeactivated,
                 })
                 .ToListAsync();
 
@@ -56,6 +58,7 @@ namespace LibraryWebAPI.Controllers
         public async Task<ActionResult<Music>> GetMusic(int id)
         {
             var music = await _context.Musics
+                .Where(m => m.IsDeactivated == false) // Exclude deactivated music
                 .FirstOrDefaultAsync(m => m.SongId == id);
 
             if (music == null)
@@ -164,21 +167,25 @@ public async Task<IActionResult> EditMusicWithItem(int id, [FromBody] MusicDto m
     }
 }
 
-        // DELETE: api/Music/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMusic(int id)
-        {
-            var music = await _context.Musics.FindAsync(id);
-            if (music == null)
-            {
-                return NotFound();
-            }
+// DELETE: api/Music/{id}
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteMusic(int id)
+{
+    // Find the music by ID
+    var music = await _context.Musics
+        .FirstOrDefaultAsync(m => m.SongId == id);
 
-            _context.Musics.Remove(music);
-            await _context.SaveChangesAsync();
+    if (music == null)
+    {
+        return NotFound();
+    }
 
-            return NoContent();
-        }
+    // Mark the music as deactivated
+    music.IsDeactivated = true; // Set the IsDeactivated field to true
+    await _context.SaveChangesAsync();
+
+    return NoContent();
+}
 
         private bool MusicExists(int id)
         {

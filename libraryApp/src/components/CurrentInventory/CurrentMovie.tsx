@@ -68,7 +68,9 @@ const CurrentMovies: React.FC<CurrentMoviesProps> = ({ movies, onEdit, onDelete 
                               size="small"
                               color="error"
                               onClick={() => {
-                                /* your delete handler */
+                                if (onDelete) {
+                                  onDelete(m); // Call the onDelete function with the current book
+                                }
                               }}
                             >
                               <DeleteIcon fontSize="inherit" />

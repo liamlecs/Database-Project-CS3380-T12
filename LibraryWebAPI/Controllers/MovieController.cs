@@ -30,6 +30,7 @@ namespace LibraryWebAPI.Controllers
                 .Include(m => m.MovieDirector)
                 .Include(m => m.Item)
                 .Include(m => m.MovieGenre)
+                .Where(m => m.IsDeactivated == false) // Exclude deactivated movies
                 .Select(m => new
                 {
                     m.MovieId,
@@ -46,7 +47,8 @@ namespace LibraryWebAPI.Controllers
                     TotalCopies = m.Item.TotalCopies,
                     AvailableCopies = m.Item.AvailableCopies,
                     ItemLocation = m.Item.Location,
-                    m.IsDeactivated
+                    m.IsDeactivated,
+                    itemTypeId = m.Item.ItemTypeID // Get this value from the related Item
                 })
                 .ToListAsync();
 
@@ -61,6 +63,7 @@ namespace LibraryWebAPI.Controllers
                 .Include(m => m.Item)
                 .Include(m => m.MovieDirector)
                 .Include(m => m.MovieGenre)
+                .Where(m => m.IsDeactivated == false) // Exclude deactivated movies
                 .FirstOrDefaultAsync(m => m.MovieId == id);
 
             if (movie == null)
@@ -189,33 +192,20 @@ namespace LibraryWebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMovie(int id)
         {
-            var movie = await _context.Movies.FindAsync(id);
+            // Find the movie by ID
+            var movie = await _context.Movies
+                .FirstOrDefaultAsync(m => m.MovieId == id);
+
             if (movie == null)
+            {
                 return NotFound();
-
-            var item = await _context.Items.FindAsync(movie.ItemId);
-
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                _context.Movies.Remove(movie);
-                if (item != null)
-                    _context.Items.Remove(item);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Ok(new { message = "Movie and associated item deleted successfully" });
             }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    message = "Error deleting movie",
-                    error = ex.Message
-                });
-            }
+
+            // Mark the movie as deactivated
+            movie.IsDeactivated = true; // Set the IsDeactivated field to true
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         // POST: api/Movie/upload-cover

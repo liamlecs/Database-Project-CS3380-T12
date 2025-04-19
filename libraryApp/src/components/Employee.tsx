@@ -761,6 +761,45 @@ const Employee: React.FC = () => {
   const [movieGenres, setMovieGenres] = useState<any[]>([]);
   const [newDirectorFirstName, setNewDirectorFirstName] = useState("");
   const [newDirectorLastName, setNewDirectorLastName] = useState("");
+  const [openConfirmDeleteMovieDialog, setOpenConfirmDeleteMovieDialog] = useState(false);
+  const [movieToDelete, setMovieToDelete] = useState<MovieDto | null>(null);
+
+  const handleDeleteMovieClick = (movie: MovieDto) => {
+    setMovieToDelete(movie);
+    setOpenConfirmDeleteMovieDialog(true);
+  };
+
+  const handleConfirmDeleteMovie = async () => {
+    if (movieToDelete) {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Movie/${movieToDelete.movieId}`,
+          {
+            method: 'DELETE',
+          }
+        );
+  
+        if (response.ok) {
+          setRefreshData(true); // Refresh the inventory list
+          setDialogMessage('Movie deactivated successfully.');
+          setOpenDialog(true);
+        } else {
+          const errorData = await response.json();
+          setDialogMessage(errorData.message || 'Failed to deactivate movie.');
+          setOpenDialog(true);
+        }
+      } catch (error) {
+        console.error('Error deactivating movie:', error);
+        setDialogMessage('Network error. Please try again.');
+        setOpenDialog(true);
+      } finally {
+        setMovieToDelete(null);
+        setOpenConfirmDeleteMovieDialog(false);
+      }
+    }
+  };
+
+
 
   const openEditMovie = (m: MovieDto) => {
     // console.log("Opening movie:", m); // for debugging
@@ -888,6 +927,41 @@ const Employee: React.FC = () => {
   const [editingMusic, setEditingMusic] = useState<MusicDto | null>(null);
   const [editMusicForm, setEditMusicForm] = useState<Partial<MusicDto>>({});
   const [openEditMusicDialog, setOpenEditMusicDialog] = useState(false);
+  const [openConfirmDeleteMusicDialog, setOpenConfirmDeleteMusicDialog] = useState(false);
+  const [musicToDelete, setMusicToDelete] = useState<MusicDto | null>(null);
+  const handleDeleteMusicClick = (music: MusicDto) => {
+    setMusicToDelete(music);
+    setOpenConfirmDeleteMusicDialog(true);
+  };
+  const handleConfirmDeleteMusic = async () => {
+    if (musicToDelete) {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Music/${musicToDelete.songId}`,
+          {
+            method: 'DELETE',
+          }
+        );
+  
+        if (response.ok) {
+          setRefreshData(true); // Refresh the inventory list
+          setDialogMessage('Music deactivated successfully.');
+          setOpenDialog(true);
+        } else {
+          const errorData = await response.json();
+          setDialogMessage(errorData.message || 'Failed to deactivate music.');
+          setOpenDialog(true);
+        }
+      } catch (error) {
+        console.error('Error deactivating music:', error);
+        setDialogMessage('Network error. Please try again.');
+        setOpenDialog(true);
+      } finally {
+        setMusicToDelete(null);
+        setOpenConfirmDeleteMusicDialog(false);
+      }
+    }
+  };
   const openEditMusic = (m: MusicDto) => {
     setEditingMusic(m);
     setEditMusicForm ({
@@ -1029,6 +1103,41 @@ const Employee: React.FC = () => {
   const [editingTech, setEditingTech] = useState<TechnologyDto | null>(null);
   const [editTechForm, setEditTechForm] = useState<Partial<TechnologyDto>>({});
   const [openEditTechDialog, setOpenEditTechDialog] = useState(false);
+  const [openConfirmDeleteTechnologyDialog, setOpenConfirmDeleteTechnologyDialog] = useState(false);
+  const [technologyToDelete, setTechnologyToDelete] = useState<TechnologyDto | null>(null);
+  const handleDeleteTechnologyClick = (technology: TechnologyDto) => {
+    setTechnologyToDelete(technology);
+    setOpenConfirmDeleteTechnologyDialog(true);
+  };
+  const handleConfirmDeleteTechnology = async () => {
+    if (technologyToDelete) {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/Technology/${technologyToDelete.deviceId}`,
+          {
+            method: 'DELETE',
+          }
+        );
+  
+        if (response.ok) {
+          setRefreshData(true); // Refresh the inventory list
+          setDialogMessage('Technology deactivated successfully.');
+          setOpenDialog(true);
+        } else {
+          const errorData = await response.json();
+          setDialogMessage(errorData.message || 'Failed to deactivate technology.');
+          setOpenDialog(true);
+        }
+      } catch (error) {
+        console.error('Error deactivating technology:', error);
+        setDialogMessage('Network error. Please try again.');
+        setOpenDialog(true);
+      } finally {
+        setTechnologyToDelete(null);
+        setOpenConfirmDeleteTechnologyDialog(false);
+      }
+    }
+  };
   const openEditTech = (t: TechnologyDto) => {
     setEditingTech(t);
     setEditTechForm({
@@ -1860,27 +1969,21 @@ const Employee: React.FC = () => {
     <CurrentMovies
       movies={movieInventory}
       onEdit={openEditMovie}
-      onDelete={m => {
-        /* delete‐movie handler */
-      }}
+      onDelete={(movie) => handleDeleteMovieClick(movie)} // Open confirmation dialog
     />
   )}
   {selectedItemType === "Music" && (
     <CurrentMusic
       music={musicInventory}
       onEdit={openEditMusic}
-      onDelete={m => {
-        /* delete‐music handler */
-      }}
+      onDelete={(music) => handleDeleteMusicClick(music)} // Open confirmation dialog
     />
   )}
   {selectedItemType === "Technology" && (
     <CurrentTechnology
       technology={technologyInventory}
       onEdit={openEditTech}
-      onDelete={t => {
-        /* delete‐technology handler */
-      }}
+      onDelete={(technology) => handleDeleteTechnologyClick(technology)} // Open confirmation dialog
     />
   )}
 </Box>
@@ -2345,6 +2448,68 @@ const Employee: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog
+  open={openConfirmDeleteMovieDialog}
+  onClose={() => setOpenConfirmDeleteMovieDialog(false)}
+>
+  <DialogTitle>Confirm Deactivation</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to deactivate this movie? <br />
+      <strong>This action is permanent and cannot be undone.</strong>
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenConfirmDeleteMovieDialog(false)} color="secondary">
+      Cancel
+    </Button>
+    <Button onClick={handleConfirmDeleteMovie} color="error" variant="contained">
+      Deactivate
+    </Button>
+  </DialogActions>
+</Dialog>
+<Dialog
+  open={openConfirmDeleteMusicDialog}
+  onClose={() => setOpenConfirmDeleteMusicDialog(false)}
+>
+  <DialogTitle>Confirm Deactivation</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to deactivate this music? <br />
+      <strong>This action is permanent and cannot be undone.</strong>
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenConfirmDeleteMusicDialog(false)} color="secondary">
+      Cancel
+    </Button>
+    <Button onClick={handleConfirmDeleteMusic} color="error" variant="contained">
+      Deactivate
+    </Button>
+  </DialogActions>
+</Dialog>
+
+<Dialog
+  open={openConfirmDeleteTechnologyDialog}
+  onClose={() => setOpenConfirmDeleteTechnologyDialog(false)}
+>
+  <DialogTitle>Confirm Deactivation</DialogTitle>
+  <DialogContent>
+    <Typography>
+      Are you sure you want to deactivate this technology? <br />
+      <strong>This action is permanent and cannot be undone.</strong>
+    </Typography>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setOpenConfirmDeleteTechnologyDialog(false)} color="secondary">
+      Cancel
+    </Button>
+    <Button onClick={handleConfirmDeleteTechnology} color="error" variant="contained">
+      Deactivate
+    </Button>
+  </DialogActions>
+</Dialog>
 
 
         {/* Render the current view */}
