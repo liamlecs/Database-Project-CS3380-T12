@@ -12,13 +12,13 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 2. [Features](#features)
 3. [Technology Stack](#technology-stack)
 4. [Folder Structure](#folder-structure)
-6. [Installation & Setup](#installation--setup)
-7. [Deployment](#deployment)
-8. [Environment Variables](#environment-variables)
-9. [Contributing](#contributing)
+5. [Installation & Setup](#installation--setup)
+6. [Deployment](#deployment)
+7. [Environment Variables](#environment-variables)
+8. [Contributing](#contributing)
+9. [Contributors](#contributors)
 10. [License](#license)
-11. [Contributors](#contributors)
-12. [Contact](#contact)
+11. [Contact](#contact)
 
 ---
 <a name="overview"></a>
