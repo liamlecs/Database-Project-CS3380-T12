@@ -1,21 +1,33 @@
 /* TermsAndConditionsPage.css */
 .terms-container {
-  margin: 2rem auto;          /* Center the container */
+  max-width: 900px;
+  margin: 2rem auto 0 auto;        /* only top & sides */
+  padding: 2rem 2.5rem 3rem 2.5rem; /* add padding-bottom for breathing room */
+  background: rgba(255, 255, 255, 0.9);  /* translucent “card” */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   font-family: Arial, sans-serif;
   color: #333;
   line-height: 1.6;
-  max-width: 900px;          
-  text-align: center;         /* Center all text by default */
+  text-align: left;  /* left‑align text for readability */
+}
+.terms-page {
+  background: url('../assets/terms-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;       /* at least full viewport height */
+  padding-top: 80px;       /* offset for your header/nav */
+  box-sizing: border-box;  /* so padding doesn’t push you over 100vh */
 }
 
-.title {
+.terms-container .title {
+  text-align: center;
   font-size: 2rem;
   margin-bottom: 1rem;
   font-weight: bold;
+  color: #222;
 }
 
-/* Center all headings and paragraphs */
-h2 {
+.terms-container h2 {
   font-size: 1.3rem;
   margin-top: 2rem;
   margin-bottom: 0.5rem;
@@ -23,9 +35,21 @@ h2 {
   color: #444;
 }
 
-/* Style for bullet points container */
 .bullet-points {
-  display: inline-block;
-  text-align: left;
-  margin: 0 auto;
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+}
+.bullet-points p:first-child {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.bullet-points p + p {
+  position: relative;
+  margin-left: 1rem;
+}
+.bullet-points p + p::before {
+  content: "•";
+  position: absolute;
+  left: -1rem;
+  color: #444;
 }

@@ -3,7 +3,8 @@ import "./TermsAndConditionsPage.css";
 
 export default function TermsAndConditionsPage() {
   return (
-    <div className="terms-container" style={{ marginTop: "80px" }}>
+    <div className="terms-page">
+    <div className="terms-container">
       <h1 className="title">E-Library Code of Conduct</h1>
 
       <h2>General Expectations</h2>
@@ -45,6 +46,7 @@ export default function TermsAndConditionsPage() {
       <p><strong>Tobacco-Free Campus:</strong> Smoking and electronic cigarettes are prohibited.</p>
       <p><strong>Filming and Photography:</strong> Require prior approval for filming and photography in E-Library.</p>
       <p><strong>Service Animals Only:</strong> Only service animals are allowed in E-Library.</p>
+    </div>
     </div>
   );
 }
