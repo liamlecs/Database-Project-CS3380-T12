@@ -159,10 +159,6 @@ Database-Project-CS3380-T12/
    dotnet-user-secrets and environment variables will be included in the project document as they are sensitive information and cannot be publicly posted.
 3. **Run the API**:
    ```bash
-   dotnet build
-   ```
-   and then
-   ```bash
    dotnet run
    ```
    By default, it listens on `https://localhost:5217` (or a similar port).
