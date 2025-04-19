@@ -28,6 +28,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 **E‑Library @ UH** is a dynamic digital library platform designed to simplify library management for both **users** (students, faculty) and **employees** (librarians, admins). It supports the borrowing, reserving, and tracking of library assets like books, movies, music, and technology.
 
 **Live Website**: [https://e-libraryuh.vercel.app](https://e-libraryuh.vercel.app)
+
 ![image](https://github.com/user-attachments/assets/04a458b0-b2ec-4008-9cc9-93ec261ab5b5)
 
 ---
