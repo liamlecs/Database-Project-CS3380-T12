@@ -156,6 +156,7 @@ Database-Project-CS3380-T12/
    dotnet user-secrets set "AzureBlobStorage:ConnectionString" "<blob_storage_connection>"
    # etc...
    ```
+   dotnet-user-secrets and environment variables will be included in the project document as they are sensitive information and cannot be publicly posted.
 3. **Run the API**:
    ```bash
    dotnet run
