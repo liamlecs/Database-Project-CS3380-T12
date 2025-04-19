@@ -45,6 +45,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 
 - **Role-Based Access Control**  
   Different interfaces and privileges for Customers, Employees, and Admins, with automatic classification based on UH email type (`@uh.edu` vs `@cougarnet.uh.edu`).
+  ![image](https://github.com/user-attachments/assets/73899cce-7f04-4d3a-8994-eaac4ac013fe)
   ![image](https://github.com/user-attachments/assets/d36e20b7-6333-41ed-8e98-e8ed374e472b)
   ![image](https://github.com/user-attachments/assets/5ca7f736-b7b2-4b98-8416-f30b68d0839f)
   ![image](https://github.com/user-attachments/assets/e6133c60-1cf1-405c-a912-1f31fcf5f2cf)
