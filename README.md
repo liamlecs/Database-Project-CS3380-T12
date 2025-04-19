@@ -84,6 +84,116 @@ Database-Project-CS3380-T12/
 
 ---
 
+## Code File Explanation
+
+Below is a detailed breakdown of every file and folder in the **Database-Project-CS3380-T12** repository, organized by project component.
+
+---
+
+### 🗂️ Root Directory  
+- **`Database-Project-CS3380-T12.sln`**: Visual Studio solution file, orchestrates the backend (`LibraryWebAPI`) and frontend (`libraryApp`) projects.  
+- **`.gitignore`**: Lists files/folders to exclude from Git version control.  
+- **`README.md`**: This README, with project overview, setup, and documentation.  
+- **`package.json`** / **`package-lock.json`**: Frontend dependency manifests (scripts, dependencies).  
+- **`Database-Project-CS3380-T12.sln`**, **`.gitignore`**, **`README.md`**, **`package.json`**, **`package-lock.json`** citeturn1view0  
+
+---
+
+### 📦 `LibraryWebAPI/` – ASP.NET Core Backend citeturn2view0
+
+#### 1. **Controllers** citeturn3view0  
+Handles HTTP endpoints for each entity and workflow:  
+- **`AuthController.cs`** – JWT-based authentication (login, token refresh).  
+- **`BookAuthorController.cs`**, **`BookGenreController.cs`** – Manage book‐related lookup tables.  
+- **`BookController.cs`**, **`BookCheckoutController.cs`** – CRUD for books and the checkout process.  
+- **`BorrowerTypeController.cs`** – Student vs. faculty borrowing limits.  
+- **`CustomerController.cs`**, **`UserProfileController.cs`** – Customer registration, profile edits, deactivation/reactivation.  
+- **`DeviceTypeController.cs`**, **`TechnologyController.cs`**, **`TechonologyManufacturerController.cs`** – Tech inventory and metadata.  
+- **`DonationController.cs`** – Donation submissions.  
+- **`EmployeeController.cs`** – Employee account management (Admins only).  
+- **`EventController.cs`**, **`EventCategoryController.cs`** – Library event CRUD.  
+- **`FineController.cs`** – Overdue fine calculation and payment.  
+- **`ItemController.cs`** – Generic item-level endpoints.  
+- **`MovieController.cs`**, **`MovieDirectorController.cs`**, **`MovieGenreController.cs`** – Movie entity and metadata.  
+- **`MusicController.cs`**, **`MusicArtistController.cs`**, **`MusicGenreController.cs`** – Music entity and metadata.  
+- **`PublisherController.cs`** – Publisher lookup.  
+- **`TransactionHistoryController.cs`** – View and query historical transactions.  
+- **`WaitlistController.cs`** – Waitlist joining and fulfillment logic.  
+- **`UpdateAvailableCopiesDTO.cs`** – DTO for availability updates.  
+
+#### 2. **Data** citeturn4view0  
+- **`LibraryContext.cs`** – EF Core `DbContext`, defines `DbSet<>`s and relationships for all entities.
+
+#### 3. **Models** citeturn5view0  
+- **Entity classes** (`Book.cs`, `Movie.cs`, `Music.cs`, `Technology.cs`, `User.cs`, `Event.cs`, `Fine.cs`, `Donation.cs`, etc.) define the database schema.  
+- **DTOs** (in `Models/DTO/`) — e.g., `BookDTO.cs`, `CustomerLoginDto.cs`, `SearchResultDTO.cs`, `MasterTransactionReportDto.cs`, etc., shape request/responses.  
+
+#### 4. **Properties** citeturn6view0  
+- **`launchSettings.json`** – Local launch profiles (ports, environment).
+
+#### 5. **Repositories** citeturn7view0  
+- **`ISearchRepository.cs`** – Defines search abstraction.  
+- **`SearchRepository.cs`** – Implements full-text and multi-entity search.
+
+#### 6. **Services** citeturn8view0  
+- **`BlobStorageService.cs`** – Azure Blob Storage uploads/downloads for cover images.  
+- **`EmailService.cs`** / **`IEmailService.cs`** – SMTP / EmailJS wrappers for notifications.  
+- **`WaitlistNotificationService.cs`** – Coordinates waitlist emails & holds.
+
+#### 7. **Views** citeturn9view0  
+*(Razor pages used for testing or in API Explorer)*  
+- **`Views/Book/`**, **`Views/BookCheckout/`** – Example HTML test pages.
+
+#### 8. **Project & Config Files**  
+- **`LibraryWebAPI.csproj`** – .NET project file with NuGet references.  
+- **`appsettings.json`** & **`appsettings.Development.json`** – Connection strings, secrets placeholders.  
+- **`Program.cs`** – Bootstraps the web host, middleware, and services.  
+- **`LibraryWebAPI.http`** – VS Code REST client file for manual API testing.  
+
+---
+
+### 🎨 `libraryApp/` – React + Vite Frontend citeturn10view0
+
+#### 1. **CI/CD Workflow** citeturn17view0  
+- **`.github/workflows/azure_deploy.yml`** – GitHub Actions pipeline to build and deploy API & frontend to Azure.
+
+#### 2. **Public Assets** citeturn16view0  
+- **`public/book_covers/`**, **`device_covers/`**, **`movie_covers/`**, **`music_covers/`** – Sample images.  
+- **`vite.svg`** – Vite logo for default template.
+
+#### 3. **Config & Tooling** citeturn10view0  
+- **`.gitignore`**, **`eslint.config.js`** – Lint rules.  
+- **`index.html`** – Main HTML template.  
+- **`package.json`**, **`package-lock.json`** – Dependencies & scripts.  
+- **`tsconfig.json`**, **`tsconfig.app.json`**, **`tsconfig.node.json`** – TypeScript settings.  
+- **`vite.config.ts`** – Vite build configuration.  
+- **`vercel.json`** – Frontend deployment settings.
+
+#### 4. **`src/`** citeturn11view0
+
+- **`assets/`** – Static images imported by components.  
+- **`components/`** citeturn12view0  
+  - **`CheckoutPage/`**, **`Return.tsx`**, **`InventoryTable.tsx`**, **`SearchBar.tsx`**, **`ReportsOutlet.tsx`**, **`LibraryHistory.tsx`**, **`UserProfile.tsx`**, **`RegistrationPage.tsx`**, **`TermsAndConditionsPage.tsx`**, **`ContactPage.tsx`**, etc. — All UI components and pages for user flows.  
+  - **Shared** utilities: `SharedCard.tsx`, `Loader.tsx`, `BackToTopButton.tsx`, `Layout.tsx`, `NavBar.tsx`, `PageTransition.tsx`, `AnimatedPage.tsx`.  
+
+- **`contexts/CheckoutContext.tsx`** citeturn13view0  
+  Manages global checkout cart and user session state via React Context.
+
+- **`types/Book.ts`** citeturn14view0  
+  Defines TypeScript interfaces for API data shapes (e.g., `Book`, `Movie`, `User`).
+
+- **`utils/transformBookData.ts`** citeturn15view0  
+  Utility to normalize API payloads into UI-friendly formats.
+
+- **Entry Points**  
+  - **`App.tsx`**, **`App.css`** – Root component and global styles.  
+  - **`main.tsx`** – Mounts React into the DOM (`#root`).  
+  - **`vite-env.d.ts`** – Vite environment typing.  
+  - **`types.ts`** – Shared TypeScript types.
+
+---
+
+
 ## 💻 Installation & Setup
 
 ### 1. Clone the repository
