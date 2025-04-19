@@ -218,7 +218,7 @@ dotnet run
 
 By default, the API runs at: `http://localhost:5217`
 
-### 📘 API Explorer (Swagger UI)
+### 3. API Explorer (Swagger UI)
 
 When running the backend locally on `http://localhost:5217`, you can access the full Swagger UI for exploring and testing the API:
 
