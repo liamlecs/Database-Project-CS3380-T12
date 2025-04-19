@@ -99,11 +99,11 @@ Below is a detailed breakdown of every file and folder in the **Database-Project
 
 ---
 
-### 📦 `LibraryWebAPI/` – ASP.NET Core Backend citeturn2view0
+### 📦 `LibraryWebAPI/` – ASP.NET Core Backend
 
-#### 1. **Controllers** citeturn3view0  
+#### 1. **Controllers**
 Handles HTTP endpoints for each entity and workflow:  
-- **`AuthController.cs`** – JWT-based authentication (login, token refresh).  
+- **`AuthController.cs`** – Email-based authentication (login, registration, etc.)
 - **`BookAuthorController.cs`**, **`BookGenreController.cs`** – Manage book‐related lookup tables.  
 - **`BookController.cs`**, **`BookCheckoutController.cs`** – CRUD for books and the checkout process.  
 - **`BorrowerTypeController.cs`** – Student vs. faculty borrowing limits.  
@@ -121,26 +121,26 @@ Handles HTTP endpoints for each entity and workflow:
 - **`WaitlistController.cs`** – Waitlist joining and fulfillment logic.  
 - **`UpdateAvailableCopiesDTO.cs`** – DTO for availability updates.  
 
-#### 2. **Data** citeturn4view0  
+#### 2. **Data** 
 - **`LibraryContext.cs`** – EF Core `DbContext`, defines `DbSet<>`s and relationships for all entities.
 
-#### 3. **Models** citeturn5view0  
+#### 3. **Models** 
 - **Entity classes** (`Book.cs`, `Movie.cs`, `Music.cs`, `Technology.cs`, `User.cs`, `Event.cs`, `Fine.cs`, `Donation.cs`, etc.) define the database schema.  
 - **DTOs** (in `Models/DTO/`) — e.g., `BookDTO.cs`, `CustomerLoginDto.cs`, `SearchResultDTO.cs`, `MasterTransactionReportDto.cs`, etc., shape request/responses.  
 
-#### 4. **Properties** citeturn6view0  
+#### 4. **Properties** 
 - **`launchSettings.json`** – Local launch profiles (ports, environment).
 
-#### 5. **Repositories** citeturn7view0  
+#### 5. **Repositories**
 - **`ISearchRepository.cs`** – Defines search abstraction.  
 - **`SearchRepository.cs`** – Implements full-text and multi-entity search.
 
-#### 6. **Services** citeturn8view0  
+#### 6. **Services** 
 - **`BlobStorageService.cs`** – Azure Blob Storage uploads/downloads for cover images.  
 - **`EmailService.cs`** / **`IEmailService.cs`** – SMTP / EmailJS wrappers for notifications.  
 - **`WaitlistNotificationService.cs`** – Coordinates waitlist emails & holds.
 
-#### 7. **Views** citeturn9view0  
+#### 7. **Views**
 *(Razor pages used for testing or in API Explorer)*  
 - **`Views/Book/`**, **`Views/BookCheckout/`** – Example HTML test pages.
 
