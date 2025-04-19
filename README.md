@@ -2,7 +2,7 @@
 
 Welcome to the official GitHub repository for **E‑Library**, a full-stack web application built by **Team 12** for the University of Houston’s COSC 3380: Database Systems course.
 
-![Homepage](https://github.com/user-attachments/assets/6e0e8624-cd57-45c1-9d8d-f3c01f0dffec)
+![image](https://github.com/user-attachments/assets/4be6ffcc-3e73-4888-a579-91963320fb09)
 
 ---
 
