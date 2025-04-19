@@ -126,6 +126,12 @@ Database-Project-CS3380-T12/
 
 ---
 
+# File Explanation
+
+(Add explanation here)
+
+---
+
 ## Installation & Setup
 
 1. **Clone the Repository**:
