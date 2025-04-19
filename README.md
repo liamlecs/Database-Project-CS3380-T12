@@ -40,7 +40,6 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
   ![image](https://github.com/user-attachments/assets/86b4eade-fec6-4ebc-a502-81d0d27527a2)
   ![image](https://github.com/user-attachments/assets/071d2dfd-e3ae-425a-918f-667948d0354d)
   ![image](https://github.com/user-attachments/assets/6b0fb2d1-1ff9-4cad-9524-bec577143fdd)
-  ![image](https://github.com/user-attachments/assets/38ca6c92-79d3-4d2f-9485-ac3770277b99)
 
 
 - **Role-Based Access Control**  
