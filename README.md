@@ -1,4 +1,4 @@
-# 📚 E‑Library @ UH
+![image](https://github.com/user-attachments/assets/38ca6c92-79d3-4d2f-9485-ac3770277b99)# 📚 E‑Library @ UH
 
 Welcome to the official GitHub repository for **E‑Library**, a full-stack web application built by **Team 12** for the University of Houston’s COSC 3380: Database Systems course.
 
@@ -36,23 +36,49 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 - **Inventory Management**  
   Add, update, deactivate, and manage cover images for items like books, movies, music, and technology using Azure Blob Storage.
 
+  ![image](https://github.com/user-attachments/assets/a52adfd6-302c-4d05-a365-d8e14a3be8db)
+  ![image](https://github.com/user-attachments/assets/86b4eade-fec6-4ebc-a502-81d0d27527a2)
+  ![image](https://github.com/user-attachments/assets/071d2dfd-e3ae-425a-918f-667948d0354d)
+  ![image](https://github.com/user-attachments/assets/6b0fb2d1-1ff9-4cad-9524-bec577143fdd)
+
+
 - **Role-Based Access Control**  
   Different interfaces and privileges for Customers, Employees, and Admins, with automatic classification based on UH email type (`@uh.edu` vs `@cougarnet.uh.edu`).
+  ![image](https://github.com/user-attachments/assets/d36e20b7-6333-41ed-8e98-e8ed374e472b)
+  ![image](https://github.com/user-attachments/assets/5ca7f736-b7b2-4b98-8416-f30b68d0839f)
+  ![image](https://github.com/user-attachments/assets/e6133c60-1cf1-405c-a912-1f31fcf5f2cf)
+  ![image](https://github.com/user-attachments/assets/bbfbe8d1-dfc8-4dda-9c3c-3ac988b763ac)
+
 
 - **Search & Waitlists**  
   Users can search across categories and join waitlists for unavailable items. Waitlist fulfillment is automated with email alerts and timed holds.
+  ![image](https://github.com/user-attachments/assets/7008abcc-0dd6-4682-a8e1-92d4872ff73e)
+  ![image](https://github.com/user-attachments/assets/fe56f1ad-1531-4995-83c1-bfba89f015ac)
 
 - **Email Notifications**  
   EmailJS and SMTP integration for waitlist alerts, confirmations, and other key user interactions.
+  ![image](https://github.com/user-attachments/assets/a523780a-4fbd-48cc-9850-d18fa5beb5fd)
+
 
 - **Fines System**  
   Automatic fine generation for overdue items, tracked in a centralized report. Users are restricted from borrowing with unpaid fines.
+  ![image](https://github.com/user-attachments/assets/794c94af-fd43-403f-a334-e56fce544f77)
+  ![image](https://github.com/user-attachments/assets/22027434-8116-4ed1-b700-db1ecf0b2e8f)
+  ![image](https://github.com/user-attachments/assets/67931c55-e3a3-4661-b10d-f0bf9029c3ea)
+
 
 - **Donations**  
   Customers can contribute to the library directly through the platform. Donations are tracked and visible to employees.
+  ![image](https://github.com/user-attachments/assets/f105e9c5-d7a6-4a06-9d42-80fc1f878f83)
+
 
 - **Analytics & Reports**  
-  Real-time data visualizations and filtering for inventory status, transaction history, fines, waitlists, and user activity.
+  Real-time data reports and filtering for inventory status, transaction history, fines, waitlists, and user activity.
+  ![image](https://github.com/user-attachments/assets/fd63c9da-3076-4495-aa7a-9b7986c11423)
+  ![image](https://github.com/user-attachments/assets/190db85a-44b0-48bb-8b16-d00d8ba2ee34)
+  ![image](https://github.com/user-attachments/assets/38a30270-19f3-429d-81c7-67ec94a28b29)
+  ![image](https://github.com/user-attachments/assets/3ee1778d-8def-417a-a48c-b039f34896d6)
+  ![image](https://github.com/user-attachments/assets/2916b3eb-8947-42f5-9acc-1c78d92ff51c)
 
 ---
 <a name="technology-stack"></a>
@@ -223,6 +249,8 @@ By default, the API runs at: `http://localhost:5217`
 When running the backend locally on `http://localhost:5217`, you can access the full Swagger UI for exploring and testing the API:
 
 👉 [Swagger UI](http://localhost:5217/swagger/index.html)
+![image](https://github.com/user-attachments/assets/e0e23d0a-7c78-4b65-8b3a-32753bf067bd)
+
 
 This interface provides interactive documentation for all backend endpoints, including request/response formats and status codes.
 
