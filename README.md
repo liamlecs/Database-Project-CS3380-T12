@@ -53,12 +53,12 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
   ![image](https://github.com/user-attachments/assets/660a5b92-980e-4a41-bf79-e1a3a60f34dc)
 
 
-
-
 - **Search & Waitlists**  
   Users can search across categories and join waitlists for unavailable items. Waitlist fulfillment is automated with email alerts and timed holds.
   ![image](https://github.com/user-attachments/assets/7008abcc-0dd6-4682-a8e1-92d4872ff73e)
   ![image](https://github.com/user-attachments/assets/fe56f1ad-1531-4995-83c1-bfba89f015ac)
+  ![image](https://github.com/user-attachments/assets/6d231591-e398-45ae-bd56-c8332b304b0f)
+
 
 - **Email Notifications**  
   EmailJS and SMTP integration for waitlist alerts, confirmations, and other key user interactions.
