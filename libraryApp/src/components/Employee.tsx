@@ -702,7 +702,7 @@ const Employee: React.FC = () => {
       itemTypeID: 1 // default
     };
 
-    console.log("Final payload:", payload);
+    // console.log("Final payload:", payload);
 
     try {
       const res = await fetch(
@@ -897,7 +897,7 @@ const Employee: React.FC = () => {
       itemTypeID: 2, // Movie
     };
 
-    console.log("Final payload:", payload);
+    // console.log("Final payload:", payload);
 
     try {
       const res = await fetch(
@@ -1072,7 +1072,7 @@ const Employee: React.FC = () => {
         itemTypeID: 3, // Music
       };
     
-      console.log("Final payload:", payload);
+      // console.log("Final payload:", payload);
     
       // 3. Send the Update Request
       try {
@@ -1153,7 +1153,7 @@ const Employee: React.FC = () => {
       location: t.location,
     });
     // console.log("Edit Tech Form: ", editTechForm);
-    console.log("Opening technology:", t); // for debugging
+    // console.log("Opening technology:", t); // for debugging
     setOpenEditTechDialog(true);
   };
 
@@ -1281,7 +1281,7 @@ const Employee: React.FC = () => {
         itemTypeID: 4, // Technology
       };
     
-      console.log("Final payload:", payload);
+      // console.log("Final payload:", payload);
     
       // 4. Send the Update Request
       try {
@@ -1504,85 +1504,6 @@ const Employee: React.FC = () => {
     }
   };
 
-  // --- Inventory CRUD ---
-  const handleAddItem = async () => {
-    if (!itemForm.title || !itemForm.availabilityStatus) {
-      setDialogMessage('Title and status are required fields.');
-      setOpenDialog(true);
-      return;
-    }
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/Item`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...itemForm,
-            availableCopies: itemForm.totalCopies,
-          }),
-        }
-      );
-      if (response.ok) {
-        setRefreshData(true);
-        setItemForm({
-          title: '',
-          availabilityStatus: 'Available',
-          totalCopies: 1,
-          availableCopies: 1,
-          location: '',
-        });
-      } else {
-        const errorData = await response.json();
-        setDialogMessage(errorData.message || 'Failed to add item.');
-        setOpenDialog(true);
-      }
-    } catch (error) {
-      console.error('Error adding item:', error);
-      setDialogMessage('Network error. Please try again.');
-      setOpenDialog(true);
-    }
-  };
-
-  const handleUpdateItem = async () => {
-    if (!editingItem || !originalItem) return;
-    try {
-      const wasZero = originalItem.availableCopies === 0;
-      const nowPositive = editingItem.availableCopies > 0;
-      {
-        // PUT: update item
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/Item/${editingItem.itemId}`,
-          {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(editingItem),
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          setDialogMessage(errorData.message || 'Failed to update item.');
-          setOpenDialog(true);
-        } else {
-          setRefreshData(true);
-          setOpenEditDialog(false);
-          setEditingItem(null);
-          setOriginalItem(null);
-        }
-      }
-    } catch (error) {
-      console.error('Error updating item:', error);
-      setDialogMessage('Network error. Please try again.');
-      setOpenDialog(true);
-    }
-  };
-
-  const handleEditClick = (item: Item) => {
-    setEditingItem(item);
-    setOriginalItem({ ...item });
-    setOpenEditDialog(true);
-  };
-
   // --- Event CRUD ---
   const handleDeleteEvent = async (id: number) => {
     try {
@@ -1702,28 +1623,40 @@ const Employee: React.FC = () => {
         title: 'Books',
         count: bookInventory.filter(b => b.availableCopies > 0 && !b.isDeactivated).length, // Only count books with availableCopies > 0
         icon: <MenuBookIcon fontSize="large" sx={{ color: theme.palette.primary.main }} />,
-        action: () => setCurrentView('inventory'),
+        action: () => {
+          setSelectedItemType('Book'); // Pre-select "Book" as the item type
+          setCurrentView('inventory'); // Navigate to the inventory view
+        },
         color: theme.palette.primary.main,
       },
       {
         title: 'Movies',
         count: movieInventory.filter(m => m.availableCopies > 0 && !m.isDeactivated).length, // Only count movies with availableCopies > 0
         icon: <MovieIcon fontSize="large" sx={{ color: theme.palette.error.main }} />,
-        action: () => setCurrentView('inventory'),
+        action: () => {
+          setSelectedItemType('Movie'); // Pre-select "Movie" as the item type
+          setCurrentView('inventory'); // Navigate to the inventory view
+        },
         color: theme.palette.error.main,
       },
       {
         title: 'Music',
         count: musicInventory.filter(m => m.availableCopies > 0 && !m.isDeactivated).length, // Only count music with availableCopies > 0
         icon: <MusicNoteIcon fontSize="large" sx={{ color: theme.palette.success.main }} />,
-        action: () => setCurrentView('inventory'),
+        action: () => {
+          setSelectedItemType('Music'); // Pre-select "Music" as the item type
+          setCurrentView('inventory'); // Navigate to the inventory view
+        },
         color: theme.palette.success.main,
       },
       {
         title: 'Technology',
         count: technologyInventory.filter(t => t.availableCopies > 0 && !t.isDeactivated).length, // Only count technology with availableCopies > 0
         icon: <DevicesIcon fontSize="large" sx={{ color: theme.palette.warning.main }} />,
-        action: () => setCurrentView('inventory'),
+        action: () => {
+          setSelectedItemType('Technology'); // Pre-select "Technology" as the item type
+          setCurrentView('inventory'); // Navigate to the inventory view
+        },
         color: theme.palette.warning.main,
       },
       {
