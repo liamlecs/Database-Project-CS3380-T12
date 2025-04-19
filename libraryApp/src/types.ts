@@ -18,6 +18,7 @@ export interface BookDto {
     publisherId: number;
     bookGenreId: number;
     bookAuthorId: number;
+    isDeactivated: boolean;
   }
 
   export interface MovieDto {
@@ -38,6 +39,7 @@ export interface BookDto {
     itemTypeId: number;
     movieGenreId: number;
     movieDirectorId: number;
+    isDeactivated: boolean;
   }
   
   export interface MusicDto {
@@ -56,6 +58,7 @@ export interface BookDto {
     location: string
     musicArtistId: number;
     musicGenreId: number;
+    isDeactivated: boolean;
   }
   
   export interface TechnologyDto {
@@ -72,6 +75,7 @@ export interface BookDto {
     location: string;
     deviceTypeId: number;
     manufacturerId: number;
+    isDeactivated: boolean;
   }
 
   export interface Item {

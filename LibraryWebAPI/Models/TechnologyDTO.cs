@@ -5,7 +5,7 @@ namespace LibraryWebAPI.Models
         // Fields for the Item record:
         public string Title { get; set; } = string.Empty;
 
-        public int ItemID { get; set; } 
+        public int ItemId { get; set; } 
 
         public int DeviceId { get; set; }
         public int TotalCopies { get; set; }
@@ -24,5 +24,7 @@ namespace LibraryWebAPI.Models
         
         // Item type for Technology;
         public int ItemTypeID { get; set; } = 4;
+
+        public bool IsDeactivated { get; set; } = false;
     }
 }

@@ -32,4 +32,5 @@ public partial class Technology
 
     // Optional image path for consistency
     public string? CoverImagePath { get; set; }
+    public bool IsDeactivated { get; set; } = false;
 }

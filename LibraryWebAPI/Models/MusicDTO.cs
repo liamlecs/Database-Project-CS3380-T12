@@ -38,6 +38,8 @@ namespace LibraryWebAPI.Models
         
         // For Music, we assume ItemTypeID is 3.
         public int ItemTypeID { get; set; } = 3;
+
+        public bool IsDeactivated { get; set; } = false;
     }
 }
 

@@ -63,15 +63,17 @@ const CurrentBooks: React.FC<CurrentBooksProps> = ({ books, onEdit, onDelete }) 
                         <IconButton size="small" onClick={() => onEdit(b)}>
                           <EditIcon fontSize="inherit" />
                         </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => {
-                            /* your delete handler */
-                          }}
-                        >
-                          <DeleteIcon fontSize="inherit" />
-                        </IconButton>
+                                              <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => {
+                          if (onDelete) {
+                            onDelete(b); // Call the onDelete function with the current book
+                          }
+                        }}
+                      >
+                        <DeleteIcon fontSize="inherit" />
+                      </IconButton>
                       </Stack>
                     </TableCell>
                   </TableRow>

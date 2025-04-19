@@ -38,6 +38,7 @@ namespace LibraryWebAPI.Controllers
                 .Include(b => b.BookAuthor)
                 .Include(b => b.BookGenre)
                 .Include(b => b.Publisher)
+                .Where(b => b.IsDeactivated == false) // Exclude deactivated books
                 // .Include(b=> b.image)
                 .Select(b => new
                 {
@@ -55,6 +56,7 @@ namespace LibraryWebAPI.Controllers
                     totalCopies = b.Item.TotalCopies, // from related Item
                     availableCopies = b.Item.AvailableCopies, // from related Item
                     itemLocation = b.Item.Location, // from related Item
+                    b.IsDeactivated
                 })
                 .ToListAsync();
 
@@ -69,7 +71,7 @@ public async Task<ActionResult<object>> GetBook(int id)
         .Include(b => b.BookAuthor)
         .Include(b => b.BookGenre)
         .Include(b => b.Publisher)
-        .Where(b => b.BookId == id)
+        .Where(b => b.BookId == id && b.IsDeactivated == false) // Exclude deactivated books
         .Select(b => new
         {
             b.BookId,
@@ -86,6 +88,7 @@ public async Task<ActionResult<object>> GetBook(int id)
             availableCopies = b.Item.AvailableCopies,
             totalCopies = b.Item.TotalCopies,
             itemLocation    = b.Item.Location,
+            b.IsDeactivated
         })
         .FirstOrDefaultAsync();
 
@@ -263,13 +266,17 @@ public async Task<IActionResult> UploadCover([FromForm] CoverUploadDto dto)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
-            var book = await _context.Books.FindAsync(id);
+            // Find the book by ID
+            var book = await _context.Books
+                .FirstOrDefaultAsync(b => b.BookId == id);
+
             if (book == null)
             {
                 return NotFound();
             }
 
-            _context.Books.Remove(book);
+            // Mark the book as deactivated
+            book.IsDeactivated = true; // Set the IsDeactivated field to true
             await _context.SaveChangesAsync();
 
             return NoContent();

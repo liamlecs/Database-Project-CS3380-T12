@@ -15,5 +15,7 @@ namespace LibraryWebAPI.Models.DTOs
         public string? Location { get; set; }
 
         public int ItemTypeID { get; set; } 
+
+        public bool IsDeactivated { get; set; } = false;
     }
 }

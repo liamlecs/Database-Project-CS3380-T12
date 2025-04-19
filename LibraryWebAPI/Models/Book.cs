@@ -39,6 +39,8 @@ public partial class Book
 
     public virtual Publisher Publisher { get; set; } = null!; // to view the publisher name
 
+    public bool IsDeactivated { get; set; } = false;
+
     // public bool IsCheckedOut { get; set; } // Added property
 }
 

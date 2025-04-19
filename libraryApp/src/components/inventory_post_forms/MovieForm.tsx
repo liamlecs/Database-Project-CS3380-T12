@@ -122,6 +122,7 @@ const MovieForm: React.FC = () => {
       const finalGenreID = parseInt(formData.movieGenreID, 10);
       const finalYearReleased = parseInt(formData.yearReleased, 10);
       const finalTotalCopies = parseInt(formData.totalCopies, 10);
+      const finalAvailableCopies = finalTotalCopies; // Assuming all copies are available initially.
 
       const payload = {
         Title: formData.title,
@@ -133,7 +134,8 @@ const MovieForm: React.FC = () => {
         CoverImagePath: formData.coverImagePath,
         TotalCopies: finalTotalCopies,
         Location: formData.location,
-        ItemTypeID: formData.itemTypeID
+        ItemTypeID: formData.itemTypeID,
+        AvailableCopies: finalAvailableCopies, // Assuming all copies are available initially.
       };
 
       console.log("Final payload:", payload);

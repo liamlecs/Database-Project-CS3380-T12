@@ -17,4 +17,6 @@ public partial class Movie
     public virtual MovieDirector MovieDirector { get; set; } = null!;
     public virtual MovieGenre MovieGenre { get; set; } = null!;
     public virtual Item Item { get; set; } = null!;
+
+    public bool IsDeactivated { get; set; } = false;
 }

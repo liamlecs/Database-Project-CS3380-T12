@@ -15,6 +15,11 @@ import EditBookDialog from './EditDialog/EditBookDialog.tsx';
 import EditMovieDialog from './EditDialog/EditMovieDialog.tsx';
 import EditMusicDialog from './EditDialog/EditMusicDialog.tsx';
 import EditTechnologyDialog from './EditDialog/EditTechnologyDialog.tsx';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import MovieIcon     from '@mui/icons-material/Movie';
+import MusicNoteIcon from '@mui/icons-material/MusicNote';
+import DevicesIcon   from '@mui/icons-material/Devices';
+
 // --- Material UI Imports ---
 import {
   AppBar,
@@ -595,6 +600,19 @@ const Employee: React.FC = () => {
   const [editingBook, setEditingBook] = useState<BookDto | null>(null);
   const [editBookForm, setEditBookForm] = useState<Partial<BookDto>>({})
   const [openEditBookDialog, setOpenEditBookDialog] = useState(false);
+  const [openConfirmDeleteBookDialog, setOpenConfirmDeleteBookDialog] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState<BookDto | null>(null);
+  const handleDeleteBookClick = (book: BookDto) => {
+    setBookToDelete(book);
+    setOpenConfirmDeleteBookDialog(true);
+  };
+  const handleConfirmDeleteBook = async () => {
+    if (bookToDelete) {
+      await handleDeleteBook(bookToDelete.bookId); // Call the delete handler
+      setBookToDelete(null);
+      setOpenConfirmDeleteBookDialog(false);
+    }
+  };
   const openEditBook = (b: BookDto) => {
     setEditingBook(b);
     setEditBookForm({
@@ -707,6 +725,31 @@ const Employee: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleDeleteBook = async (bookId: number) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/Book/${bookId}`,
+        {
+          method: 'DELETE',
+        }
+      );
+  
+      if (response.ok) {
+        setRefreshData(true); // Refresh the inventory list
+        setDialogMessage('Book deactivated successfully.');
+        setOpenDialog(true);
+      } else {
+        const errorData = await response.json();
+        setDialogMessage(errorData.message || 'Failed to deactivate book.');
+        setOpenDialog(true);
+      }
+    } catch (error) {
+      console.error('Error deactivating book:', error);
+      setDialogMessage('Network error. Please try again.');
+      setOpenDialog(true);
     }
   };
 
@@ -1547,11 +1590,32 @@ const Employee: React.FC = () => {
   const renderDashboard = () => {
     const dashboardItems = [
       {
-        title: 'Inventory',
-        count: inventory.filter(item => item.availableCopies > 0).length, // Only count items with availableCopies > 0
-        icon: <InventoryIcon fontSize="large" color="primary" />,
+        title: 'Books',
+        count: bookInventory.filter(b => b.availableCopies > 0 && !b.isDeactivated).length, // Only count books with availableCopies > 0
+        icon: <MenuBookIcon fontSize="large" sx={{ color: theme.palette.primary.main }} />,
         action: () => setCurrentView('inventory'),
         color: theme.palette.primary.main,
+      },
+      {
+        title: 'Movies',
+        count: movieInventory.filter(m => m.availableCopies > 0 && !m.isDeactivated).length, // Only count movies with availableCopies > 0
+        icon: <MovieIcon fontSize="large" sx={{ color: theme.palette.error.main }} />,
+        action: () => setCurrentView('inventory'),
+        color: theme.palette.error.main,
+      },
+      {
+        title: 'Music',
+        count: musicInventory.filter(m => m.availableCopies > 0 && !m.isDeactivated).length, // Only count music with availableCopies > 0
+        icon: <MusicNoteIcon fontSize="large" sx={{ color: theme.palette.success.main }} />,
+        action: () => setCurrentView('inventory'),
+        color: theme.palette.success.main,
+      },
+      {
+        title: 'Technology',
+        count: technologyInventory.filter(t => t.availableCopies > 0 && !t.isDeactivated).length, // Only count technology with availableCopies > 0
+        icon: <DevicesIcon fontSize="large" sx={{ color: theme.palette.warning.main }} />,
+        action: () => setCurrentView('inventory'),
+        color: theme.palette.warning.main,
       },
       {
         title: 'Events',
@@ -1670,8 +1734,16 @@ const Employee: React.FC = () => {
                       fontStyle: 'italic',
                     }}
                   >
-                    {item.title === 'Inventory'
-                      ? 'Items in stock'
+                    {item.title === 'Books'
+                      ? 'Books in stock'
+                      : item.title === 'Movies'
+                        ? 'Movies in stock'
+                        : item.title === 'Music'
+                          ? 'Music in stock'
+                          : item.title === 'Technology'
+                            ? 'Technology in stock'
+                            : item.title === 'Library History'
+                              ? 'View history'
                       : item.title === 'Events'
                         ? 'Upcoming events'
                         : item.title === 'My Profile'
@@ -1781,10 +1853,7 @@ const Employee: React.FC = () => {
     <CurrentBooks
       books={bookInventory}
       onEdit={openEditBook}
-      onDelete={b => {
-        
-        /* delete‐book handler */
-      }}
+      onDelete={(book) => handleDeleteBookClick(book)} // Open confirmation dialog
     />
   )}
   {selectedItemType === "Movie" && (
@@ -2259,6 +2328,23 @@ const Employee: React.FC = () => {
           onClose={() => setOpenEditTechDialog(false)}
         />
 
+      <Dialog open={openConfirmDeleteBookDialog} onClose={() => setOpenConfirmDeleteBookDialog(false)}>
+        <DialogTitle>Confirm Deactivation</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to deactivate this book? <br />
+            <strong>This action is permanent and cannot be undone.</strong>
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirmDeleteBookDialog(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDeleteBook} color="error" variant="contained">
+            Deactivate
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
         {/* Render the current view */}

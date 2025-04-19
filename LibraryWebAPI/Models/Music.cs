@@ -26,4 +26,7 @@ public partial class Music
     public virtual MusicGenre MusicGenre { get; set; } = null!;
 
     public virtual Item Item { get; set; } = null!;
+
+    public bool IsDeactivated { get; set; } = false;
 }
+

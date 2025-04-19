@@ -39,7 +39,7 @@ namespace LibraryWebAPI.Controllers
                     Title = t.Item!.Title,
                     ModelNumber = t.ModelNumber,
                     CoverImagePath = t.CoverImagePath!,
-                    ItemID = t.ItemID,
+                    ItemId = t.ItemID,
                     availableCopies = t.Item.AvailableCopies,
                     Location = t.Item.Location!,
                 })

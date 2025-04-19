@@ -45,7 +45,8 @@ namespace LibraryWebAPI.Controllers
                     Genre = m.MovieGenre.Description,
                     TotalCopies = m.Item.TotalCopies,
                     AvailableCopies = m.Item.AvailableCopies,
-                    ItemLocation = m.Item.Location
+                    ItemLocation = m.Item.Location,
+                    m.IsDeactivated
                 })
                 .ToListAsync();
 

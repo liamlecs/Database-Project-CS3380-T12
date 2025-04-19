@@ -13,6 +13,8 @@ public class MovieDTO
     public int AvailableCopies { get; set; }
     public required string Location { get; set; }
     public int ItemTypeID { get; set; } = 2;          // Assuming 2 represents Movies
+
+    public bool IsDeactivated { get; set; } = false;
 }
 
 }
