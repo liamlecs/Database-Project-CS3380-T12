@@ -103,6 +103,8 @@ const Library: React.FC = () => {
         const customerIdStr = localStorage.getItem("userId");
         if (!customerIdStr) {
           alert("You need to be logged in with a customer account to use this feature. Please log in.");
+          // Go to login page
+          window.location.href = "/login"; // Adjust the path as necessary
           return;
         }
         const customerId = Number.parseInt(customerIdStr, 10);
@@ -134,6 +136,8 @@ const Library: React.FC = () => {
           const isLoggedIn = localStorage.getItem("isLoggedIn");
           if (isLoggedIn !== "true") {
             alert("You must be logged in to join a waitlist.");
+            // Go to login page
+            window.location.href = "/login"; // Adjust the path as necessary
             return;
           }
       
@@ -141,6 +145,8 @@ const Library: React.FC = () => {
           const customerIdStr = localStorage.getItem("userId");
           if (!customerIdStr) {
             alert("No user ID found. Please log in again.");
+            // Go to login page
+            window.location.href = "/login"; // Adjust the path as necessary
             return;
           }
           const customerId = parseInt(customerIdStr, 10);
@@ -238,7 +244,7 @@ setOpenMaxCheckoutDialog(true);
       
           // 9. Parse the created waitlist record.
           const createdWaitlist = await response.json();
-          console.log("Waitlist entry created:", createdWaitlist);
+          // console.log("Waitlist entry created:", createdWaitlist);
       
           // 10. Notify the user.
           alert("Successfully joined the waitlist!");
@@ -258,9 +264,11 @@ setOpenMaxCheckoutDialog(true);
           // 1. Check if the user is logged in using localStorage.
         if (localStorage.getItem("isLoggedIn") !== "true") {
             alert("Sorry, you need to be logged in as a customer to checkout an item. Please try again");
+            // Go to login page
             // Optionally close the checkout dialog and reset the checkout state.
             setOpenDialog(false);
             setItemToCheckout(null);
+            window.location.href = "/login"; // Adjust the path as necessary
             return;
         }
 
@@ -287,7 +295,7 @@ setOpenMaxCheckoutDialog(true);
 
     const handleCardClick = (item: any, category: string) => {
         setSelectedItem({ ...item, _category: category });
-        console.log("Selected item:", item);
+        // console.log("Selected item:", item);
         setOpenInfoDialog(true);
     };
 
