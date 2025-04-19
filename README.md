@@ -13,13 +13,12 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 3. [Technology Stack](#technology-stack)
 4. [Folder Structure](#folder-structure)
 6. [Installation & Setup](#installation--setup)
-7. [Local Development](#local-development)
-8. [Deployment](#deployment)
-9. [Environment Variables](#environment-variables)
-10. [Contributing](#contributing)
-11. [License](#license)
-12. [Contributors](#contributors)
-13. [Contact](#contact)
+7. [Deployment](#deployment)
+8. [Environment Variables](#environment-variables)
+9. [Contributing](#contributing)
+10. [License](#license)
+11. [Contributors](#contributors)
+12. [Contact](#contact)
 
 ---
 <a name="overview"></a>
@@ -127,7 +126,7 @@ Below is a detailed breakdown of every file and folder in the **Database-Project
 - **`.gitignore`**: Lists files/folders to exclude from Git version control.  
 - **`README.md`**: This README, with project overview, setup, and documentation.  
 - **`package.json`** / **`package-lock.json`**: Frontend dependency manifests (scripts, dependencies).  
-- **`Database-Project-CS3380-T12.sln`**, **`.gitignore`**, **`README.md`**, **`package.json`**, **`package-lock.json`** citeturn1view0  
+- **`Database-Project-CS3380-T12.sln`**, **`.gitignore`**, **`README.md`**, **`package.json`**, **`package-lock.json`** 
 
 ---
 
@@ -184,7 +183,7 @@ Handles HTTP endpoints for each entity and workflow:
 
 ---
 
-### 🎨 `libraryApp/` – React + Vite Frontend citeturn10view0
+### 🎨 `libraryApp/` – React + Vite Frontend 
 
 #### 1. **CI/CD Workflow**
 - **`.github/workflows/azure_deploy.yml`** – GitHub Actions pipeline to build and deploy API & frontend to Azure.
