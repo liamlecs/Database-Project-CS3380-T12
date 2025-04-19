@@ -45,6 +45,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 
 - **Role-Based Access Control**  
   Different interfaces and privileges for Customers, Employees, and Admins, with automatic classification based on UH email type (`@uh.edu` vs `@cougarnet.uh.edu`).
+  
   ![image](https://github.com/user-attachments/assets/73899cce-7f04-4d3a-8994-eaac4ac013fe)
   ![image](https://github.com/user-attachments/assets/d36e20b7-6333-41ed-8e98-e8ed374e472b)
   ![image](https://github.com/user-attachments/assets/5ca7f736-b7b2-4b98-8416-f30b68d0839f)
@@ -54,10 +55,22 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
   ![image](https://github.com/user-attachments/assets/660a5b92-980e-4a41-bf79-e1a3a60f34dc)
   ![image](https://github.com/user-attachments/assets/45185eb4-a5ea-47e3-bc9b-98d2430391f2)
 
+- **Events**
+  Employees and Admins can manage library events through the Events tab in the dashboard.
+  
+- ![image](https://github.com/user-attachments/assets/c526024e-51fd-49f7-8f0a-a0a97de9ee51)
+- ![image](https://github.com/user-attachments/assets/fe9f82b1-a039-4de2-98fa-cf635da3de78)
+- ![image](https://github.com/user-attachments/assets/4ae365e3-447f-4b68-83be-e3c26a18eff2)
+
+- **Employee Management**
+  Admins have exclusive access to manage employee accounts through the **Employee Dashboard**.
+  ![image](https://github.com/user-attachments/assets/b3c410c6-11d3-4fa9-90cf-09d1536d3984)
+  ![image](https://github.com/user-attachments/assets/c51a8999-6536-48ff-b640-4988242f3911)
 
 
 - **Search & Waitlists**  
   Users can search across categories and join waitlists for unavailable items. Waitlist fulfillment is automated with email alerts and timed holds.
+  
   ![image](https://github.com/user-attachments/assets/7008abcc-0dd6-4682-a8e1-92d4872ff73e)
   ![image](https://github.com/user-attachments/assets/fe56f1ad-1531-4995-83c1-bfba89f015ac)
   ![image](https://github.com/user-attachments/assets/6d231591-e398-45ae-bd56-c8332b304b0f)
@@ -65,11 +78,13 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 
 - **Email Notifications**  
   EmailJS and SMTP integration for waitlist alerts, confirmations, and other key user interactions.
+  
   ![image](https://github.com/user-attachments/assets/a523780a-4fbd-48cc-9850-d18fa5beb5fd)
 
 
 - **Fines System**  
   Automatic fine generation for overdue items, tracked in a centralized report. Users are restricted from borrowing with unpaid fines.
+  
   ![image](https://github.com/user-attachments/assets/794c94af-fd43-403f-a334-e56fce544f77)
   ![image](https://github.com/user-attachments/assets/22027434-8116-4ed1-b700-db1ecf0b2e8f)
   ![image](https://github.com/user-attachments/assets/67931c55-e3a3-4661-b10d-f0bf9029c3ea)
@@ -77,10 +92,12 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 
 - **Donations**  
   Customers can contribute to the library directly through the platform. Donations are tracked and visible to employees.
+  
   ![image](https://github.com/user-attachments/assets/16452514-b368-4266-9adc-6eda03dd6c31)
 
 - **Analytics & Reports**  
   Real-time data reports and filtering for inventory status, transaction history, fines, waitlists, and user activity.
+  
   ![image](https://github.com/user-attachments/assets/fd63c9da-3076-4495-aa7a-9b7986c11423)
   ![image](https://github.com/user-attachments/assets/190db85a-44b0-48bb-8b16-d00d8ba2ee34)
   ![image](https://github.com/user-attachments/assets/38a30270-19f3-429d-81c7-67ec94a28b29)
