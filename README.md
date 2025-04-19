@@ -104,6 +104,10 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
   ![image](https://github.com/user-attachments/assets/3ee1778d-8def-417a-a48c-b039f34896d6)
   ![image](https://github.com/user-attachments/assets/2916b3eb-8947-42f5-9acc-1c78d92ff51c)
 
+- **Contact Us**
+  The Contact Us feature allows users to reach out to the E‑Library team with inquiries, suggestions, or issues.
+  ![image](https://github.com/user-attachments/assets/4c49f53e-d6c8-4dc5-a672-7cb17ae51f51)
+
 ---
 <a name="technology-stack"></a>
 ## 🛠️ Technology Stack
