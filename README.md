@@ -74,8 +74,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 
 - **Donations**  
   Customers can contribute to the library directly through the platform. Donations are tracked and visible to employees.
-  ![image](https://github.com/user-attachments/assets/f105e9c5-d7a6-4a06-9d42-80fc1f878f83)
-
+  ![image](https://github.com/user-attachments/assets/16452514-b368-4266-9adc-6eda03dd6c31)
 
 - **Analytics & Reports**  
   Real-time data reports and filtering for inventory status, transaction history, fines, waitlists, and user activity.
