@@ -58,7 +58,7 @@ const BookForm = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    console.log(`DEBUG: name=${name}, value=${value}`);
+    // console.log(`DEBUG: name=${name}, value=${value}`);
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -82,7 +82,7 @@ const BookForm = () => {
   
         // Parse the response to retrieve the permanent URL
         const data = await res.json();
-        console.log("DEBUG: coverImagePath=", data.url),
+        // console.log("DEBUG: coverImagePath=", data.url),
         // Update form state with the permanent URL (data.url)
         setFormData((prev) => ({
           ...prev,
@@ -115,7 +115,7 @@ const BookForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(isFormValid);
+    // console.log(isFormValid);
     if (!isFormValid) {
       alert("Please fill out all required fields before adding the book.");
       return;

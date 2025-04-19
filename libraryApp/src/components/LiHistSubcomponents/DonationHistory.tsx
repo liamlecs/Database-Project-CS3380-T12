@@ -23,7 +23,7 @@ export default function DonationHistory() {
           throw new Error("Failed to fetch donation data");
         }
         const data = await response.json();
-console.log("raw data: ", data);
+        // console.log("raw data: ", data);
         // Transform API response to fit DataGrid's row format
         // biome-ignore lint/suspicious/noExplicitAny: <explanation>
                 const formattedData = data.map((donation: any, index: number) => {

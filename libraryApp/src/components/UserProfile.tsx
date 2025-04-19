@@ -588,7 +588,7 @@ const handleTimeoutExpiredItems = async (invalidItems: any[]) => {
       throw new Error(`Timeout API call failed with status ${response.status}`);
     }
 
-    console.log("TimeoutUserExpiredWaitlists called successfully.");
+    // console.log("TimeoutUserExpiredWaitlists called successfully.");
   } catch (error) {
     console.error("Error calling TimeoutUserExpiredWaitlists:", error);
   }
@@ -621,7 +621,7 @@ const handleTimeoutExpiredItems = async (invalidItems: any[]) => {
           }`);
       const data = await response.json();
 
-      console.log("data: ",data);
+      // console.log("data: ",data);
 
       const now = new Date();
       const validItems = data
@@ -665,9 +665,9 @@ const invalidItems = data
         })
       );*/
 
-      console.log("validItems: ",validItems );
-      console.log("should open validItems dialog: ",validItems.length>0 );
-      console.log("invalidItems: ",invalidItems);
+      // console.log("validItems: ",validItems );
+      // console.log("should open validItems dialog: ",validItems.length>0 );
+      // console.log("invalidItems: ",invalidItems);
 
       if (validItems.length > 0) {
         setOpenWaitlistConfirmationDialog(true);
