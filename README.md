@@ -30,7 +30,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 **Live Website**: [https://e-libraryuh.vercel.app](https://e-libraryuh.vercel.app)
 
 ---
-
+<a name="features"></a>
 ## 🚀 Features
 
 - **Inventory Management**  
@@ -55,7 +55,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
   Real-time data visualizations and filtering for inventory status, transaction history, fines, waitlists, and user activity.
 
 ---
-
+<a name="technology-stack"></a>
 ## 🛠️ Technology Stack
 
 | Layer       | Tech Used                          |
@@ -68,7 +68,7 @@ Welcome to the official GitHub repository for **E‑Library**, a full-stack web 
 | Hosting     | Vercel (frontend), Azure App Service (API) |
 
 ---
-
+<a name="folder-structure"></a>
 ## 🗂️ Folder Structure
 
 ```
@@ -194,7 +194,7 @@ Handles HTTP endpoints for each entity and workflow:
 
 ---
 
-
+<a name="installation--setup"></a>
 ## 💻 Installation & Setup
 
 ### 1. Clone the repository
@@ -240,7 +240,7 @@ npm run dev
 Local frontend URL: `http://localhost:5173`
 
 ---
-
+<a name="deployment"></a>
 ## 🌐 Deployment
 
 ### API (Azure App Service)
@@ -255,7 +255,7 @@ Local frontend URL: `http://localhost:5173`
 - Output directory: `dist`
 
 ---
-
+<a name="environment-variables"></a>
 ## 🔐 Environment Variables
 
 ### Frontend (.env)
@@ -275,7 +275,7 @@ dotnet user-secrets set "Smtp:Password" "..."
 ```
 
 ---
-
+<a name="contributing"></a>
 ## 🤝 Contributing
 
 Pull requests are welcome! For major changes, open an issue first to discuss what you’d like to change.
@@ -286,13 +286,25 @@ Pull requests are welcome! For major changes, open an issue first to discuss wha
 4. Open a pull request with a detailed explanation
 
 ---
+<a name="contributors"></a>
+## 🏅 Contributors
 
+| Name                | GitHub Username                     | Role        |
+|---------------------|-------------------------------------|-------------|
+| Liam Le             | [@liamlecs](https://github.com/liamlecs)         | Team Lead   |
+| Trevor Drummond     | [@trevrd22](https://github.com/trevrd22)         | Developer   |
+| Jacqueline Sanchez  | [@jupitersnow1](https://github.com/jupitersnow1) | Developer   |
+| Nhi Truong          | [@nhitruong1](https://github.com/nhitruong1)     | Developer   |
+| Fernando Mancilla   | [@FerMan2001](https://github.com/FerMan2001)     | Developer   |
+
+---
+<a name="license"></a>
 ## 📄 License
 
 This project is licensed for academic use only under Team 12 (University of Houston, COSC 3380). Redistribution or commercial use is not permitted.
 
 ---
-
+<a name="contact"></a>
 ## 📬 Contact
 
 **Team 12 – University of Houston**  
@@ -301,4 +313,4 @@ This project is licensed for academic use only under Team 12 (University of Hous
 
 ---
 
-> Thank you for exploring E‑Library! We hope this project serves as a strong foundation for future library systems and student-led development.
+> Thank you for exploring the E‑Library! We hope this project serves as a strong foundation for future library systems and student-led development.
