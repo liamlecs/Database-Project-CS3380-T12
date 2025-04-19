@@ -222,7 +222,7 @@ By default, the API runs at: `http://localhost:5217`
 
 When running the backend locally on `http://localhost:5217`, you can access the full Swagger UI for exploring and testing the API:
 
-👉 [http://localhost:5217/swagger/index.html](http://localhost:5217/swagger/index.html)
+👉 [Swagger UI](http://localhost:5217/swagger/index.html)
 
 This interface provides interactive documentation for all backend endpoints, including request/response formats and status codes.
 
