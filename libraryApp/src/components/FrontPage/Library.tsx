@@ -45,10 +45,23 @@ const fieldOptions: Record<string, string[]> = {
     Technology: ["Item Name", "Serial Number", "Brand"],
 };
 
-const itemsPerRowView = 7;
 const maxRowItems = 21;
-
 const Library: React.FC = () => {
+    const getItemsPerRow = () => { 
+      if (window.innerWidth < 480) return 2;
+      if (window.innerWidth < 768) return 3;
+      if (window.innerWidth < 1024) return 5;
+      return 7;
+    };
+
+    const [itemsPerRowView, setItemsPerRowView] = useState(getItemsPerRow());
+
+    useEffect(() => {
+      const handleResize = () => setItemsPerRowView(getItemsPerRow());
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const [selectedTable, setSelectedTable] = useState<string>("");
     const [selectedField, setSelectedField] = useState<string>("");
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -343,8 +356,10 @@ setOpenMaxCheckoutDialog(true);
                                 // key={`${title}-${index}`}
                                 key={item ? `${title}-${item.itemId}` : `${title}-empty-${index}`}
                                 style={{
-                                    width: "160px",
-                                    minHeight: "260px",
+                                    width: "100%",
+                                    maxWidth: "160px", // adjusting card size 
+                                    minHeight: "220px",
+
                                     borderRadius: "12px",
                                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                                     overflow: "hidden",
