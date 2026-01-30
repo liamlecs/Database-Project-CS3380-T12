@@ -45,10 +45,23 @@ const fieldOptions: Record<string, string[]> = {
     Technology: ["Item Name", "Serial Number", "Brand"],
 };
 
-const itemsPerRowView = 7;
 const maxRowItems = 21;
+const Library: React.FC = () => {  // determing how many items to display based on the screen width 
+    const getItemsPerRow = () => { 
+      if (window.innerWidth < 480) return 2;
+      if (window.innerWidth < 768) return 3;
+      if (window.innerWidth < 1024) return 5;
+      return 7;
+    };
 
-const Library: React.FC = () => {
+    const [itemsPerRowView, setItemsPerRowView] = useState(getItemsPerRow());
+
+    useEffect(() => {
+      const handleResize = () => setItemsPerRowView(getItemsPerRow());
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
     const [selectedTable, setSelectedTable] = useState<string>("");
     const [selectedField, setSelectedField] = useState<string>("");
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -323,6 +336,15 @@ setOpenMaxCheckoutDialog(true);
         const filledItems = [...currentRowItems];
         while (filledItems.length < itemsPerRowView) filledItems.push(null);
 
+        // state for responsive arrow visibility
+        const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+        useEffect(() => {
+          const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+          window.addEventListener("resize", handleResize);
+          return () => window.removeEventListener("resize", handleResize);
+        }, []);
+
         return (
             <div className="carousel-row" key={title} style={{ padding: "1rem", border: "1px solid #ddd", marginBottom: "1rem" }}>
                 <div className="carousel-header" style={{ 
@@ -337,14 +359,16 @@ setOpenMaxCheckoutDialog(true);
                 </div>
                 <div className="carousel-container" style={{ display: "flex", alignItems: "center" }}>
                     <button onClick={() => handleRowPrev(title)} disabled={currentPage === 0}>&lt;</button>
-                    <div className="carousel-track" style={{ display: "flex", gap: "1rem", overflowX: "auto", flex: 1 }}>
+                    <div className="carousel-track" style={{ display: "flex", gap: "1rem", overflowX: "auto", flex: 1, justifyContent: window.innerWidth < 768 ? "center" : "flex-start" }}> 
                         {filledItems.map((item, index) => (
                             <div
                                 // key={`${title}-${index}`}
                                 key={item ? `${title}-${item.itemId}` : `${title}-empty-${index}`}
                                 style={{
-                                    width: "160px",
-                                    minHeight: "260px",
+                                    width: "100%",
+                                    maxWidth: "160px", // adjusting card size 
+                                    minHeight: "220px",
+
                                     borderRadius: "12px",
                                     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
                                     overflow: "hidden",
